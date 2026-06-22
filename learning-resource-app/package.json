@@ -19,7 +19,8 @@
     "report:locations": "tsx scripts/source-location-report.ts",
     "test:semantic-search": "tsx scripts/semantic-search-smoke.ts",
     "test:ai-providers": "tsx scripts/ai-provider-smoke.ts",
-    "test:tag-normalization": "node --experimental-strip-types scripts/test-tag-normalization.mjs"
+    "test:tag-normalization": "node --experimental-strip-types scripts/test-tag-normalization.mjs",
+    "test:canonical-tags": "tsx scripts/canonical-tag-smoke.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.2",
