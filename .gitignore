@@ -1,0 +1,29 @@
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+
+# Python
+**/.venv/
+**/__pycache__/
+**/.pytest_cache/
+**/models-cache/
+*.py[cod]
+
+# Node / Next.js
+**/node_modules/
+**/.next/
+**/out/
+**/build/
+*.tsbuildinfo
+
+# Runtime data and logs
+**/storage/uploads/
+*.log
+*.db
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
