@@ -2,13 +2,7 @@
 
 ## 1. Định Hướng Triển Khai
 
-Dự án sẽ được nâng cấp theo hướng rewrite thành web app mới bằng `Next.js + PostgreSQL + Prisma + Auth.js + pgvector`, giữ demo Streamlit hiện tại làm reference.
-
-Không sửa ngay `app.py` trong giai đoạn đầu. Thay vào đó:
-
-- Giữ `app.py` và `documents.db` làm demo cũ.
-- Tạo app Next.js mới trong repository.
-- Sau khi app mới ổn định, viết script import dữ liệu từ SQLite sang PostgreSQL.
+Dự án được rewrite thành web app mới bằng `Next.js + PostgreSQL + Prisma + Auth.js + pgvector`. Demo Streamlit và SQLite cũ đã được loại bỏ sau khi app mới ổn định.
 
 Kiến trúc mục tiêu:
 
@@ -715,22 +709,9 @@ Chức năng MVP:
 - Duyệt danh sách TagMergeReview.
 - Approve/reject tag merge suggestions.
 
-## 7. Migration Từ Demo Hiện Tại
+## 7. Ứng Dụng Hiện Tại
 
-### 7.1. Giữ demo cũ
-
-Không xóa:
-
-- `app.py`
-- `documents.db`
-
-Lý do:
-
-- Làm baseline demo.
-- Làm reference prompt/logic parse AI JSON.
-- Làm nguồn import dữ liệu ban đầu.
-
-### 7.2. Tạo app mới
+### 7.1. Cấu trúc ứng dụng
 
 Tạo project Next.js mới trong repo, ví dụ:
 
@@ -745,15 +726,6 @@ App mới sẽ chứa:
 - Upload pipeline.
 - AI providers.
 - Dashboard.
-
-### 7.3. Import SQLite sang PostgreSQL
-
-Sau khi Prisma schema ổn định:
-
-- Viết script đọc `documents.db`.
-- Tạo user demo.
-- Import mỗi row trong bảng `documents` thành `Document`.
-- Nếu chưa có chunks/embeddings thì enqueue job tạo chunks và embeddings.
 
 ## 8. Roadmap Theo Tuần
 
