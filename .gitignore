@@ -16,6 +16,16 @@
 **/.next/
 **/out/
 **/build/
+**/coverage/
+**/.pnp
+**/.pnp.*
+**/.yarn/*
+!**/.yarn/patches/
+!**/.yarn/plugins/
+!**/.yarn/releases/
+!**/.yarn/versions/
+**/.vercel/
+*.pem
 *.tsbuildinfo
 
 # Runtime data and logs
