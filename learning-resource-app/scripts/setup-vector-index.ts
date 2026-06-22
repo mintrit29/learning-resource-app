@@ -7,5 +7,12 @@ await db.$executeRawUnsafe(`
   WITH (m = 16, ef_construction = 64)
 `);
 
-console.log("HNSW cosine index is ready.");
+await db.$executeRawUnsafe(`
+  CREATE INDEX IF NOT EXISTS "Tag_embedding_hnsw_idx"
+  ON "Tag"
+  USING hnsw ("embedding" vector_cosine_ops)
+  WITH (m = 16, ef_construction = 64)
+`);
+
+console.log("DocumentChunk and Tag HNSW cosine indexes are ready.");
 await db.$disconnect();

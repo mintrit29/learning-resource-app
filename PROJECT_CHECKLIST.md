@@ -108,7 +108,7 @@
 - [x] Tạo hàm normalize tên tag
 - [x] Kiểm tra exact canonical tag
 - [x] Kiểm tra alias dictionary
-- [ ] So sánh tag bằng embedding similarity
+- [x] So sánh tag bằng embedding similarity
 - [ ] Tạo TagMergeReview
 - [ ] Tạo trang quản lý canonical tags
 - [ ] Cho phép approve/reject đề xuất gộp tag
