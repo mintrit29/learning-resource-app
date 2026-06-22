@@ -110,7 +110,7 @@
 - [x] Kiểm tra alias dictionary
 - [x] So sánh tag bằng embedding similarity
 - [x] Tạo TagMergeReview
-- [ ] Tạo trang quản lý canonical tags
+- [x] Tạo trang quản lý canonical tags
 - [ ] Cho phép approve/reject đề xuất gộp tag
 - [ ] Thiết kế giao diện Sign in with OpenAI Codex
 - [ ] Kiểm tra tài liệu và khả năng tích hợp auth thực tế
