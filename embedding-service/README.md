@@ -5,15 +5,18 @@ FastAPI service chạy `BAAI/bge-m3` local để tạo vector 1024 chiều.
 ## Cài đặt
 
 ```powershell
-.\setup.ps1
+.\setup.ps1 -Device cuda
 ```
+
+Máy không có NVIDIA CUDA dùng `./setup.ps1 -Device cpu`.
 
 ## Chạy service
 
 ```powershell
-$env:EMBEDDING_DEVICE="cpu"
-.\.venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8001
+.\start.ps1 -Device cuda
 ```
+
+Cấu hình fallback CPU: `.\start.ps1 -Device cpu`. Script tự chọn batch 2 cho GPU và batch 4 cho CPU.
 
 Lần chạy đầu sẽ tải model BGE-M3 vào `models-cache/` và có thể mất vài phút.
 

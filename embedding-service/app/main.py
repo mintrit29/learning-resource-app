@@ -56,6 +56,7 @@ def health():
         "status": "ready" if state.model is not None else "loading",
         "model": MODEL_NAME,
         "device": DEVICE,
+        "batch_size": BATCH_SIZE,
         "dimensions": 1024,
         "loaded_at": state.loaded_at,
     }

@@ -391,9 +391,10 @@ Cần tách chat model và embedding model trong `AiProvider`, vì không phải
 Máy phát triển: Intel Core i7-10850H, RAM 16 GB, NVIDIA Quadro T2000 4 GB VRAM.
 
 - Máy đủ chạy BGE-M3 để phát triển, tạo dataset và demo đồ án.
-- Ưu tiên CPU hoặc bản ONNX/quantized; không giả định model FP32/FP16 sẽ nằm hoàn toàn trong 4 GB VRAM.
+- Ưu tiên CUDA trên máy phát triển sau khi benchmark xác nhận BGE-M3 dùng khoảng 2,27 GiB/4 GiB VRAM ở batch size 2.
 - Chunk mục tiêu: khoảng 300-500 tokens, overlap 10-15%.
-- Batch size khởi điểm: `2-8`, sau đó benchmark và tăng nếu RAM/VRAM cho phép.
+- Cấu hình đã chốt: GPU batch size `2`; CPU batch size `4` làm fallback.
+- Kết quả trên 525 chunks: GPU batch 2 `490,629` giây, CPU batch 2 `863,022` giây; GPU nhanh hơn khoảng `43,1%` (1,76 lần).
 - Tạo embedding ở background khi upload; không tạo lại nếu nội dung và model không thay đổi.
 - Không chạy đồng thời BGE-M3 với LLM local lớn nếu thiếu RAM/VRAM.
 - Nếu BGE-M3 quá chậm, fallback local là `multilingual-e5-base`; fallback API là Gemini Embedding.
@@ -776,7 +777,7 @@ Deadline: 20/09. Mốc bắt đầu: 18/06. Tổng thời gian khoảng 13 tuầ
 - Làm chunking.
 - Làm embedding provider interface.
 - Tạo Python embedding service chạy BGE-M3.
-- Benchmark BGE-M3 trên CPU/GPU với batch size `2`, `4`, `8`; ghi thời gian và mức dùng RAM/VRAM.
+- Benchmark BGE-M3 trên CPU/GPU với batch size `2`, `4`, `8`; ghi thời gian và mức dùng RAM/VRAM. Đã chốt GPU batch 2, CPU batch 4 fallback.
 - Tạo embeddings cho chunks.
 - Làm semantic search API.
 - Làm search UI.

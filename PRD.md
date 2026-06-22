@@ -285,6 +285,8 @@ Hệ thống sẽ:
 Quyết định embedding cho MVP:
 
 - Model mặc định: `BAAI/bge-m3`, chạy local qua một embedding service Python.
+- Trên máy phát triển có CUDA, ưu tiên Quadro T2000 với batch size `2`; CPU batch size `4` là fallback.
+- Benchmark 525 chunks cho thấy GPU batch 2 mất `490,629` giây, nhanh hơn CPU batch 2 khoảng `43,1%` và dùng khoảng `2,27 GiB` VRAM.
 - `BGE-M3` chỉ dùng để tạo vector; LLM dùng cho phân loại, tóm tắt và giải thích kết quả là một thành phần riêng.
 - Gemini Embedding hoặc embedding endpoint của provider khác là phương án dự phòng, không phải phụ thuộc bắt buộc.
 - Khi thay embedding model, toàn bộ chunks và query phải dùng cùng model và cùng kích thước vector; tài liệu cũ cần được re-embed.
@@ -419,7 +421,7 @@ MVP được xem là thành công khi:
 - Hệ thống tạo summary, keywords, primary topic, subtopics/tags, difficulty bằng LLM.
 - Hệ thống tạo embeddings và semantic search được.
 - Kết quả semantic search chỉ rõ vị trí nguồn và điều hướng đến đúng chunk; PDF mở được đúng trang.
-- BGE-M3 chạy local và tạo vector ổn định trên máy phát triển; có fallback embedding provider khi cần.
+- BGE-M3 chạy local và tạo vector ổn định trên máy phát triển; ưu tiên CUDA batch 2, fallback CPU batch 4 và embedding provider khác khi cần.
 - Dashboard hiển thị thống kê cơ bản.
 - User tạo project topic và nhận gợi ý tài liệu phù hợp.
 - Hệ thống chuẩn hóa được tags cơ bản bằng normalize, alias và embedding similarity.
