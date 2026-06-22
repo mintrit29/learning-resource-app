@@ -105,7 +105,7 @@
 ## Tuần 9: Taxonomy Và OpenAI Codex Spike
 
 - [x] Tạo schema Tag, TagAlias và DocumentTag
-- [ ] Tạo hàm normalize tên tag
+- [x] Tạo hàm normalize tên tag
 - [ ] Kiểm tra exact canonical tag
 - [ ] Kiểm tra alias dictionary
 - [ ] So sánh tag bằng embedding similarity
