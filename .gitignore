@@ -22,6 +22,9 @@
 *.log
 *.db
 
+# Local benchmark smoke-test outputs
+embedding-service/benchmark-smoke/
+
 # OS / editors
 .DS_Store
 Thumbs.db

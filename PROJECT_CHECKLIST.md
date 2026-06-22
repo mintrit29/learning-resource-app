@@ -69,9 +69,9 @@
 - [x] Lưu vector vào pgvector
 - [x] Tạo vector index
 - [x] Cache embedding, không tạo lại khi nội dung không đổi
-- [-] Benchmark CPU với batch size 2, 4 và 8 (đã đo batch size 4)
-- [ ] Benchmark GPU nếu khả thi
-- [ ] Ghi lại thời gian, RAM và VRAM sử dụng
+- [x] Benchmark CPU với batch size 2, 4 và 8
+- [!] Benchmark GPU nếu khả thi (máy có Quadro T2000 4 GiB nhưng PyTorch hiện tại là CPU-only)
+- [x] Ghi lại thời gian, RAM và VRAM sử dụng trong `embedding-service/BENCHMARK_REPORT.md`
 - [x] Tạo API semantic search
 - [x] Tạo giao diện tìm kiếm
 - [x] Hiển thị tài liệu và chunk khớp với truy vấn

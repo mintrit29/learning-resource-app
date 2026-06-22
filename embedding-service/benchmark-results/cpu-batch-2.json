@@ -1,0 +1,13 @@
+{
+  "recordedAt": "2026-06-22T03:58:45.705936+00:00",
+  "model": "BAAI/bge-m3",
+  "device": "cpu",
+  "batchSize": 2,
+  "sampleCount": 525,
+  "chunkWords": 400,
+  "dimensions": 1024,
+  "elapsedSeconds": 863.022,
+  "chunksPerSecond": 0.6083,
+  "peakRamMiB": 1995.2,
+  "source": "..\\PRD.md"
+}
