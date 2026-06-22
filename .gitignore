@@ -25,6 +25,7 @@
 !**/.yarn/releases/
 !**/.yarn/versions/
 **/.vercel/
+**/next-env.d.ts
 *.pem
 *.tsbuildinfo
 
