@@ -440,6 +440,15 @@ Sau khi có output:
 - Lưu vào Document.
 - Cho user sửa lại nếu AI sai.
 
+### 4.5.1. Resume và retry theo từng bước
+
+- Nút `Xử lý phần còn thiếu` gọi endpoint cấp document; UI không cần chọn job kỹ thuật.
+- Backend kiểm tra text, chunks, embedding còn null và metadata AI để tìm bước cần chạy.
+- Nếu embedding đã đủ nhưng AI lỗi, chỉ tạo lại `ANALYZE_DOCUMENT`.
+- Nếu embedding còn thiếu, tiếp tục các chunk null rồi mới chạy AI nếu cần.
+- Tài liệu cũ chưa có text/chunks được chạy lại từ bước sớm nhất cần thiết.
+- Giữ lịch sử job cũ; mỗi lần retry tạo job mới và bị chặn nếu còn job đang chạy.
+
 ### 4.6. Taxonomy và tag normalization
 
 Mục tiêu:

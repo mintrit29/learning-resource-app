@@ -58,11 +58,21 @@ export default async function DocumentDetailPage({
   });
   if (!document) notFound();
 
+  const [{ missing: missingEmbeddings }] = await db.$queryRawUnsafe<Array<{ missing: bigint }>>(
+    `SELECT COUNT(*) AS "missing" FROM "DocumentChunk" WHERE "documentId" = $1 AND "embedding" IS NULL`,
+    document.id,
+  );
+
   const preview = document.textContent?.slice(0, 15000) ?? "";
   const matchedChunk = document.chunks[0];
   const isProcessing = document.jobs.some((job) =>
     job.status === "PENDING" || job.status === "PROCESSING"
   );
+  const analysisComplete = Boolean(
+    document.primaryTopic && document.difficulty && document.summary && document.keywords.length,
+  );
+  const needsProcessing = !document.textContent || document._count.chunks === 0 ||
+    Number(missingEmbeddings) > 0 || !analysisComplete;
 
   return (
     <div className="page-wrap document-detail-page">
@@ -72,6 +82,7 @@ export default async function DocumentDetailPage({
         <div className="document-file-icon"><FileText size={26} /></div>
         <div><p className="eyebrow">{document.fileType} document</p><h1>{document.title}</h1><p>{document.originalFileName}</p></div>
         <div className="document-header-actions">
+          {!isProcessing && needsProcessing ? <RetryJobButton documentId={document.id} /> : null}
           <span className={`status-pill ${document.status.toLowerCase()}`}><i className="status-dot" />{statusLabels[document.status]}</span>
           <DeleteDocumentButton documentId={document.id} documentTitle={document.title} />
         </div>
@@ -94,7 +105,7 @@ export default async function DocumentDetailPage({
             <div className="job-row" key={job.id}>
               <i className={`status-dot ${job.status.toLowerCase()}`} />
               <div><strong>{jobLabels[job.type]}</strong>{job.errorMessage ? <small>{job.errorMessage}</small> : null}</div>
-              <span className="job-result">{jobStatusLabels[job.status]}{job.status === "FAILED" ? <RetryJobButton documentId={document.id} jobType={job.type} /> : null}</span>
+              <span className="job-result">{jobStatusLabels[job.status]}</span>
             </div>
           )) : <p>Đây là tài liệu được tạo trước khi hệ thống job được bổ sung.</p>}
         </div>

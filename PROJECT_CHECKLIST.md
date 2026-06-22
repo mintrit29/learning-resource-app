@@ -79,27 +79,28 @@
 - [x] Hiển thị vị trí trong kết quả semantic search
 - [x] Điều hướng tới matched chunk trên trang chi tiết
 - [x] Mở file PDF gốc tại đúng trang bằng `#page=N`
-- [ ] Kiểm tra fallback multilingual-e5-base hoặc Gemini Embedding
+- [x] Kiểm tra fallback multilingual-e5-base hoặc Gemini Embedding (E5 chạy CUDA, 768 chiều; cần migration và re-embed nếu chuyển khỏi BGE-M3)
 
 ## Tuần 7-8: Phân Tích AI Và Provider Settings
 
-- [ ] Tạo interface chung cho chat providers
+- [x] Tạo interface chung cho chat providers
 - [x] Tách chat provider và embedding provider
 - [ ] Tích hợp OpenRouter
 - [ ] Tích hợp Ollama
 - [ ] Tích hợp Custom OpenAI-compatible API
 - [ ] Hỗ trợ custom provider như 9Router
-- [-] Làm form thêm, sửa và xóa provider (đã có thêm và xóa, còn sửa)
+- [x] Làm form thêm, sửa và xóa provider
 - [x] Làm chức năng test connection
 - [x] Mã hóa API key trước khi lưu
-- [ ] Chuyển prompt phân tích từ Streamlit
-- [ ] Phân loại primary topic
+- [x] Chuyển prompt phân tích từ Streamlit
+- [x] Phân loại primary topic
 - [ ] Sinh subtopics/tags
-- [ ] Đánh giá difficulty
-- [ ] Sinh summary
-- [ ] Sinh keywords
-- [ ] Lưu lý do phân loại
-- [ ] Parse và validate JSON từ LLM
+- [x] Đánh giá difficulty
+- [x] Sinh summary
+- [x] Sinh keywords
+- [x] Lưu lý do phân loại
+- [x] Parse và validate JSON từ LLM
+- [x] Cho phép xử lý lại theo bước còn thiếu/lỗi mà không chạy lại phần đã thành công
 - [ ] Cho phép người dùng sửa kết quả phân loại
 
 ## Tuần 9: Taxonomy Và OpenAI Codex Spike

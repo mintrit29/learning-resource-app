@@ -6,6 +6,7 @@ import {
   JobStatus,
 } from "@/generated/prisma/enums";
 import { db } from "@/lib/db";
+import { analyzeDocument } from "@/lib/ai/analyze-document";
 import { embedDocumentChunks } from "@/lib/embedding/embed-document";
 import { chunkDocumentSections } from "@/lib/documents/chunk-text";
 import {
@@ -18,6 +19,7 @@ type PipelineInput = {
   extractionJobId: string;
   chunkJobId: string;
   embeddingJobId: string;
+  analysisJobId?: string;
 };
 
 const extensions: Record<FileType, SupportedExtension> = {
@@ -110,7 +112,12 @@ export async function processDocumentPipeline(input: PipelineInput) {
       });
     });
 
-    await embedDocumentChunks(document.id, input.embeddingJobId);
+    const embedded = await embedDocumentChunks(document.id, input.embeddingJobId);
+    if (embedded && input.analysisJobId) {
+      await analyzeDocument(document.id, input.analysisJobId);
+    } else if (!embedded && input.analysisJobId) {
+      await failJob(input.analysisJobId, "Không thể phân tích vì bước embedding thất bại");
+    }
   } catch (error) {
     const message = error instanceof Error ? error.message : "Xử lý tài liệu thất bại";
     await failJob(activeJobId, message);
@@ -138,6 +145,9 @@ export async function processDocumentPipeline(input: PipelineInput) {
           },
         }),
       ]);
+      if (input.analysisJobId) {
+        await failJob(input.analysisJobId, "Không thể phân tích vì bước trích xuất thất bại");
+      }
     } else if (activeJobId === input.chunkJobId) {
       await db.analysisJob.update({
         where: { id: input.embeddingJobId },
@@ -147,6 +157,9 @@ export async function processDocumentPipeline(input: PipelineInput) {
           finishedAt: new Date(),
         },
       });
+      if (input.analysisJobId) {
+        await failJob(input.analysisJobId, "Không thể phân tích vì bước chunking thất bại");
+      }
     }
   }
 }

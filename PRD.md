@@ -184,6 +184,8 @@ Hệ thống dùng LLM để tạo metadata cấp document:
 - `language`: ngôn ngữ chính của tài liệu.
 - `reason`: lý do ngắn gọn vì sao AI chọn primary topic/difficulty.
 
+Trang chi tiết tài liệu phải có nút `Xử lý phần còn thiếu` khi extraction, chunking, embedding hoặc AI analysis chưa hoàn tất. Retry tiếp tục từ bước đầu tiên còn thiếu/lỗi, không xóa hay chạy lại chunk/embedding đã thành công chỉ vì AI analysis lỗi. Tài liệu cũ phải backfill được bằng nút này mà không cần upload lại. Mỗi tài liệu chỉ có một pipeline hoạt động tại một thời điểm.
+
 ### 6.5.1. Chiến lược topic/taxonomy
 
 Hệ thống không để AI tự do tạo topic chính hoàn toàn, vì dễ sinh ra nhiều tên khác nhau cho cùng một chủ đề và làm dashboard/filter/evaluation bị rối. Hệ thống cũng không cố định quá cứng toàn bộ nội dung, vì tài liệu thực tế có nhiều chủ đề con chi tiết.

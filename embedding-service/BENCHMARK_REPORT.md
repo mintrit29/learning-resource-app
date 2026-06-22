@@ -29,3 +29,9 @@ Batch 8 nhanh hơn CPU batch 2 khoảng 2,6% nhưng dùng thêm khoảng 327,5 M
 Máy có NVIDIA Quadro T2000 4 GiB. Benchmark dùng PyTorch `2.12.1+cu130` trong thư mục thử nghiệm riêng để không thay đổi môi trường CPU hiện tại. GPU batch 2 đạt peak VRAM allocated 2.235,61 MiB và reserved 2.268 MiB, còn đủ biên an toàn.
 
 Quyết định cho máy phát triển: ưu tiên GPU với batch size 2; giữ CPU batch size 4 làm fallback cho máy không có CUDA.
+
+## Kiểm tra fallback multilingual-e5-base
+
+Smoke benchmark `intfloat/multilingual-e5-base` trên CUDA, batch 2 và 2 chunks đã chạy thành công: vector 768 chiều, 0,142 giây, peak RAM 992,99 MiB và peak VRAM reserved 1.160 MiB. Tốc độ 14,0852 chunk/giây chỉ dùng để xác nhận model hoạt động vì mẫu quá nhỏ, không so sánh trực tiếp với benchmark BGE-M3 525 chunks.
+
+E5 không thể thay trực tiếp vào index hiện tại `vector(1024)`. Nếu chọn fallback này phải đổi schema sang 768 chiều, tạo lại vector index và re-embed toàn bộ tài liệu; BGE-M3 tiếp tục là model mặc định.

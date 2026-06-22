@@ -17,6 +17,13 @@ export const providerSchema = z.object({
   }
 });
 
+export const providerUpdateSchema = z.object({
+  displayName: z.string().trim().min(2).max(80),
+  baseUrl: z.url().trim(),
+  apiKey: z.string().trim().max(500).optional().default(""),
+  defaultChatModel: z.string().trim().min(1).max(160),
+});
+
 function encryptionKey() {
   const secret = process.env.AI_PROVIDER_ENCRYPTION_KEY ?? process.env.AUTH_SECRET;
   if (!secret) throw new Error("Thiếu AI_PROVIDER_ENCRYPTION_KEY hoặc AUTH_SECRET");

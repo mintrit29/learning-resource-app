@@ -58,6 +58,7 @@ export async function embedDocumentChunks(documentId: string, jobId: string) {
         data: { status: DocumentStatus.READY, analysisReason: null },
       }),
     ]);
+    return true;
   } catch (error) {
     const message = error instanceof Error ? error.message : "Tạo embedding thất bại";
     await db.analysisJob.update({
@@ -72,5 +73,6 @@ export async function embedDocumentChunks(documentId: string, jobId: string) {
       where: { id: documentId },
       data: { analysisReason: `Embedding: ${message}`.slice(0, 500) },
     });
+    return false;
   }
 }

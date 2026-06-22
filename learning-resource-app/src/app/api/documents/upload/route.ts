@@ -79,6 +79,7 @@ export async function POST(request: Request) {
           { type: JobType.EXTRACT_TEXT },
           { type: JobType.CHUNK_DOCUMENT },
           { type: JobType.EMBED_DOCUMENT },
+          { type: JobType.ANALYZE_DOCUMENT },
         ],
       },
     },
@@ -91,7 +92,8 @@ export async function POST(request: Request) {
   const extractionJobId = document.jobs.find((job) => job.type === JobType.EXTRACT_TEXT)?.id;
   const chunkJobId = document.jobs.find((job) => job.type === JobType.CHUNK_DOCUMENT)?.id;
   const embeddingJobId = document.jobs.find((job) => job.type === JobType.EMBED_DOCUMENT)?.id;
-  if (!extractionJobId || !chunkJobId || !embeddingJobId) {
+  const analysisJobId = document.jobs.find((job) => job.type === JobType.ANALYZE_DOCUMENT)?.id;
+  if (!extractionJobId || !chunkJobId || !embeddingJobId || !analysisJobId) {
     return NextResponse.json({ message: "Không thể tạo processing jobs" }, { status: 500 });
   }
 
@@ -101,6 +103,7 @@ export async function POST(request: Request) {
       extractionJobId,
       chunkJobId,
       embeddingJobId,
+      analysisJobId,
     }),
   );
 
