@@ -55,7 +55,8 @@ def build_corpus(source: Path, chunk_words: int, sample_count: int) -> list[str]
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Benchmark BGE-M3 on CPU")
-    parser.add_argument("--batch-size", type=int, required=True, choices=(2, 4, 8))
+    parser.add_argument("--batch-size", type=int, required=True, choices=(1, 2, 4, 8))
+    parser.add_argument("--device", choices=("cpu", "cuda"), default="cpu")
     parser.add_argument("--samples", type=int, default=525)
     parser.add_argument("--chunk-words", type=int, default=400)
     parser.add_argument("--source", type=Path, default=Path("../PRD.md"))
@@ -65,13 +66,19 @@ def main() -> None:
     os.environ.setdefault("HF_HUB_OFFLINE", "1")
     os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
     from sentence_transformers import SentenceTransformer
+    import torch
 
     corpus = build_corpus(args.source, args.chunk_words, args.samples)
     model_name = os.getenv("EMBEDDING_MODEL", "BAAI/bge-m3")
-    model = SentenceTransformer(model_name, device="cpu")
+    if args.device == "cuda" and not torch.cuda.is_available():
+        raise RuntimeError("CUDA is not available in the active PyTorch environment")
+    model = SentenceTransformer(model_name, device=args.device)
 
     # Warm up lazy model paths before measuring the corpus.
     model.encode(corpus[:1], batch_size=1, normalize_embeddings=True, show_progress_bar=False)
+    if args.device == "cuda":
+        torch.cuda.synchronize()
+        torch.cuda.reset_peak_memory_stats()
 
     peak_ram = working_set_bytes()
     monitoring = True
@@ -92,6 +99,8 @@ def main() -> None:
         convert_to_numpy=True,
         show_progress_bar=True,
     )
+    if args.device == "cuda":
+        torch.cuda.synchronize()
     elapsed_seconds = time.perf_counter() - started_at
     monitoring = False
     monitor.join()
@@ -99,7 +108,7 @@ def main() -> None:
     result = {
         "recordedAt": datetime.now(timezone.utc).isoformat(),
         "model": model_name,
-        "device": "cpu",
+        "device": args.device,
         "batchSize": args.batch_size,
         "sampleCount": len(corpus),
         "chunkWords": args.chunk_words,
@@ -107,10 +116,20 @@ def main() -> None:
         "elapsedSeconds": round(elapsed_seconds, 3),
         "chunksPerSecond": round(len(corpus) / elapsed_seconds, 4),
         "peakRamMiB": round(peak_ram / 1024 / 1024, 2),
+        "peakVramAllocatedMiB": (
+            round(torch.cuda.max_memory_allocated() / 1024 / 1024, 2)
+            if args.device == "cuda"
+            else None
+        ),
+        "peakVramReservedMiB": (
+            round(torch.cuda.max_memory_reserved() / 1024 / 1024, 2)
+            if args.device == "cuda"
+            else None
+        ),
         "source": str(args.source),
     }
     args.output_dir.mkdir(parents=True, exist_ok=True)
-    output = args.output_dir / f"cpu-batch-{args.batch_size}.json"
+    output = args.output_dir / f"{args.device}-batch-{args.batch_size}.json"
     output.write_text(json.dumps(result, indent=2), encoding="utf-8")
     print(json.dumps(result, indent=2))
     print(f"Saved to {output}")

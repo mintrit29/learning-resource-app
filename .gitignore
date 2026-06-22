@@ -8,6 +8,7 @@
 **/__pycache__/
 **/.pytest_cache/
 **/models-cache/
+**/.gpu-packages/
 *.py[cod]
 
 # Node / Next.js

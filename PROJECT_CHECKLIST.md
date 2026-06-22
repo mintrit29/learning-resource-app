@@ -70,7 +70,7 @@
 - [x] Tạo vector index
 - [x] Cache embedding, không tạo lại khi nội dung không đổi
 - [x] Benchmark CPU với batch size 2, 4 và 8
-- [!] Benchmark GPU nếu khả thi (máy có Quadro T2000 4 GiB nhưng PyTorch hiện tại là CPU-only)
+- [x] Benchmark GPU với Quadro T2000 4 GiB, CUDA batch size 2
 - [x] Ghi lại thời gian, RAM và VRAM sử dụng trong `embedding-service/BENCHMARK_REPORT.md`
 - [x] Tạo API semantic search
 - [x] Tạo giao diện tìm kiếm

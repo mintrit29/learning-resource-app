@@ -1,0 +1,15 @@
+{
+  "recordedAt": "2026-06-22T04:53:26.904539+00:00",
+  "model": "BAAI/bge-m3",
+  "device": "cuda",
+  "batchSize": 2,
+  "sampleCount": 525,
+  "chunkWords": 400,
+  "dimensions": 1024,
+  "elapsedSeconds": 490.629,
+  "chunksPerSecond": 1.0701,
+  "peakRamMiB": 1450.86,
+  "peakVramAllocatedMiB": 2235.61,
+  "peakVramReservedMiB": 2268.0,
+  "source": "..\\PRD.md"
+}
