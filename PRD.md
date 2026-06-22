@@ -290,8 +290,7 @@ Quyết định embedding cho MVP:
 - Trên máy phát triển có CUDA, ưu tiên Quadro T2000 với batch size `2`; CPU batch size `4` là fallback.
 - Benchmark 525 chunks cho thấy GPU batch 2 mất `490,629` giây, nhanh hơn CPU batch 2 khoảng `43,1%` và dùng khoảng `2,27 GiB` VRAM.
 - `BGE-M3` chỉ dùng để tạo vector; LLM dùng cho phân loại, tóm tắt và giải thích kết quả là một thành phần riêng.
-- Gemini Embedding hoặc embedding endpoint của provider khác là phương án dự phòng, không phải phụ thuộc bắt buộc.
-- Khi thay embedding model, toàn bộ chunks và query phải dùng cùng model và cùng kích thước vector; tài liệu cũ cần được re-embed.
+- MVP khóa embedding model là `BAAI/bge-m3` với vector 1024 chiều. CPU và GPU chỉ là hai thiết bị chạy cùng model, có thể chuyển đổi mà không cần migrate hoặc re-embed.
 
 MVP sử dụng Vector RAG: truy vấn được chuyển thành vector, tìm các chunks gần nghĩa bằng pgvector rồi cung cấp ngữ cảnh cho LLM khi cần. Knowledge Graph không phải thành phần bắt buộc của RAG và chưa cần thiết cho mục tiêu tìm kiếm/gợi ý tài liệu của phiên bản này.
 

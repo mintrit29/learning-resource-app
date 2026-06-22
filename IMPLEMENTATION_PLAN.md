@@ -381,8 +381,7 @@ For each chunk
 Thứ tự ưu tiên:
 
 - Mặc định: local `BGE-M3` qua Python embedding service.
-- Dự phòng: Gemini Embedding khi máy local không phù hợp hoặc khi triển khai cloud.
-- Tùy chọn mở rộng: OpenRouter, Custom hoặc Ollama nếu provider có embedding endpoint tương thích.
+- MVP không chuyển sang embedding model khác. Khi CUDA không khả dụng, cùng model BGE-M3 tự chạy bằng CPU.
 
 Cần tách chat model và embedding model trong `AiProvider`, vì không phải model chat nào cũng tạo embedding tốt.
 
@@ -397,7 +396,6 @@ Máy phát triển: Intel Core i7-10850H, RAM 16 GB, NVIDIA Quadro T2000 4 GB VR
 - Kết quả trên 525 chunks: GPU batch 2 `490,629` giây, CPU batch 2 `863,022` giây; GPU nhanh hơn khoảng `43,1%` (1,76 lần).
 - Tạo embedding ở background khi upload; không tạo lại nếu nội dung và model không thay đổi.
 - Không chạy đồng thời BGE-M3 với LLM local lớn nếu thiếu RAM/VRAM.
-- Nếu BGE-M3 quá chậm, fallback local là `multilingual-e5-base`; fallback API là Gemini Embedding.
 
 #### Phạm vi RAG
 
@@ -927,15 +925,14 @@ Cách xử lý:
 - Chỉ hỗ trợ file có text layer trong MVP.
 - OCR để future work.
 
-### 10.3. Embedding model không đồng nhất kích thước vector
+### 10.3. Giữ embedding model đồng nhất
 
 Cách xử lý:
 
 - MVP khóa model mặc định là BGE-M3 và cột vector ở `1024` chiều.
 - Chat provider không quyết định embedding model; embedding provider được cấu hình riêng.
-- Khi đổi embedding model, cần re-embed documents.
-- Không trộn vector từ BGE-M3, E5 và Gemini trong cùng một index.
-- Nếu BGE-M3 không đáp ứng hiệu năng, chuyển toàn bộ môi trường sang `multilingual-e5-base` hoặc Gemini Embedding và chạy migration/re-embedding.
+- CPU và GPU tạo vector bằng cùng BGE-M3 nên có thể chuyển thiết bị mà không cần migration hoặc re-embedding.
+- MVP không hỗ trợ đổi embedding model để tránh trộn kích thước vector trong cùng index.
 
 ### 10.4. LLM trả về JSON lỗi
 

@@ -79,7 +79,7 @@
 - [x] Hiển thị vị trí trong kết quả semantic search
 - [x] Điều hướng tới matched chunk trên trang chi tiết
 - [x] Mở file PDF gốc tại đúng trang bằng `#page=N`
-- [x] Kiểm tra fallback multilingual-e5-base hoặc Gemini Embedding (E5 chạy CUDA, 768 chiều; cần migration và re-embed nếu chuyển khỏi BGE-M3)
+- [x] Khóa BGE-M3 làm embedding model duy nhất; GPU chính và CPU fallback không cần re-embed
 
 ## Tuần 7-8: Phân Tích AI Và Provider Settings
 
@@ -189,7 +189,7 @@
 - [x] Chunk size: 300-500 tokens, overlap 10-15%
 - [x] Vector RAG thuộc phạm vi MVP
 - [x] Knowledge Graph và GraphRAG thuộc future work
-- [x] Gemini Embedding và multilingual-e5-base là fallback
+- [x] Không dùng embedding model fallback; BGE-M3 chạy GPU hoặc CPU
 - [x] Không huấn luyện hoặc fine-tune model trong MVP
 
 ## Vấn Đề Cần Theo Dõi

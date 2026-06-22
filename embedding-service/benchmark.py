@@ -61,12 +61,8 @@ def main() -> None:
     parser.add_argument("--chunk-words", type=int, default=400)
     parser.add_argument("--source", type=Path, default=Path("../PRD.md"))
     parser.add_argument("--output-dir", type=Path, default=Path("benchmark-results"))
-    parser.add_argument("--allow-download", action="store_true")
     args = parser.parse_args()
 
-    if not args.allow_download:
-        os.environ.setdefault("HF_HUB_OFFLINE", "1")
-        os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
     from sentence_transformers import SentenceTransformer
     import torch
 
