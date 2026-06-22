@@ -14,7 +14,7 @@ from datetime import datetime
 DB_NAME = "documents.db"
 PREVIEW_LIMIT = 5000
 
-# Custom OpenAI-compatible API
+# Custom API
 API_BASE_URL = os.getenv("CUSTOM_API_BASE_URL", "http://localhost:8000/v1")
 API_CHAT_URL = f"{API_BASE_URL}/chat/completions"
 API_MODEL = os.getenv("CUSTOM_API_MODEL", "your-chat-model")

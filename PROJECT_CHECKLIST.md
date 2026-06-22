@@ -87,8 +87,8 @@
 - [x] Tách chat provider và embedding provider
 - [ ] Tích hợp OpenRouter
 - [ ] Tích hợp Ollama
-- [ ] Tích hợp Custom OpenAI-compatible API
-- [x] Hỗ trợ Custom OpenAI-compatible API
+- [ ] Tích hợp Custom API
+- [x] Hỗ trợ Custom API
 - [x] Làm form thêm, sửa và xóa provider
 - [x] Làm chức năng test connection
 - [x] Mã hóa API key trước khi lưu

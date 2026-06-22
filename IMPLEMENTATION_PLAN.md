@@ -552,7 +552,7 @@ UI fields:
 Behavior:
 
 - Giả định provider tương thích OpenAI API.
-- Cho phép dùng Custom OpenAI-compatible API.
+- Cho phép dùng Custom API.
 - Nếu provider không có embedding endpoint, search semantic sẽ báo thiếu embedding provider.
 
 ### 5.5. OpenAI Codex provider
@@ -693,7 +693,7 @@ Flow tham khảo:
 
 ```text
 Add Provider
--> Chọn OpenAI Codex / OpenRouter / Ollama / Custom
+-> Chọn OpenRouter / Ollama / Custom
 -> Điền thông tin hoặc Sign in
 -> Test connection
 -> Save
@@ -963,7 +963,7 @@ Dự án nâng cấp được xem là hoàn thành khi:
 - Embedding và pgvector semantic search hoạt động.
 - BGE-M3 local là embedding mặc định, có benchmark trên máy phát triển và có fallback được tài liệu hóa.
 - Recommendation theo project topic hoạt động.
-- AI Provider settings có OpenRouter, Ollama, Custom và UI cho OpenAI Codex.
+- AI Provider settings có OpenRouter, Ollama và Custom.
 - Có evaluation dataset và kết quả đo lường.
 - Có demo script cho ngày bảo vệ.
 - Streamlit demo cũ vẫn được giữ làm reference.

@@ -14,7 +14,7 @@ Demo hiện tại đang dùng `Streamlit + Python + SQLite`, có các chức nă
 - Upload PDF.
 - Trích xuất text bằng PyMuPDF.
 - Lưu text vào SQLite.
-- Gọi AI qua OpenRouter, Ollama hoặc Custom OpenAI-compatible API để tạo `topic`, `difficulty`, `summary`, `keywords`.
+- Gọi AI qua OpenRouter, Ollama hoặc Custom API để tạo `topic`, `difficulty`, `summary`, `keywords`.
 - Tìm kiếm cơ bản bằng keyword/fuzzy matching.
 
 **Hướng nâng cấp:**  
@@ -25,7 +25,7 @@ Chuyển thành web app thật, chuyên nghiệp hơn cho đồ án cuối khóa
 - ORM: `Prisma`.
 - Auth: `Auth.js`.
 - Semantic search: `pgvector`.
-- AI providers: `OpenAI Codex`, `OpenRouter`, `Ollama`, `Custom API`.
+- AI providers hiện tại: `OpenRouter`, `Ollama`, `Custom API`.
 
 ## 2. Vấn Đề Cần Giải Quyết
 
@@ -342,7 +342,7 @@ API key không bắt buộc.
 
 #### Custom API
 
-Dùng cho API OpenAI-compatible hoặc provider tùy biến.
+Dùng cho endpoint và provider tùy biến.
 
 Người dùng nhập:
 
