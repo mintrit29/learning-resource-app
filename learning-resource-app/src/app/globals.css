@@ -190,10 +190,20 @@ a { color: inherit; text-decoration: none; }
 .status-pill { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 999px; padding: 8px 12px; background: white; color: #52605d; font-size: 12px; font-weight: 750; }
 .document-analysis-section { display: grid; gap: 18px; margin-bottom: 22px; border: 1px solid var(--line); background: var(--surface); padding: 22px; }
 .document-analysis-section h2 { margin: 4px 0 8px; font-size: 19px; }
+.analysis-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
 .document-analysis-section p { margin: 0; color: var(--muted); line-height: 1.65; }
 .analysis-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
 .analysis-tags span { border: 1px solid #9ed8cc; border-radius: 999px; background: var(--mint); padding: 6px 10px; color: var(--teal); font-size: 12px; font-weight: 700; }
 .analysis-tags.muted span { border-color: var(--line); background: #f5f7f6; color: #52605d; }
+.analysis-dialog { width: min(760px, 100%); max-height: calc(100vh - 40px); overflow: auto; border: 1px solid var(--line); background: white; padding: 24px; box-shadow: 0 24px 70px rgba(20, 32, 29, .2); }
+.analysis-form { display: grid; gap: 15px; margin-top: 20px; }
+.analysis-form label { display: grid; gap: 7px; font-size: 13px; font-weight: 700; }
+.analysis-form label small { color: var(--muted); font-weight: 400; }
+.analysis-form select, .analysis-form textarea { width: 100%; border: 1px solid var(--line); border-radius: 6px; background: white; padding: 10px 12px; color: var(--ink); font: inherit; outline: 0; }
+.analysis-form select { height: 44px; padding-top: 0; padding-bottom: 0; }
+.analysis-form textarea { resize: vertical; line-height: 1.5; }
+.analysis-form select:focus, .analysis-form textarea:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(8,127,112,.11); }
+.form-grid-two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .document-meta-strip { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--line); background: white; margin-bottom: 22px; }
 .document-meta-strip > div { min-height: 86px; display: grid; align-content: center; gap: 8px; border-right: 1px solid var(--line); padding: 15px 20px; }
 .document-meta-strip > div:last-child { border-right: 0; }
@@ -340,4 +350,5 @@ a { color: inherit; text-decoration: none; }
   .connection-state { grid-column: 2; }
   .provider-actions { grid-column: 1 / -1; justify-content: flex-end; border-top: 1px solid var(--line); padding-top: 9px; }
   .provider-choices { grid-template-columns: 1fr; }
+  .form-grid-two { grid-template-columns: 1fr; }
 }

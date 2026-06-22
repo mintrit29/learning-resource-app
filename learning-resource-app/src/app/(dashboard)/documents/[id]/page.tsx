@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, ExternalLink, FileText, LocateFixed } from "lucide-react";
 import { auth } from "@/auth";
 import { DeleteDocumentButton } from "@/components/documents/delete-document-button";
+import { EditAnalysisButton } from "@/components/documents/edit-analysis-button";
 import { ProcessingRefresh } from "@/components/documents/processing-refresh";
 import { RetryJobButton } from "@/components/documents/retry-job-button";
 import { db } from "@/lib/db";
@@ -91,7 +92,8 @@ export default async function DocumentDetailPage({
 
       {document.summary ? (
         <section className="document-analysis-section">
-          <div><p className="eyebrow">Phân tích AI</p><h2>Tóm tắt</h2><p>{document.summary}</p></div>
+          <div className="analysis-heading"><div><p className="eyebrow">Phân tích AI</p><h2>Tóm tắt</h2></div><EditAnalysisButton documentId={document.id} initial={{ topic: document.primaryTopic ?? "Other", difficulty: document.difficulty ?? "INTERMEDIATE", summary: document.summary, subtopics: document.subtopics, keywords: document.keywords, reason: document.analysisReason ?? "Người dùng cập nhật kết quả phân loại" }} /></div>
+          <p>{document.summary}</p>
           <div><strong>Chủ đề con</strong><div className="analysis-tags">{document.subtopics.map((item) => <span key={item}>{item}</span>)}</div></div>
           <div><strong>Từ khóa</strong><div className="analysis-tags muted">{document.keywords.map((item) => <span key={item}>{item}</span>)}</div></div>
         </section>

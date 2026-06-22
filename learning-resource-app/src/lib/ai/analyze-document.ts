@@ -1,30 +1,7 @@
-import { z } from "zod";
 import { Difficulty, DocumentStatus, JobStatus } from "@/generated/prisma/enums";
+import { analysisTopics, documentAnalysisSchema } from "@/lib/ai/analysis-schema";
 import { completeChat } from "@/lib/ai/chat-provider";
 import { db } from "@/lib/db";
-
-const topics = [
-  "Artificial Intelligence",
-  "Machine Learning",
-  "Database",
-  "Cybersecurity",
-  "Web Development",
-  "Software Engineering",
-  "Computer Networks",
-  "Mathematics",
-  "Data Science",
-  "Language Learning",
-  "Other",
-] as const;
-
-const resultSchema = z.object({
-  topic: z.enum(topics),
-  difficulty: z.enum(["BEGINNER", "INTERMEDIATE", "ADVANCED"]),
-  summary: z.string().trim().min(20).max(5000),
-  subtopics: z.array(z.string().trim().min(2).max(100)).min(2).max(12),
-  keywords: z.array(z.string().trim().min(1).max(80)).min(3).max(30),
-  reason: z.string().trim().min(10).max(2000),
-});
 
 function parseJson(value: string) {
   const cleaned = value.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
@@ -63,7 +40,7 @@ export async function analyzeDocument(documentId: string, jobId: string) {
       },
       {
         role: "user",
-        content: `Phân tích học liệu sau và trả về JSON theo đúng cấu trúc. Topic phải là một trong: ${topics.join(", ")}.
+        content: `Phân tích học liệu sau và trả về JSON theo đúng cấu trúc. Topic phải là một trong: ${analysisTopics.join(", ")}.
 {"topic":"chủ đề chính","difficulty":"BEGINNER|INTERMEDIATE|ADVANCED","summary":"tóm tắt tiếng Việt 5-8 câu","subtopics":["2-12 chủ đề con cụ thể"],"keywords":["3-30 từ khóa"],"reason":"lý do chọn chủ đề và độ khó"}
 
 Tên file: ${document.originalFileName}
@@ -71,7 +48,7 @@ Nội dung:
 ${content}`,
       },
     ]);
-    const result = resultSchema.parse(parseJson(response));
+    const result = documentAnalysisSchema.parse(parseJson(response));
 
     await db.$transaction([
       db.document.update({

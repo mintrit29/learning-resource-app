@@ -100,7 +100,7 @@
 - [x] Lưu lý do phân loại
 - [x] Parse và validate JSON từ LLM
 - [x] Cho phép xử lý lại theo bước còn thiếu/lỗi mà không chạy lại phần đã thành công
-- [ ] Cho phép người dùng sửa kết quả phân loại
+- [x] Cho phép người dùng sửa kết quả phân loại
 
 ## Tuần 9: Taxonomy Và OpenAI Codex Spike
 
