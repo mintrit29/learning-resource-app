@@ -43,6 +43,21 @@ export type VerificationToken = Prisma.VerificationTokenModel
  */
 export type Document = Prisma.DocumentModel
 /**
+ * Model Tag
+ * 
+ */
+export type Tag = Prisma.TagModel
+/**
+ * Model TagAlias
+ * 
+ */
+export type TagAlias = Prisma.TagAliasModel
+/**
+ * Model DocumentTag
+ * 
+ */
+export type DocumentTag = Prisma.DocumentTagModel
+/**
  * Model AnalysisJob
  * 
  */

@@ -43,10 +43,16 @@ enum JobStatus {
   FAILED
 }
 
+enum DocumentTagSource {
+  AI
+  USER
+  MERGED
+}
+
 model User {
-  id            String          @id @default(cuid())
+  id            String       @id @default(cuid())
   name          String?
-  email         String          @unique
+  email         String       @unique
   emailVerified DateTime?
   image         String?
   passwordHash  String?
@@ -55,8 +61,9 @@ model User {
   documents     Document[]
   projects      Project[]
   aiProviders   AiProvider[]
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
+  createdTags   Tag[]        @relation("TagCreator")
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
 }
 
 model Account {
@@ -92,7 +99,7 @@ model VerificationToken {
 }
 
 model Document {
-  id               String         @id @default(cuid())
+  id               String           @id @default(cuid())
   userId           String
   title            String
   originalFileName String
@@ -104,20 +111,63 @@ model Document {
   primaryTopic     String?
   difficulty       Difficulty?
   summary          String?
-  subtopics        String[]       @default([])
-  keywords         String[]       @default([])
+  subtopics        String[]         @default([])
+  keywords         String[]         @default([])
   analysisReason   String?
-  status           DocumentStatus @default(UPLOADED)
-  user             User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status           DocumentStatus   @default(UPLOADED)
+  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   chunks           DocumentChunk[]
   jobs             AnalysisJob[]
   recommendations  Recommendation[]
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
+  tags             DocumentTag[]
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
 
   @@index([userId, createdAt])
   @@index([userId, status])
   @@index([primaryTopic])
+}
+
+model Tag {
+  id              String                       @id @default(cuid())
+  name            String
+  normalizedName  String
+  description     String?
+  embedding       Unsupported("vector(1024)")?
+  createdByUserId String
+  createdByUser   User                         @relation("TagCreator", fields: [createdByUserId], references: [id], onDelete: Cascade)
+  aliases         TagAlias[]
+  documents       DocumentTag[]
+  createdAt       DateTime                     @default(now())
+  updatedAt       DateTime                     @updatedAt
+
+  @@unique([createdByUserId, normalizedName])
+  @@index([createdByUserId, name])
+}
+
+model TagAlias {
+  id              String   @id @default(cuid())
+  tagId           String
+  alias           String
+  normalizedAlias String
+  tag             Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  createdAt       DateTime @default(now())
+
+  @@unique([tagId, normalizedAlias])
+  @@index([normalizedAlias])
+}
+
+model DocumentTag {
+  documentId String
+  tagId      String
+  confidence Float             @default(1)
+  source     DocumentTagSource @default(AI)
+  document   Document          @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  tag        Tag               @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  createdAt  DateTime          @default(now())
+
+  @@id([documentId, tagId])
+  @@index([tagId])
 }
 
 model AnalysisJob {
@@ -138,16 +188,16 @@ model AnalysisJob {
 }
 
 model DocumentChunk {
-  id         String   @id @default(cuid())
-  documentId String
-  chunkIndex Int
-  content    String
-  tokenCount Int?
-  pageNumber Int?
+  id          String                       @id @default(cuid())
+  documentId  String
+  chunkIndex  Int
+  content     String
+  tokenCount  Int?
+  pageNumber  Int?
   sourceLabel String?
-  embedding  Unsupported("vector(1024)")?
-  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
-  createdAt  DateTime @default(now())
+  embedding   Unsupported("vector(1024)")?
+  document    Document                     @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  createdAt   DateTime                     @default(now())
 
   @@unique([documentId, chunkIndex])
   @@index([documentId])

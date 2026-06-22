@@ -211,6 +211,7 @@ export type UserWhereInput = {
   documents?: Prisma.DocumentListRelationFilter
   projects?: Prisma.ProjectListRelationFilter
   aiProviders?: Prisma.AiProviderListRelationFilter
+  createdTags?: Prisma.TagListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -227,6 +228,7 @@ export type UserOrderByWithRelationInput = {
   documents?: Prisma.DocumentOrderByRelationAggregateInput
   projects?: Prisma.ProjectOrderByRelationAggregateInput
   aiProviders?: Prisma.AiProviderOrderByRelationAggregateInput
+  createdTags?: Prisma.TagOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -246,6 +248,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   documents?: Prisma.DocumentListRelationFilter
   projects?: Prisma.ProjectListRelationFilter
   aiProviders?: Prisma.AiProviderListRelationFilter
+  createdTags?: Prisma.TagListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -290,6 +293,7 @@ export type UserCreateInput = {
   documents?: Prisma.DocumentCreateNestedManyWithoutUserInput
   projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   aiProviders?: Prisma.AiProviderCreateNestedManyWithoutUserInput
+  createdTags?: Prisma.TagCreateNestedManyWithoutCreatedByUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -306,6 +310,7 @@ export type UserUncheckedCreateInput = {
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUserInput
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   aiProviders?: Prisma.AiProviderUncheckedCreateNestedManyWithoutUserInput
+  createdTags?: Prisma.TagUncheckedCreateNestedManyWithoutCreatedByUserInput
 }
 
 export type UserUpdateInput = {
@@ -322,6 +327,7 @@ export type UserUpdateInput = {
   documents?: Prisma.DocumentUpdateManyWithoutUserNestedInput
   projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   aiProviders?: Prisma.AiProviderUpdateManyWithoutUserNestedInput
+  createdTags?: Prisma.TagUpdateManyWithoutCreatedByUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -338,6 +344,7 @@ export type UserUncheckedUpdateInput = {
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUserNestedInput
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   aiProviders?: Prisma.AiProviderUncheckedUpdateManyWithoutUserNestedInput
+  createdTags?: Prisma.TagUncheckedUpdateManyWithoutCreatedByUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -469,6 +476,20 @@ export type UserUpdateOneRequiredWithoutDocumentsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutDocumentsInput, Prisma.UserUpdateWithoutDocumentsInput>, Prisma.UserUncheckedUpdateWithoutDocumentsInput>
 }
 
+export type UserCreateNestedOneWithoutCreatedTagsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedTagsInput, Prisma.UserUncheckedCreateWithoutCreatedTagsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedTagsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutCreatedTagsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedTagsInput, Prisma.UserUncheckedCreateWithoutCreatedTagsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedTagsInput
+  upsert?: Prisma.UserUpsertWithoutCreatedTagsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCreatedTagsInput, Prisma.UserUpdateWithoutCreatedTagsInput>, Prisma.UserUncheckedUpdateWithoutCreatedTagsInput>
+}
+
 export type UserCreateNestedOneWithoutProjectsInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutProjectsInput, Prisma.UserUncheckedCreateWithoutProjectsInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutProjectsInput
@@ -510,6 +531,7 @@ export type UserCreateWithoutAccountsInput = {
   documents?: Prisma.DocumentCreateNestedManyWithoutUserInput
   projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   aiProviders?: Prisma.AiProviderCreateNestedManyWithoutUserInput
+  createdTags?: Prisma.TagCreateNestedManyWithoutCreatedByUserInput
 }
 
 export type UserUncheckedCreateWithoutAccountsInput = {
@@ -525,6 +547,7 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUserInput
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   aiProviders?: Prisma.AiProviderUncheckedCreateNestedManyWithoutUserInput
+  createdTags?: Prisma.TagUncheckedCreateNestedManyWithoutCreatedByUserInput
 }
 
 export type UserCreateOrConnectWithoutAccountsInput = {
@@ -556,6 +579,7 @@ export type UserUpdateWithoutAccountsInput = {
   documents?: Prisma.DocumentUpdateManyWithoutUserNestedInput
   projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   aiProviders?: Prisma.AiProviderUpdateManyWithoutUserNestedInput
+  createdTags?: Prisma.TagUpdateManyWithoutCreatedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -571,6 +595,7 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUserNestedInput
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   aiProviders?: Prisma.AiProviderUncheckedUpdateManyWithoutUserNestedInput
+  createdTags?: Prisma.TagUncheckedUpdateManyWithoutCreatedByUserNestedInput
 }
 
 export type UserCreateWithoutSessionsInput = {
@@ -586,6 +611,7 @@ export type UserCreateWithoutSessionsInput = {
   documents?: Prisma.DocumentCreateNestedManyWithoutUserInput
   projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   aiProviders?: Prisma.AiProviderCreateNestedManyWithoutUserInput
+  createdTags?: Prisma.TagCreateNestedManyWithoutCreatedByUserInput
 }
 
 export type UserUncheckedCreateWithoutSessionsInput = {
@@ -601,6 +627,7 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUserInput
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   aiProviders?: Prisma.AiProviderUncheckedCreateNestedManyWithoutUserInput
+  createdTags?: Prisma.TagUncheckedCreateNestedManyWithoutCreatedByUserInput
 }
 
 export type UserCreateOrConnectWithoutSessionsInput = {
@@ -632,6 +659,7 @@ export type UserUpdateWithoutSessionsInput = {
   documents?: Prisma.DocumentUpdateManyWithoutUserNestedInput
   projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   aiProviders?: Prisma.AiProviderUpdateManyWithoutUserNestedInput
+  createdTags?: Prisma.TagUpdateManyWithoutCreatedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -647,6 +675,7 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUserNestedInput
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   aiProviders?: Prisma.AiProviderUncheckedUpdateManyWithoutUserNestedInput
+  createdTags?: Prisma.TagUncheckedUpdateManyWithoutCreatedByUserNestedInput
 }
 
 export type UserCreateWithoutDocumentsInput = {
@@ -662,6 +691,7 @@ export type UserCreateWithoutDocumentsInput = {
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   aiProviders?: Prisma.AiProviderCreateNestedManyWithoutUserInput
+  createdTags?: Prisma.TagCreateNestedManyWithoutCreatedByUserInput
 }
 
 export type UserUncheckedCreateWithoutDocumentsInput = {
@@ -677,6 +707,7 @@ export type UserUncheckedCreateWithoutDocumentsInput = {
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   aiProviders?: Prisma.AiProviderUncheckedCreateNestedManyWithoutUserInput
+  createdTags?: Prisma.TagUncheckedCreateNestedManyWithoutCreatedByUserInput
 }
 
 export type UserCreateOrConnectWithoutDocumentsInput = {
@@ -708,6 +739,7 @@ export type UserUpdateWithoutDocumentsInput = {
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   aiProviders?: Prisma.AiProviderUpdateManyWithoutUserNestedInput
+  createdTags?: Prisma.TagUpdateManyWithoutCreatedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDocumentsInput = {
@@ -721,6 +753,87 @@ export type UserUncheckedUpdateWithoutDocumentsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
+  aiProviders?: Prisma.AiProviderUncheckedUpdateManyWithoutUserNestedInput
+  createdTags?: Prisma.TagUncheckedUpdateManyWithoutCreatedByUserNestedInput
+}
+
+export type UserCreateWithoutCreatedTagsInput = {
+  id?: string
+  name?: string | null
+  email: string
+  emailVerified?: Date | string | null
+  image?: string | null
+  passwordHash?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUserInput
+  projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
+  aiProviders?: Prisma.AiProviderCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutCreatedTagsInput = {
+  id?: string
+  name?: string | null
+  email: string
+  emailVerified?: Date | string | null
+  image?: string | null
+  passwordHash?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUserInput
+  projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
+  aiProviders?: Prisma.AiProviderUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutCreatedTagsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutCreatedTagsInput, Prisma.UserUncheckedCreateWithoutCreatedTagsInput>
+}
+
+export type UserUpsertWithoutCreatedTagsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutCreatedTagsInput, Prisma.UserUncheckedUpdateWithoutCreatedTagsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutCreatedTagsInput, Prisma.UserUncheckedCreateWithoutCreatedTagsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutCreatedTagsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutCreatedTagsInput, Prisma.UserUncheckedUpdateWithoutCreatedTagsInput>
+}
+
+export type UserUpdateWithoutCreatedTagsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUserNestedInput
+  projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
+  aiProviders?: Prisma.AiProviderUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutCreatedTagsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUserNestedInput
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   aiProviders?: Prisma.AiProviderUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -738,6 +851,7 @@ export type UserCreateWithoutProjectsInput = {
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUserInput
   aiProviders?: Prisma.AiProviderCreateNestedManyWithoutUserInput
+  createdTags?: Prisma.TagCreateNestedManyWithoutCreatedByUserInput
 }
 
 export type UserUncheckedCreateWithoutProjectsInput = {
@@ -753,6 +867,7 @@ export type UserUncheckedCreateWithoutProjectsInput = {
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUserInput
   aiProviders?: Prisma.AiProviderUncheckedCreateNestedManyWithoutUserInput
+  createdTags?: Prisma.TagUncheckedCreateNestedManyWithoutCreatedByUserInput
 }
 
 export type UserCreateOrConnectWithoutProjectsInput = {
@@ -784,6 +899,7 @@ export type UserUpdateWithoutProjectsInput = {
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUserNestedInput
   aiProviders?: Prisma.AiProviderUpdateManyWithoutUserNestedInput
+  createdTags?: Prisma.TagUpdateManyWithoutCreatedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutProjectsInput = {
@@ -799,6 +915,7 @@ export type UserUncheckedUpdateWithoutProjectsInput = {
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUserNestedInput
   aiProviders?: Prisma.AiProviderUncheckedUpdateManyWithoutUserNestedInput
+  createdTags?: Prisma.TagUncheckedUpdateManyWithoutCreatedByUserNestedInput
 }
 
 export type UserCreateWithoutAiProvidersInput = {
@@ -814,6 +931,7 @@ export type UserCreateWithoutAiProvidersInput = {
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUserInput
   projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
+  createdTags?: Prisma.TagCreateNestedManyWithoutCreatedByUserInput
 }
 
 export type UserUncheckedCreateWithoutAiProvidersInput = {
@@ -829,6 +947,7 @@ export type UserUncheckedCreateWithoutAiProvidersInput = {
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUserInput
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
+  createdTags?: Prisma.TagUncheckedCreateNestedManyWithoutCreatedByUserInput
 }
 
 export type UserCreateOrConnectWithoutAiProvidersInput = {
@@ -860,6 +979,7 @@ export type UserUpdateWithoutAiProvidersInput = {
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUserNestedInput
   projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
+  createdTags?: Prisma.TagUpdateManyWithoutCreatedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAiProvidersInput = {
@@ -875,6 +995,7 @@ export type UserUncheckedUpdateWithoutAiProvidersInput = {
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUserNestedInput
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
+  createdTags?: Prisma.TagUncheckedUpdateManyWithoutCreatedByUserNestedInput
 }
 
 
@@ -888,6 +1009,7 @@ export type UserCountOutputType = {
   documents: number
   projects: number
   aiProviders: number
+  createdTags: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -896,6 +1018,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   documents?: boolean | UserCountOutputTypeCountDocumentsArgs
   projects?: boolean | UserCountOutputTypeCountProjectsArgs
   aiProviders?: boolean | UserCountOutputTypeCountAiProvidersArgs
+  createdTags?: boolean | UserCountOutputTypeCountCreatedTagsArgs
 }
 
 /**
@@ -943,6 +1066,13 @@ export type UserCountOutputTypeCountAiProvidersArgs<ExtArgs extends runtime.Type
   where?: Prisma.AiProviderWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountCreatedTagsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TagWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -958,6 +1088,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   documents?: boolean | Prisma.User$documentsArgs<ExtArgs>
   projects?: boolean | Prisma.User$projectsArgs<ExtArgs>
   aiProviders?: boolean | Prisma.User$aiProvidersArgs<ExtArgs>
+  createdTags?: boolean | Prisma.User$createdTagsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1001,6 +1132,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   documents?: boolean | Prisma.User$documentsArgs<ExtArgs>
   projects?: boolean | Prisma.User$projectsArgs<ExtArgs>
   aiProviders?: boolean | Prisma.User$aiProvidersArgs<ExtArgs>
+  createdTags?: boolean | Prisma.User$createdTagsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1014,6 +1146,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     documents: Prisma.$DocumentPayload<ExtArgs>[]
     projects: Prisma.$ProjectPayload<ExtArgs>[]
     aiProviders: Prisma.$AiProviderPayload<ExtArgs>[]
+    createdTags: Prisma.$TagPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1423,6 +1556,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   documents<T extends Prisma.User$documentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$documentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   projects<T extends Prisma.User$projectsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$projectsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   aiProviders<T extends Prisma.User$aiProvidersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$aiProvidersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AiProviderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  createdTags<T extends Prisma.User$createdTagsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdTagsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TagPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1970,6 +2104,30 @@ export type User$aiProvidersArgs<ExtArgs extends runtime.Types.Extensions.Intern
   take?: number
   skip?: number
   distinct?: Prisma.AiProviderScalarFieldEnum | Prisma.AiProviderScalarFieldEnum[]
+}
+
+/**
+ * User.createdTags
+ */
+export type User$createdTagsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Tag
+   */
+  select?: Prisma.TagSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Tag
+   */
+  omit?: Prisma.TagOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TagInclude<ExtArgs> | null
+  where?: Prisma.TagWhereInput
+  orderBy?: Prisma.TagOrderByWithRelationInput | Prisma.TagOrderByWithRelationInput[]
+  cursor?: Prisma.TagWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TagScalarFieldEnum | Prisma.TagScalarFieldEnum[]
 }
 
 /**

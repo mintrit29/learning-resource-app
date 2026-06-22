@@ -58,3 +58,12 @@ export const JobStatus = {
 } as const
 
 export type JobStatus = (typeof JobStatus)[keyof typeof JobStatus]
+
+
+export const DocumentTagSource = {
+  AI: 'AI',
+  USER: 'USER',
+  MERGED: 'MERGED'
+} as const
+
+export type DocumentTagSource = (typeof DocumentTagSource)[keyof typeof DocumentTagSource]

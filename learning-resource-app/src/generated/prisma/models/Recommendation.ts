@@ -475,14 +475,6 @@ export type RecommendationUncheckedUpdateManyWithoutProjectNestedInput = {
   deleteMany?: Prisma.RecommendationScalarWhereInput | Prisma.RecommendationScalarWhereInput[]
 }
 
-export type FloatFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type RecommendationCreateWithoutDocumentInput = {
   id?: string
   score: number

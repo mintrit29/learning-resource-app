@@ -56,6 +56,9 @@ export const ModelName = {
   Session: 'Session',
   VerificationToken: 'VerificationToken',
   Document: 'Document',
+  Tag: 'Tag',
+  TagAlias: 'TagAlias',
+  DocumentTag: 'DocumentTag',
   AnalysisJob: 'AnalysisJob',
   DocumentChunk: 'DocumentChunk',
   Project: 'Project',
@@ -150,6 +153,41 @@ export const DocumentScalarFieldEnum = {
 } as const
 
 export type DocumentScalarFieldEnum = (typeof DocumentScalarFieldEnum)[keyof typeof DocumentScalarFieldEnum]
+
+
+export const TagScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  normalizedName: 'normalizedName',
+  description: 'description',
+  createdByUserId: 'createdByUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TagScalarFieldEnum = (typeof TagScalarFieldEnum)[keyof typeof TagScalarFieldEnum]
+
+
+export const TagAliasScalarFieldEnum = {
+  id: 'id',
+  tagId: 'tagId',
+  alias: 'alias',
+  normalizedAlias: 'normalizedAlias',
+  createdAt: 'createdAt'
+} as const
+
+export type TagAliasScalarFieldEnum = (typeof TagAliasScalarFieldEnum)[keyof typeof TagAliasScalarFieldEnum]
+
+
+export const DocumentTagScalarFieldEnum = {
+  documentId: 'documentId',
+  tagId: 'tagId',
+  confidence: 'confidence',
+  source: 'source',
+  createdAt: 'createdAt'
+} as const
+
+export type DocumentTagScalarFieldEnum = (typeof DocumentTagScalarFieldEnum)[keyof typeof DocumentTagScalarFieldEnum]
 
 
 export const AnalysisJobScalarFieldEnum = {
