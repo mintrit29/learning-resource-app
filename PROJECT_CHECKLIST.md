@@ -85,10 +85,9 @@
 
 - [x] Tạo interface chung cho chat providers
 - [x] Tách chat provider và embedding provider
-- [ ] Tích hợp OpenRouter
-- [ ] Tích hợp Ollama
-- [ ] Tích hợp Custom API
-- [x] Hỗ trợ Custom API
+- [x] Tích hợp OpenRouter (đã smoke test giao thức models/chat)
+- [x] Tích hợp Ollama (đã smoke test giao thức tags/chat)
+- [x] Tích hợp Custom API (đã smoke test giao thức models/chat)
 - [x] Làm form thêm, sửa và xóa provider
 - [x] Làm chức năng test connection
 - [x] Mã hóa API key trước khi lưu
