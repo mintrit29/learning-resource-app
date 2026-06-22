@@ -552,7 +552,7 @@ UI fields:
 Behavior:
 
 - Giả định provider tương thích OpenAI API.
-- Cho phép dùng các gateway như 9Router.
+- Cho phép dùng Custom OpenAI-compatible API.
 - Nếu provider không có embedding endpoint, search semantic sẽ báo thiếu embedding provider.
 
 ### 5.5. OpenAI Codex provider

@@ -14,7 +14,7 @@ Demo hiện tại đang dùng `Streamlit + Python + SQLite`, có các chức nă
 - Upload PDF.
 - Trích xuất text bằng PyMuPDF.
 - Lưu text vào SQLite.
-- Gọi AI qua 9Router/OpenAI-compatible API để tạo `topic`, `difficulty`, `summary`, `keywords`.
+- Gọi AI qua OpenRouter, Ollama hoặc Custom OpenAI-compatible API để tạo `topic`, `difficulty`, `summary`, `keywords`.
 - Tìm kiếm cơ bản bằng keyword/fuzzy matching.
 
 **Hướng nâng cấp:**  

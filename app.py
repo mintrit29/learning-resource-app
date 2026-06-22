@@ -6,6 +6,7 @@ import json
 import re
 import math
 import unicodedata
+import os
 from difflib import SequenceMatcher
 from datetime import datetime
 
@@ -13,14 +14,12 @@ from datetime import datetime
 DB_NAME = "documents.db"
 PREVIEW_LIMIT = 5000
 
-# 9Router local OpenAI-compatible API
-API_BASE_URL = "http://localhost:20128/v1"
+# Custom OpenAI-compatible API
+API_BASE_URL = os.getenv("CUSTOM_API_BASE_URL", "http://localhost:8000/v1")
 API_CHAT_URL = f"{API_BASE_URL}/chat/completions"
-API_MODEL = "gc/gemini-3-flash-preview"
+API_MODEL = os.getenv("CUSTOM_API_MODEL", "your-chat-model")
 
-# Nếu 9Router local của bạn có yêu cầu API key thì điền vào đây.
-# Nếu không cần key thì để rỗng.
-API_KEY = ""
+API_KEY = os.getenv("CUSTOM_API_KEY", "")
 
 # Gửi tối đa khoảng 100k ký tự/lần phân tích.
 # Nếu tài liệu lớn hơn thì code sẽ tự chunk và loop nhiều lần.
@@ -533,7 +532,7 @@ def extract_content_from_api_result(result):
     return ""
 
 
-def call_9router_chat(messages, max_tokens=2000):
+def call_custom_chat(messages, max_tokens=2000):
     payload = {
         "model": API_MODEL,
         "messages": messages,
@@ -550,7 +549,7 @@ def call_9router_chat(messages, max_tokens=2000):
     )
 
     if response.status_code != 200:
-        raise Exception(f"9Router API lỗi HTTP {response.status_code}: {response.text}")
+        raise Exception(f"Custom API lỗi HTTP {response.status_code}: {response.text}")
 
     return response.json()
 
@@ -802,11 +801,11 @@ def analyze_single_chunk(file_name, chunk_text, chunk_index, total_chunks):
         }
     ]
 
-    result = call_9router_chat(messages, max_tokens=2500)
+    result = call_custom_chat(messages, max_tokens=2500)
     raw_response = extract_content_from_api_result(result)
 
     if not raw_response or not raw_response.strip():
-        raise ValueError(f"9Router không trả về nội dung cho chunk {chunk_index}. Raw result: {result}")
+        raise ValueError(f"Custom API không trả về nội dung cho chunk {chunk_index}. Raw result: {result}")
 
     parsed_result = parse_ai_json(raw_response)
 
@@ -831,11 +830,11 @@ def analyze_small_document(file_name, text_content):
         }
     ]
 
-    result = call_9router_chat(messages, max_tokens=2500)
+    result = call_custom_chat(messages, max_tokens=2500)
     raw_response = extract_content_from_api_result(result)
 
     if not raw_response or not raw_response.strip():
-        raise ValueError(f"9Router không trả về nội dung. Raw result: {result}")
+        raise ValueError(f"Custom API không trả về nội dung. Raw result: {result}")
 
     parsed_result = parse_ai_json(raw_response)
 
@@ -861,18 +860,18 @@ def synthesize_chunk_results(file_name, partial_results):
         }
     ]
 
-    result = call_9router_chat(messages, max_tokens=3000)
+    result = call_custom_chat(messages, max_tokens=3000)
     raw_response = extract_content_from_api_result(result)
 
     if not raw_response or not raw_response.strip():
-        raise ValueError(f"9Router không trả về nội dung ở bước tổng hợp. Raw result: {result}")
+        raise ValueError(f"Custom API không trả về nội dung ở bước tổng hợp. Raw result: {result}")
 
     parsed_result = parse_ai_json(raw_response)
 
     return parsed_result, raw_response
 
 
-def analyze_document_with_9router(file_name, text_content):
+def analyze_document_with_custom_api(file_name, text_content):
     chunks = split_text_into_chunks(text_content)
 
     if len(chunks) == 1:
@@ -943,7 +942,7 @@ def analyze_document_with_9router(file_name, text_content):
     }
 
 
-def test_9router_connection():
+def test_custom_api_connection():
     messages = [
         {
             "role": "user",
@@ -951,13 +950,13 @@ def test_9router_connection():
 Chỉ trả về JSON hợp lệ, không markdown:
 {
   "status": "ok",
-  "message": "9Router API is working"
+  "message": "Custom API is working"
 }
 """
         }
     ]
 
-    return call_9router_chat(messages, max_tokens=300)
+    return call_custom_chat(messages, max_tokens=300)
 
 
 def render_document_card(doc_id, file_name, topic, difficulty, score=None):
@@ -1013,15 +1012,15 @@ def render_document_card(doc_id, file_name, topic, difficulty, score=None):
             st.code(show_value(selected_keywords, "Chưa có keywords"))
 
             if st.button(
-                "Phân tích bằng 9Router API",
+                "Phân tích bằng Custom API",
                 key=f"analyze_{doc_id}"
             ):
                 with st.spinner(
-                    f"9Router đang phân tích tài liệu. "
+                    f"Custom API đang phân tích tài liệu. "
                     f"Nếu file lớn, app sẽ chia thành khoảng {estimated_chunks} chunk..."
                 ):
                     try:
-                        ai_result = analyze_document_with_9router(
+                        ai_result = analyze_document_with_custom_api(
                             selected_file_name,
                             text_content
                         )
@@ -1046,8 +1045,8 @@ def render_document_card(doc_id, file_name, topic, difficulty, score=None):
 
                     except requests.exceptions.ConnectionError:
                         st.error(
-                            "Không kết nối được 9Router API. "
-                            "Hãy kiểm tra server local ở http://localhost:20128/v1 đã chạy chưa."
+                            "Không kết nối được Custom API. "
+                            "Hãy kiểm tra API base đã cấu hình và server đang chạy."
                         )
 
                     except requests.exceptions.Timeout:
@@ -1057,7 +1056,7 @@ def render_document_card(doc_id, file_name, topic, difficulty, score=None):
                         )
 
                     except Exception as error:
-                        st.error(f"Lỗi khi phân tích bằng 9Router: {error}")
+                        st.error(f"Lỗi khi phân tích bằng Custom API: {error}")
 
             st.divider()
 
@@ -1121,12 +1120,12 @@ with st.sidebar:
     st.write(f"**Chunk size:** `{ANALYSIS_CHUNK_CHAR_LIMIT}` ký tự/chunk")
     st.write(f"**Chunk overlap:** `{ANALYSIS_CHUNK_OVERLAP}` ký tự")
 
-    if st.button("Test 9Router API"):
+    if st.button("Test Custom API"):
         try:
-            test_result = test_9router_connection()
+            test_result = test_custom_api_connection()
             content = extract_content_from_api_result(test_result)
 
-            st.success("Kết nối 9Router API thành công!")
+            st.success("Kết nối Custom API thành công!")
 
             st.write("Response content:")
             st.code(content)
@@ -1135,7 +1134,7 @@ with st.sidebar:
                 st.code(json.dumps(test_result, ensure_ascii=False, indent=2))
 
         except Exception as error:
-            st.error(f"Test 9Router lỗi: {error}")
+            st.error(f"Test Custom API lỗi: {error}")
 
 
 tab1, tab2 = st.tabs(["Upload PDF", "Tìm kiếm & quản lý tài liệu"])

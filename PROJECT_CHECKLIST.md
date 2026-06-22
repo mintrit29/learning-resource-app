@@ -88,7 +88,7 @@
 - [ ] Tích hợp OpenRouter
 - [ ] Tích hợp Ollama
 - [ ] Tích hợp Custom OpenAI-compatible API
-- [ ] Hỗ trợ custom provider như 9Router
+- [x] Hỗ trợ Custom OpenAI-compatible API
 - [x] Làm form thêm, sửa và xóa provider
 - [x] Làm chức năng test connection
 - [x] Mã hóa API key trước khi lưu

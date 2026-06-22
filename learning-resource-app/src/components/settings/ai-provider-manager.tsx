@@ -7,7 +7,7 @@ type Provider = { id: string; type: string; displayName: string; baseUrl: string
 const choices = {
   OPENROUTER: { label: "OpenRouter", description: "Nhiều model qua một API key", icon: Cloud, baseUrl: "https://openrouter.ai/api/v1", model: "google/gemini-2.5-flash" },
   OLLAMA: { label: "Ollama", description: "Chạy model cục bộ trên máy", icon: Cpu, baseUrl: "http://localhost:11434", model: "qwen3:latest" },
-  CUSTOM: { label: "Custom API", description: "9Router hoặc API tương thích OpenAI", icon: Bot, baseUrl: "", model: "" },
+  CUSTOM: { label: "Custom API", description: "API tương thích OpenAI", icon: Bot, baseUrl: "", model: "" },
 } as const;
 type ProviderType = keyof typeof choices;
 
