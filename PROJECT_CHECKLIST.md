@@ -107,7 +107,7 @@
 - [x] Tạo schema Tag, TagAlias và DocumentTag
 - [x] Tạo hàm normalize tên tag
 - [x] Kiểm tra exact canonical tag
-- [ ] Kiểm tra alias dictionary
+- [x] Kiểm tra alias dictionary
 - [ ] So sánh tag bằng embedding similarity
 - [ ] Tạo TagMergeReview
 - [ ] Tạo trang quản lý canonical tags
