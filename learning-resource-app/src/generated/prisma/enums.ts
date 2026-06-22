@@ -67,3 +67,12 @@ export const DocumentTagSource = {
 } as const
 
 export type DocumentTagSource = (typeof DocumentTagSource)[keyof typeof DocumentTagSource]
+
+
+export const TagMergeReviewStatus = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED'
+} as const
+
+export type TagMergeReviewStatus = (typeof TagMergeReviewStatus)[keyof typeof TagMergeReviewStatus]

@@ -109,7 +109,7 @@
 - [x] Kiểm tra exact canonical tag
 - [x] Kiểm tra alias dictionary
 - [x] So sánh tag bằng embedding similarity
-- [ ] Tạo TagMergeReview
+- [x] Tạo TagMergeReview
 - [ ] Tạo trang quản lý canonical tags
 - [ ] Cho phép approve/reject đề xuất gộp tag
 - [ ] Thiết kế giao diện Sign in with OpenAI Codex

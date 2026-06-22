@@ -392,6 +392,7 @@ export const ModelName = {
   Tag: 'Tag',
   TagAlias: 'TagAlias',
   DocumentTag: 'DocumentTag',
+  TagMergeReview: 'TagMergeReview',
   AnalysisJob: 'AnalysisJob',
   DocumentChunk: 'DocumentChunk',
   Project: 'Project',
@@ -412,7 +413,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "account" | "session" | "verificationToken" | "document" | "tag" | "tagAlias" | "documentTag" | "analysisJob" | "documentChunk" | "project" | "recommendation" | "aiProvider"
+    modelProps: "user" | "account" | "session" | "verificationToken" | "document" | "tag" | "tagAlias" | "documentTag" | "tagMergeReview" | "analysisJob" | "documentChunk" | "project" | "recommendation" | "aiProvider"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1008,6 +1009,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    TagMergeReview: {
+      payload: Prisma.$TagMergeReviewPayload<ExtArgs>
+      fields: Prisma.TagMergeReviewFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TagMergeReviewFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagMergeReviewPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TagMergeReviewFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagMergeReviewPayload>
+        }
+        findFirst: {
+          args: Prisma.TagMergeReviewFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagMergeReviewPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TagMergeReviewFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagMergeReviewPayload>
+        }
+        findMany: {
+          args: Prisma.TagMergeReviewFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagMergeReviewPayload>[]
+        }
+        create: {
+          args: Prisma.TagMergeReviewCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagMergeReviewPayload>
+        }
+        createMany: {
+          args: Prisma.TagMergeReviewCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TagMergeReviewCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagMergeReviewPayload>[]
+        }
+        delete: {
+          args: Prisma.TagMergeReviewDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagMergeReviewPayload>
+        }
+        update: {
+          args: Prisma.TagMergeReviewUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagMergeReviewPayload>
+        }
+        deleteMany: {
+          args: Prisma.TagMergeReviewDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TagMergeReviewUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TagMergeReviewUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagMergeReviewPayload>[]
+        }
+        upsert: {
+          args: Prisma.TagMergeReviewUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagMergeReviewPayload>
+        }
+        aggregate: {
+          args: Prisma.TagMergeReviewAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTagMergeReview>
+        }
+        groupBy: {
+          args: Prisma.TagMergeReviewGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TagMergeReviewGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TagMergeReviewCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TagMergeReviewCountAggregateOutputType> | number
+        }
+      }
+    }
     AnalysisJob: {
       payload: Prisma.$AnalysisJobPayload<ExtArgs>
       fields: Prisma.AnalysisJobFieldRefs
@@ -1525,6 +1600,22 @@ export const DocumentTagScalarFieldEnum = {
 export type DocumentTagScalarFieldEnum = (typeof DocumentTagScalarFieldEnum)[keyof typeof DocumentTagScalarFieldEnum]
 
 
+export const TagMergeReviewScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  documentId: 'documentId',
+  candidateTagName: 'candidateTagName',
+  candidateNormalizedName: 'candidateNormalizedName',
+  suggestedTagId: 'suggestedTagId',
+  similarity: 'similarity',
+  status: 'status',
+  createdAt: 'createdAt',
+  resolvedAt: 'resolvedAt'
+} as const
+
+export type TagMergeReviewScalarFieldEnum = (typeof TagMergeReviewScalarFieldEnum)[keyof typeof TagMergeReviewScalarFieldEnum]
+
+
 export const AnalysisJobScalarFieldEnum = {
   id: 'id',
   documentId: 'documentId',
@@ -1742,6 +1833,20 @@ export type ListEnumDocumentTagSourceFieldRefInput<$PrismaModel> = FieldRefInput
 
 
 /**
+ * Reference to a field of type 'TagMergeReviewStatus'
+ */
+export type EnumTagMergeReviewStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TagMergeReviewStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'TagMergeReviewStatus[]'
+ */
+export type ListEnumTagMergeReviewStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TagMergeReviewStatus[]'>
+    
+
+
+/**
  * Reference to a field of type 'JobType'
  */
 export type EnumJobTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'JobType'>
@@ -1893,6 +1998,7 @@ export type GlobalOmitConfig = {
   tag?: Prisma.TagOmit
   tagAlias?: Prisma.TagAliasOmit
   documentTag?: Prisma.DocumentTagOmit
+  tagMergeReview?: Prisma.TagMergeReviewOmit
   analysisJob?: Prisma.AnalysisJobOmit
   documentChunk?: Prisma.DocumentChunkOmit
   project?: Prisma.ProjectOmit

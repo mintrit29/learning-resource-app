@@ -284,6 +284,23 @@ export type EnumDocumentTagSourceWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumDocumentTagSourceFilter<$PrismaModel>
 }
 
+export type EnumTagMergeReviewStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.TagMergeReviewStatus | Prisma.EnumTagMergeReviewStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.TagMergeReviewStatus[] | Prisma.ListEnumTagMergeReviewStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.TagMergeReviewStatus[] | Prisma.ListEnumTagMergeReviewStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumTagMergeReviewStatusFilter<$PrismaModel> | $Enums.TagMergeReviewStatus
+}
+
+export type EnumTagMergeReviewStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.TagMergeReviewStatus | Prisma.EnumTagMergeReviewStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.TagMergeReviewStatus[] | Prisma.ListEnumTagMergeReviewStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.TagMergeReviewStatus[] | Prisma.ListEnumTagMergeReviewStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumTagMergeReviewStatusWithAggregatesFilter<$PrismaModel> | $Enums.TagMergeReviewStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumTagMergeReviewStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumTagMergeReviewStatusFilter<$PrismaModel>
+}
+
 export type EnumJobTypeFilter<$PrismaModel = never> = {
   equals?: $Enums.JobType | Prisma.EnumJobTypeFieldRefInput<$PrismaModel>
   in?: $Enums.JobType[] | Prisma.ListEnumJobTypeFieldRefInput<$PrismaModel>
@@ -601,6 +618,23 @@ export type NestedEnumDocumentTagSourceWithAggregatesFilter<$PrismaModel = never
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumDocumentTagSourceFilter<$PrismaModel>
   _max?: Prisma.NestedEnumDocumentTagSourceFilter<$PrismaModel>
+}
+
+export type NestedEnumTagMergeReviewStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.TagMergeReviewStatus | Prisma.EnumTagMergeReviewStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.TagMergeReviewStatus[] | Prisma.ListEnumTagMergeReviewStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.TagMergeReviewStatus[] | Prisma.ListEnumTagMergeReviewStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumTagMergeReviewStatusFilter<$PrismaModel> | $Enums.TagMergeReviewStatus
+}
+
+export type NestedEnumTagMergeReviewStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.TagMergeReviewStatus | Prisma.EnumTagMergeReviewStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.TagMergeReviewStatus[] | Prisma.ListEnumTagMergeReviewStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.TagMergeReviewStatus[] | Prisma.ListEnumTagMergeReviewStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumTagMergeReviewStatusWithAggregatesFilter<$PrismaModel> | $Enums.TagMergeReviewStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumTagMergeReviewStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumTagMergeReviewStatusFilter<$PrismaModel>
 }
 
 export type NestedEnumJobTypeFilter<$PrismaModel = never> = {

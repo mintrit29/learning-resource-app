@@ -49,21 +49,28 @@ enum DocumentTagSource {
   MERGED
 }
 
+enum TagMergeReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model User {
-  id            String       @id @default(cuid())
-  name          String?
-  email         String       @unique
-  emailVerified DateTime?
-  image         String?
-  passwordHash  String?
-  accounts      Account[]
-  sessions      Session[]
-  documents     Document[]
-  projects      Project[]
-  aiProviders   AiProvider[]
-  createdTags   Tag[]        @relation("TagCreator")
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  id              String           @id @default(cuid())
+  name            String?
+  email           String           @unique
+  emailVerified   DateTime?
+  image           String?
+  passwordHash    String?
+  accounts        Account[]
+  sessions        Session[]
+  documents       Document[]
+  projects        Project[]
+  aiProviders     AiProvider[]
+  createdTags     Tag[]            @relation("TagCreator")
+  tagMergeReviews TagMergeReview[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
 }
 
 model Account {
@@ -120,6 +127,7 @@ model Document {
   jobs             AnalysisJob[]
   recommendations  Recommendation[]
   tags             DocumentTag[]
+  tagMergeReviews  TagMergeReview[]
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
 
@@ -138,6 +146,7 @@ model Tag {
   createdByUser   User                         @relation("TagCreator", fields: [createdByUserId], references: [id], onDelete: Cascade)
   aliases         TagAlias[]
   documents       DocumentTag[]
+  mergeReviews    TagMergeReview[]             @relation("SuggestedTag")
   createdAt       DateTime                     @default(now())
   updatedAt       DateTime                     @updatedAt
 
@@ -168,6 +177,27 @@ model DocumentTag {
 
   @@id([documentId, tagId])
   @@index([tagId])
+}
+
+model TagMergeReview {
+  id                      String                       @id @default(cuid())
+  userId                  String
+  documentId              String?
+  candidateTagName        String
+  candidateNormalizedName String
+  candidateEmbedding      Unsupported("vector(1024)")?
+  suggestedTagId          String
+  similarity              Float
+  status                  TagMergeReviewStatus         @default(PENDING)
+  user                    User                         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  document                Document?                    @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  suggestedTag            Tag                          @relation("SuggestedTag", fields: [suggestedTagId], references: [id], onDelete: Cascade)
+  createdAt               DateTime                     @default(now())
+  resolvedAt              DateTime?
+
+  @@index([userId, status, createdAt])
+  @@index([suggestedTagId, status])
+  @@index([documentId])
 }
 
 model AnalysisJob {

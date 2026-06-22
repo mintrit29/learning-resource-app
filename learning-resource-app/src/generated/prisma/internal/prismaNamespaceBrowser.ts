@@ -59,6 +59,7 @@ export const ModelName = {
   Tag: 'Tag',
   TagAlias: 'TagAlias',
   DocumentTag: 'DocumentTag',
+  TagMergeReview: 'TagMergeReview',
   AnalysisJob: 'AnalysisJob',
   DocumentChunk: 'DocumentChunk',
   Project: 'Project',
@@ -188,6 +189,22 @@ export const DocumentTagScalarFieldEnum = {
 } as const
 
 export type DocumentTagScalarFieldEnum = (typeof DocumentTagScalarFieldEnum)[keyof typeof DocumentTagScalarFieldEnum]
+
+
+export const TagMergeReviewScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  documentId: 'documentId',
+  candidateTagName: 'candidateTagName',
+  candidateNormalizedName: 'candidateNormalizedName',
+  suggestedTagId: 'suggestedTagId',
+  similarity: 'similarity',
+  status: 'status',
+  createdAt: 'createdAt',
+  resolvedAt: 'resolvedAt'
+} as const
+
+export type TagMergeReviewScalarFieldEnum = (typeof TagMergeReviewScalarFieldEnum)[keyof typeof TagMergeReviewScalarFieldEnum]
 
 
 export const AnalysisJobScalarFieldEnum = {
