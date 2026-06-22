@@ -141,6 +141,7 @@ export const DocumentScalarFieldEnum = {
   primaryTopic: 'primaryTopic',
   difficulty: 'difficulty',
   summary: 'summary',
+  subtopics: 'subtopics',
   keywords: 'keywords',
   analysisReason: 'analysisReason',
   status: 'status',

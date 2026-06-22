@@ -85,6 +85,7 @@ export type DocumentCountAggregateOutputType = {
   primaryTopic: number
   difficulty: number
   summary: number
+  subtopics: number
   keywords: number
   analysisReason: number
   status: number
@@ -153,6 +154,7 @@ export type DocumentCountAggregateInputType = {
   primaryTopic?: true
   difficulty?: true
   summary?: true
+  subtopics?: true
   keywords?: true
   analysisReason?: true
   status?: true
@@ -260,6 +262,7 @@ export type DocumentGroupByOutputType = {
   primaryTopic: string | null
   difficulty: $Enums.Difficulty | null
   summary: string | null
+  subtopics: string[]
   keywords: string[]
   analysisReason: string | null
   status: $Enums.DocumentStatus
@@ -303,6 +306,7 @@ export type DocumentWhereInput = {
   primaryTopic?: Prisma.StringNullableFilter<"Document"> | string | null
   difficulty?: Prisma.EnumDifficultyNullableFilter<"Document"> | $Enums.Difficulty | null
   summary?: Prisma.StringNullableFilter<"Document"> | string | null
+  subtopics?: Prisma.StringNullableListFilter<"Document">
   keywords?: Prisma.StringNullableListFilter<"Document">
   analysisReason?: Prisma.StringNullableFilter<"Document"> | string | null
   status?: Prisma.EnumDocumentStatusFilter<"Document"> | $Enums.DocumentStatus
@@ -327,6 +331,7 @@ export type DocumentOrderByWithRelationInput = {
   primaryTopic?: Prisma.SortOrderInput | Prisma.SortOrder
   difficulty?: Prisma.SortOrderInput | Prisma.SortOrder
   summary?: Prisma.SortOrderInput | Prisma.SortOrder
+  subtopics?: Prisma.SortOrder
   keywords?: Prisma.SortOrder
   analysisReason?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -354,6 +359,7 @@ export type DocumentWhereUniqueInput = Prisma.AtLeast<{
   primaryTopic?: Prisma.StringNullableFilter<"Document"> | string | null
   difficulty?: Prisma.EnumDifficultyNullableFilter<"Document"> | $Enums.Difficulty | null
   summary?: Prisma.StringNullableFilter<"Document"> | string | null
+  subtopics?: Prisma.StringNullableListFilter<"Document">
   keywords?: Prisma.StringNullableListFilter<"Document">
   analysisReason?: Prisma.StringNullableFilter<"Document"> | string | null
   status?: Prisma.EnumDocumentStatusFilter<"Document"> | $Enums.DocumentStatus
@@ -378,6 +384,7 @@ export type DocumentOrderByWithAggregationInput = {
   primaryTopic?: Prisma.SortOrderInput | Prisma.SortOrder
   difficulty?: Prisma.SortOrderInput | Prisma.SortOrder
   summary?: Prisma.SortOrderInput | Prisma.SortOrder
+  subtopics?: Prisma.SortOrder
   keywords?: Prisma.SortOrder
   analysisReason?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -406,6 +413,7 @@ export type DocumentScalarWhereWithAggregatesInput = {
   primaryTopic?: Prisma.StringNullableWithAggregatesFilter<"Document"> | string | null
   difficulty?: Prisma.EnumDifficultyNullableWithAggregatesFilter<"Document"> | $Enums.Difficulty | null
   summary?: Prisma.StringNullableWithAggregatesFilter<"Document"> | string | null
+  subtopics?: Prisma.StringNullableListFilter<"Document">
   keywords?: Prisma.StringNullableListFilter<"Document">
   analysisReason?: Prisma.StringNullableWithAggregatesFilter<"Document"> | string | null
   status?: Prisma.EnumDocumentStatusWithAggregatesFilter<"Document"> | $Enums.DocumentStatus
@@ -425,6 +433,7 @@ export type DocumentCreateInput = {
   primaryTopic?: string | null
   difficulty?: $Enums.Difficulty | null
   summary?: string | null
+  subtopics?: Prisma.DocumentCreatesubtopicsInput | string[]
   keywords?: Prisma.DocumentCreatekeywordsInput | string[]
   analysisReason?: string | null
   status?: $Enums.DocumentStatus
@@ -449,6 +458,7 @@ export type DocumentUncheckedCreateInput = {
   primaryTopic?: string | null
   difficulty?: $Enums.Difficulty | null
   summary?: string | null
+  subtopics?: Prisma.DocumentCreatesubtopicsInput | string[]
   keywords?: Prisma.DocumentCreatekeywordsInput | string[]
   analysisReason?: string | null
   status?: $Enums.DocumentStatus
@@ -471,6 +481,7 @@ export type DocumentUpdateInput = {
   primaryTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficulty?: Prisma.NullableEnumDifficultyFieldUpdateOperationsInput | $Enums.Difficulty | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subtopics?: Prisma.DocumentUpdatesubtopicsInput | string[]
   keywords?: Prisma.DocumentUpdatekeywordsInput | string[]
   analysisReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
@@ -495,6 +506,7 @@ export type DocumentUncheckedUpdateInput = {
   primaryTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficulty?: Prisma.NullableEnumDifficultyFieldUpdateOperationsInput | $Enums.Difficulty | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subtopics?: Prisma.DocumentUpdatesubtopicsInput | string[]
   keywords?: Prisma.DocumentUpdatekeywordsInput | string[]
   analysisReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
@@ -518,6 +530,7 @@ export type DocumentCreateManyInput = {
   primaryTopic?: string | null
   difficulty?: $Enums.Difficulty | null
   summary?: string | null
+  subtopics?: Prisma.DocumentCreatesubtopicsInput | string[]
   keywords?: Prisma.DocumentCreatekeywordsInput | string[]
   analysisReason?: string | null
   status?: $Enums.DocumentStatus
@@ -537,6 +550,7 @@ export type DocumentUpdateManyMutationInput = {
   primaryTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficulty?: Prisma.NullableEnumDifficultyFieldUpdateOperationsInput | $Enums.Difficulty | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subtopics?: Prisma.DocumentUpdatesubtopicsInput | string[]
   keywords?: Prisma.DocumentUpdatekeywordsInput | string[]
   analysisReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
@@ -557,6 +571,7 @@ export type DocumentUncheckedUpdateManyInput = {
   primaryTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficulty?: Prisma.NullableEnumDifficultyFieldUpdateOperationsInput | $Enums.Difficulty | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subtopics?: Prisma.DocumentUpdatesubtopicsInput | string[]
   keywords?: Prisma.DocumentUpdatekeywordsInput | string[]
   analysisReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
@@ -595,6 +610,7 @@ export type DocumentCountOrderByAggregateInput = {
   primaryTopic?: Prisma.SortOrder
   difficulty?: Prisma.SortOrder
   summary?: Prisma.SortOrder
+  subtopics?: Prisma.SortOrder
   keywords?: Prisma.SortOrder
   analysisReason?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -695,6 +711,10 @@ export type DocumentUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.DocumentScalarWhereInput | Prisma.DocumentScalarWhereInput[]
 }
 
+export type DocumentCreatesubtopicsInput = {
+  set: string[]
+}
+
 export type DocumentCreatekeywordsInput = {
   set: string[]
 }
@@ -713,6 +733,11 @@ export type IntFieldUpdateOperationsInput = {
 
 export type NullableEnumDifficultyFieldUpdateOperationsInput = {
   set?: $Enums.Difficulty | null
+}
+
+export type DocumentUpdatesubtopicsInput = {
+  set?: string[]
+  push?: string | string[]
 }
 
 export type DocumentUpdatekeywordsInput = {
@@ -778,6 +803,7 @@ export type DocumentCreateWithoutUserInput = {
   primaryTopic?: string | null
   difficulty?: $Enums.Difficulty | null
   summary?: string | null
+  subtopics?: Prisma.DocumentCreatesubtopicsInput | string[]
   keywords?: Prisma.DocumentCreatekeywordsInput | string[]
   analysisReason?: string | null
   status?: $Enums.DocumentStatus
@@ -800,6 +826,7 @@ export type DocumentUncheckedCreateWithoutUserInput = {
   primaryTopic?: string | null
   difficulty?: $Enums.Difficulty | null
   summary?: string | null
+  subtopics?: Prisma.DocumentCreatesubtopicsInput | string[]
   keywords?: Prisma.DocumentCreatekeywordsInput | string[]
   analysisReason?: string | null
   status?: $Enums.DocumentStatus
@@ -852,6 +879,7 @@ export type DocumentScalarWhereInput = {
   primaryTopic?: Prisma.StringNullableFilter<"Document"> | string | null
   difficulty?: Prisma.EnumDifficultyNullableFilter<"Document"> | $Enums.Difficulty | null
   summary?: Prisma.StringNullableFilter<"Document"> | string | null
+  subtopics?: Prisma.StringNullableListFilter<"Document">
   keywords?: Prisma.StringNullableListFilter<"Document">
   analysisReason?: Prisma.StringNullableFilter<"Document"> | string | null
   status?: Prisma.EnumDocumentStatusFilter<"Document"> | $Enums.DocumentStatus
@@ -871,6 +899,7 @@ export type DocumentCreateWithoutJobsInput = {
   primaryTopic?: string | null
   difficulty?: $Enums.Difficulty | null
   summary?: string | null
+  subtopics?: Prisma.DocumentCreatesubtopicsInput | string[]
   keywords?: Prisma.DocumentCreatekeywordsInput | string[]
   analysisReason?: string | null
   status?: $Enums.DocumentStatus
@@ -894,6 +923,7 @@ export type DocumentUncheckedCreateWithoutJobsInput = {
   primaryTopic?: string | null
   difficulty?: $Enums.Difficulty | null
   summary?: string | null
+  subtopics?: Prisma.DocumentCreatesubtopicsInput | string[]
   keywords?: Prisma.DocumentCreatekeywordsInput | string[]
   analysisReason?: string | null
   status?: $Enums.DocumentStatus
@@ -931,6 +961,7 @@ export type DocumentUpdateWithoutJobsInput = {
   primaryTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficulty?: Prisma.NullableEnumDifficultyFieldUpdateOperationsInput | $Enums.Difficulty | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subtopics?: Prisma.DocumentUpdatesubtopicsInput | string[]
   keywords?: Prisma.DocumentUpdatekeywordsInput | string[]
   analysisReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
@@ -954,6 +985,7 @@ export type DocumentUncheckedUpdateWithoutJobsInput = {
   primaryTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficulty?: Prisma.NullableEnumDifficultyFieldUpdateOperationsInput | $Enums.Difficulty | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subtopics?: Prisma.DocumentUpdatesubtopicsInput | string[]
   keywords?: Prisma.DocumentUpdatekeywordsInput | string[]
   analysisReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
@@ -975,6 +1007,7 @@ export type DocumentCreateWithoutChunksInput = {
   primaryTopic?: string | null
   difficulty?: $Enums.Difficulty | null
   summary?: string | null
+  subtopics?: Prisma.DocumentCreatesubtopicsInput | string[]
   keywords?: Prisma.DocumentCreatekeywordsInput | string[]
   analysisReason?: string | null
   status?: $Enums.DocumentStatus
@@ -998,6 +1031,7 @@ export type DocumentUncheckedCreateWithoutChunksInput = {
   primaryTopic?: string | null
   difficulty?: $Enums.Difficulty | null
   summary?: string | null
+  subtopics?: Prisma.DocumentCreatesubtopicsInput | string[]
   keywords?: Prisma.DocumentCreatekeywordsInput | string[]
   analysisReason?: string | null
   status?: $Enums.DocumentStatus
@@ -1035,6 +1069,7 @@ export type DocumentUpdateWithoutChunksInput = {
   primaryTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficulty?: Prisma.NullableEnumDifficultyFieldUpdateOperationsInput | $Enums.Difficulty | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subtopics?: Prisma.DocumentUpdatesubtopicsInput | string[]
   keywords?: Prisma.DocumentUpdatekeywordsInput | string[]
   analysisReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
@@ -1058,6 +1093,7 @@ export type DocumentUncheckedUpdateWithoutChunksInput = {
   primaryTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficulty?: Prisma.NullableEnumDifficultyFieldUpdateOperationsInput | $Enums.Difficulty | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subtopics?: Prisma.DocumentUpdatesubtopicsInput | string[]
   keywords?: Prisma.DocumentUpdatekeywordsInput | string[]
   analysisReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
@@ -1079,6 +1115,7 @@ export type DocumentCreateWithoutRecommendationsInput = {
   primaryTopic?: string | null
   difficulty?: $Enums.Difficulty | null
   summary?: string | null
+  subtopics?: Prisma.DocumentCreatesubtopicsInput | string[]
   keywords?: Prisma.DocumentCreatekeywordsInput | string[]
   analysisReason?: string | null
   status?: $Enums.DocumentStatus
@@ -1102,6 +1139,7 @@ export type DocumentUncheckedCreateWithoutRecommendationsInput = {
   primaryTopic?: string | null
   difficulty?: $Enums.Difficulty | null
   summary?: string | null
+  subtopics?: Prisma.DocumentCreatesubtopicsInput | string[]
   keywords?: Prisma.DocumentCreatekeywordsInput | string[]
   analysisReason?: string | null
   status?: $Enums.DocumentStatus
@@ -1139,6 +1177,7 @@ export type DocumentUpdateWithoutRecommendationsInput = {
   primaryTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficulty?: Prisma.NullableEnumDifficultyFieldUpdateOperationsInput | $Enums.Difficulty | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subtopics?: Prisma.DocumentUpdatesubtopicsInput | string[]
   keywords?: Prisma.DocumentUpdatekeywordsInput | string[]
   analysisReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
@@ -1162,6 +1201,7 @@ export type DocumentUncheckedUpdateWithoutRecommendationsInput = {
   primaryTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficulty?: Prisma.NullableEnumDifficultyFieldUpdateOperationsInput | $Enums.Difficulty | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subtopics?: Prisma.DocumentUpdatesubtopicsInput | string[]
   keywords?: Prisma.DocumentUpdatekeywordsInput | string[]
   analysisReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
@@ -1183,6 +1223,7 @@ export type DocumentCreateManyUserInput = {
   primaryTopic?: string | null
   difficulty?: $Enums.Difficulty | null
   summary?: string | null
+  subtopics?: Prisma.DocumentCreatesubtopicsInput | string[]
   keywords?: Prisma.DocumentCreatekeywordsInput | string[]
   analysisReason?: string | null
   status?: $Enums.DocumentStatus
@@ -1202,6 +1243,7 @@ export type DocumentUpdateWithoutUserInput = {
   primaryTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficulty?: Prisma.NullableEnumDifficultyFieldUpdateOperationsInput | $Enums.Difficulty | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subtopics?: Prisma.DocumentUpdatesubtopicsInput | string[]
   keywords?: Prisma.DocumentUpdatekeywordsInput | string[]
   analysisReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
@@ -1224,6 +1266,7 @@ export type DocumentUncheckedUpdateWithoutUserInput = {
   primaryTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficulty?: Prisma.NullableEnumDifficultyFieldUpdateOperationsInput | $Enums.Difficulty | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subtopics?: Prisma.DocumentUpdatesubtopicsInput | string[]
   keywords?: Prisma.DocumentUpdatekeywordsInput | string[]
   analysisReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
@@ -1246,6 +1289,7 @@ export type DocumentUncheckedUpdateManyWithoutUserInput = {
   primaryTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficulty?: Prisma.NullableEnumDifficultyFieldUpdateOperationsInput | $Enums.Difficulty | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subtopics?: Prisma.DocumentUpdatesubtopicsInput | string[]
   keywords?: Prisma.DocumentUpdatekeywordsInput | string[]
   analysisReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
@@ -1315,6 +1359,7 @@ export type DocumentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   primaryTopic?: boolean
   difficulty?: boolean
   summary?: boolean
+  subtopics?: boolean
   keywords?: boolean
   analysisReason?: boolean
   status?: boolean
@@ -1340,6 +1385,7 @@ export type DocumentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   primaryTopic?: boolean
   difficulty?: boolean
   summary?: boolean
+  subtopics?: boolean
   keywords?: boolean
   analysisReason?: boolean
   status?: boolean
@@ -1361,6 +1407,7 @@ export type DocumentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   primaryTopic?: boolean
   difficulty?: boolean
   summary?: boolean
+  subtopics?: boolean
   keywords?: boolean
   analysisReason?: boolean
   status?: boolean
@@ -1382,6 +1429,7 @@ export type DocumentSelectScalar = {
   primaryTopic?: boolean
   difficulty?: boolean
   summary?: boolean
+  subtopics?: boolean
   keywords?: boolean
   analysisReason?: boolean
   status?: boolean
@@ -1389,7 +1437,7 @@ export type DocumentSelectScalar = {
   updatedAt?: boolean
 }
 
-export type DocumentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "title" | "originalFileName" | "fileType" | "filePath" | "fileSize" | "textContent" | "language" | "primaryTopic" | "difficulty" | "summary" | "keywords" | "analysisReason" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["document"]>
+export type DocumentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "title" | "originalFileName" | "fileType" | "filePath" | "fileSize" | "textContent" | "language" | "primaryTopic" | "difficulty" | "summary" | "subtopics" | "keywords" | "analysisReason" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["document"]>
 export type DocumentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   chunks?: boolean | Prisma.Document$chunksArgs<ExtArgs>
@@ -1425,6 +1473,7 @@ export type $DocumentPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     primaryTopic: string | null
     difficulty: $Enums.Difficulty | null
     summary: string | null
+    subtopics: string[]
     keywords: string[]
     analysisReason: string | null
     status: $Enums.DocumentStatus
@@ -1869,6 +1918,7 @@ export interface DocumentFieldRefs {
   readonly primaryTopic: Prisma.FieldRef<"Document", 'String'>
   readonly difficulty: Prisma.FieldRef<"Document", 'Difficulty'>
   readonly summary: Prisma.FieldRef<"Document", 'String'>
+  readonly subtopics: Prisma.FieldRef<"Document", 'String[]'>
   readonly keywords: Prisma.FieldRef<"Document", 'String[]'>
   readonly analysisReason: Prisma.FieldRef<"Document", 'String'>
   readonly status: Prisma.FieldRef<"Document", 'DocumentStatus'>

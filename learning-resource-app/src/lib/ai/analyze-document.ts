@@ -21,6 +21,7 @@ const resultSchema = z.object({
   topic: z.enum(topics),
   difficulty: z.enum(["BEGINNER", "INTERMEDIATE", "ADVANCED"]),
   summary: z.string().trim().min(20).max(5000),
+  subtopics: z.array(z.string().trim().min(2).max(100)).min(2).max(12),
   keywords: z.array(z.string().trim().min(1).max(80)).min(3).max(30),
   reason: z.string().trim().min(10).max(2000),
 });
@@ -63,7 +64,7 @@ export async function analyzeDocument(documentId: string, jobId: string) {
       {
         role: "user",
         content: `Phân tích học liệu sau và trả về JSON theo đúng cấu trúc. Topic phải là một trong: ${topics.join(", ")}.
-{"topic":"chủ đề chính","difficulty":"BEGINNER|INTERMEDIATE|ADVANCED","summary":"tóm tắt tiếng Việt 5-8 câu","keywords":["3-30 từ khóa"],"reason":"lý do chọn chủ đề và độ khó"}
+{"topic":"chủ đề chính","difficulty":"BEGINNER|INTERMEDIATE|ADVANCED","summary":"tóm tắt tiếng Việt 5-8 câu","subtopics":["2-12 chủ đề con cụ thể"],"keywords":["3-30 từ khóa"],"reason":"lý do chọn chủ đề và độ khó"}
 
 Tên file: ${document.originalFileName}
 Nội dung:
@@ -79,6 +80,7 @@ ${content}`,
           primaryTopic: result.topic,
           difficulty: result.difficulty as Difficulty,
           summary: result.summary,
+          subtopics: [...new Set(result.subtopics)],
           keywords: [...new Set(result.keywords)],
           analysisReason: result.reason,
           status: DocumentStatus.READY,

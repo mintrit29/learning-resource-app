@@ -69,7 +69,8 @@ export default async function DocumentDetailPage({
     job.status === "PENDING" || job.status === "PROCESSING"
   );
   const analysisComplete = Boolean(
-    document.primaryTopic && document.difficulty && document.summary && document.keywords.length,
+    document.primaryTopic && document.difficulty && document.summary &&
+    document.subtopics.length && document.keywords.length,
   );
   const needsProcessing = !document.textContent || document._count.chunks === 0 ||
     Number(missingEmbeddings) > 0 || !analysisComplete;
@@ -87,6 +88,14 @@ export default async function DocumentDetailPage({
           <DeleteDocumentButton documentId={document.id} documentTitle={document.title} />
         </div>
       </header>
+
+      {document.summary ? (
+        <section className="document-analysis-section">
+          <div><p className="eyebrow">Phân tích AI</p><h2>Tóm tắt</h2><p>{document.summary}</p></div>
+          <div><strong>Chủ đề con</strong><div className="analysis-tags">{document.subtopics.map((item) => <span key={item}>{item}</span>)}</div></div>
+          <div><strong>Từ khóa</strong><div className="analysis-tags muted">{document.keywords.map((item) => <span key={item}>{item}</span>)}</div></div>
+        </section>
+      ) : null}
 
       <section className="document-meta-strip">
         <div><span>Kích thước</span><strong>{formatBytes(document.fileSize)}</strong></div>

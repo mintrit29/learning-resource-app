@@ -93,7 +93,7 @@
 - [x] Mã hóa API key trước khi lưu
 - [x] Chuyển prompt phân tích từ Streamlit
 - [x] Phân loại primary topic
-- [ ] Sinh subtopics/tags
+- [x] Sinh subtopics/tags và lưu kết quả thô để chuẩn hóa ở bước taxonomy
 - [x] Đánh giá difficulty
 - [x] Sinh summary
 - [x] Sinh keywords

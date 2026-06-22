@@ -104,6 +104,7 @@ model Document {
   primaryTopic     String?
   difficulty       Difficulty?
   summary          String?
+  subtopics        String[]       @default([])
   keywords         String[]       @default([])
   analysisReason   String?
   status           DocumentStatus @default(UPLOADED)
