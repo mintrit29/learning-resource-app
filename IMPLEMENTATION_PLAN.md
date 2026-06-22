@@ -551,21 +551,7 @@ Behavior:
 
 ### 5.5. OpenAI Codex provider
 
-Mục tiêu sản phẩm:
-
-- Cho phép người dùng đăng nhập OpenAI/Codex để thực hiện tác vụ AI tương tự flow OAuth/sign-in trong các app AI provider settings.
-- UI có card `OpenAI Codex` với nút `Sign in with OpenAI Codex`.
-
-Kế hoạch kỹ thuật:
-
-- Tách thành spike riêng trong tuần 9.
-- Xác minh cách lấy token/session hợp lệ, phạm vi sử dụng, giới hạn, và khả năng gọi tác vụ AI từ web app.
-- Nếu không có API/OAuth public phù hợp cho web app bên thứ ba, fallback thành `OpenAI API provider` dùng API key hoặc ẩn tính năng Codex sau feature flag.
-
-Quy tắc PRD:
-
-- Vẫn giữ `OpenAI Codex` là provider mục tiêu theo yêu cầu sản phẩm.
-- Không để nó chặn MVP; OpenRouter/Ollama/Custom phải chạy được trước.
+Spike tuần 9 đã hoàn tất: tài liệu chính thức chỉ mô tả ChatGPT/Codex auth cho các bề mặt Codex và trusted automation, không công bố OAuth client flow cho web app bên thứ ba. Vì vậy không triển khai card/nút Codex và cũng không thêm OpenAI vào Custom. MVP chỉ dùng OpenRouter, Ollama và Custom API. Xem `CODEX_AUTH_SPIKE.md`.
 
 ## 6. UI/UX Pages
 

@@ -5,6 +5,7 @@ import { auth } from "@/auth";
 import { Difficulty } from "@/generated/prisma/enums";
 import { documentAnalysisSchema } from "@/lib/ai/analysis-schema";
 import { db } from "@/lib/db";
+import { syncDocumentTags } from "@/lib/taxonomy/sync-document-tags";
 
 export async function PATCH(
   request: Request,
@@ -26,13 +27,15 @@ export async function PATCH(
   if (!document) return NextResponse.json({ message: "Không tìm thấy tài liệu" }, { status: 404 });
 
   const result = parsed.data;
+  const subtopics = [...new Set(result.subtopics)];
+  await syncDocumentTags(document.id, session.user.id, subtopics);
   await db.document.update({
     where: { id: document.id },
     data: {
       primaryTopic: result.topic,
       difficulty: result.difficulty as Difficulty,
       summary: result.summary,
-      subtopics: [...new Set(result.subtopics)],
+      subtopics,
       keywords: [...new Set(result.keywords)],
       analysisReason: result.reason,
     },

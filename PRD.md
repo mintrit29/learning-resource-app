@@ -317,9 +317,7 @@ Người dùng có thể cấu hình nhiều provider:
 
 #### OpenAI Codex
 
-Provider này được định hướng theo mong muốn sản phẩm: người dùng đăng nhập bằng OpenAI/Codex auth để sử dụng tác vụ AI nhanh, tiện lợi, tương tự các ứng dụng có luồng "Sign in with provider".
-
-Trong implementation, provider này cần được tách thành một technical spike riêng vì cần xác minh cách tích hợp thực tế, luồng auth, token, giới hạn sử dụng và mức độ hỗ trợ chính thức cho web app bên thứ ba.
+Spike tuần 9 kết luận chưa có OAuth public được tài liệu hóa cho web app bên thứ ba. ScholarFlow không hiển thị provider hoặc nút đăng nhập Codex trong MVP; chỉ xem xét lại ở future work. Ba provider hiện tại là OpenRouter, Ollama và Custom API. Chi tiết tại `CODEX_AUTH_SPIKE.md`.
 
 #### OpenRouter
 

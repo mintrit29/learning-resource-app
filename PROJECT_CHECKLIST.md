@@ -111,11 +111,11 @@
 - [x] So sánh tag bằng embedding similarity
 - [x] Tạo TagMergeReview
 - [x] Tạo trang quản lý canonical tags
-- [ ] Cho phép approve/reject đề xuất gộp tag
-- [ ] Thiết kế giao diện Sign in with OpenAI Codex
-- [ ] Kiểm tra tài liệu và khả năng tích hợp auth thực tế
-- [ ] Thực hiện proof of concept nếu khả thi
-- [ ] Ghi kết luận: hỗ trợ, fallback hoặc future work
+- [x] Cho phép approve/reject đề xuất gộp tag
+- [x] Thiết kế giao diện Sign in with OpenAI Codex (đã đánh giá và quyết định không hiển thị trong MVP)
+- [x] Kiểm tra tài liệu và khả năng tích hợp auth thực tế
+- [x] Thực hiện proof of concept nếu khả thi (không thực hiện vì không có OAuth public cho web app bên thứ ba)
+- [x] Ghi kết luận: để future work; MVP chỉ dùng OpenRouter, Ollama và Custom API
 
 ## Tuần 10: Research Project Và Recommendation
 
@@ -193,7 +193,7 @@
 
 ## Vấn Đề Cần Theo Dõi
 
-- [ ] Xác minh OpenAI Codex auth có thể dùng hợp lệ trong web app bên thứ ba
+- [x] Xác minh OpenAI Codex auth: chưa có luồng public được tài liệu hóa cho web app bên thứ ba
 - [ ] Chọn thư viện trích xuất tốt nhất cho từng định dạng
 - [ ] Benchmark BGE-M3 thực tế trên máy phát triển
 - [ ] Chốt giới hạn kích thước file upload

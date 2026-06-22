@@ -2,6 +2,7 @@ import { Difficulty, DocumentStatus, JobStatus } from "@/generated/prisma/enums"
 import { analysisTopics, documentAnalysisSchema } from "@/lib/ai/analysis-schema";
 import { completeChat } from "@/lib/ai/chat-provider";
 import { db } from "@/lib/db";
+import { syncDocumentTags } from "@/lib/taxonomy/sync-document-tags";
 
 function parseJson(value: string) {
   const cleaned = value.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
@@ -49,6 +50,8 @@ ${content}`,
       },
     ]);
     const result = documentAnalysisSchema.parse(parseJson(response));
+    const subtopics = [...new Set(result.subtopics)];
+    await syncDocumentTags(document.id, document.userId, subtopics);
 
     await db.$transaction([
       db.document.update({
@@ -57,7 +60,7 @@ ${content}`,
           primaryTopic: result.topic,
           difficulty: result.difficulty as Difficulty,
           summary: result.summary,
-          subtopics: [...new Set(result.subtopics)],
+          subtopics,
           keywords: [...new Set(result.keywords)],
           analysisReason: result.reason,
           status: DocumentStatus.READY,
