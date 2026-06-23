@@ -1666,6 +1666,7 @@ export const RecommendationScalarFieldEnum = {
   documentId: 'documentId',
   score: 'score',
   reason: 'reason',
+  bestChunkId: 'bestChunkId',
   createdAt: 'createdAt'
 } as const
 

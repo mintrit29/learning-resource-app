@@ -3,7 +3,7 @@
 **Đề tài:** Hệ thống quản lý học liệu thông minh sử dụng NLP và Semantic Search  
 **Nhóm:** 2 thành viên  
 **Deadline:** 20/09/2026  
-**Cập nhật gần nhất:** 20/06/2026
+**Cập nhật gần nhất:** 23/06/2026
 
 ## Quy Ước Trạng Thái
 
@@ -22,8 +22,8 @@
 - [x] Chốt BGE-M3 local làm embedding model mặc định
 - [-] Hoàn thành nền tảng Next.js và database
 - [-] Hoàn thành pipeline xử lý tài liệu
-- [ ] Hoàn thành semantic search và recommendation
-- [ ] Hoàn thành AI provider settings
+- [x] Hoàn thành semantic search và recommendation
+- [x] Hoàn thành AI provider settings
 - [ ] Hoàn thành evaluation dataset và đánh giá
 - [ ] Hoàn thành báo cáo và demo bảo vệ
 
@@ -119,16 +119,16 @@
 
 ## Tuần 10: Research Project Và Recommendation
 
-- [ ] Tạo schema Project
-- [ ] Tạo trang danh sách project
-- [ ] Tạo form nhập topic, mô tả và độ khó mục tiêu
-- [ ] Tạo embedding cho project
-- [ ] Tìm các chunks gần nghĩa bằng pgvector
-- [ ] Gom kết quả theo document
-- [ ] Kết hợp topic, difficulty và canonical tags khi xếp hạng
-- [ ] Dùng LLM sinh lý do gợi ý
-- [ ] Lưu Recommendation
-- [ ] Hiển thị danh sách tài liệu được gợi ý
+- [x] Tạo schema Project
+- [x] Tạo trang danh sách project
+- [x] Tạo form nhập topic, mô tả và độ khó mục tiêu
+- [x] Tạo embedding cho project
+- [x] Tìm các chunks gần nghĩa bằng pgvector
+- [x] Gom kết quả theo document
+- [x] Kết hợp topic, difficulty và canonical tags khi xếp hạng
+- [x] Dùng LLM sinh lý do gợi ý
+- [x] Lưu Recommendation
+- [x] Hiển thị danh sách tài liệu được gợi ý
 
 ## Tuần 11: Dataset Và Evaluation
 

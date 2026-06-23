@@ -420,7 +420,7 @@ MVP được xem là thành công khi:
 - Hệ thống tạo summary, keywords, primary topic, subtopics/tags, difficulty bằng LLM.
 - Hệ thống tạo embeddings và semantic search được.
 - Kết quả semantic search chỉ rõ vị trí nguồn và điều hướng đến đúng chunk; PDF mở được đúng trang.
-- BGE-M3 chạy local và tạo vector ổn định trên máy phát triển; ưu tiên CUDA batch 2, fallback CPU batch 4 và embedding provider khác khi cần.
+- BGE-M3 chạy local và tạo vector ổn định trên máy phát triển; ưu tiên CUDA batch 2 và tự fallback sang CPU batch 4 mà không cần re-embed.
 - Dashboard hiển thị thống kê cơ bản.
 - User tạo project topic và nhận gợi ý tài liệu phù hợp.
 - Hệ thống chuẩn hóa được tags cơ bản bằng normalize, alias và embedding similarity.

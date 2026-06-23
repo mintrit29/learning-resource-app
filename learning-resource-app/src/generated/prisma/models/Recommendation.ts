@@ -40,6 +40,7 @@ export type RecommendationMinAggregateOutputType = {
   documentId: string | null
   score: number | null
   reason: string | null
+  bestChunkId: string | null
   createdAt: Date | null
 }
 
@@ -49,6 +50,7 @@ export type RecommendationMaxAggregateOutputType = {
   documentId: string | null
   score: number | null
   reason: string | null
+  bestChunkId: string | null
   createdAt: Date | null
 }
 
@@ -58,6 +60,7 @@ export type RecommendationCountAggregateOutputType = {
   documentId: number
   score: number
   reason: number
+  bestChunkId: number
   createdAt: number
   _all: number
 }
@@ -77,6 +80,7 @@ export type RecommendationMinAggregateInputType = {
   documentId?: true
   score?: true
   reason?: true
+  bestChunkId?: true
   createdAt?: true
 }
 
@@ -86,6 +90,7 @@ export type RecommendationMaxAggregateInputType = {
   documentId?: true
   score?: true
   reason?: true
+  bestChunkId?: true
   createdAt?: true
 }
 
@@ -95,6 +100,7 @@ export type RecommendationCountAggregateInputType = {
   documentId?: true
   score?: true
   reason?: true
+  bestChunkId?: true
   createdAt?: true
   _all?: true
 }
@@ -191,6 +197,7 @@ export type RecommendationGroupByOutputType = {
   documentId: string
   score: number
   reason: string | null
+  bestChunkId: string | null
   createdAt: Date
   _count: RecommendationCountAggregateOutputType | null
   _avg: RecommendationAvgAggregateOutputType | null
@@ -223,6 +230,7 @@ export type RecommendationWhereInput = {
   documentId?: Prisma.StringFilter<"Recommendation"> | string
   score?: Prisma.FloatFilter<"Recommendation"> | number
   reason?: Prisma.StringNullableFilter<"Recommendation"> | string | null
+  bestChunkId?: Prisma.StringNullableFilter<"Recommendation"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Recommendation"> | Date | string
   project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>
   document?: Prisma.XOR<Prisma.DocumentScalarRelationFilter, Prisma.DocumentWhereInput>
@@ -234,6 +242,7 @@ export type RecommendationOrderByWithRelationInput = {
   documentId?: Prisma.SortOrder
   score?: Prisma.SortOrder
   reason?: Prisma.SortOrderInput | Prisma.SortOrder
+  bestChunkId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   project?: Prisma.ProjectOrderByWithRelationInput
   document?: Prisma.DocumentOrderByWithRelationInput
@@ -249,6 +258,7 @@ export type RecommendationWhereUniqueInput = Prisma.AtLeast<{
   documentId?: Prisma.StringFilter<"Recommendation"> | string
   score?: Prisma.FloatFilter<"Recommendation"> | number
   reason?: Prisma.StringNullableFilter<"Recommendation"> | string | null
+  bestChunkId?: Prisma.StringNullableFilter<"Recommendation"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Recommendation"> | Date | string
   project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>
   document?: Prisma.XOR<Prisma.DocumentScalarRelationFilter, Prisma.DocumentWhereInput>
@@ -260,6 +270,7 @@ export type RecommendationOrderByWithAggregationInput = {
   documentId?: Prisma.SortOrder
   score?: Prisma.SortOrder
   reason?: Prisma.SortOrderInput | Prisma.SortOrder
+  bestChunkId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.RecommendationCountOrderByAggregateInput
   _avg?: Prisma.RecommendationAvgOrderByAggregateInput
@@ -277,6 +288,7 @@ export type RecommendationScalarWhereWithAggregatesInput = {
   documentId?: Prisma.StringWithAggregatesFilter<"Recommendation"> | string
   score?: Prisma.FloatWithAggregatesFilter<"Recommendation"> | number
   reason?: Prisma.StringNullableWithAggregatesFilter<"Recommendation"> | string | null
+  bestChunkId?: Prisma.StringNullableWithAggregatesFilter<"Recommendation"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Recommendation"> | Date | string
 }
 
@@ -284,6 +296,7 @@ export type RecommendationCreateInput = {
   id?: string
   score: number
   reason?: string | null
+  bestChunkId?: string | null
   createdAt?: Date | string
   project: Prisma.ProjectCreateNestedOneWithoutRecommendationsInput
   document: Prisma.DocumentCreateNestedOneWithoutRecommendationsInput
@@ -295,6 +308,7 @@ export type RecommendationUncheckedCreateInput = {
   documentId: string
   score: number
   reason?: string | null
+  bestChunkId?: string | null
   createdAt?: Date | string
 }
 
@@ -302,6 +316,7 @@ export type RecommendationUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   score?: Prisma.FloatFieldUpdateOperationsInput | number
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bestChunkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   project?: Prisma.ProjectUpdateOneRequiredWithoutRecommendationsNestedInput
   document?: Prisma.DocumentUpdateOneRequiredWithoutRecommendationsNestedInput
@@ -313,6 +328,7 @@ export type RecommendationUncheckedUpdateInput = {
   documentId?: Prisma.StringFieldUpdateOperationsInput | string
   score?: Prisma.FloatFieldUpdateOperationsInput | number
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bestChunkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -322,6 +338,7 @@ export type RecommendationCreateManyInput = {
   documentId: string
   score: number
   reason?: string | null
+  bestChunkId?: string | null
   createdAt?: Date | string
 }
 
@@ -329,6 +346,7 @@ export type RecommendationUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   score?: Prisma.FloatFieldUpdateOperationsInput | number
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bestChunkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -338,6 +356,7 @@ export type RecommendationUncheckedUpdateManyInput = {
   documentId?: Prisma.StringFieldUpdateOperationsInput | string
   score?: Prisma.FloatFieldUpdateOperationsInput | number
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bestChunkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -362,6 +381,7 @@ export type RecommendationCountOrderByAggregateInput = {
   documentId?: Prisma.SortOrder
   score?: Prisma.SortOrder
   reason?: Prisma.SortOrder
+  bestChunkId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -375,6 +395,7 @@ export type RecommendationMaxOrderByAggregateInput = {
   documentId?: Prisma.SortOrder
   score?: Prisma.SortOrder
   reason?: Prisma.SortOrder
+  bestChunkId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -384,6 +405,7 @@ export type RecommendationMinOrderByAggregateInput = {
   documentId?: Prisma.SortOrder
   score?: Prisma.SortOrder
   reason?: Prisma.SortOrder
+  bestChunkId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -479,6 +501,7 @@ export type RecommendationCreateWithoutDocumentInput = {
   id?: string
   score: number
   reason?: string | null
+  bestChunkId?: string | null
   createdAt?: Date | string
   project: Prisma.ProjectCreateNestedOneWithoutRecommendationsInput
 }
@@ -488,6 +511,7 @@ export type RecommendationUncheckedCreateWithoutDocumentInput = {
   projectId: string
   score: number
   reason?: string | null
+  bestChunkId?: string | null
   createdAt?: Date | string
 }
 
@@ -526,6 +550,7 @@ export type RecommendationScalarWhereInput = {
   documentId?: Prisma.StringFilter<"Recommendation"> | string
   score?: Prisma.FloatFilter<"Recommendation"> | number
   reason?: Prisma.StringNullableFilter<"Recommendation"> | string | null
+  bestChunkId?: Prisma.StringNullableFilter<"Recommendation"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Recommendation"> | Date | string
 }
 
@@ -533,6 +558,7 @@ export type RecommendationCreateWithoutProjectInput = {
   id?: string
   score: number
   reason?: string | null
+  bestChunkId?: string | null
   createdAt?: Date | string
   document: Prisma.DocumentCreateNestedOneWithoutRecommendationsInput
 }
@@ -542,6 +568,7 @@ export type RecommendationUncheckedCreateWithoutProjectInput = {
   documentId: string
   score: number
   reason?: string | null
+  bestChunkId?: string | null
   createdAt?: Date | string
 }
 
@@ -576,6 +603,7 @@ export type RecommendationCreateManyDocumentInput = {
   projectId: string
   score: number
   reason?: string | null
+  bestChunkId?: string | null
   createdAt?: Date | string
 }
 
@@ -583,6 +611,7 @@ export type RecommendationUpdateWithoutDocumentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   score?: Prisma.FloatFieldUpdateOperationsInput | number
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bestChunkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   project?: Prisma.ProjectUpdateOneRequiredWithoutRecommendationsNestedInput
 }
@@ -592,6 +621,7 @@ export type RecommendationUncheckedUpdateWithoutDocumentInput = {
   projectId?: Prisma.StringFieldUpdateOperationsInput | string
   score?: Prisma.FloatFieldUpdateOperationsInput | number
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bestChunkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -600,6 +630,7 @@ export type RecommendationUncheckedUpdateManyWithoutDocumentInput = {
   projectId?: Prisma.StringFieldUpdateOperationsInput | string
   score?: Prisma.FloatFieldUpdateOperationsInput | number
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bestChunkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -608,6 +639,7 @@ export type RecommendationCreateManyProjectInput = {
   documentId: string
   score: number
   reason?: string | null
+  bestChunkId?: string | null
   createdAt?: Date | string
 }
 
@@ -615,6 +647,7 @@ export type RecommendationUpdateWithoutProjectInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   score?: Prisma.FloatFieldUpdateOperationsInput | number
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bestChunkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   document?: Prisma.DocumentUpdateOneRequiredWithoutRecommendationsNestedInput
 }
@@ -624,6 +657,7 @@ export type RecommendationUncheckedUpdateWithoutProjectInput = {
   documentId?: Prisma.StringFieldUpdateOperationsInput | string
   score?: Prisma.FloatFieldUpdateOperationsInput | number
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bestChunkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -632,6 +666,7 @@ export type RecommendationUncheckedUpdateManyWithoutProjectInput = {
   documentId?: Prisma.StringFieldUpdateOperationsInput | string
   score?: Prisma.FloatFieldUpdateOperationsInput | number
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bestChunkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -643,6 +678,7 @@ export type RecommendationSelect<ExtArgs extends runtime.Types.Extensions.Intern
   documentId?: boolean
   score?: boolean
   reason?: boolean
+  bestChunkId?: boolean
   createdAt?: boolean
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
   document?: boolean | Prisma.DocumentDefaultArgs<ExtArgs>
@@ -654,6 +690,7 @@ export type RecommendationSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   documentId?: boolean
   score?: boolean
   reason?: boolean
+  bestChunkId?: boolean
   createdAt?: boolean
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
   document?: boolean | Prisma.DocumentDefaultArgs<ExtArgs>
@@ -665,6 +702,7 @@ export type RecommendationSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   documentId?: boolean
   score?: boolean
   reason?: boolean
+  bestChunkId?: boolean
   createdAt?: boolean
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
   document?: boolean | Prisma.DocumentDefaultArgs<ExtArgs>
@@ -676,10 +714,11 @@ export type RecommendationSelectScalar = {
   documentId?: boolean
   score?: boolean
   reason?: boolean
+  bestChunkId?: boolean
   createdAt?: boolean
 }
 
-export type RecommendationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "projectId" | "documentId" | "score" | "reason" | "createdAt", ExtArgs["result"]["recommendation"]>
+export type RecommendationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "projectId" | "documentId" | "score" | "reason" | "bestChunkId" | "createdAt", ExtArgs["result"]["recommendation"]>
 export type RecommendationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
   document?: boolean | Prisma.DocumentDefaultArgs<ExtArgs>
@@ -705,6 +744,7 @@ export type $RecommendationPayload<ExtArgs extends runtime.Types.Extensions.Inte
     documentId: string
     score: number
     reason: string | null
+    bestChunkId: string | null
     createdAt: Date
   }, ExtArgs["result"]["recommendation"]>
   composites: {}
@@ -1136,6 +1176,7 @@ export interface RecommendationFieldRefs {
   readonly documentId: Prisma.FieldRef<"Recommendation", 'String'>
   readonly score: Prisma.FieldRef<"Recommendation", 'Float'>
   readonly reason: Prisma.FieldRef<"Recommendation", 'String'>
+  readonly bestChunkId: Prisma.FieldRef<"Recommendation", 'String'>
   readonly createdAt: Prisma.FieldRef<"Recommendation", 'DateTime'>
 }
     

@@ -256,6 +256,7 @@ Fields chính:
 - `description`
 - `keywords`
 - `targetDifficulty`
+- `embedding` (`vector(1024)`, BGE-M3)
 - `createdAt`
 - `updatedAt`
 
@@ -270,6 +271,7 @@ Fields chính:
 - `documentId`
 - `score`
 - `reason`
+- `bestChunkId`
 - `createdAt`
 
 ### 3.12. SearchLog
@@ -777,6 +779,7 @@ Deadline: 20/09. Mốc bắt đầu: 18/06. Tổng thời gian khoảng 13 tuầ
 - Kết hợp document chunks, primary topic và canonical tags khi xếp hạng.
 - Dùng LLM sinh lý do gợi ý.
 - Lưu Recommendation.
+- Nếu chat provider tạm lỗi, vẫn lưu lý do dự phòng dựa trên semantic score, difficulty và canonical tags.
 
 ### Tuần 11: Evaluation
 

@@ -240,6 +240,7 @@ model Project {
   description      String
   keywords         String[]         @default([])
   targetDifficulty Difficulty?
+  embedding        Unsupported("vector(1024)")?
   user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   recommendations  Recommendation[]
   createdAt        DateTime         @default(now())
@@ -254,6 +255,7 @@ model Recommendation {
   documentId String
   score      Float
   reason     String?
+  bestChunkId String?
   project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
   createdAt  DateTime @default(now())

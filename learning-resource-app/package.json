@@ -21,7 +21,8 @@
     "test:ai-providers": "tsx scripts/ai-provider-smoke.ts",
     "test:tag-normalization": "node --experimental-strip-types scripts/test-tag-normalization.mjs",
     "test:canonical-tags": "tsx scripts/canonical-tag-smoke.ts",
-    "test:tag-similarity": "tsx scripts/tag-similarity-smoke.ts"
+    "test:tag-similarity": "tsx scripts/tag-similarity-smoke.ts",
+    "test:project-recommendations": "tsx scripts/project-recommendation-smoke.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.2",
