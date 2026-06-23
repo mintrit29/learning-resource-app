@@ -1,40 +1,39 @@
-# ScholarFlow — Hệ thống quản lý học liệu thông minh
+# ScholarFlow
 
-ScholarFlow là đồ án cuối khóa về quản lý, phân loại và tìm kiếm học liệu bằng NLP, LLM và semantic search. Hệ thống cho phép sinh viên tải lên tài liệu học tập, tự động trích xuất nội dung, chia nhỏ văn bản, tạo vector embedding và tìm lại đúng đoạn liên quan bằng truy vấn ngôn ngữ tự nhiên.
+ScholarFlow là ứng dụng quản lý và tìm kiếm học liệu dành cho sinh viên. Bạn có thể tải lên PDF, DOCX, PPTX hoặc EPUB; hệ thống sẽ tự trích xuất nội dung, phân tích bằng AI và tìm đúng đoạn liên quan bằng câu hỏi tự nhiên.
 
-## Tính năng chính
+## Dành cho người sử dụng
 
-- Đăng ký, đăng nhập và quản lý dữ liệu theo người dùng.
-- Tải lên tài liệu PDF, DOCX, PPTX và EPUB.
-- Trích xuất nội dung kèm vị trí nguồn: trang, slide, chương hoặc heading.
-- Chia nội dung thành chunks và tạo embedding 1024 chiều bằng `BAAI/bge-m3`.
-- Lưu trữ và tìm kiếm vector với PostgreSQL và pgvector.
-- Semantic search hiển thị đoạn khớp và điều hướng về đúng vị trí trong tài liệu.
-- Quản lý cấu hình AI provider; pipeline phân tích LLM và recommendation đang được phát triển.
+### Mở ứng dụng
 
-## Công nghệ
+Truy cập địa chỉ do người quản trị cung cấp. Nếu ScholarFlow đang chạy trên máy của bạn, mở:
 
-- Web app: Next.js 16, React 19, TypeScript, Tailwind CSS
-- Authentication: Auth.js
-- Database: PostgreSQL, Prisma ORM, pgvector
-- Embedding service: Python, FastAPI, Sentence Transformers, BGE-M3
-- Hạ tầng phát triển: Docker Compose
+**http://localhost:3000**
 
-## Cấu trúc repository
+### Cách sử dụng
 
-```text
-.
-├── learning-resource-app/   # Ứng dụng Next.js, API và Prisma
-├── embedding-service/       # Dịch vụ embedding BGE-M3 bằng FastAPI
-├── PRD.md                   # Yêu cầu sản phẩm
-├── IMPLEMENTATION_PLAN.md   # Kế hoạch triển khai
-├── PROJECT_CHECKLIST.md     # Checklist tiến độ
-└── ERROR_REPORT.md          # Lỗi và rủi ro đã ghi nhận
-```
+1. Đăng ký hoặc đăng nhập.
+2. Vào **Tải lên** và chọn tài liệu.
+3. Chờ hệ thống xử lý xong.
+4. Vào **Tìm kiếm** và nhập nội dung cần tìm.
+5. Bấm vào kết quả để mở đúng đoạn hoặc đúng trang trong tài liệu.
 
-## Chạy dự án
+Nếu xử lý bị lỗi, mở chi tiết tài liệu và bấm chạy lại. Hệ thống chỉ chạy lại bước còn thiếu, không cần xóa tài liệu rồi tải lên lại.
 
-### 1. Web app và database
+---
+
+## Dành cho nhà phát triển
+
+### Yêu cầu
+
+- Node.js và npm
+- Docker Desktop
+- Python
+- NVIDIA CUDA (không bắt buộc; có thể chạy bằng CPU)
+
+### Cài đặt lần đầu
+
+#### 1. Web app và database
 
 ```powershell
 cd learning-resource-app
@@ -42,40 +41,63 @@ Copy-Item .env.example .env
 npm install
 docker compose up -d
 npx prisma generate
-npm run dev
+npx prisma db push
 ```
 
-Ứng dụng chạy tại [http://localhost:3000](http://localhost:3000).
+Mở `learning-resource-app/.env` và thay `AUTH_SECRET` trước khi triển khai thật.
 
-### 2. Embedding service
+#### 2. Embedding service
 
-Mở một terminal khác tại thư mục gốc:
+Mở terminal mới từ thư mục gốc:
 
 ```powershell
 cd embedding-service
 Copy-Item .env.example .env
-.\setup.ps1
-$env:EMBEDDING_DEVICE="cpu"
-.\.venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8001
+.\setup.ps1 -Device cuda
 ```
 
-Kiểm tra service tại [http://127.0.0.1:8001/health](http://127.0.0.1:8001/health). Lần chạy đầu tiên có thể mất vài phút để tải model.
+Máy không có NVIDIA CUDA thì đổi `cuda` thành `cpu`. Lần đầu hệ thống có thể mất vài phút để tải model BGE-M3.
 
-## Kiểm tra chất lượng
+### Chạy ứng dụng
+
+Mỗi lần phát triển, mở hai terminal.
+
+**Terminal 1 — database và web:**
+
+```powershell
+cd learning-resource-app
+docker compose up -d
+npm run dev
+```
+
+**Terminal 2 — embedding service:**
+
+```powershell
+cd embedding-service
+.\start.ps1 -Device cuda
+```
+
+Sau đó mở **http://localhost:3000**. Máy không có CUDA thì đổi `cuda` thành `cpu`.
+
+### Kiểm tra trước khi commit
 
 ```powershell
 cd learning-resource-app
 npm run lint
-npm run test:extractors
-npm run test:chunking
 npm run build
 ```
 
-## Trạng thái
+Kiểm tra embedding service tại **http://127.0.0.1:8001/health**.
 
-Pipeline upload, extraction, chunking, BGE-M3, pgvector và semantic search đã hoạt động end-to-end. Tiến độ chi tiết và các hạng mục tiếp theo được cập nhật trong [PROJECT_CHECKLIST.md](PROJECT_CHECKLIST.md).
+## Công nghệ chính
 
-## Phạm vi đồ án
+Next.js, TypeScript, Auth.js, PostgreSQL, Prisma, pgvector, FastAPI và BGE-M3.
 
-MVP tập trung vào Vector RAG cho học liệu ngành Computer Science/IT. Knowledge Graph, GraphRAG, OCR và cộng tác thời gian thực được để dành cho hướng phát triển sau MVP.
+## Tài liệu dự án
 
+- [Yêu cầu sản phẩm](PRD.md)
+- [Kế hoạch triển khai](IMPLEMENTATION_PLAN.md)
+- [Checklist tiến độ](PROJECT_CHECKLIST.md)
+- [Báo cáo lỗi](ERROR_REPORT.md)
+
+MVP tập trung vào Vector RAG cho học liệu Computer Science/IT.
