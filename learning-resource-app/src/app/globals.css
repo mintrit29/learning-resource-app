@@ -15,8 +15,8 @@
 
 * { box-sizing: border-box; }
 html, body { min-height: 100%; }
-body { margin: 0; background: var(--paper); color: var(--ink); font-family: Arial, Helvetica, sans-serif; font-size: 16px; line-height: 1.5; }
-button, input { font: inherit; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: "Segoe UI Variable Text", "Segoe UI", Tahoma, Arial, sans-serif; font-size: 16px; font-weight: 500; line-height: 1.55; text-rendering: optimizeLegibility; }
+button, input, textarea, select { font: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
 a { color: inherit; text-decoration: none; }
 
@@ -234,7 +234,7 @@ a { color: inherit; text-decoration: none; }
 .text-preview-section > div { margin-bottom: 20px; }
 .text-preview-section h2 { margin: 0; font-size: 18px; }
 .text-preview-section p { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
-.text-preview-section pre { max-height: 620px; overflow: auto; margin: 0; border: 1px solid var(--line); background: #f8faf9; padding: 22px; color: #384440; font-family: var(--font-geist-mono), monospace; font-size: 12px; line-height: 1.75; white-space: pre-wrap; overflow-wrap: anywhere; }
+.text-preview-section pre { max-height: 620px; overflow: auto; margin: 0; border: 1px solid var(--line); background: #f8faf9; padding: 22px; color: #384440; font-family: Consolas, "Cascadia Mono", monospace; font-size: 12px; line-height: 1.75; white-space: pre-wrap; overflow-wrap: anywhere; }
 .text-preview-section > small { display: block; margin-top: 12px; color: var(--muted); text-align: right; }
 .extraction-error { border: 1px solid #f0c6c2; background: #fff7f6; padding: 22px; }
 .extraction-error strong { color: var(--danger); }
@@ -263,7 +263,7 @@ a { color: inherit; text-decoration: none; }
 .matched-chunk-heading { display: grid; grid-template-columns: 42px minmax(0,1fr) auto; align-items: center; gap: 12px; }
 .matched-chunk-heading > span { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 50%; background: var(--mint); color: var(--teal); }
 .matched-chunk-heading h2 { margin: 0; font-size: 17px; }
-.matched-chunk pre { max-height: 300px; overflow: auto; margin: 18px 0 0; border: 1px solid #c8e2dc; background: white; padding: 16px; color: #384440; font-family: var(--font-geist-mono), monospace; font-size: 12px; line-height: 1.7; white-space: pre-wrap; }
+.matched-chunk pre { max-height: 300px; overflow: auto; margin: 18px 0 0; border: 1px solid #c8e2dc; background: white; padding: 16px; color: #384440; font-family: Consolas, "Cascadia Mono", monospace; font-size: 12px; line-height: 1.7; white-space: pre-wrap; }
 .recent-documents { display: grid; }
 .recent-documents > a { min-height: 70px; display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; align-items: center; gap: 13px; border-bottom: 1px solid var(--line); padding: 10px 24px; }
 .recent-documents > a:last-child { border-bottom: 0; }
