@@ -1,6 +1,6 @@
 # Báo Cáo Lỗi Và Rủi Ro
 
-**Ngày kiểm tra:** 22/06/2026  
+**Ngày kiểm tra:** 23/06/2026
 **Trạng thái tổng thể:** Ứng dụng hoạt động; lint, tests và production build đều pass.
 
 ## 1. Dependency Vulnerabilities
@@ -49,3 +49,14 @@ Hướng xử lý:
 - PostgreSQL/pgvector: healthy.
 - BGE-M3 service: ready, vector 1024 chiều.
 - 525/525 chunks có source location và embedding.
+
+## Lỗi Đã Sửa Ngày 23/06/2026
+
+### Form Research Project bị chồng chữ ở màn hình tablet
+
+**Mức độ:** Trung bình — cản trở nhập project ở vùng hiển thị khoảng 640-900 px.
+
+- Nguyên nhân: sidebar thu hẹp vùng nội dung nhưng form vẫn giữ bố cục hai cột.
+- Cách sửa: chuyển form sang một cột từ breakpoint 900 px và giới hạn chiều rộng label.
+- Đã kiểm tra lại trên Chrome ở viewport 762 px: form không còn chồng chữ.
+- Luồng thật đã pass: tạo project, lưu 2 recommendation và mở đúng matched chunk (`Trang 80`).
