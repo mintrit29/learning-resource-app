@@ -313,11 +313,7 @@ Hệ thống gợi ý tài liệu bằng cách:
 
 ### 6.8. AI Provider Settings
 
-Người dùng có thể cấu hình nhiều provider:
-
-#### OpenAI Codex
-
-Spike tuần 9 kết luận chưa có OAuth public được tài liệu hóa cho web app bên thứ ba. ScholarFlow không hiển thị provider hoặc nút đăng nhập Codex trong MVP; chỉ xem xét lại ở future work. Ba provider hiện tại là OpenRouter, Ollama và Custom API. Chi tiết tại `CODEX_AUTH_SPIKE.md`.
+Người dùng có thể cấu hình ba loại provider: OpenRouter, Ollama và Custom API.
 
 #### OpenRouter
 
@@ -385,6 +381,15 @@ Hệ thống cần có các phần có thể giải thích rõ:
 - Vì sao không train model từ đầu.
 - Cách đánh giá primary topic/difficulty/search/tag normalization.
 
+### 7.5. Khả năng cài đặt và chạy lại
+
+- Cung cấp Docker Compose ở thư mục gốc cho web app, PostgreSQL/pgvector và embedding service.
+- Luồng chuẩn cho người dùng thử/demo là một lệnh `docker compose up --build`.
+- Tự khởi tạo database schema khi container chạy lần đầu.
+- Cache model BGE-M3 bằng Docker volume để không tải lại ở mỗi lần chạy.
+- Mặc định chạy CPU để tương thích rộng; NVIDIA CUDA là profile tùy chọn cho máy hỗ trợ GPU Docker.
+- Chỉ yêu cầu cấu hình secret/API key khi người dùng thực sự dùng provider tương ứng.
+
 ## 8. Evaluation
 
 Cần tạo dataset nhỏ để đánh giá:
@@ -425,5 +430,5 @@ MVP được xem là thành công khi:
 - User tạo project topic và nhận gợi ý tài liệu phù hợp.
 - Hệ thống chuẩn hóa được tags cơ bản bằng normalize, alias và embedding similarity.
 - User cấu hình được ít nhất OpenRouter, Ollama và Custom API.
-- OpenAI Codex provider có màn hình/flow được thiết kế và có spike kết luận khả thi/không khả thi rõ ràng.
+- Toàn bộ hệ thống có thể khởi động bằng Docker Compose với hướng dẫn ngắn gọn.
 - Có evaluation dataset và bảng kết quả đánh giá trong báo cáo.

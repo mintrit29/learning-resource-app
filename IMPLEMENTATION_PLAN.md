@@ -31,7 +31,8 @@ Next.js App Router
 - Embedding runtime: Python service dùng `FlagEmbedding` hoặc giao diện tương thích `sentence-transformers`.
 - File storage MVP: local filesystem trong thư mục uploads.
 - Background processing MVP: job status trong database + API/server task đơn giản.
-- AI integration: provider abstraction dùng OpenAI-compatible interface khi có thể.
+- AI integration: provider abstraction dùng giao thức chat completions phổ biến khi có thể.
+- Local deployment: Docker Compose điều phối web app, PostgreSQL/pgvector và embedding service.
 
 ### 2.2. Module chính
 
@@ -137,7 +138,6 @@ Fields chính:
 
 `type` gồm:
 
-- `OPENAI_CODEX`
 - `OPENROUTER`
 - `OLLAMA`
 - `CUSTOM`
@@ -516,7 +516,7 @@ UI fields:
 
 Behavior:
 
-- Dùng OpenAI-compatible chat completions.
+- Dùng chat completions API của OpenRouter.
 - Test connection bằng request nhỏ.
 - Hiện trạng thái connected/error.
 
@@ -547,13 +547,8 @@ UI fields:
 
 Behavior:
 
-- Giả định provider tương thích OpenAI API.
-- Cho phép dùng Custom API.
+- Custom API cần cung cấp endpoint `models` và `chat/completions` theo giao thức ứng dụng hỗ trợ.
 - Nếu provider không có embedding endpoint, search semantic sẽ báo thiếu embedding provider.
-
-### 5.5. OpenAI Codex provider
-
-Spike tuần 9 đã hoàn tất: tài liệu chính thức chỉ mô tả ChatGPT/Codex auth cho các bề mặt Codex và trusted automation, không công bố OAuth client flow cho web app bên thứ ba. Vì vậy không triển khai card/nút Codex và cũng không thêm OpenAI vào Custom. MVP chỉ dùng OpenRouter, Ollama và Custom API. Xem `CODEX_AUTH_SPIKE.md`.
 
 ## 6. UI/UX Pages
 
@@ -667,7 +662,7 @@ UI cần có:
 - Provider active.
 - Nút add provider.
 - Modal chọn provider type.
-- Form riêng cho OpenRouter/Ollama/Custom/Codex.
+- Form riêng cho OpenRouter, Ollama và Custom API.
 - Nút test connection.
 - Nút set active.
 
@@ -761,15 +756,11 @@ Deadline: 20/09. Mốc bắt đầu: 18/06. Tổng thời gian khoảng 13 tuầ
 - Lưu subtopics/tags từ AI.
 - Làm taxonomy/tag normalization cơ bản.
 
-### Tuần 9: OpenAI Codex provider spike
+### Tuần 9: Taxonomy
 
-- Thiết kế UI `Sign in with OpenAI Codex`.
-- Kiểm tra khả năng tích hợp auth thực tế.
-- Tạo kết luận kỹ thuật:
-  - Implement được.
-  - Cần API key fallback.
-  - Hoặc để feature flag/future work.
-- Không để spike này làm trễ MVP.
+- Hoàn thiện canonical tags, aliases và document tags.
+- So sánh tag bằng embedding similarity.
+- Tạo hàng đợi review và giao diện approve/reject đề xuất gộp tag.
 
 ### Tuần 10: Recommendation
 
@@ -796,6 +787,10 @@ Deadline: 20/09. Mốc bắt đầu: 18/06. Tổng thời gian khoảng 13 tuầ
 - Cải thiện thông báo lỗi provider/file extraction.
 - Thêm delete/re-analyze/edit metadata.
 - Kiểm tra UI responsive.
+- Docker hóa web app và embedding service.
+- Tạo root Docker Compose chạy web + PostgreSQL/pgvector + embedding service bằng một lệnh.
+- Dùng volume cho uploads, database và BGE-M3 model cache.
+- Cấu hình CPU mặc định và CUDA profile tùy chọn.
 
 ### Tuần 13: Báo cáo và demo
 
@@ -869,15 +864,7 @@ Cần chuẩn bị:
 
 ## 10. Rủi Ro Và Cách Xử Lý
 
-### 10.1. OpenAI Codex provider có thể không có public OAuth/API phù hợp
-
-Cách xử lý:
-
-- Tách thành spike riêng.
-- Không để nó chặn MVP.
-- Có fallback OpenAI-compatible API key hoặc tạm đánh dấu future work.
-
-### 10.2. Extract text từ file lỗi
+### 10.1. Extract text từ file lỗi
 
 Cách xử lý:
 
@@ -886,7 +873,7 @@ Cách xử lý:
 - Chỉ hỗ trợ file có text layer trong MVP.
 - OCR để future work.
 
-### 10.3. Giữ embedding model đồng nhất
+### 10.2. Giữ embedding model đồng nhất
 
 Cách xử lý:
 
@@ -895,7 +882,7 @@ Cách xử lý:
 - CPU và GPU tạo vector bằng cùng BGE-M3 nên có thể chuyển thiết bị mà không cần migration hoặc re-embedding.
 - MVP không hỗ trợ đổi embedding model để tránh trộn kích thước vector trong cùng index.
 
-### 10.4. LLM trả về JSON lỗi
+### 10.3. LLM trả về JSON lỗi
 
 Cách xử lý:
 
@@ -903,13 +890,21 @@ Cách xử lý:
 - Retry một lần với prompt sửa lỗi JSON.
 - Nếu vẫn lỗi, lưu job FAILED và cho user re-analyze.
 
+### 10.4. Docker GPU không hoạt động trên mọi máy
+
+Cách xử lý:
+
+- Compose mặc định dùng CPU để chạy được trên đa số máy.
+- CUDA được tách thành profile tùy chọn và yêu cầu NVIDIA Container Toolkit/WSL2.
+- CPU và GPU dùng cùng BGE-M3 nên không cần migration hoặc re-embed.
+
 ### 10.5. Dự án bị rộng
 
 Cách xử lý:
 
 - Ưu tiên pipeline end-to-end trước.
 - Knowledge Graph, GraphRAG, chatbot RAG nâng cao và OCR để future work.
-- OpenRouter/Ollama/Custom provider cần chạy trước Codex provider.
+- Giữ đúng ba chat provider: OpenRouter, Ollama và Custom API.
 
 ## 11. Definition of Done
 
@@ -924,6 +919,7 @@ Dự án nâng cấp được xem là hoàn thành khi:
 - Embedding và pgvector semantic search hoạt động.
 - BGE-M3 local là embedding mặc định, có benchmark trên máy phát triển và có fallback được tài liệu hóa.
 - Recommendation theo project topic hoạt động.
+- `docker compose up --build` khởi động được toàn bộ hệ thống trên cấu hình CPU mặc định.
 - AI Provider settings có OpenRouter, Ollama và Custom.
 - Có evaluation dataset và kết quả đo lường.
 - Có demo script cho ngày bảo vệ.

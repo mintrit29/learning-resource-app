@@ -102,7 +102,7 @@
 - [x] Cho phép xử lý lại theo bước còn thiếu/lỗi mà không chạy lại phần đã thành công
 - [x] Cho phép người dùng sửa kết quả phân loại
 
-## Tuần 9: Taxonomy Và OpenAI Codex Spike
+## Tuần 9: Taxonomy
 
 - [x] Tạo schema Tag, TagAlias và DocumentTag
 - [x] Tạo hàm normalize tên tag
@@ -112,10 +112,6 @@
 - [x] Tạo TagMergeReview
 - [x] Tạo trang quản lý canonical tags
 - [x] Cho phép approve/reject đề xuất gộp tag
-- [x] Thiết kế giao diện Sign in with OpenAI Codex (đã đánh giá và quyết định không hiển thị trong MVP)
-- [x] Kiểm tra tài liệu và khả năng tích hợp auth thực tế
-- [x] Thực hiện proof of concept nếu khả thi (không thực hiện vì không có OAuth public cho web app bên thứ ba)
-- [x] Ghi kết luận: để future work; MVP chỉ dùng OpenRouter, Ollama và Custom API
 
 ## Tuần 10: Research Project Và Recommendation
 
@@ -159,6 +155,11 @@
 - [ ] Chạy unit tests
 - [ ] Chạy integration tests
 - [ ] Sửa lỗi end-to-end
+- [ ] Docker hóa Next.js web app
+- [ ] Docker hóa embedding service với model cache volume
+- [ ] Tạo root Docker Compose cho web + PostgreSQL/pgvector + embedding service
+- [ ] Cấu hình CPU mặc định và CUDA profile tùy chọn
+- [ ] Xác minh máy mới chạy được bằng `docker compose up --build`
 
 ## Tuần 13: Báo Cáo Và Bảo Vệ
 
@@ -193,7 +194,6 @@
 
 ## Vấn Đề Cần Theo Dõi
 
-- [x] Xác minh OpenAI Codex auth: chưa có luồng public được tài liệu hóa cho web app bên thứ ba
 - [ ] Chọn thư viện trích xuất tốt nhất cho từng định dạng
 - [ ] Benchmark BGE-M3 thực tế trên máy phát triển
 - [ ] Chốt giới hạn kích thước file upload
