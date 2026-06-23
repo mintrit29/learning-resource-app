@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowUpRight, BookOpen, Target } from "lucide-react";
 import { auth } from "@/auth";
 import { RecommendationRefresh } from "@/components/projects/recommendation-refresh";
+import { DeleteProjectButton } from "@/components/projects/delete-project-button";
 import { db } from "@/lib/db";
 
 const difficultyLabels: Record<string, string> = { BEGINNER: "Cơ bản", INTERMEDIATE: "Trung cấp", ADVANCED: "Nâng cao" };
@@ -17,7 +18,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
   return (
     <div className="page-wrap">
       <Link className="back-link" href="/projects"><ArrowLeft size={16} />Tất cả projects</Link>
-      <header className="project-detail-header"><div><p className="eyebrow">Research project</p><h1>{project.title}</h1><p>{project.description}</p><div className="project-tags">{project.targetDifficulty ? <span><Target size={12} />{difficultyLabels[project.targetDifficulty]}</span> : null}{project.keywords.map((keyword) => <span key={keyword}>{keyword}</span>)}</div></div><RecommendationRefresh projectId={project.id} /></header>
+      <header className="project-detail-header"><div><p className="eyebrow">Research project</p><h1>{project.title}</h1><p>{project.description}</p><div className="project-tags">{project.targetDifficulty ? <span><Target size={12} />{difficultyLabels[project.targetDifficulty]}</span> : null}{project.keywords.map((keyword) => <span key={keyword}>{keyword}</span>)}</div></div><div className="project-detail-actions"><RecommendationRefresh projectId={project.id} /><DeleteProjectButton projectId={project.id} projectTitle={project.title} /></div></header>
       <div className="recommend-heading"><div><h2>Tài liệu được gợi ý</h2><p>Xếp hạng từ semantic search, topic, độ khó và canonical tags.</p></div><strong>{project.recommendations.length} kết quả</strong></div>
       {project.recommendations.length ? <section className="recommend-list">{project.recommendations.map((item, index) => (
         <Link href={`/documents/${item.documentId}${item.bestChunkId ? `?chunk=${item.bestChunkId}#matched-chunk` : ""}`} key={item.id}>
