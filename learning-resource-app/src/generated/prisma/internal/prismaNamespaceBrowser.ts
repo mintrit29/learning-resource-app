@@ -64,7 +64,8 @@ export const ModelName = {
   DocumentChunk: 'DocumentChunk',
   Project: 'Project',
   Recommendation: 'Recommendation',
-  AiProvider: 'AiProvider'
+  AiProvider: 'AiProvider',
+  SearchLog: 'SearchLog'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -282,12 +283,32 @@ export const AiProviderScalarFieldEnum = {
 export type AiProviderScalarFieldEnum = (typeof AiProviderScalarFieldEnum)[keyof typeof AiProviderScalarFieldEnum]
 
 
+export const SearchLogScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  query: 'query',
+  filters: 'filters',
+  resultDocumentIds: 'resultDocumentIds',
+  createdAt: 'createdAt'
+} as const
+
+export type SearchLogScalarFieldEnum = (typeof SearchLogScalarFieldEnum)[keyof typeof SearchLogScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const QueryMode = {
@@ -304,4 +325,13 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 

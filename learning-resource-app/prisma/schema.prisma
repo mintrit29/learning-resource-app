@@ -67,6 +67,7 @@ model User {
   documents       Document[]
   projects        Project[]
   aiProviders     AiProvider[]
+  searchLogs      SearchLog[]
   createdTags     Tag[]            @relation("TagCreator")
   tagMergeReviews TagMergeReview[]
   createdAt       DateTime         @default(now())
@@ -279,4 +280,16 @@ model AiProvider {
   updatedAt             DateTime @updatedAt
 
   @@index([userId])
+}
+
+model SearchLog {
+  id                String   @id @default(cuid())
+  userId            String
+  query             String
+  filters           Json?
+  resultDocumentIds String[] @default([])
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt         DateTime @default(now())
+
+  @@index([userId, createdAt])
 }

@@ -87,3 +87,8 @@ export type Recommendation = Prisma.RecommendationModel
  * 
  */
 export type AiProvider = Prisma.AiProviderModel
+/**
+ * Model SearchLog
+ * 
+ */
+export type SearchLog = Prisma.SearchLogModel

@@ -86,6 +86,23 @@ export async function POST(request: Request) {
       return true;
     }).slice(0, parsed.data.limit);
 
+    await db.searchLog.create({
+      data: {
+        userId: session.user.id,
+        query: parsed.data.query,
+        filters: {
+          topic: parsed.data.topic || null,
+          difficulty: parsed.data.difficulty || null,
+          fileType: parsed.data.fileType || null,
+          documentId: parsed.data.documentId || null,
+          dateFrom: parsed.data.dateFrom || null,
+          dateTo: parsed.data.dateTo || null,
+          limit: parsed.data.limit,
+        },
+        resultDocumentIds: results.map((result) => result.documentId),
+      },
+    }).catch(() => null);
+
     return NextResponse.json({ query: parsed.data.query, results });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Semantic search thất bại";

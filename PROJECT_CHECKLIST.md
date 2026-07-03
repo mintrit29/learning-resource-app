@@ -113,6 +113,7 @@
 - [x] Tạo TagMergeReview
 - [x] Tạo trang quản lý canonical tags
 - [x] Cho phép approve/reject đề xuất gộp tag
+- [x] Cho phép gộp thủ công hai canonical tags
 
 ## Tuần 10: Research Project Và Recommendation
 
@@ -208,6 +209,7 @@
 - [x] Cải thiện test kết nối/model và thông báo lỗi AI provider
 - [x] Tối ưu embedding CPU/GPU, batch size và ước tính thời gian
 - [x] Cải thiện filter semantic search theo tài liệu, chủ đề, ngày và loại file
+- [x] Lưu lịch sử truy vấn semantic search phục vụ evaluation/báo cáo
 - [x] Cải thiện hỏi đáp với tài liệu, trích dẫn nguồn và mở đúng trang/chunk
 - [x] Cải thiện project/recommendation: outline và tài liệu liên quan
 - [x] Chuẩn hóa test/release: test case demo, seed demo và CI build Docker

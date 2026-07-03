@@ -397,7 +397,8 @@ export const ModelName = {
   DocumentChunk: 'DocumentChunk',
   Project: 'Project',
   Recommendation: 'Recommendation',
-  AiProvider: 'AiProvider'
+  AiProvider: 'AiProvider',
+  SearchLog: 'SearchLog'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -413,7 +414,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "account" | "session" | "verificationToken" | "document" | "tag" | "tagAlias" | "documentTag" | "tagMergeReview" | "analysisJob" | "documentChunk" | "project" | "recommendation" | "aiProvider"
+    modelProps: "user" | "account" | "session" | "verificationToken" | "document" | "tag" | "tagAlias" | "documentTag" | "tagMergeReview" | "analysisJob" | "documentChunk" | "project" | "recommendation" | "aiProvider" | "searchLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1453,6 +1454,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    SearchLog: {
+      payload: Prisma.$SearchLogPayload<ExtArgs>
+      fields: Prisma.SearchLogFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SearchLogFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchLogPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SearchLogFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchLogPayload>
+        }
+        findFirst: {
+          args: Prisma.SearchLogFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchLogPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SearchLogFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchLogPayload>
+        }
+        findMany: {
+          args: Prisma.SearchLogFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchLogPayload>[]
+        }
+        create: {
+          args: Prisma.SearchLogCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchLogPayload>
+        }
+        createMany: {
+          args: Prisma.SearchLogCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SearchLogCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchLogPayload>[]
+        }
+        delete: {
+          args: Prisma.SearchLogDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchLogPayload>
+        }
+        update: {
+          args: Prisma.SearchLogUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchLogPayload>
+        }
+        deleteMany: {
+          args: Prisma.SearchLogDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SearchLogUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SearchLogUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchLogPayload>[]
+        }
+        upsert: {
+          args: Prisma.SearchLogUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchLogPayload>
+        }
+        aggregate: {
+          args: Prisma.SearchLogAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSearchLog>
+        }
+        groupBy: {
+          args: Prisma.SearchLogGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SearchLogGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SearchLogCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SearchLogCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1691,12 +1766,32 @@ export const AiProviderScalarFieldEnum = {
 export type AiProviderScalarFieldEnum = (typeof AiProviderScalarFieldEnum)[keyof typeof AiProviderScalarFieldEnum]
 
 
+export const SearchLogScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  query: 'query',
+  filters: 'filters',
+  resultDocumentIds: 'resultDocumentIds',
+  createdAt: 'createdAt'
+} as const
+
+export type SearchLogScalarFieldEnum = (typeof SearchLogScalarFieldEnum)[keyof typeof SearchLogScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const QueryMode = {
@@ -1713,6 +1808,15 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 
 
 
@@ -1881,6 +1985,20 @@ export type ListEnumJobStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$Pr
 export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
 
+
+/**
+ * Reference to a field of type 'Json'
+ */
+export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+/**
+ * Reference to a field of type 'QueryMode'
+ */
+export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
 /**
  * Batch Payload for updateMany & deleteMany & createMany
  */
@@ -2005,6 +2123,7 @@ export type GlobalOmitConfig = {
   project?: Prisma.ProjectOmit
   recommendation?: Prisma.RecommendationOmit
   aiProvider?: Prisma.AiProviderOmit
+  searchLog?: Prisma.SearchLogOmit
 }
 
 /* Types for Logging */

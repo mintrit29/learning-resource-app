@@ -211,6 +211,7 @@ export type UserWhereInput = {
   documents?: Prisma.DocumentListRelationFilter
   projects?: Prisma.ProjectListRelationFilter
   aiProviders?: Prisma.AiProviderListRelationFilter
+  searchLogs?: Prisma.SearchLogListRelationFilter
   createdTags?: Prisma.TagListRelationFilter
   tagMergeReviews?: Prisma.TagMergeReviewListRelationFilter
 }
@@ -229,6 +230,7 @@ export type UserOrderByWithRelationInput = {
   documents?: Prisma.DocumentOrderByRelationAggregateInput
   projects?: Prisma.ProjectOrderByRelationAggregateInput
   aiProviders?: Prisma.AiProviderOrderByRelationAggregateInput
+  searchLogs?: Prisma.SearchLogOrderByRelationAggregateInput
   createdTags?: Prisma.TagOrderByRelationAggregateInput
   tagMergeReviews?: Prisma.TagMergeReviewOrderByRelationAggregateInput
 }
@@ -250,6 +252,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   documents?: Prisma.DocumentListRelationFilter
   projects?: Prisma.ProjectListRelationFilter
   aiProviders?: Prisma.AiProviderListRelationFilter
+  searchLogs?: Prisma.SearchLogListRelationFilter
   createdTags?: Prisma.TagListRelationFilter
   tagMergeReviews?: Prisma.TagMergeReviewListRelationFilter
 }, "id" | "email">
@@ -296,6 +299,7 @@ export type UserCreateInput = {
   documents?: Prisma.DocumentCreateNestedManyWithoutUserInput
   projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   aiProviders?: Prisma.AiProviderCreateNestedManyWithoutUserInput
+  searchLogs?: Prisma.SearchLogCreateNestedManyWithoutUserInput
   createdTags?: Prisma.TagCreateNestedManyWithoutCreatedByUserInput
   tagMergeReviews?: Prisma.TagMergeReviewCreateNestedManyWithoutUserInput
 }
@@ -314,6 +318,7 @@ export type UserUncheckedCreateInput = {
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUserInput
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   aiProviders?: Prisma.AiProviderUncheckedCreateNestedManyWithoutUserInput
+  searchLogs?: Prisma.SearchLogUncheckedCreateNestedManyWithoutUserInput
   createdTags?: Prisma.TagUncheckedCreateNestedManyWithoutCreatedByUserInput
   tagMergeReviews?: Prisma.TagMergeReviewUncheckedCreateNestedManyWithoutUserInput
 }
@@ -332,6 +337,7 @@ export type UserUpdateInput = {
   documents?: Prisma.DocumentUpdateManyWithoutUserNestedInput
   projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   aiProviders?: Prisma.AiProviderUpdateManyWithoutUserNestedInput
+  searchLogs?: Prisma.SearchLogUpdateManyWithoutUserNestedInput
   createdTags?: Prisma.TagUpdateManyWithoutCreatedByUserNestedInput
   tagMergeReviews?: Prisma.TagMergeReviewUpdateManyWithoutUserNestedInput
 }
@@ -350,6 +356,7 @@ export type UserUncheckedUpdateInput = {
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUserNestedInput
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   aiProviders?: Prisma.AiProviderUncheckedUpdateManyWithoutUserNestedInput
+  searchLogs?: Prisma.SearchLogUncheckedUpdateManyWithoutUserNestedInput
   createdTags?: Prisma.TagUncheckedUpdateManyWithoutCreatedByUserNestedInput
   tagMergeReviews?: Prisma.TagMergeReviewUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -539,6 +546,20 @@ export type UserUpdateOneRequiredWithoutAiProvidersNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAiProvidersInput, Prisma.UserUpdateWithoutAiProvidersInput>, Prisma.UserUncheckedUpdateWithoutAiProvidersInput>
 }
 
+export type UserCreateNestedOneWithoutSearchLogsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSearchLogsInput, Prisma.UserUncheckedCreateWithoutSearchLogsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSearchLogsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutSearchLogsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSearchLogsInput, Prisma.UserUncheckedCreateWithoutSearchLogsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSearchLogsInput
+  upsert?: Prisma.UserUpsertWithoutSearchLogsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSearchLogsInput, Prisma.UserUpdateWithoutSearchLogsInput>, Prisma.UserUncheckedUpdateWithoutSearchLogsInput>
+}
+
 export type UserCreateWithoutAccountsInput = {
   id?: string
   name?: string | null
@@ -552,6 +573,7 @@ export type UserCreateWithoutAccountsInput = {
   documents?: Prisma.DocumentCreateNestedManyWithoutUserInput
   projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   aiProviders?: Prisma.AiProviderCreateNestedManyWithoutUserInput
+  searchLogs?: Prisma.SearchLogCreateNestedManyWithoutUserInput
   createdTags?: Prisma.TagCreateNestedManyWithoutCreatedByUserInput
   tagMergeReviews?: Prisma.TagMergeReviewCreateNestedManyWithoutUserInput
 }
@@ -569,6 +591,7 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUserInput
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   aiProviders?: Prisma.AiProviderUncheckedCreateNestedManyWithoutUserInput
+  searchLogs?: Prisma.SearchLogUncheckedCreateNestedManyWithoutUserInput
   createdTags?: Prisma.TagUncheckedCreateNestedManyWithoutCreatedByUserInput
   tagMergeReviews?: Prisma.TagMergeReviewUncheckedCreateNestedManyWithoutUserInput
 }
@@ -602,6 +625,7 @@ export type UserUpdateWithoutAccountsInput = {
   documents?: Prisma.DocumentUpdateManyWithoutUserNestedInput
   projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   aiProviders?: Prisma.AiProviderUpdateManyWithoutUserNestedInput
+  searchLogs?: Prisma.SearchLogUpdateManyWithoutUserNestedInput
   createdTags?: Prisma.TagUpdateManyWithoutCreatedByUserNestedInput
   tagMergeReviews?: Prisma.TagMergeReviewUpdateManyWithoutUserNestedInput
 }
@@ -619,6 +643,7 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUserNestedInput
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   aiProviders?: Prisma.AiProviderUncheckedUpdateManyWithoutUserNestedInput
+  searchLogs?: Prisma.SearchLogUncheckedUpdateManyWithoutUserNestedInput
   createdTags?: Prisma.TagUncheckedUpdateManyWithoutCreatedByUserNestedInput
   tagMergeReviews?: Prisma.TagMergeReviewUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -636,6 +661,7 @@ export type UserCreateWithoutSessionsInput = {
   documents?: Prisma.DocumentCreateNestedManyWithoutUserInput
   projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   aiProviders?: Prisma.AiProviderCreateNestedManyWithoutUserInput
+  searchLogs?: Prisma.SearchLogCreateNestedManyWithoutUserInput
   createdTags?: Prisma.TagCreateNestedManyWithoutCreatedByUserInput
   tagMergeReviews?: Prisma.TagMergeReviewCreateNestedManyWithoutUserInput
 }
@@ -653,6 +679,7 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUserInput
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   aiProviders?: Prisma.AiProviderUncheckedCreateNestedManyWithoutUserInput
+  searchLogs?: Prisma.SearchLogUncheckedCreateNestedManyWithoutUserInput
   createdTags?: Prisma.TagUncheckedCreateNestedManyWithoutCreatedByUserInput
   tagMergeReviews?: Prisma.TagMergeReviewUncheckedCreateNestedManyWithoutUserInput
 }
@@ -686,6 +713,7 @@ export type UserUpdateWithoutSessionsInput = {
   documents?: Prisma.DocumentUpdateManyWithoutUserNestedInput
   projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   aiProviders?: Prisma.AiProviderUpdateManyWithoutUserNestedInput
+  searchLogs?: Prisma.SearchLogUpdateManyWithoutUserNestedInput
   createdTags?: Prisma.TagUpdateManyWithoutCreatedByUserNestedInput
   tagMergeReviews?: Prisma.TagMergeReviewUpdateManyWithoutUserNestedInput
 }
@@ -703,6 +731,7 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUserNestedInput
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   aiProviders?: Prisma.AiProviderUncheckedUpdateManyWithoutUserNestedInput
+  searchLogs?: Prisma.SearchLogUncheckedUpdateManyWithoutUserNestedInput
   createdTags?: Prisma.TagUncheckedUpdateManyWithoutCreatedByUserNestedInput
   tagMergeReviews?: Prisma.TagMergeReviewUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -720,6 +749,7 @@ export type UserCreateWithoutDocumentsInput = {
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   aiProviders?: Prisma.AiProviderCreateNestedManyWithoutUserInput
+  searchLogs?: Prisma.SearchLogCreateNestedManyWithoutUserInput
   createdTags?: Prisma.TagCreateNestedManyWithoutCreatedByUserInput
   tagMergeReviews?: Prisma.TagMergeReviewCreateNestedManyWithoutUserInput
 }
@@ -737,6 +767,7 @@ export type UserUncheckedCreateWithoutDocumentsInput = {
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   aiProviders?: Prisma.AiProviderUncheckedCreateNestedManyWithoutUserInput
+  searchLogs?: Prisma.SearchLogUncheckedCreateNestedManyWithoutUserInput
   createdTags?: Prisma.TagUncheckedCreateNestedManyWithoutCreatedByUserInput
   tagMergeReviews?: Prisma.TagMergeReviewUncheckedCreateNestedManyWithoutUserInput
 }
@@ -770,6 +801,7 @@ export type UserUpdateWithoutDocumentsInput = {
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   aiProviders?: Prisma.AiProviderUpdateManyWithoutUserNestedInput
+  searchLogs?: Prisma.SearchLogUpdateManyWithoutUserNestedInput
   createdTags?: Prisma.TagUpdateManyWithoutCreatedByUserNestedInput
   tagMergeReviews?: Prisma.TagMergeReviewUpdateManyWithoutUserNestedInput
 }
@@ -787,6 +819,7 @@ export type UserUncheckedUpdateWithoutDocumentsInput = {
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   aiProviders?: Prisma.AiProviderUncheckedUpdateManyWithoutUserNestedInput
+  searchLogs?: Prisma.SearchLogUncheckedUpdateManyWithoutUserNestedInput
   createdTags?: Prisma.TagUncheckedUpdateManyWithoutCreatedByUserNestedInput
   tagMergeReviews?: Prisma.TagMergeReviewUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -805,6 +838,7 @@ export type UserCreateWithoutCreatedTagsInput = {
   documents?: Prisma.DocumentCreateNestedManyWithoutUserInput
   projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   aiProviders?: Prisma.AiProviderCreateNestedManyWithoutUserInput
+  searchLogs?: Prisma.SearchLogCreateNestedManyWithoutUserInput
   tagMergeReviews?: Prisma.TagMergeReviewCreateNestedManyWithoutUserInput
 }
 
@@ -822,6 +856,7 @@ export type UserUncheckedCreateWithoutCreatedTagsInput = {
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUserInput
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   aiProviders?: Prisma.AiProviderUncheckedCreateNestedManyWithoutUserInput
+  searchLogs?: Prisma.SearchLogUncheckedCreateNestedManyWithoutUserInput
   tagMergeReviews?: Prisma.TagMergeReviewUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -855,6 +890,7 @@ export type UserUpdateWithoutCreatedTagsInput = {
   documents?: Prisma.DocumentUpdateManyWithoutUserNestedInput
   projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   aiProviders?: Prisma.AiProviderUpdateManyWithoutUserNestedInput
+  searchLogs?: Prisma.SearchLogUpdateManyWithoutUserNestedInput
   tagMergeReviews?: Prisma.TagMergeReviewUpdateManyWithoutUserNestedInput
 }
 
@@ -872,6 +908,7 @@ export type UserUncheckedUpdateWithoutCreatedTagsInput = {
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUserNestedInput
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   aiProviders?: Prisma.AiProviderUncheckedUpdateManyWithoutUserNestedInput
+  searchLogs?: Prisma.SearchLogUncheckedUpdateManyWithoutUserNestedInput
   tagMergeReviews?: Prisma.TagMergeReviewUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -889,6 +926,7 @@ export type UserCreateWithoutTagMergeReviewsInput = {
   documents?: Prisma.DocumentCreateNestedManyWithoutUserInput
   projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   aiProviders?: Prisma.AiProviderCreateNestedManyWithoutUserInput
+  searchLogs?: Prisma.SearchLogCreateNestedManyWithoutUserInput
   createdTags?: Prisma.TagCreateNestedManyWithoutCreatedByUserInput
 }
 
@@ -906,6 +944,7 @@ export type UserUncheckedCreateWithoutTagMergeReviewsInput = {
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUserInput
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   aiProviders?: Prisma.AiProviderUncheckedCreateNestedManyWithoutUserInput
+  searchLogs?: Prisma.SearchLogUncheckedCreateNestedManyWithoutUserInput
   createdTags?: Prisma.TagUncheckedCreateNestedManyWithoutCreatedByUserInput
 }
 
@@ -939,6 +978,7 @@ export type UserUpdateWithoutTagMergeReviewsInput = {
   documents?: Prisma.DocumentUpdateManyWithoutUserNestedInput
   projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   aiProviders?: Prisma.AiProviderUpdateManyWithoutUserNestedInput
+  searchLogs?: Prisma.SearchLogUpdateManyWithoutUserNestedInput
   createdTags?: Prisma.TagUpdateManyWithoutCreatedByUserNestedInput
 }
 
@@ -956,6 +996,7 @@ export type UserUncheckedUpdateWithoutTagMergeReviewsInput = {
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUserNestedInput
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   aiProviders?: Prisma.AiProviderUncheckedUpdateManyWithoutUserNestedInput
+  searchLogs?: Prisma.SearchLogUncheckedUpdateManyWithoutUserNestedInput
   createdTags?: Prisma.TagUncheckedUpdateManyWithoutCreatedByUserNestedInput
 }
 
@@ -972,6 +1013,7 @@ export type UserCreateWithoutProjectsInput = {
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUserInput
   aiProviders?: Prisma.AiProviderCreateNestedManyWithoutUserInput
+  searchLogs?: Prisma.SearchLogCreateNestedManyWithoutUserInput
   createdTags?: Prisma.TagCreateNestedManyWithoutCreatedByUserInput
   tagMergeReviews?: Prisma.TagMergeReviewCreateNestedManyWithoutUserInput
 }
@@ -989,6 +1031,7 @@ export type UserUncheckedCreateWithoutProjectsInput = {
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUserInput
   aiProviders?: Prisma.AiProviderUncheckedCreateNestedManyWithoutUserInput
+  searchLogs?: Prisma.SearchLogUncheckedCreateNestedManyWithoutUserInput
   createdTags?: Prisma.TagUncheckedCreateNestedManyWithoutCreatedByUserInput
   tagMergeReviews?: Prisma.TagMergeReviewUncheckedCreateNestedManyWithoutUserInput
 }
@@ -1022,6 +1065,7 @@ export type UserUpdateWithoutProjectsInput = {
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUserNestedInput
   aiProviders?: Prisma.AiProviderUpdateManyWithoutUserNestedInput
+  searchLogs?: Prisma.SearchLogUpdateManyWithoutUserNestedInput
   createdTags?: Prisma.TagUpdateManyWithoutCreatedByUserNestedInput
   tagMergeReviews?: Prisma.TagMergeReviewUpdateManyWithoutUserNestedInput
 }
@@ -1039,6 +1083,7 @@ export type UserUncheckedUpdateWithoutProjectsInput = {
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUserNestedInput
   aiProviders?: Prisma.AiProviderUncheckedUpdateManyWithoutUserNestedInput
+  searchLogs?: Prisma.SearchLogUncheckedUpdateManyWithoutUserNestedInput
   createdTags?: Prisma.TagUncheckedUpdateManyWithoutCreatedByUserNestedInput
   tagMergeReviews?: Prisma.TagMergeReviewUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -1056,6 +1101,7 @@ export type UserCreateWithoutAiProvidersInput = {
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   documents?: Prisma.DocumentCreateNestedManyWithoutUserInput
   projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
+  searchLogs?: Prisma.SearchLogCreateNestedManyWithoutUserInput
   createdTags?: Prisma.TagCreateNestedManyWithoutCreatedByUserInput
   tagMergeReviews?: Prisma.TagMergeReviewCreateNestedManyWithoutUserInput
 }
@@ -1073,6 +1119,7 @@ export type UserUncheckedCreateWithoutAiProvidersInput = {
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUserInput
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
+  searchLogs?: Prisma.SearchLogUncheckedCreateNestedManyWithoutUserInput
   createdTags?: Prisma.TagUncheckedCreateNestedManyWithoutCreatedByUserInput
   tagMergeReviews?: Prisma.TagMergeReviewUncheckedCreateNestedManyWithoutUserInput
 }
@@ -1106,6 +1153,7 @@ export type UserUpdateWithoutAiProvidersInput = {
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   documents?: Prisma.DocumentUpdateManyWithoutUserNestedInput
   projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
+  searchLogs?: Prisma.SearchLogUpdateManyWithoutUserNestedInput
   createdTags?: Prisma.TagUpdateManyWithoutCreatedByUserNestedInput
   tagMergeReviews?: Prisma.TagMergeReviewUpdateManyWithoutUserNestedInput
 }
@@ -1123,6 +1171,95 @@ export type UserUncheckedUpdateWithoutAiProvidersInput = {
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   documents?: Prisma.DocumentUncheckedUpdateManyWithoutUserNestedInput
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
+  searchLogs?: Prisma.SearchLogUncheckedUpdateManyWithoutUserNestedInput
+  createdTags?: Prisma.TagUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  tagMergeReviews?: Prisma.TagMergeReviewUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutSearchLogsInput = {
+  id?: string
+  name?: string | null
+  email: string
+  emailVerified?: Date | string | null
+  image?: string | null
+  passwordHash?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  documents?: Prisma.DocumentCreateNestedManyWithoutUserInput
+  projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
+  aiProviders?: Prisma.AiProviderCreateNestedManyWithoutUserInput
+  createdTags?: Prisma.TagCreateNestedManyWithoutCreatedByUserInput
+  tagMergeReviews?: Prisma.TagMergeReviewCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutSearchLogsInput = {
+  id?: string
+  name?: string | null
+  email: string
+  emailVerified?: Date | string | null
+  image?: string | null
+  passwordHash?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  documents?: Prisma.DocumentUncheckedCreateNestedManyWithoutUserInput
+  projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
+  aiProviders?: Prisma.AiProviderUncheckedCreateNestedManyWithoutUserInput
+  createdTags?: Prisma.TagUncheckedCreateNestedManyWithoutCreatedByUserInput
+  tagMergeReviews?: Prisma.TagMergeReviewUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutSearchLogsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutSearchLogsInput, Prisma.UserUncheckedCreateWithoutSearchLogsInput>
+}
+
+export type UserUpsertWithoutSearchLogsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutSearchLogsInput, Prisma.UserUncheckedUpdateWithoutSearchLogsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutSearchLogsInput, Prisma.UserUncheckedCreateWithoutSearchLogsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutSearchLogsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutSearchLogsInput, Prisma.UserUncheckedUpdateWithoutSearchLogsInput>
+}
+
+export type UserUpdateWithoutSearchLogsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  documents?: Prisma.DocumentUpdateManyWithoutUserNestedInput
+  projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
+  aiProviders?: Prisma.AiProviderUpdateManyWithoutUserNestedInput
+  createdTags?: Prisma.TagUpdateManyWithoutCreatedByUserNestedInput
+  tagMergeReviews?: Prisma.TagMergeReviewUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutSearchLogsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  documents?: Prisma.DocumentUncheckedUpdateManyWithoutUserNestedInput
+  projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
+  aiProviders?: Prisma.AiProviderUncheckedUpdateManyWithoutUserNestedInput
   createdTags?: Prisma.TagUncheckedUpdateManyWithoutCreatedByUserNestedInput
   tagMergeReviews?: Prisma.TagMergeReviewUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -1138,6 +1275,7 @@ export type UserCountOutputType = {
   documents: number
   projects: number
   aiProviders: number
+  searchLogs: number
   createdTags: number
   tagMergeReviews: number
 }
@@ -1148,6 +1286,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   documents?: boolean | UserCountOutputTypeCountDocumentsArgs
   projects?: boolean | UserCountOutputTypeCountProjectsArgs
   aiProviders?: boolean | UserCountOutputTypeCountAiProvidersArgs
+  searchLogs?: boolean | UserCountOutputTypeCountSearchLogsArgs
   createdTags?: boolean | UserCountOutputTypeCountCreatedTagsArgs
   tagMergeReviews?: boolean | UserCountOutputTypeCountTagMergeReviewsArgs
 }
@@ -1200,6 +1339,13 @@ export type UserCountOutputTypeCountAiProvidersArgs<ExtArgs extends runtime.Type
 /**
  * UserCountOutputType without action
  */
+export type UserCountOutputTypeCountSearchLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SearchLogWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
 export type UserCountOutputTypeCountCreatedTagsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.TagWhereInput
 }
@@ -1226,6 +1372,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   documents?: boolean | Prisma.User$documentsArgs<ExtArgs>
   projects?: boolean | Prisma.User$projectsArgs<ExtArgs>
   aiProviders?: boolean | Prisma.User$aiProvidersArgs<ExtArgs>
+  searchLogs?: boolean | Prisma.User$searchLogsArgs<ExtArgs>
   createdTags?: boolean | Prisma.User$createdTagsArgs<ExtArgs>
   tagMergeReviews?: boolean | Prisma.User$tagMergeReviewsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -1271,6 +1418,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   documents?: boolean | Prisma.User$documentsArgs<ExtArgs>
   projects?: boolean | Prisma.User$projectsArgs<ExtArgs>
   aiProviders?: boolean | Prisma.User$aiProvidersArgs<ExtArgs>
+  searchLogs?: boolean | Prisma.User$searchLogsArgs<ExtArgs>
   createdTags?: boolean | Prisma.User$createdTagsArgs<ExtArgs>
   tagMergeReviews?: boolean | Prisma.User$tagMergeReviewsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -1286,6 +1434,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     documents: Prisma.$DocumentPayload<ExtArgs>[]
     projects: Prisma.$ProjectPayload<ExtArgs>[]
     aiProviders: Prisma.$AiProviderPayload<ExtArgs>[]
+    searchLogs: Prisma.$SearchLogPayload<ExtArgs>[]
     createdTags: Prisma.$TagPayload<ExtArgs>[]
     tagMergeReviews: Prisma.$TagMergeReviewPayload<ExtArgs>[]
   }
@@ -1697,6 +1846,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   documents<T extends Prisma.User$documentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$documentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   projects<T extends Prisma.User$projectsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$projectsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   aiProviders<T extends Prisma.User$aiProvidersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$aiProvidersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AiProviderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  searchLogs<T extends Prisma.User$searchLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$searchLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SearchLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   createdTags<T extends Prisma.User$createdTagsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdTagsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TagPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   tagMergeReviews<T extends Prisma.User$tagMergeReviewsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$tagMergeReviewsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TagMergeReviewPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -2246,6 +2396,30 @@ export type User$aiProvidersArgs<ExtArgs extends runtime.Types.Extensions.Intern
   take?: number
   skip?: number
   distinct?: Prisma.AiProviderScalarFieldEnum | Prisma.AiProviderScalarFieldEnum[]
+}
+
+/**
+ * User.searchLogs
+ */
+export type User$searchLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SearchLog
+   */
+  select?: Prisma.SearchLogSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SearchLog
+   */
+  omit?: Prisma.SearchLogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SearchLogInclude<ExtArgs> | null
+  where?: Prisma.SearchLogWhereInput
+  orderBy?: Prisma.SearchLogOrderByWithRelationInput | Prisma.SearchLogOrderByWithRelationInput[]
+  cursor?: Prisma.SearchLogWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SearchLogScalarFieldEnum | Prisma.SearchLogScalarFieldEnum[]
 }
 
 /**

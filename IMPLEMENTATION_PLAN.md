@@ -969,6 +969,8 @@ Dự án nâng cấp được xem là hoàn thành khi:
 - Trang chi tiết tài liệu hiển thị ước tính thời gian embedding theo CPU/GPU và batch size hiện tại.
 - Danh sách primary topic trong code đã đồng bộ với PRD; AI analysis hiện trả về và lưu `language` của tài liệu.
 - Semantic search đã có filter theo tài liệu, chủ đề, độ khó, loại file và khoảng ngày upload.
+- Semantic search đã lưu `SearchLog` gồm query, filters và danh sách document trả về để hỗ trợ evaluation/báo cáo.
+- Trang quản lý tags đã có gộp tag thủ công: chuyển aliases/tài liệu sang tag giữ lại rồi xóa tag nguồn.
 - Kết quả hỏi/tìm tài liệu hiển thị citation rõ (`Nguồn: tài liệu · trang/slide/chương`) và CTA mở đúng matched chunk.
 - Trang chi tiết project đã có outline đọc tài liệu theo 3 bước dựa trên recommendations: tổng quan, trọng tâm, đào sâu.
 - Test/release đã có `TEST_CASES.md`, script `npm run demo:seed` và GitHub Actions CI chạy lint, unit tests, build, Docker build web.
