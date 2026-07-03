@@ -244,14 +244,6 @@ export default async function DocumentDetailPage({
               <h2>Nội dung đã trích xuất</h2>
               <p>Hiển thị tối đa 15.000 ký tự đầu tiên.</p>
             </div>
-            <a
-              className="secondary-button compact"
-              href={canPreviewOriginalFile ? originalFileHref : originalFileDownloadHref}
-              target={canPreviewOriginalFile ? "_blank" : undefined}
-              rel={canPreviewOriginalFile ? "noreferrer" : undefined}
-            >
-              {originalFileActionLabel} {canPreviewOriginalFile ? <ExternalLink size={15} /> : <Download size={15} />}
-            </a>
           </div>
           <pre>{preview || "Nội dung đang được xử lý..."}</pre>
           {document.textContent && document.textContent.length > preview.length ? <small>Còn {document.textContent.length - preview.length} ký tự chưa hiển thị.</small> : null}
