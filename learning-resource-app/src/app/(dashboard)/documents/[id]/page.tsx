@@ -101,6 +101,8 @@ export default async function DocumentDetailPage({
   const originalFileHref = `/api/documents/${document.id}/file`;
   const originalFileDownloadHref = `${originalFileHref}?download=1`;
   const canPreviewOriginalFile = document.fileType === "PDF";
+  const matchedPdfPage = canPreviewOriginalFile && matchedChunk?.pageNumber ? matchedChunk.pageNumber : null;
+  const originalFilePreviewHref = matchedPdfPage ? `${originalFileHref}#page=${matchedPdfPage}` : originalFileHref;
   const originalFileActionLabel = canPreviewOriginalFile ? "Mở file gốc" : "Tải file gốc";
   const embeddingDevice = (process.env.EMBEDDING_DEVICE ?? "cpu").toLowerCase();
   const embeddingBatchSize = process.env.EMBEDDING_BATCH_SIZE ?? (embeddingDevice === "cuda" ? "2" : "4");
@@ -174,28 +176,30 @@ export default async function DocumentDetailPage({
           <div className="matched-chunk-heading">
             <span><LocateFixed size={21} /></span>
             <div><p className="eyebrow">Đoạn khớp với tìm kiếm</p><h2>{matchedChunk.sourceLabel ?? "Vị trí chưa xác định"}</h2></div>
-            {document.fileType === "PDF" && matchedChunk.pageNumber ? (
-              <a className="secondary-button" href={`/api/documents/${document.id}/file#page=${matchedChunk.pageNumber}`} target="_blank" rel="noreferrer">Mở trang {matchedChunk.pageNumber}<ExternalLink size={16} /></a>
+            {canPreviewOriginalFile && matchedChunk.pageNumber ? (
+              <a className="secondary-button" href="#original-file">Xem trang {matchedChunk.pageNumber} trong file gốc</a>
             ) : null}
           </div>
           <pre>{matchedChunk.content}</pre>
         </section>
       ) : null}
 
-      <section className="original-file-section">
+      <section className="original-file-section" id="original-file">
         <div className="text-preview-heading">
           <div>
             <h2>File gốc</h2>
             <p>
-              {canPreviewOriginalFile
+              {matchedPdfPage
+                ? `PDF đang mở sẵn trang ${matchedPdfPage}, trùng với đoạn khớp phía trên.`
+                : canPreviewOriginalFile
                 ? "PDF có thể xem trực tiếp trong app. Nếu muốn kiểm tra bằng tab riêng, bấm mở file gốc."
                 : "Trình duyệt thường không xem trực tiếp DOCX/PPTX/EPUB, nên app sẽ tải file gốc để bạn mở bằng phần mềm phù hợp."}
             </p>
           </div>
           <div className="original-file-actions">
             {canPreviewOriginalFile ? (
-              <a className="secondary-button compact" href={originalFileHref} target="_blank" rel="noreferrer">
-                Mở tab riêng <ExternalLink size={15} />
+              <a className="secondary-button compact" href={originalFilePreviewHref} target="_blank" rel="noreferrer">
+                {matchedPdfPage ? `Mở trang ${matchedPdfPage}` : "Mở tab riêng"} <ExternalLink size={15} />
               </a>
             ) : null}
             <a className="secondary-button compact" href={originalFileDownloadHref}>
@@ -206,7 +210,7 @@ export default async function DocumentDetailPage({
         {canPreviewOriginalFile ? (
           <iframe
             className="pdf-preview-frame"
-            src={originalFileHref}
+            src={originalFilePreviewHref}
             title={`File gốc: ${document.originalFileName}`}
           />
         ) : (
