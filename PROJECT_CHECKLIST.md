@@ -210,6 +210,7 @@
 - [x] Tối ưu embedding CPU/GPU, batch size và ước tính thời gian
 - [x] Cải thiện filter semantic search theo tài liệu, chủ đề, ngày và loại file
 - [x] Lưu lịch sử truy vấn semantic search phục vụ evaluation/báo cáo
+- [x] Thêm AI lọc kết quả semantic search theo mức nên đọc trước/đọc thêm/có thể bỏ qua
 - [x] Cải thiện hỏi đáp với tài liệu, trích dẫn nguồn và mở đúng trang/chunk
 - [x] Cải thiện project/recommendation: outline và tài liệu liên quan
 - [x] Chuẩn hóa test/release: test case demo, seed demo và CI build Docker

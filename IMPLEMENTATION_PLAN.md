@@ -635,6 +635,8 @@ Nội dung:
 - Trang document detail hiển thị matched chunk riêng và làm nổi bật vị trí.
 - Route file bảo mật `/api/documents/[id]/file` chỉ phục vụ file của user đang đăng nhập; PDF hỗ trợ fragment `#page=N`.
 - Link sang document detail.
+- Có nút AI đọc nhanh các kết quả semantic search hiện tại và chia thành `nên đọc trước`, `đọc thêm nếu cần`, `có thể bỏ qua`.
+- AI lọc kết quả dùng chung active chat provider với module phân tích tài liệu; nếu provider lỗi thì semantic search gốc vẫn hoạt động.
 
 ### 6.6. Projects and Recommendations
 
@@ -970,6 +972,7 @@ Dự án nâng cấp được xem là hoàn thành khi:
 - Danh sách primary topic trong code đã đồng bộ với PRD; AI analysis hiện trả về và lưu `language` của tài liệu.
 - Semantic search đã có filter theo tài liệu, chủ đề, độ khó, loại file và khoảng ngày upload.
 - Semantic search đã lưu `SearchLog` gồm query, filters và danh sách document trả về để hỗ trợ evaluation/báo cáo.
+- Semantic search có nút AI lọc kết quả: dùng provider đang active để gợi ý kết quả nên đọc trước, đọc thêm hoặc có thể bỏ qua.
 - Trang quản lý tags đã có gộp tag thủ công: chuyển aliases/tài liệu sang tag giữ lại rồi xóa tag nguồn.
 - Kết quả hỏi/tìm tài liệu hiển thị citation rõ (`Nguồn: tài liệu · trang/slide/chương`) và CTA mở đúng matched chunk.
 - Trang chi tiết project đã có outline đọc tài liệu theo 3 bước dựa trên recommendations: tổng quan, trọng tâm, đào sâu.

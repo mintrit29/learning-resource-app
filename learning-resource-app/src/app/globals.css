@@ -175,6 +175,32 @@ a { color: inherit; text-decoration: none; }
 .search-results-heading { min-height: 60px; display: flex; align-items: center; justify-content: space-between; gap: 18px; border-bottom: 1px solid var(--line); padding: 12px 20px; }
 .search-results-heading h2 { margin: 0; font-size: 16px; }
 .search-results-heading span { color: var(--muted); font-size: 12px; }
+.ai-curation-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid var(--line); background: #f8fbfa; padding: 14px 20px; }
+.ai-curation-toolbar strong { display: block; color: var(--ink); font-size: 14px; }
+.ai-curation-toolbar p { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
+.ai-curate-button { min-height: 40px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid #9fc8c0; border-radius: 7px; background: var(--teal); padding: 0 14px; color: white; font-size: 13px; font-weight: 800; cursor: pointer; white-space: nowrap; }
+.ai-curate-button:hover:not(:disabled) { background: #08695d; }
+.ai-curate-button:disabled { cursor: not-allowed; opacity: .7; }
+.ai-curation-error { border-bottom: 1px solid #f0c6c2; background: #fff7f6; padding: 14px 20px; }
+.ai-curation-error strong { color: var(--danger); font-size: 13px; }
+.ai-curation-error p { margin: 5px 0 0; color: #7a4843; font-size: 13px; }
+.ai-curation-panel { display: grid; gap: 14px; border-bottom: 1px solid var(--line); background: #fbfefd; padding: 18px 20px; }
+.ai-curation-intro { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 12px; align-items: start; }
+.ai-curation-intro > svg { width: 34px; height: 34px; border-radius: 50%; background: var(--mint); padding: 8px; color: var(--teal); }
+.ai-curation-intro strong { display: block; color: var(--teal); font-size: 14px; }
+.ai-curation-intro p { margin: 4px 0 0; color: #52605d; font-size: 13px; line-height: 1.55; }
+.ai-curation-group { border: 1px solid var(--line); background: white; }
+.ai-curation-group h3 { margin: 0; border-bottom: 1px solid var(--line); padding: 10px 12px; color: var(--ink); font-size: 13px; }
+.ai-curation-items { display: grid; }
+.ai-curation-items > a { display: grid; grid-template-columns: auto minmax(0, 1fr) 18px; gap: 10px; align-items: center; border-bottom: 1px solid var(--line); padding: 12px; }
+.ai-curation-items > a:last-child { border-bottom: 0; }
+.ai-curation-items > a:hover { background: #f8fbfa; }
+.ai-curation-items > a > span { border: 1px solid #b9d9d2; border-radius: 4px; padding: 4px 6px; background: #f0faf7; color: var(--teal); font-size: 9px; font-weight: 800; }
+.ai-curation-items strong { display: block; overflow: hidden; color: var(--ink); font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
+.ai-curation-items p { margin: 4px 0; color: #52605d; font-size: 12px; line-height: 1.5; }
+.ai-curation-items small { color: var(--muted); font-size: 11px; font-weight: 700; }
+.ai-curation-items svg { color: var(--muted); }
+.ai-curation-empty { margin: 0; padding: 12px; color: var(--muted); font-size: 12px; }
 .search-results > a { min-height: 150px; display: grid; grid-template-columns: minmax(0,1fr) 110px; gap: 20px; border-bottom: 1px solid var(--line); padding: 20px; }
 .search-results > a:last-child { border-bottom: 0; }
 .search-results > a:hover { background: #f8fbfa; }
@@ -506,6 +532,10 @@ a { color: inherit; text-decoration: none; }
   .pdf-preview-frame { height: 520px; }
   .search-bar { height: auto; grid-template-columns: 22px 1fr; padding: 10px 12px; }
   .search-bar button { grid-column: 1 / -1; width: 100%; }
+  .ai-curation-toolbar { align-items: stretch; flex-direction: column; }
+  .ai-curate-button { width: 100%; }
+  .ai-curation-items > a { grid-template-columns: auto minmax(0, 1fr); }
+  .ai-curation-items > a > svg { display: none; }
   .search-results > a { grid-template-columns: 1fr; }
   .result-score { grid-template-columns: auto 1fr auto; align-items: center; justify-items: start; gap: 8px; border-left: 0; border-top: 1px solid var(--line); padding: 13px 0 0; }
   .result-score svg { justify-self: end; margin: 0; }

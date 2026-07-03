@@ -8,17 +8,7 @@
 **Mô tả ngắn:**  
 Hệ thống giúp sinh viên quản lý, phân loại, tìm kiếm và gợi ý tài liệu học tập/nghiên cứu. Người dùng có thể upload eBooks, slides và tài liệu nghiên cứu; hệ thống sẽ trích xuất nội dung, dùng AI/NLP để phân tích chủ đề, độ khó, từ khóa, tóm tắt và hỗ trợ tìm kiếm theo ngữ nghĩa.
 
-**Bối cảnh hiện tại:**  
-Demo hiện tại đang dùng `Streamlit + Python + SQLite`, có các chức năng:
-
-- Upload PDF.
-- Trích xuất text bằng PyMuPDF.
-- Lưu text vào SQLite.
-- Gọi AI qua OpenRouter, Ollama hoặc Custom API để tạo `topic`, `difficulty`, `summary`, `keywords`.
-- Tìm kiếm cơ bản bằng keyword/fuzzy matching.
-
-**Hướng nâng cấp:**  
-Chuyển thành web app thật, chuyên nghiệp hơn cho đồ án cuối khóa:
+**Bối cảnh hiện tại:**
 
 - Frontend/backend: `Next.js + TypeScript`.
 - Database: `PostgreSQL`.
@@ -51,7 +41,7 @@ Xây dựng một web app giúp sinh viên:
 - Tự động tạo tóm tắt và keywords.
 - Tìm kiếm tài liệu bằng keyword và semantic search.
 - Gợi ý tài liệu phù hợp với Research Project.
-- Cấu hình nhiều AI provider tùy theo nhu cầu: subscription, local model, OpenRouter hoặc custom API.
+- Cấu hình nhiều AI provider tùy theo nhu cầu: Local model, OpenRouter hoặc custom API.
 
 ### 3.2. Mục tiêu đồ án
 
@@ -286,6 +276,7 @@ Hệ thống sẽ:
 - Mỗi kết quả phải hiển thị vị trí của chunk trong tài liệu, ví dụ `Trang 18`, `Slide 7` hoặc `Chương 3: Neural Networks`.
 - Khi người dùng mở kết quả, trang chi tiết phải hiển thị và làm nổi bật đúng chunk đã khớp.
 - Với PDF, cung cấp liên kết mở file gốc tại đúng trang khi trình duyệt hỗ trợ `#page=N`.
+- Người dùng có thể bấm AI gợi ý sau khi semantic search trả kết quả để chia các đoạn thành `nên đọc trước`, `đọc thêm nếu cần` và `có thể bỏ qua`. Chức năng này dùng chung AI provider đang active và không thay thế semantic search gốc.
 
 Quyết định embedding cho MVP:
 
@@ -435,6 +426,7 @@ MVP được xem là thành công khi:
 - User cấu hình được ít nhất OpenRouter, Ollama và Custom API.
 - Toàn bộ hệ thống có thể khởi động bằng Docker Compose với hướng dẫn ngắn gọn.
 - Có evaluation dataset và bảng kết quả đánh giá trong báo cáo.
+
 # Cập nhật UX/UI - Luồng dễ dùng cho người mới
 
 Sau khi review giao diện thực tế, MVP cần ưu tiên trải nghiệm theo hướng người dùng phổ thông có thể mở app và biết ngay phải làm gì. App không chỉ là công cụ kỹ thuật cho semantic search, mà cần hoạt động như một trợ lý quản lý và hỏi tài liệu.

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { FormEvent, useState } from "react";
-import { ArrowUpRight, FileSearch, LoaderCircle, Search, SlidersHorizontal } from "lucide-react";
+import { ArrowUpRight, FileSearch, LoaderCircle, Search, SlidersHorizontal, Sparkles } from "lucide-react";
 
 type SearchResult = {
   chunkId: string;
@@ -23,6 +23,17 @@ type SearchDocument = {
   fileType: string;
 };
 
+type CuratedSearchItem = {
+  chunkId: string;
+  group: "READ_FIRST" | "READ_LATER" | "SKIP";
+  reason: string;
+};
+
+type CuratedSearch = {
+  summary: string;
+  items: CuratedSearchItem[];
+};
+
 const examples = [
   "Tài liệu nào giải thích SQL cho người mới?",
   "Tìm phần nói về transaction trong database",
@@ -40,7 +51,10 @@ export function SemanticSearch({ documents }: { documents: SearchDocument[] }) {
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [error, setError] = useState("");
+  const [curationError, setCurationError] = useState("");
+  const [curatedSearch, setCuratedSearch] = useState<CuratedSearch | null>(null);
   const [isSearching, setIsSearching] = useState(false);
+  const [isCurating, setIsCurating] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -50,6 +64,8 @@ export function SemanticSearch({ documents }: { documents: SearchDocument[] }) {
 
     setIsSearching(true);
     setError("");
+    setCurationError("");
+    setCuratedSearch(null);
     try {
       const response = await fetch("/api/search", {
         method: "POST",
@@ -83,6 +99,56 @@ export function SemanticSearch({ documents }: { documents: SearchDocument[] }) {
       setIsSearching(false);
     }
   }
+
+  async function handleCurateResults() {
+    if (!searchedQuery || !results.length) return;
+
+    setIsCurating(true);
+    setCurationError("");
+    try {
+      const response = await fetch("/api/search/curate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          query: searchedQuery,
+          results: results.slice(0, 10),
+        }),
+      });
+      const data = (await response.json()) as {
+        message?: string;
+        summary?: string;
+        items?: CuratedSearchItem[];
+      };
+      if (!response.ok) {
+        setCurationError(data.message ?? "AI chưa lọc được kết quả.");
+        return;
+      }
+      setCuratedSearch({
+        summary: data.summary ?? "AI đã đọc nhanh các kết quả và chia nhóm bên dưới.",
+        items: data.items ?? [],
+      });
+    } catch {
+      setCurationError("Không thể kết nối tới AI để lọc kết quả.");
+    } finally {
+      setIsCurating(false);
+    }
+  }
+
+  const resultsById = new Map(results.map((result) => [result.chunkId, result]));
+  const curatedGroups = {
+    READ_FIRST: curatedSearch?.items
+      .filter((item) => item.group === "READ_FIRST")
+      .map((item) => ({ item, result: resultsById.get(item.chunkId) }))
+      .filter((entry): entry is { item: CuratedSearchItem; result: SearchResult } => Boolean(entry.result)) ?? [],
+    READ_LATER: curatedSearch?.items
+      .filter((item) => item.group === "READ_LATER")
+      .map((item) => ({ item, result: resultsById.get(item.chunkId) }))
+      .filter((entry): entry is { item: CuratedSearchItem; result: SearchResult } => Boolean(entry.result)) ?? [],
+    SKIP: curatedSearch?.items
+      .filter((item) => item.group === "SKIP")
+      .map((item) => ({ item, result: resultsById.get(item.chunkId) }))
+      .filter((entry): entry is { item: CuratedSearchItem; result: SearchResult } => Boolean(entry.result)) ?? [],
+  };
 
   return (
     <div>
@@ -184,6 +250,65 @@ export function SemanticSearch({ documents }: { documents: SearchDocument[] }) {
             <h2>Kết quả cho “{searchedQuery}”</h2>
             <span>{results.length} đoạn phù hợp</span>
           </div>
+          <div className="ai-curation-toolbar">
+            <div>
+              <strong>Không chắc nên đọc đoạn nào?</strong>
+              <p>Để AI đọc nhanh kết quả và chia nhóm ưu tiên cho bạn.</p>
+            </div>
+            <button className="ai-curate-button" disabled={isCurating} onClick={handleCurateResults} type="button">
+              {isCurating ? <LoaderCircle className="spin" size={16} /> : <Sparkles size={16} />}
+              {isCurating ? "AI đang đọc" : "AI chọn giúp"}
+            </button>
+          </div>
+          {curationError ? (
+            <div className="ai-curation-error">
+              <strong>AI chọn kết quả chưa được</strong>
+              <p>{curationError}</p>
+            </div>
+          ) : null}
+          {curatedSearch ? (
+            <div className="ai-curation-panel">
+              <div className="ai-curation-intro">
+                <Sparkles size={18} />
+                <div>
+                  <strong>Gợi ý nên đọc</strong>
+                  <p>{curatedSearch.summary}</p>
+                </div>
+              </div>
+              {[
+                ["READ_FIRST", "Nên đọc trước", curatedGroups.READ_FIRST],
+                ["READ_LATER", "Đọc thêm nếu cần", curatedGroups.READ_LATER],
+                ["SKIP", "Có thể bỏ qua", curatedGroups.SKIP],
+              ].map(([key, label, entries]) => (
+                <div className="ai-curation-group" key={key as string}>
+                  <h3>{label as string}</h3>
+                  {(entries as Array<{ item: CuratedSearchItem; result: SearchResult }>).length ? (
+                    <div className="ai-curation-items">
+                      {(entries as Array<{ item: CuratedSearchItem; result: SearchResult }>).map(({ item, result }) => (
+                        <Link
+                          href={`/documents/${result.documentId}?chunk=${result.chunkId}#matched-chunk`}
+                          key={item.chunkId}
+                        >
+                          <span>{result.fileType}</span>
+                          <div>
+                            <strong>{result.title}</strong>
+                            <p>{item.reason}</p>
+                            <small>
+                              {result.sourceLabel ? `${result.sourceLabel} · ` : ""}
+                              {Math.round(result.score * 100)}% khớp
+                            </small>
+                          </div>
+                          <ArrowUpRight size={15} />
+                        </Link>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="ai-curation-empty">Không có kết quả trong nhóm này.</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : null}
           {results.map((result) => (
             <Link href={`/documents/${result.documentId}?chunk=${result.chunkId}#matched-chunk`} key={result.chunkId}>
               <div className="result-main">
