@@ -874,7 +874,8 @@ Cách xử lý:
 - Ghi status FAILED.
 - Chỉ hỗ trợ file có text layer trong MVP.
 - Nếu PDF có trang nhưng gần như không có text, báo rõ là tài liệu scan/ảnh cần OCR.
-- OCR cho PDF scan, ảnh hoặc tài liệu không copy được chữ là future work sau MVP.
+- OCR cho PDF scan đã có trong web container bằng Poppler + Tesseract. Text layer vẫn được ưu tiên; OCR chỉ chạy khi PDF gần như không có text.
+- OCR hiện giới hạn bằng `OCR_MAX_PAGES` để tránh treo app với PDF scan quá dài; mặc định dùng `OCR_LANGS=vie+eng`.
 
 ### 10.2. Giữ embedding model đồng nhất
 
@@ -958,10 +959,18 @@ Dự án nâng cấp được xem là hoàn thành khi:
 - Dashboard đã có cards tổng quan, biểu đồ phân bổ topic/difficulty/status và trạng thái AI provider active.
 - Trang tài liệu đã có filter theo từ khóa, topic, difficulty, file type và status.
 - Trang chi tiết tài liệu đã có khu `File gốc`: PDF xem trực tiếp trong app; DOCX/PPTX/EPUB dùng nút tải rõ ràng vì trình duyệt thường không preview inline.
+- PDF scan/ảnh có thể fallback sang OCR bằng Poppler + Tesseract trong Docker web container.
 - Semantic search đã nhận thêm filter topic, difficulty và file type.
 - Trang chi tiết tài liệu có hai luồng riêng:
   - `Xử lý phần còn thiếu`: chỉ chạy lại extraction/chunking/embedding/AI nếu bước đó thiếu hoặc lỗi.
   - `Phân tích AI lại`: giữ nguyên text/chunk/embedding và chỉ chạy lại AI analysis.
+- Tiến trình xử lý hiển thị cố định 4 bước; chạy lại chỉ reset/update job theo type thay vì thêm dòng mới trên UI.
+- AI Provider test/model loading đã parse lỗi HTTP/provider thành thông báo dễ hiểu hơn: API key, quyền model/quota, sai endpoint/model, rate limit hoặc lỗi server.
+- Trang chi tiết tài liệu hiển thị ước tính thời gian embedding theo CPU/GPU và batch size hiện tại.
+- Semantic search đã có filter theo tài liệu, chủ đề, độ khó, loại file và khoảng ngày upload.
+- Kết quả hỏi/tìm tài liệu hiển thị citation rõ (`Nguồn: tài liệu · trang/slide/chương`) và CTA mở đúng matched chunk.
+- Trang chi tiết project đã có outline đọc tài liệu theo 3 bước dựa trên recommendations: tổng quan, trọng tâm, đào sâu.
+- Test/release đã có `TEST_CASES.md`, script `npm run demo:seed` và GitHub Actions CI chạy lint, unit tests, build, Docker build web.
 - Upload kiểm tra thêm chữ ký file, không chỉ dựa vào phần mở rộng.
 - Unit test được gom vào `npm run test:unit`; integration smoke tests được gom vào `npm run test:integration`.
 - Docker deployment:

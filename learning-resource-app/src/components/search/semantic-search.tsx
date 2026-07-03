@@ -17,19 +17,28 @@ type SearchResult = {
   score: number;
 };
 
+type SearchDocument = {
+  id: string;
+  title: string;
+  fileType: string;
+};
+
 const examples = [
   "Tài liệu nào giải thích SQL cho người mới?",
   "Tìm phần nói về transaction trong database",
   "Có tài liệu nào liên quan đến machine learning không?",
 ];
 
-export function SemanticSearch() {
+export function SemanticSearch({ documents }: { documents: SearchDocument[] }) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [searchedQuery, setSearchedQuery] = useState("");
   const [topic, setTopic] = useState("");
   const [difficulty, setDifficulty] = useState("");
   const [fileType, setFileType] = useState("");
+  const [documentId, setDocumentId] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
   const [error, setError] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
@@ -51,6 +60,9 @@ export function SemanticSearch() {
           topic: topic.trim() || undefined,
           difficulty: difficulty || undefined,
           fileType: fileType || undefined,
+          documentId: documentId || undefined,
+          dateFrom: dateFrom || undefined,
+          dateTo: dateTo || undefined,
         }),
       });
       const data = (await response.json()) as {
@@ -107,6 +119,17 @@ export function SemanticSearch() {
       {showFilters ? (
         <div className="search-filters">
           <label>
+            <span>Tài liệu</span>
+            <select onChange={(event) => setDocumentId(event.target.value)} value={documentId}>
+              <option value="">Tất cả tài liệu</option>
+              {documents.map((document) => (
+                <option key={document.id} value={document.id}>
+                  {document.title} ({document.fileType})
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
             <span>Chủ đề</span>
             <input onChange={(event) => setTopic(event.target.value)} placeholder="VD: Database, AI..." value={topic} />
           </label>
@@ -128,6 +151,14 @@ export function SemanticSearch() {
               <option value="DOCX">DOCX</option>
               <option value="EPUB">EPUB</option>
             </select>
+          </label>
+          <label>
+            <span>Từ ngày</span>
+            <input onChange={(event) => setDateFrom(event.target.value)} type="date" value={dateFrom} />
+          </label>
+          <label>
+            <span>Đến ngày</span>
+            <input onChange={(event) => setDateTo(event.target.value)} type="date" value={dateTo} />
           </label>
         </div>
       ) : null}
@@ -169,10 +200,15 @@ export function SemanticSearch() {
                   {result.primaryTopic ? <span>{result.primaryTopic}</span> : null}
                   {result.difficulty ? <span>{result.difficulty}</span> : null}
                 </div>
+                <small className="result-citation">
+                  Nguồn: {result.title}
+                  {result.sourceLabel ? ` · ${result.sourceLabel}` : ""}
+                </small>
               </div>
               <div className="result-score">
                 <strong>{Math.round(result.score * 100)}%</strong>
                 <small>Mức khớp</small>
+                <span>Mở đúng đoạn</span>
                 <ArrowUpRight size={17} />
               </div>
             </Link>

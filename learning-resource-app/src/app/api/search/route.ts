@@ -10,6 +10,9 @@ const searchSchema = z.object({
   topic: z.string().trim().max(120).optional(),
   difficulty: z.enum(["BEGINNER", "INTERMEDIATE", "ADVANCED"]).optional(),
   fileType: z.enum(["PDF", "PPTX", "DOCX", "EPUB"]).optional(),
+  documentId: z.string().trim().optional(),
+  dateFrom: z.string().trim().optional(),
+  dateTo: z.string().trim().optional(),
 });
 
 type SearchRow = {
@@ -60,13 +63,19 @@ export async function POST(request: Request) {
       AND ($3::text IS NULL OR d."primaryTopic" = $3::text)
       AND ($4::text IS NULL OR d."difficulty"::text = $4::text)
       AND ($5::text IS NULL OR d."fileType"::text = $5::text)
+      AND ($6::text IS NULL OR d."id" = $6::text)
+      AND ($7::timestamptz IS NULL OR d."createdAt" >= $7::timestamptz)
+      AND ($8::timestamptz IS NULL OR d."createdAt" < ($8::timestamptz + interval '1 day'))
     ORDER BY c."embedding" <=> $1::vector
-    LIMIT $6`,
+    LIMIT $9`,
       vector,
       session.user.id,
       parsed.data.topic || null,
       parsed.data.difficulty || null,
       parsed.data.fileType || null,
+      parsed.data.documentId || null,
+      parsed.data.dateFrom || null,
+      parsed.data.dateTo || null,
       candidateLimit,
     );
 

@@ -22,6 +22,31 @@ async function request(url: string, init: RequestInit) {
   }
 }
 
+async function readErrorBody(response: Response) {
+  const body = await response.text().catch(() => "");
+  if (!body) return "";
+  try {
+    const parsed = JSON.parse(body) as {
+      error?: { message?: string };
+      message?: string;
+      detail?: string;
+    };
+    return parsed.error?.message ?? parsed.message ?? parsed.detail ?? body;
+  } catch {
+    return body;
+  }
+}
+
+function formatHttpError(source: string, status: number, body: string) {
+  const detail = body.trim().replace(/\s+/g, " ").slice(0, 220);
+  if (status === 401) return `${source} từ chối xác thực. Hãy kiểm tra API key. ${detail}`;
+  if (status === 403) return `${source} không cho phép dùng model hoặc tài khoản hiện tại đã hết/quá giới hạn quyền. ${detail}`;
+  if (status === 404) return `${source} không tìm thấy endpoint hoặc model. Hãy kiểm tra Base URL và tên model. ${detail}`;
+  if (status === 429) return `${source} đang bị rate limit/quota. Chờ một lúc hoặc đổi model/provider. ${detail}`;
+  if (status >= 500) return `${source} đang lỗi phía server. Thử lại sau hoặc đổi provider. ${detail}`;
+  return `${source} trả về HTTP ${status}. ${detail}`;
+}
+
 function ollamaBaseUrlCandidates(baseUrl: string) {
   const candidates = [baseUrl];
   try {
@@ -65,7 +90,7 @@ export async function listProviderModels(config: ProviderConfig) {
   const baseUrl = normalizeBaseUrl(config.baseUrl ?? "");
   if (type === "OLLAMA") {
     const response = await requestOllama(baseUrl, "/api/tags", { method: "GET" });
-    if (!response.ok) throw new Error(`Ollama trả về HTTP ${response.status}`);
+    if (!response.ok) throw new Error(formatHttpError("Ollama", response.status, await readErrorBody(response)));
     const data = await response.json() as { models?: Array<{ name?: string }> };
     return (data.models ?? []).map((model) => model.name).filter((name): name is string => Boolean(name));
   }
@@ -76,8 +101,7 @@ export async function listProviderModels(config: ProviderConfig) {
     headers: { Authorization: `Bearer ${apiKey}` },
   });
   if (!response.ok) {
-    const body = await response.text();
-    throw new Error(`Provider trả về HTTP ${response.status}: ${body.slice(0, 180)}`);
+    throw new Error(formatHttpError("Provider", response.status, await readErrorBody(response)));
   }
   const data = await response.json() as { data?: Array<{ id?: string }> };
   return (data.data ?? []).map((model) => model.id).filter((id): id is string => Boolean(id));
@@ -88,9 +112,12 @@ export async function testProviderConnection(config: ProviderConfig) {
   const baseUrl = normalizeBaseUrl(config.baseUrl ?? "");
   if (type === "OLLAMA") {
     const response = await requestOllama(baseUrl, "/api/tags", { method: "GET" });
-    if (!response.ok) throw new Error(`Ollama trả về HTTP ${response.status}`);
+    if (!response.ok) throw new Error(formatHttpError("Ollama", response.status, await readErrorBody(response)));
     const data = await response.json() as { models?: Array<{ name?: string }> };
     const names = data.models?.map((model) => model.name).filter(Boolean) ?? [];
+    if (!names.length) {
+      throw new Error("Kết nối được Ollama nhưng chưa thấy model nào. Hãy pull/chọn model trước rồi tải lại danh sách model.");
+    }
     if (config.defaultChatModel && names.length && !names.includes(config.defaultChatModel)) {
       throw new Error(`Không tìm thấy model ${config.defaultChatModel} trong Ollama`);
     }
@@ -98,6 +125,9 @@ export async function testProviderConnection(config: ProviderConfig) {
   }
 
   const apiKey = decryptApiKey(config.apiKeyEncrypted);
+  if (!config.defaultChatModel) {
+    throw new Error("Chưa chọn chat model. Hãy tải danh sách model hoặc nhập đúng model trước khi test.");
+  }
   const response = await request(`${baseUrl}/chat/completions`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
@@ -108,8 +138,7 @@ export async function testProviderConnection(config: ProviderConfig) {
     }),
   });
   if (!response.ok) {
-    const body = await response.text();
-    throw new Error(`Provider trả về HTTP ${response.status}: ${body.slice(0, 180)}`);
+    throw new Error(formatHttpError("Provider", response.status, await readErrorBody(response)));
   }
   return "Kết nối model thành công";
 }
@@ -138,7 +167,7 @@ export async function completeChat(
         signal: controller.signal,
       });
       if (!response.ok) {
-        throw new Error(`Ollama trả về HTTP ${response.status}: ${(await response.text()).slice(0, 300)}`);
+        throw new Error(formatHttpError("Ollama", response.status, await readErrorBody(response)));
       }
       const data = await response.json() as { message?: { content?: string } };
       if (!data.message?.content) throw new Error("Ollama không trả về nội dung");
@@ -159,7 +188,7 @@ export async function completeChat(
       signal: controller.signal,
     });
     if (!response.ok) {
-      throw new Error(`Provider trả về HTTP ${response.status}: ${(await response.text()).slice(0, 300)}`);
+      throw new Error(formatHttpError("Provider", response.status, await readErrorBody(response)));
     }
     const data = await response.json() as { choices?: Array<{ message?: { content?: string } }> };
     const content = data.choices?.[0]?.message?.content;

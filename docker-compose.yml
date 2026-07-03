@@ -50,6 +50,8 @@ services:
       AUTH_SECRET: scholarflow-local-dev-secret-change-me
       AUTH_TRUST_HOST: "true"
       EMBEDDING_SERVICE_URL: http://embedding:8001
+      EMBEDDING_DEVICE: cpu
+      EMBEDDING_BATCH_SIZE: "4"
     ports:
       - "3000:3000"
     volumes:

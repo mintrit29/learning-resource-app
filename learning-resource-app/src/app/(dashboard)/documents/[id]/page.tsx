@@ -45,6 +45,21 @@ function formatBytes(bytes: number) {
     : `${(bytes / 1024 / 1024).toFixed(2)} MB`;
 }
 
+function estimateEmbeddingSeconds(chunks: number, device: string) {
+  if (chunks <= 0) return null;
+  const secondsPerChunk = device === "cuda" ? 0.95 : 1.6;
+  return Math.max(10, Math.round(chunks * secondsPerChunk));
+}
+
+function formatDuration(seconds: number) {
+  if (seconds < 60) return `khoảng ${seconds} giây`;
+  const minutes = Math.round(seconds / 60);
+  if (minutes < 60) return `khoảng ${minutes} phút`;
+  const hours = Math.floor(minutes / 60);
+  const remainingMinutes = minutes % 60;
+  return remainingMinutes ? `khoảng ${hours} giờ ${remainingMinutes} phút` : `khoảng ${hours} giờ`;
+}
+
 export default async function DocumentDetailPage({
   params,
   searchParams,
@@ -87,6 +102,9 @@ export default async function DocumentDetailPage({
   const originalFileDownloadHref = `${originalFileHref}?download=1`;
   const canPreviewOriginalFile = document.fileType === "PDF";
   const originalFileActionLabel = canPreviewOriginalFile ? "Mở file gốc" : "Tải file gốc";
+  const embeddingDevice = (process.env.EMBEDDING_DEVICE ?? "cpu").toLowerCase();
+  const embeddingBatchSize = process.env.EMBEDDING_BATCH_SIZE ?? (embeddingDevice === "cuda" ? "2" : "4");
+  const embeddingEstimate = estimateEmbeddingSeconds(document._count.chunks, embeddingDevice);
   const latestJobsByType = new Map<string, (typeof document.jobs)[number]>();
   for (const job of document.jobs) latestJobsByType.set(job.type, job);
 
@@ -127,7 +145,14 @@ export default async function DocumentDetailPage({
       <section className="processing-section">
         <div className="processing-heading">
           <div><h2>Tiến trình xử lý</h2><p>{document._count.chunks.toLocaleString("vi-VN")} chunks đã được tạo.</p></div>
-          {isProcessing ? <span className="processing-live"><i />Đang chạy</span> : null}
+          <div className="processing-side">
+            {embeddingEstimate ? (
+              <span className="processing-estimate">
+                Embedding {embeddingDevice === "cuda" ? "GPU" : "CPU"} · batch {embeddingBatchSize} · {formatDuration(embeddingEstimate)}
+              </span>
+            ) : null}
+            {isProcessing ? <span className="processing-live"><i />Đang chạy</span> : null}
+          </div>
         </div>
         <div className="job-list">
           {processingSteps.map((type) => {

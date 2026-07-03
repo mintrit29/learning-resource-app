@@ -10,3 +10,7 @@ services:
             - driver: nvidia
               count: 1
               capabilities: [gpu]
+  web:
+    environment:
+      EMBEDDING_DEVICE: cuda
+      EMBEDDING_BATCH_SIZE: "2"

@@ -198,18 +198,18 @@
 
 ## Roadmap Sau MVP
 
-- [-] Cải thiện UI theo luồng dễ hiểu cho người mới
+- [x] Cải thiện UI theo luồng dễ hiểu cho người mới
 - [x] Preview/mở file gốc tốt hơn
 - [x] Chuẩn bị OCR cho PDF scan/ảnh/tài liệu không có text layer
-- [ ] Thêm OCR engine đầy đủ
-- [ ] Cố định tiến trình xử lý, chạy lại chỉ đổi trạng thái thay vì thêm dòng mới
+- [x] Thêm OCR engine đầy đủ
+- [x] Cố định tiến trình xử lý, chạy lại chỉ đổi trạng thái thay vì thêm dòng mới
 - [x] Nút chạy lại phần lỗi/còn thiếu trong pipeline
-- [ ] Cải thiện test kết nối/model và thông báo lỗi AI provider
-- [ ] Tối ưu embedding CPU/GPU, batch size và ước tính thời gian
-- [ ] Cải thiện filter semantic search theo tài liệu, chủ đề, ngày và loại file
-- [ ] Cải thiện hỏi đáp với tài liệu, trích dẫn nguồn và mở đúng trang/chunk
-- [ ] Cải thiện project/recommendation: outline và tài liệu liên quan
-- [ ] Chuẩn hóa test/release: test case demo, seed demo và CI build Docker
+- [x] Cải thiện test kết nối/model và thông báo lỗi AI provider
+- [x] Tối ưu embedding CPU/GPU, batch size và ước tính thời gian
+- [x] Cải thiện filter semantic search theo tài liệu, chủ đề, ngày và loại file
+- [x] Cải thiện hỏi đáp với tài liệu, trích dẫn nguồn và mở đúng trang/chunk
+- [x] Cải thiện project/recommendation: outline và tài liệu liên quan
+- [x] Chuẩn hóa test/release: test case demo, seed demo và CI build Docker
 
 ## Vấn Đề Cần Theo Dõi
 

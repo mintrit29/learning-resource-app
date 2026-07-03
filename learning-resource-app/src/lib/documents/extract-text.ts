@@ -1,8 +1,18 @@
+import { execFile as execFileCallback } from "node:child_process";
+import { mkdtemp, readdir, rm, writeFile } from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
+import { promisify } from "node:util";
 import * as cheerio from "cheerio";
 import JSZip from "jszip";
 import mammoth from "mammoth";
 import { extractText as extractPdfText, getDocumentProxy } from "unpdf";
+
+const execFile = promisify(execFileCallback);
+const MIN_EXTRACTED_TEXT_LENGTH = 20;
+const OCR_DPI = Number(process.env.OCR_DPI ?? 180);
+const OCR_MAX_PAGES = Number(process.env.OCR_MAX_PAGES ?? 20);
+const OCR_LANGS = process.env.OCR_LANGS ?? "vie+eng";
 
 export type SupportedExtension = "pdf" | "pptx" | "docx" | "epub";
 
@@ -28,6 +38,75 @@ function normalizeExtractedText(value: string) {
     .trim();
 }
 
+async function runPdfOcr(buffer: Buffer, pageCount: number): Promise<ExtractionResult> {
+  if (process.env.OCR_ENABLED === "0") {
+    throw new Error("PDF này cần OCR, nhưng OCR đang bị tắt bằng OCR_ENABLED=0.");
+  }
+
+  const maxPages = Math.max(1, Math.min(pageCount, OCR_MAX_PAGES));
+  const workDir = await mkdtemp(path.join(os.tmpdir(), "scholarflow-ocr-"));
+  const pdfPath = path.join(workDir, "source.pdf");
+  const imagePrefix = path.join(workDir, "page");
+
+  try {
+    await writeFile(pdfPath, buffer);
+    await execFile("pdftoppm", [
+      "-f",
+      "1",
+      "-l",
+      String(maxPages),
+      "-r",
+      String(OCR_DPI),
+      "-png",
+      pdfPath,
+      imagePrefix,
+    ]);
+
+    const images = (await readdir(workDir))
+      .filter((fileName) => /^page-\d+\.png$/i.test(fileName))
+      .sort((a, b) => {
+        const aNumber = Number(a.match(/page-(\d+)\.png/i)?.[1] ?? 0);
+        const bNumber = Number(b.match(/page-(\d+)\.png/i)?.[1] ?? 0);
+        return aNumber - bNumber;
+      });
+
+    const sections: ExtractedSection[] = [];
+    for (const image of images) {
+      const pageNumber = Number(image.match(/page-(\d+)\.png/i)?.[1] ?? sections.length + 1);
+      const { stdout } = await execFile("tesseract", [
+        path.join(workDir, image),
+        "stdout",
+        "-l",
+        OCR_LANGS,
+        "--psm",
+        "6",
+      ]);
+      const text = normalizeExtractedText(stdout);
+      if (text) {
+        sections.push({
+          text,
+          pageNumber,
+          sourceLabel: `Trang ${pageNumber} (OCR)`,
+        });
+      }
+    }
+
+    const text = normalizeExtractedText(sections.map((section) => section.text).join("\n\n"));
+    if (text.length < MIN_EXTRACTED_TEXT_LENGTH) {
+      throw new Error("OCR đã chạy nhưng không đọc được đủ chữ từ PDF scan/ảnh.");
+    }
+
+    return { text, pageCount, sections };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "OCR PDF thất bại";
+    throw new Error(
+      `PDF này cần OCR nhưng OCR chưa chạy được. Hãy kiểm tra Poppler/Tesseract trong môi trường chạy. Chi tiết: ${message}`,
+    );
+  } finally {
+    await rm(workDir, { recursive: true, force: true });
+  }
+}
+
 async function extractPdf(buffer: Buffer): Promise<ExtractionResult> {
   const pdf = await getDocumentProxy(new Uint8Array(buffer));
   const result = await extractPdfText(pdf);
@@ -38,8 +117,13 @@ async function extractPdf(buffer: Buffer): Promise<ExtractionResult> {
       sourceLabel: `Trang ${index + 1}`,
     }))
     .filter((section) => section.text.length > 0);
+  const text = normalizeExtractedText(sections.map((section) => section.text).join("\n\n"));
+  if (text.length < MIN_EXTRACTED_TEXT_LENGTH && result.totalPages > 0) {
+    return runPdfOcr(buffer, result.totalPages);
+  }
+
   return {
-    text: normalizeExtractedText(sections.map((section) => section.text).join("\n\n")),
+    text,
     pageCount: result.totalPages,
     sections,
   };

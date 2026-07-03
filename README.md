@@ -28,6 +28,8 @@ http://localhost:3000
 
 Lần đầu chạy có thể lâu vì embedding service cần tải model `BAAI/bge-m3`. Dữ liệu được giữ trong Docker volumes gồm PostgreSQL, uploads và model cache.
 
+Docker web container đã cài Poppler + Tesseract để OCR PDF scan khi file không có text layer. Có thể chỉnh OCR bằng biến môi trường `OCR_LANGS`, `OCR_DPI`, `OCR_MAX_PAGES` hoặc tắt bằng `OCR_ENABLED=0`.
+
 Nếu máy có NVIDIA GPU và đã cài NVIDIA Container Toolkit/WSL2, có thể chạy embedding bằng CUDA:
 
 ```powershell
