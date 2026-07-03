@@ -199,7 +199,7 @@
 ## Roadmap Sau MVP
 
 - [-] Cải thiện UI theo luồng dễ hiểu cho người mới
-- [ ] Preview/mở file gốc tốt hơn
+- [x] Preview/mở file gốc tốt hơn
 - [x] Chuẩn bị OCR cho PDF scan/ảnh/tài liệu không có text layer
 - [ ] Thêm OCR engine đầy đủ
 - [ ] Cố định tiến trình xử lý, chạy lại chỉ đổi trạng thái thay vì thêm dòng mới

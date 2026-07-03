@@ -12,7 +12,7 @@ const contentTypes: Record<string, string> = {
 };
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const session = await auth();
@@ -47,11 +47,14 @@ export async function GET(
     return NextResponse.json({ message: "File gốc không còn tồn tại" }, { status: 404 });
   }
 
+  const url = new URL(request.url);
+  const disposition = url.searchParams.get("download") === "1" ? "attachment" : "inline";
+
   return new Response(file, {
     headers: {
       "Content-Type": contentTypes[document.fileType],
       "Content-Length": String(file.byteLength),
-      "Content-Disposition": `inline; filename*=UTF-8''${encodeURIComponent(document.originalFileName)}`,
+      "Content-Disposition": `${disposition}; filename*=UTF-8''${encodeURIComponent(document.originalFileName)}`,
       "Cache-Control": "private, max-age=3600",
     },
   });

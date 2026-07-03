@@ -276,6 +276,15 @@ a { color: inherit; text-decoration: none; }
 .text-preview-section p { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
 .text-preview-section pre { max-height: 620px; overflow: auto; margin: 0; border: 1px solid var(--line); background: #f8faf9; padding: 22px; color: #384440; font-family: Consolas, "Cascadia Mono", monospace; font-size: 12px; line-height: 1.75; white-space: pre-wrap; overflow-wrap: anywhere; }
 .text-preview-section > small { display: block; margin-top: 12px; color: var(--muted); text-align: right; }
+.original-file-section { border: 1px solid var(--line); background: white; margin-bottom: 22px; padding: 24px; }
+.original-file-section h2 { margin: 0; font-size: 18px; }
+.original-file-section p { margin: 6px 0 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
+.original-file-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; }
+.pdf-preview-frame { width: 100%; height: min(72vh, 760px); margin-top: 18px; border: 1px solid var(--line); background: #f8faf9; }
+.file-download-card { display: flex; align-items: center; gap: 14px; margin-top: 18px; border: 1px dashed #b7c6c2; background: #f8faf9; padding: 18px; color: var(--ink); }
+.file-download-card svg { flex: 0 0 auto; color: var(--teal); }
+.file-download-card strong { display: block; overflow-wrap: anywhere; }
+.file-download-card p { margin-top: 4px; }
 .extraction-error { border: 1px solid #f0c6c2; background: #fff7f6; padding: 22px; }
 .extraction-error strong { color: var(--danger); }
 .extraction-error p { margin: 8px 0 0; color: #7a4843; }
@@ -475,6 +484,10 @@ a { color: inherit; text-decoration: none; }
   .document-meta-strip { grid-template-columns: 1fr; }
   .document-meta-strip > div { border-right: 0; border-bottom: 1px solid var(--line); }
   .document-meta-strip > div:last-child { border-bottom: 0; }
+  .text-preview-heading { flex-direction: column; }
+  .text-preview-heading .secondary-button, .original-file-actions, .original-file-actions .secondary-button { width: 100%; }
+  .original-file-actions { justify-content: stretch; }
+  .pdf-preview-frame { height: 520px; }
   .search-bar { height: auto; grid-template-columns: 22px 1fr; padding: 10px 12px; }
   .search-bar button { grid-column: 1 / -1; width: 100%; }
   .search-results > a { grid-template-columns: 1fr; }

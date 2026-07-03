@@ -957,6 +957,7 @@ Dự án nâng cấp được xem là hoàn thành khi:
 
 - Dashboard đã có cards tổng quan, biểu đồ phân bổ topic/difficulty/status và trạng thái AI provider active.
 - Trang tài liệu đã có filter theo từ khóa, topic, difficulty, file type và status.
+- Trang chi tiết tài liệu đã có khu `File gốc`: PDF xem trực tiếp trong app; DOCX/PPTX/EPUB dùng nút tải rõ ràng vì trình duyệt thường không preview inline.
 - Semantic search đã nhận thêm filter topic, difficulty và file type.
 - Trang chi tiết tài liệu có hai luồng riêng:
   - `Xử lý phần còn thiếu`: chỉ chạy lại extraction/chunking/embedding/AI nếu bước đó thiếu hoặc lỗi.

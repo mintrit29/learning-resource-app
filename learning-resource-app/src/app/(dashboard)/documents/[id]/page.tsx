@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ExternalLink, FileText, LocateFixed } from "lucide-react";
+import { ArrowLeft, Download, ExternalLink, FileText, LocateFixed } from "lucide-react";
 import { auth } from "@/auth";
 import { DeleteDocumentButton } from "@/components/documents/delete-document-button";
 import { EditAnalysisButton } from "@/components/documents/edit-analysis-button";
@@ -84,7 +84,9 @@ export default async function DocumentDetailPage({
   const needsProcessing = !document.textContent || document._count.chunks === 0 ||
     Number(missingEmbeddings) > 0 || !analysisComplete;
   const originalFileHref = `/api/documents/${document.id}/file`;
-  const originalFileActionLabel = document.fileType === "PDF" ? "Mở file gốc" : "Tải file gốc";
+  const originalFileDownloadHref = `${originalFileHref}?download=1`;
+  const canPreviewOriginalFile = document.fileType === "PDF";
+  const originalFileActionLabel = canPreviewOriginalFile ? "Mở file gốc" : "Tải file gốc";
   const latestJobsByType = new Map<string, (typeof document.jobs)[number]>();
   for (const job of document.jobs) latestJobsByType.set(job.type, job);
 
@@ -155,6 +157,44 @@ export default async function DocumentDetailPage({
         </section>
       ) : null}
 
+      <section className="original-file-section">
+        <div className="text-preview-heading">
+          <div>
+            <h2>File gốc</h2>
+            <p>
+              {canPreviewOriginalFile
+                ? "PDF có thể xem trực tiếp trong app. Nếu muốn kiểm tra bằng tab riêng, bấm mở file gốc."
+                : "Trình duyệt thường không xem trực tiếp DOCX/PPTX/EPUB, nên app sẽ tải file gốc để bạn mở bằng phần mềm phù hợp."}
+            </p>
+          </div>
+          <div className="original-file-actions">
+            {canPreviewOriginalFile ? (
+              <a className="secondary-button compact" href={originalFileHref} target="_blank" rel="noreferrer">
+                Mở tab riêng <ExternalLink size={15} />
+              </a>
+            ) : null}
+            <a className="secondary-button compact" href={originalFileDownloadHref}>
+              Tải file <Download size={15} />
+            </a>
+          </div>
+        </div>
+        {canPreviewOriginalFile ? (
+          <iframe
+            className="pdf-preview-frame"
+            src={originalFileHref}
+            title={`File gốc: ${document.originalFileName}`}
+          />
+        ) : (
+          <div className="file-download-card">
+            <FileText size={28} />
+            <div>
+              <strong>{document.originalFileName}</strong>
+              <p>{document.fileType} · {formatBytes(document.fileSize)}</p>
+            </div>
+          </div>
+        )}
+      </section>
+
       {document.status === "FAILED" ? (
         <section className="extraction-error">
           <div className="text-preview-heading">
@@ -162,8 +202,13 @@ export default async function DocumentDetailPage({
               <strong>Không thể trích xuất nội dung</strong>
               <p>{document.analysisReason ?? "File có thể không chứa text hoặc định dạng không hợp lệ."}</p>
             </div>
-            <a className="secondary-button compact" href={originalFileHref} target="_blank" rel="noreferrer">
-              {originalFileActionLabel} <ExternalLink size={15} />
+            <a
+              className="secondary-button compact"
+              href={canPreviewOriginalFile ? originalFileHref : originalFileDownloadHref}
+              target={canPreviewOriginalFile ? "_blank" : undefined}
+              rel={canPreviewOriginalFile ? "noreferrer" : undefined}
+            >
+              {originalFileActionLabel} {canPreviewOriginalFile ? <ExternalLink size={15} /> : <Download size={15} />}
             </a>
           </div>
         </section>
@@ -174,8 +219,13 @@ export default async function DocumentDetailPage({
               <h2>Nội dung đã trích xuất</h2>
               <p>Hiển thị tối đa 15.000 ký tự đầu tiên.</p>
             </div>
-            <a className="secondary-button compact" href={originalFileHref} target="_blank" rel="noreferrer">
-              {originalFileActionLabel} <ExternalLink size={15} />
+            <a
+              className="secondary-button compact"
+              href={canPreviewOriginalFile ? originalFileHref : originalFileDownloadHref}
+              target={canPreviewOriginalFile ? "_blank" : undefined}
+              rel={canPreviewOriginalFile ? "noreferrer" : undefined}
+            >
+              {originalFileActionLabel} {canPreviewOriginalFile ? <ExternalLink size={15} /> : <Download size={15} />}
             </a>
           </div>
           <pre>{preview || "Nội dung đang được xử lý..."}</pre>
