@@ -34,6 +34,7 @@ export async function PATCH(
     data: {
       primaryTopic: result.topic,
       difficulty: result.difficulty as Difficulty,
+      language: result.language,
       summary: result.summary,
       subtopics,
       keywords: [...new Set(result.keywords)],

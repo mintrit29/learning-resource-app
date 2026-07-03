@@ -3,7 +3,7 @@
 **Đề tài:** Hệ thống quản lý học liệu thông minh sử dụng NLP và Semantic Search
 **Nhóm:** 2 thành viên
 **Deadline:** 20/09/2026
-**Cập nhật gần nhất:** 23/06/2026
+**Cập nhật gần nhất:** 03/07/2026
 
 ## Quy Ước Trạng Thái
 
@@ -20,10 +20,11 @@
 - [x] Chốt taxonomy chủ đề theo hướng hybrid
 - [x] Chốt Vector RAG cho MVP, GraphRAG là hướng phát triển
 - [x] Chốt BGE-M3 local làm embedding model mặc định
-- [-] Hoàn thành nền tảng Next.js và database
-- [-] Hoàn thành pipeline xử lý tài liệu
+- [x] Hoàn thành nền tảng Next.js và database
+- [x] Hoàn thành pipeline xử lý tài liệu
 - [x] Hoàn thành semantic search và recommendation
 - [x] Hoàn thành AI provider settings
+- [x] Đồng bộ primary topics và lưu ngôn ngữ tài liệu theo PRD
 - [ ] Hoàn thành evaluation dataset và đánh giá
 - [ ] Hoàn thành báo cáo và demo bảo vệ
 
@@ -230,14 +231,14 @@
 | 20/06/2026 | Hoàn thành background job và chunking | Hoàn thành | Backfill tài liệu thật thành 341 chunks |
 | 21/06/2026 | BGE-M3 và semantic search hoạt động | Hoàn thành | 341 chunks trong 615 giây; truy vấn mẫu trả đúng đoạn decision tree |
 | 21/06/2026 | Source-aware semantic search | Hoàn thành | 525/525 chunks có vị trí; query decision tree trả về Trang 11 |
-|  | MVP chạy end-to-end | Chưa bắt đầu |  |
+| 03/07/2026 | MVP chạy end-to-end | Hoàn thành | Upload, extract, AI analysis, embedding, semantic search, recommendation, Docker |
 |  | Hoàn thành evaluation | Chưa bắt đầu |  |
 | 20/09/2026 | Nộp đồ án | Chưa hoàn thành | Deadline |
 
 ## Tiến Độ Hiện Tại
 
-**Giai đoạn hiện tại:** Semantic search đã hoạt động end-to-end, gồm snippet, vị trí nguồn và điều hướng đúng chunk/trang PDF.
-**Bước tiếp theo:** Triển khai LLM analysis và AI Provider Settings cho OpenRouter, Ollama và Custom API.
+**Giai đoạn hiện tại:** App/product roadmap sau MVP đã hoàn thành; còn lại chủ yếu là dataset/evaluation thủ công và báo cáo/demo bảo vệ.
+**Bước tiếp theo:** Người phụ trách nội dung chuẩn bị dataset, nhãn đánh giá, báo cáo và kịch bản demo.
 # UX Simplification: Giao diện dễ dùng
 
 - [x] Đổi wording/menu sang ngôn ngữ đời thường

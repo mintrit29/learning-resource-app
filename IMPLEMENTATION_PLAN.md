@@ -967,6 +967,7 @@ Dự án nâng cấp được xem là hoàn thành khi:
 - Tiến trình xử lý hiển thị cố định 4 bước; chạy lại chỉ reset/update job theo type thay vì thêm dòng mới trên UI.
 - AI Provider test/model loading đã parse lỗi HTTP/provider thành thông báo dễ hiểu hơn: API key, quyền model/quota, sai endpoint/model, rate limit hoặc lỗi server.
 - Trang chi tiết tài liệu hiển thị ước tính thời gian embedding theo CPU/GPU và batch size hiện tại.
+- Danh sách primary topic trong code đã đồng bộ với PRD; AI analysis hiện trả về và lưu `language` của tài liệu.
 - Semantic search đã có filter theo tài liệu, chủ đề, độ khó, loại file và khoảng ngày upload.
 - Kết quả hỏi/tìm tài liệu hiển thị citation rõ (`Nguồn: tài liệu · trang/slide/chương`) và CTA mở đúng matched chunk.
 - Trang chi tiết project đã có outline đọc tài liệu theo 3 bước dựa trên recommendations: tổng quan, trọng tâm, đào sâu.

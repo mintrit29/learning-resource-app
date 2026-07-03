@@ -42,7 +42,7 @@ export async function analyzeDocument(documentId: string, jobId: string) {
       {
         role: "user",
         content: `Phân tích học liệu sau và trả về JSON theo đúng cấu trúc. Topic phải là một trong: ${analysisTopics.join(", ")}.
-{"topic":"chủ đề chính","difficulty":"BEGINNER|INTERMEDIATE|ADVANCED","summary":"tóm tắt tiếng Việt 5-8 câu","subtopics":["2-12 chủ đề con cụ thể"],"keywords":["3-30 từ khóa"],"reason":"lý do chọn chủ đề và độ khó"}
+{"topic":"chủ đề chính","difficulty":"BEGINNER|INTERMEDIATE|ADVANCED","language":"ngôn ngữ chính của tài liệu, ví dụ English hoặc Vietnamese","summary":"tóm tắt tiếng Việt 5-8 câu","subtopics":["2-12 chủ đề con cụ thể"],"keywords":["3-30 từ khóa"],"reason":"lý do chọn chủ đề và độ khó"}
 
 Tên file: ${document.originalFileName}
 Nội dung:
@@ -59,6 +59,7 @@ ${content}`,
         data: {
           primaryTopic: result.topic,
           difficulty: result.difficulty as Difficulty,
+          language: result.language,
           summary: result.summary,
           subtopics,
           keywords: [...new Set(result.keywords)],

@@ -129,7 +129,7 @@ export default async function DocumentDetailPage({
         <section className="document-analysis-section">
           <div className="analysis-heading">
             <div><p className="eyebrow">Phân tích AI</p><h2>Tóm tắt</h2></div>
-            <EditAnalysisButton documentId={document.id} initial={{ topic: document.primaryTopic ?? "Other", difficulty: document.difficulty ?? "INTERMEDIATE", summary: document.summary, subtopics: document.subtopics, keywords: document.keywords, reason: document.analysisReason ?? "Người dùng cập nhật kết quả phân loại" }} />
+            <EditAnalysisButton documentId={document.id} initial={{ topic: document.primaryTopic ?? "Other", difficulty: document.difficulty ?? "INTERMEDIATE", language: document.language ?? "Unknown", summary: document.summary, subtopics: document.subtopics, keywords: document.keywords, reason: document.analysisReason ?? "Người dùng cập nhật kết quả phân loại" }} />
           </div>
           <p>{document.summary}</p>
           <div><strong>Chủ đề con</strong><div className="analysis-tags">{document.subtopics.map((item) => <span key={item}>{item}</span>)}</div></div>
@@ -142,6 +142,7 @@ export default async function DocumentDetailPage({
         <div><span>Ký tự đã trích xuất</span><strong>{document.textContent?.length.toLocaleString("vi-VN") ?? 0}</strong></div>
         <div><span>Chủ đề</span><strong>{document.primaryTopic ?? "Chưa phân tích"}</strong></div>
         <div><span>Độ khó</span><strong>{document.difficulty ?? "Chưa phân tích"}</strong></div>
+        <div><span>Ngôn ngữ</span><strong>{document.language ?? "Chưa nhận diện"}</strong></div>
       </section>
 
       <section className="processing-section">

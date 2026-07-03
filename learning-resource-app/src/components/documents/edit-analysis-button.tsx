@@ -8,6 +8,7 @@ import { analysisTopics } from "@/lib/ai/analysis-schema";
 type Analysis = {
   topic: string;
   difficulty: string;
+  language: string;
   summary: string;
   subtopics: string[];
   keywords: string[];
@@ -51,6 +52,7 @@ export function EditAnalysisButton({ documentId, initial }: { documentId: string
             <label>Chủ đề chính<select value={form.topic} onChange={(event) => setForm({ ...form, topic: event.target.value })}>{analysisTopics.map((topic) => <option key={topic}>{topic}</option>)}</select></label>
             <label>Độ khó<select value={form.difficulty} onChange={(event) => setForm({ ...form, difficulty: event.target.value })}><option value="BEGINNER">BEGINNER</option><option value="INTERMEDIATE">INTERMEDIATE</option><option value="ADVANCED">ADVANCED</option></select></label>
           </div>
+          <label>Ngôn ngữ chính<input maxLength={80} required value={form.language} onChange={(event) => setForm({ ...form, language: event.target.value })} placeholder="English, Vietnamese..." /></label>
           <label>Tóm tắt<textarea rows={5} value={form.summary} onChange={(event) => setForm({ ...form, summary: event.target.value })} /></label>
           <div className="form-grid-two">
             <label>Chủ đề con <small>Mỗi dòng hoặc cách nhau bằng dấu phẩy</small><textarea rows={5} value={form.subtopics} onChange={(event) => setForm({ ...form, subtopics: event.target.value })} /></label>
