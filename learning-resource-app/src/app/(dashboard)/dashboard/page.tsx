@@ -27,6 +27,42 @@ function getRecentDocumentHint(status: string, originalFileName: string) {
   return statusLabels[status] ?? status;
 }
 
+function getProviderStatus(provider: { displayName: string; type: string; authStatus: string } | null) {
+  if (!provider) {
+    return {
+      isConnected: false,
+      value: "Chưa có",
+      detail: "Cần kết nối để phân tích",
+      stepHint: "Thêm OpenRouter, Ollama hoặc Custom API.",
+    };
+  }
+
+  if (provider.authStatus === "CONNECTED") {
+    return {
+      isConnected: true,
+      value: "OK",
+      detail: `${provider.displayName} (${provider.type})`,
+      stepHint: `Đang dùng ${provider.displayName}`,
+    };
+  }
+
+  if (provider.authStatus === "ERROR") {
+    return {
+      isConnected: false,
+      value: "Lỗi",
+      detail: `${provider.displayName} chưa kết nối được`,
+      stepHint: `${provider.displayName} đang lỗi, cần kiểm tra lại.`,
+    };
+  }
+
+  return {
+    isConnected: false,
+    value: "Chưa kiểm tra",
+    detail: `${provider.displayName} cần test kết nối`,
+    stepHint: `${provider.displayName} chưa được kiểm tra.`,
+  };
+}
+
 export default async function DashboardPage() {
   const session = await auth();
   const userId = session!.user.id;
@@ -78,12 +114,15 @@ export default async function DashboardPage() {
   const maxDifficultyCount = Math.max(1, ...difficultyRows.map((row) => row._count._all));
   const readyRate = documentCount ? Math.round((readyCount / documentCount) * 100) : 0;
   const visibleStatusRows = statusRows.filter((row) => row.status !== "READY" && row.status !== "EXTRACTED");
+  const providerStatus = getProviderStatus(activeProvider);
 
-  const nextAction = !activeProvider
+  const nextAction = !providerStatus.isConnected
     ? {
         href: "/settings/ai-providers",
-        label: "Kết nối AI",
-        helper: "Cần provider để app tóm tắt, phân loại và gợi ý tài liệu.",
+        label: activeProvider ? "Kiểm tra kết nối AI" : "Kết nối AI",
+        helper: activeProvider
+          ? "Provider mặc định chưa kết nối ổn. Hãy test lại hoặc sửa cấu hình."
+          : "Cần provider để app tóm tắt, phân loại và gợi ý tài liệu.",
         icon: ServerCog,
       }
     : documentCount === 0
@@ -122,8 +161,8 @@ export default async function DashboardPage() {
     },
     {
       label: "Kết nối AI",
-      value: activeProvider ? "OK" : "Chưa có",
-      detail: activeProvider ? `${activeProvider.displayName} (${activeProvider.type})` : "Cần kết nối để phân tích",
+      value: providerStatus.value,
+      detail: providerStatus.detail,
       icon: ServerCog,
     },
   ];
@@ -152,15 +191,15 @@ export default async function DashboardPage() {
           <p>{nextAction.helper}</p>
         </div>
         <ol className="onboarding-steps">
-          <li className={activeProvider ? "done" : "current"}>
-            <span>{activeProvider ? <CheckCircle2 size={17} /> : "1"}</span>
+          <li className={providerStatus.isConnected ? "done" : "current"}>
+            <span>{providerStatus.isConnected ? <CheckCircle2 size={17} /> : "1"}</span>
             <div>
               <strong>Kết nối AI</strong>
-              <small>{activeProvider ? `Đang dùng ${activeProvider.displayName}` : "Thêm OpenRouter, Ollama hoặc Custom API."}</small>
+              <small>{providerStatus.stepHint}</small>
             </div>
-            {!activeProvider ? <Link href="/settings/ai-providers">Làm ngay</Link> : null}
+            {!providerStatus.isConnected ? <Link href="/settings/ai-providers">{activeProvider ? "Kiểm tra" : "Làm ngay"}</Link> : null}
           </li>
-          <li className={documentCount > 0 ? "done" : activeProvider ? "current" : ""}>
+          <li className={documentCount > 0 ? "done" : providerStatus.isConnected ? "current" : ""}>
             <span>{documentCount > 0 ? <CheckCircle2 size={17} /> : "2"}</span>
             <div>
               <strong>Thêm tài liệu</strong>
