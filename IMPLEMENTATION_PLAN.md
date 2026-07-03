@@ -389,6 +389,7 @@ Máy phát triển: Intel Core i7-10850H, RAM 16 GB, NVIDIA Quadro T2000 4 GB VR
 - Ưu tiên CUDA trên máy phát triển sau khi benchmark xác nhận BGE-M3 dùng khoảng 2,27 GiB/4 GiB VRAM ở batch size 2.
 - Chunk mục tiêu: khoảng 300-500 tokens, overlap 10-15%.
 - Cấu hình đã chốt: GPU batch size `2`; CPU batch size `4` làm fallback.
+- Lưu ý vận hành Docker: `docker compose up --build` dùng cấu hình CPU mặc định. Muốn ưu tiên GPU phải chạy `docker compose -f docker-compose.yml -f docker-compose.cuda.yml up --build`; nếu không dùng file override CUDA thì embedding service sẽ khởi động với `EMBEDDING_DEVICE=cpu`.
 - Kết quả trên 525 chunks: GPU batch 2 `490,629` giây, CPU batch 2 `863,022` giây; GPU nhanh hơn khoảng `43,1%` (1,76 lần).
 - Tạo embedding ở background khi upload; không tạo lại nếu nội dung và model không thay đổi.
 - Không chạy đồng thời BGE-M3 với LLM local lớn nếu thiếu RAM/VRAM.
@@ -775,10 +776,11 @@ Deadline: 20/09. Mốc bắt đầu: 18/06. Tổng thời gian khoảng 13 tuầ
 ### Tuần 11: Evaluation
 
 - Tạo evaluation dataset 40-60 tài liệu.
-- Tạo form/import nhãn thủ công.
-- Tính primary topic accuracy.
-- Tính difficulty accuracy.
-- Tạo 10 query search mẫu và ghi kết quả.
+- Tạo file nhãn thủ công trong `learning-resource-app/evaluation/labels.json`.
+- Dùng `npm run eval:template` để sinh file nhãn từ tài liệu đã xử lý trong database.
+- Người thực hiện dự án duyệt thủ công `expectedPrimaryTopic`, `expectedDifficulty` và danh sách relevant documents/chunks cho search queries.
+- Dùng `npm run eval:week11` để tính primary topic accuracy, difficulty accuracy, search top-k relevance, semantic-vs-keyword comparison và tag/alias normalization samples.
+- Lưu kết quả vào `learning-resource-app/evaluation/results/week11-evaluation-report.md` và `.json` để đưa vào báo cáo.
 
 ### Tuần 12: Polish và error handling
 
@@ -871,7 +873,8 @@ Cách xử lý:
 - Hiện lỗi rõ cho user.
 - Ghi status FAILED.
 - Chỉ hỗ trợ file có text layer trong MVP.
-- OCR để future work.
+- Nếu PDF có trang nhưng gần như không có text, báo rõ là tài liệu scan/ảnh cần OCR.
+- OCR cho PDF scan, ảnh hoặc tài liệu không copy được chữ là future work sau MVP.
 
 ### 10.2. Giữ embedding model đồng nhất
 
@@ -906,6 +909,31 @@ Cách xử lý:
 - Knowledge Graph, GraphRAG, chatbot RAG nâng cao và OCR để future work.
 - Giữ đúng ba chat provider: OpenRouter, Ollama và Custom API.
 
+### 10.6. Các hướng không làm tiếp
+
+Không đưa vào roadmap hiện tại:
+
+- Quota/usage provider.
+- Admin/storage dashboard để xem dung lượng hoặc quản trị storage.
+- Import/export, backup dữ liệu, export notes/summary/flashcards/mindmap.
+- Multi-user nâng cao, phân quyền nhiều vai trò hoặc chia sẻ project/tài liệu.
+
+### 10.7. Roadmap cải tiến sau MVP
+
+Ưu tiên phát triển tiếp theo:
+
+1. Làm giao diện dễ dùng hơn theo luồng `Tải tài liệu -> AI phân tích -> Hỏi/tìm kiếm -> mở đoạn gốc`.
+2. Cải thiện preview/mở file gốc, đặc biệt PDF mở trực tiếp và DOCX/PPTX có hướng dẫn rõ khi trình duyệt tải file.
+3. Thêm OCR cho PDF scan/ảnh/tài liệu không có text layer.
+4. Giữ tiến trình xử lý cố định; khi chạy lại chỉ đổi trạng thái/màu, không sinh thêm dòng dài.
+5. Cho phép chạy lại đúng phần lỗi/còn thiếu: extraction, AI analysis, embedding hoặc search metadata.
+6. Cải thiện AI Provider settings: test kết nối/model và thông báo lỗi dễ hiểu.
+7. Tối ưu embedding CPU/GPU, batch size và ước tính thời gian xử lý.
+8. Cải thiện semantic search: filter theo tài liệu, chủ đề, ngày và loại file.
+9. Cải thiện hỏi đáp với tài liệu: trích dẫn nguồn rõ và mở đúng trang/chunk.
+10. Cải thiện project/recommendation: gom tài liệu, đề xuất outline và tài liệu liên quan.
+11. Chuẩn hóa test/release: test case demo, seed demo và CI build Docker.
+
 ## 11. Definition of Done
 
 Dự án nâng cấp được xem là hoàn thành khi:
@@ -924,3 +952,60 @@ Dự án nâng cấp được xem là hoàn thành khi:
 - Có evaluation dataset và kết quả đo lường.
 - Có demo script cho ngày bảo vệ.
 - Streamlit demo cũ vẫn được giữ làm reference.
+
+## 12. Cập nhật triển khai tuần 12
+
+- Dashboard đã có cards tổng quan, biểu đồ phân bổ topic/difficulty/status và trạng thái AI provider active.
+- Trang tài liệu đã có filter theo từ khóa, topic, difficulty, file type và status.
+- Semantic search đã nhận thêm filter topic, difficulty và file type.
+- Trang chi tiết tài liệu có hai luồng riêng:
+  - `Xử lý phần còn thiếu`: chỉ chạy lại extraction/chunking/embedding/AI nếu bước đó thiếu hoặc lỗi.
+  - `Phân tích AI lại`: giữ nguyên text/chunk/embedding và chỉ chạy lại AI analysis.
+- Upload kiểm tra thêm chữ ký file, không chỉ dựa vào phần mở rộng.
+- Unit test được gom vào `npm run test:unit`; integration smoke tests được gom vào `npm run test:integration`.
+- Docker deployment:
+  - Root `docker-compose.yml` chạy web + PostgreSQL/pgvector + embedding service bằng CPU mặc định.
+  - `docker-compose.cuda.yml` là override tùy chọn cho máy có NVIDIA GPU.
+  - Khi muốn dùng GPU, luôn chạy kèm cả hai file compose: `docker compose -f docker-compose.yml -f docker-compose.cuda.yml up --build`.
+  - Web app và embedding service đều có Dockerfile riêng, uploads/database/model cache dùng Docker volume.
+- Bước xác minh dài còn lại: chạy `docker compose up --build`, kiểm tra responsive bằng browser và chạy integration/e2e sau khi services sẵn sàng.
+
+### 12.1. Xác minh tuần 12 đã hoàn tất
+
+- `npm.cmd run lint` pass.
+- `npm.cmd run test:unit` pass.
+- `npm.cmd run test:integration` pass trên DB Docker sạch với smoke tests tự seed/dọn dữ liệu.
+- `npm.cmd run build` pass.
+- `docker compose build web` pass sau khi bổ sung OpenSSL/CA certificates cho Prisma trong container.
+- `docker compose up -d web` khởi động web + PostgreSQL/pgvector + embedding service thành công.
+- HTTP `localhost:3000` trả 200.
+- Embedding health ready với `BAAI/bge-m3`, CPU, batch 4, 1024 dimensions.
+- Browser check pass cho dashboard, search filters và responsive mobile DOM.
+# UX Simplification - Cải tiến giao diện dễ dùng
+
+Mục tiêu của đợt cải tiến này là đổi app từ giao diện thiên về kỹ thuật sang luồng thao tác dễ hiểu cho người không rành AI/NLP.
+
+Nguyên tắc:
+
+- Người dùng mới phải hiểu ngay 3 việc chính: kết nối AI, thêm tài liệu, hỏi/tìm trong tài liệu.
+- Mỗi trang chỉ nên có một hành động chính nổi bật.
+- Các thuật ngữ kỹ thuật được đổi thành tiếng Việt gần gũi hoặc đưa xuống mô tả phụ.
+- Empty state phải hướng dẫn rõ “bấm gì tiếp”.
+- Không thêm tính năng backend mới nếu chỉ cần cải thiện luồng và wording.
+
+Phạm vi triển khai trước:
+
+- Đổi label sidebar: `Tải lên` thành `Thêm tài liệu`, `Tìm kiếm` thành `Hỏi tài liệu`, `Projects` thành `Đề tài`.
+- Dashboard thêm khối checklist 3 bước và CTA theo trạng thái hiện tại.
+- Trang upload đổi wording thành “Thêm tài liệu”, giải thích sau khi tải app sẽ tự đọc nội dung và phân tích.
+- Trang search đổi wording thành “Hỏi tài liệu”, thêm ví dụ mẫu, đưa filter thành tùy chọn nâng cao.
+- Trang projects đổi thành “Đề tài”, giải thích đây là nơi gom tài liệu theo mục tiêu học/nghiên cứu.
+- Trang settings/provider đổi wording thành “Kết nối AI”, giải thích OpenRouter/Ollama/Custom theo ngôn ngữ dễ hiểu.
+- Sửa các chuỗi tiếng Việt bị lỗi mã hóa ở các màn hình chính được chỉnh sửa.
+
+Phạm vi sau:
+
+- Gộp upload vào trang tài liệu bằng modal hoặc panel nội tuyến.
+- Thêm guided tour ngắn lần đầu mở app.
+- Làm provider wizard nhiều bước nếu modal hiện tại vẫn quá dày.
+- Tối ưu responsive/mobile sau khi chốt desktop UX.

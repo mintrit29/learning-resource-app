@@ -37,6 +37,10 @@
 # Local benchmark smoke-test outputs
 embedding-service/benchmark-smoke/
 
+# Local evaluation labels generated from the developer database
+learning-resource-app/evaluation/labels.json
+learning-resource-app/evaluation/labels.json.example-backup.json
+
 # OS / editors
 .DS_Store
 Thumbs.db

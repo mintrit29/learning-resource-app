@@ -7,6 +7,9 @@ import { embedTexts, toPgVector } from "@/lib/embedding/client";
 const searchSchema = z.object({
   query: z.string().trim().min(2).max(500),
   limit: z.number().int().min(1).max(20).default(10),
+  topic: z.string().trim().max(120).optional(),
+  difficulty: z.enum(["BEGINNER", "INTERMEDIATE", "ADVANCED"]).optional(),
+  fileType: z.enum(["PDF", "PPTX", "DOCX", "EPUB"]).optional(),
 });
 
 type SearchRow = {
@@ -52,11 +55,18 @@ export async function POST(request: Request) {
       (1 - (c."embedding" <=> $1::vector))::float8 AS "score"
     FROM "DocumentChunk" c
     JOIN "Document" d ON d."id" = c."documentId"
-    WHERE d."userId" = $2 AND c."embedding" IS NOT NULL
+    WHERE d."userId" = $2
+      AND c."embedding" IS NOT NULL
+      AND ($3::text IS NULL OR d."primaryTopic" = $3::text)
+      AND ($4::text IS NULL OR d."difficulty"::text = $4::text)
+      AND ($5::text IS NULL OR d."fileType"::text = $5::text)
     ORDER BY c."embedding" <=> $1::vector
-    LIMIT $3`,
+    LIMIT $6`,
       vector,
       session.user.id,
+      parsed.data.topic || null,
+      parsed.data.difficulty || null,
+      parsed.data.fileType || null,
       candidateLimit,
     );
 

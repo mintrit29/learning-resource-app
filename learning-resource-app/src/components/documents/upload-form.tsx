@@ -24,11 +24,11 @@ export function UploadForm() {
     if (!candidate) return;
     const extension = candidate.name.split(".").pop()?.toLowerCase() ?? "";
     if (!ACCEPTED_EXTENSIONS.includes(extension)) {
-      setError("Chỉ hỗ trợ PDF, PPTX, DOCX và EPUB");
+      setError("Chỉ hỗ trợ PDF, PPTX, DOCX và EPUB.");
       return;
     }
     if (candidate.size === 0 || candidate.size > MAX_FILE_SIZE) {
-      setError("File phải có dung lượng từ 1 byte đến 25 MB");
+      setError("File phải có dung lượng từ 1 byte đến 25 MB.");
       return;
     }
     setFile(candidate);
@@ -51,14 +51,14 @@ export function UploadForm() {
         message?: string;
       };
       if (!response.ok || !data.documentId) {
-        setError(data.message ?? "Không thể tải tài liệu");
+        setError(data.message ?? "Không thể thêm tài liệu.");
         setIsUploading(false);
         return;
       }
       router.push(`/documents/${data.documentId}`);
       router.refresh();
     } catch {
-      setError("Không thể kết nối tới máy chủ");
+      setError("Không thể kết nối tới máy chủ.");
       setIsUploading(false);
     }
   }
@@ -91,29 +91,47 @@ export function UploadForm() {
         />
         {!file ? (
           <>
-            <UploadCloud size={32} />
-            <h2>Kéo thả tài liệu vào đây</h2>
-            <p>Hoặc chọn file từ máy tính. Tối đa 25 MB mỗi file.</p>
+            <UploadCloud size={34} />
+            <h2>Kéo thả file vào đây</h2>
+            <p>Hoặc chọn file từ máy tính. Mỗi file tối đa 25 MB.</p>
             <button className="primary-button compact" onClick={() => inputRef.current?.click()} type="button">
-              <FileText size={18} />Chọn tài liệu
+              <FileText size={18} />
+              Chọn tài liệu
             </button>
-            <small>PDF, PPTX, DOCX, EPUB</small>
+            <small>Hỗ trợ: PDF, PPTX, DOCX, EPUB</small>
           </>
         ) : (
           <div className="selected-file">
-            <span><FileText size={25} /></span>
-            <div><strong>{file.name}</strong><small>{formatFileSize(file.size)}</small></div>
-            <button aria-label="Bỏ chọn file" className="icon-button" disabled={isUploading} onClick={() => setFile(null)} type="button"><X size={18} /></button>
+            <span>
+              <FileText size={25} />
+            </span>
+            <div>
+              <strong>{file.name}</strong>
+              <small>{formatFileSize(file.size)}</small>
+            </div>
+            <button
+              aria-label="Bỏ chọn file"
+              className="icon-button"
+              disabled={isUploading}
+              onClick={() => setFile(null)}
+              type="button"
+            >
+              <X size={18} />
+            </button>
           </div>
         )}
       </div>
       {error ? <p className="upload-error">{error}</p> : null}
       {file ? (
         <div className="upload-actions">
-          <p>{isUploading ? "Đang lưu file và trích xuất nội dung..." : "File đã sẵn sàng để xử lý."}</p>
+          <p>
+            {isUploading
+              ? "Đang lưu file và bắt đầu đọc nội dung..."
+              : "File đã sẵn sàng. Bấm nút bên phải để đưa vào thư viện."}
+          </p>
           <button className="primary-button compact" disabled={isUploading} onClick={uploadFile} type="button">
             {isUploading ? <LoaderCircle className="spin" size={18} /> : <UploadCloud size={18} />}
-            {isUploading ? "Đang xử lý" : "Tải lên và trích xuất"}
+            {isUploading ? "Đang thêm..." : "Thêm vào thư viện"}
           </button>
         </div>
       ) : null}

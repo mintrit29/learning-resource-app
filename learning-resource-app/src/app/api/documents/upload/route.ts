@@ -23,6 +23,11 @@ function getExtension(fileName: string): SupportedExtension | null {
   return extension in FILE_TYPES ? (extension as SupportedExtension) : null;
 }
 
+function hasExpectedSignature(buffer: Buffer, extension: SupportedExtension) {
+  if (extension === "pdf") return buffer.subarray(0, 5).toString("utf8") === "%PDF-";
+  return buffer.length >= 4 && buffer[0] === 0x50 && buffer[1] === 0x4b;
+}
+
 export async function POST(request: Request) {
   const session = await auth();
   if (!session?.user?.id) {
@@ -51,6 +56,13 @@ export async function POST(request: Request) {
   }
 
   const buffer = Buffer.from(await file.arrayBuffer());
+  if (!hasExpectedSignature(buffer, extension)) {
+    return NextResponse.json(
+      { message: "Nội dung file không khớp với định dạng đã chọn" },
+      { status: 415 },
+    );
+  }
+
   const storageDirectory = path.join(
     process.cwd(),
     "storage",

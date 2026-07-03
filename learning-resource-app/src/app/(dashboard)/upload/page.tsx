@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { UploadForm } from "@/components/documents/upload-form";
 
 export default function UploadPage() {
@@ -5,14 +6,19 @@ export default function UploadPage() {
     <div className="page-wrap narrow">
       <header className="page-header">
         <div>
-          <p className="eyebrow">Document intake</p>
-          <h1>Tải tài liệu</h1>
-          <p>Thêm học liệu mới và trích xuất nội dung để chuẩn bị phân tích.</p>
+          <p className="eyebrow">Thêm tài liệu</p>
+          <h1>Đưa tài liệu vào ScholarFlow</h1>
+          <p>
+            Tải PDF, DOCX, PPTX hoặc EPUB lên. App sẽ tự đọc nội dung, chia thành
+            đoạn nhỏ, tạo dữ liệu tìm kiếm và phân tích bằng AI nếu bạn đã kết nối provider.
+          </p>
         </div>
       </header>
       <UploadForm />
       <p className="foundation-note">
-        File gốc và toàn bộ text được lưu riêng. Embedding và phân tích AI sẽ được nối ở bước tiếp theo.
+        Sau khi tải xong, bạn sẽ được đưa tới trang chi tiết để xem tiến trình xử lý.
+        Nếu bước nào lỗi, có thể bấm chạy lại mà không cần xóa file.{" "}
+        <Link href="/documents">Xem thư viện tài liệu</Link>
       </p>
     </div>
   );

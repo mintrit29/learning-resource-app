@@ -114,11 +114,12 @@ Các chức năng sau không làm trong MVP, chỉ ghi là hướng phát triể
 - Knowledge Graph đầy đủ.
 - GraphRAG kết hợp Knowledge Graph và vector retrieval.
 - Chatbot RAG phức tạp trên toàn bộ thư viện tài liệu.
-- OCR cho PDF scan ảnh.
+- OCR cho PDF scan, ảnh hoặc tài liệu không có text layer để người dùng không phải chuyển file thủ công.
 - Mobile app.
 - Realtime collaboration.
 - Train model NLP riêng từ đầu.
-- Phân quyền nâng cao nhiều vai trò.
+
+Không đưa vào roadmap hiện tại: quota/usage provider, admin/storage dashboard, import/export dữ liệu, multi-user/phân quyền/chia sẻ nâng cao.
 
 ## 6. Chức Năng Chi Tiết
 
@@ -171,6 +172,8 @@ Ngoài toàn bộ text, extractor cần trả về các section có vị trí:
 - DOCX: heading/phần gần nhất; nếu không có heading thì dùng `Nội dung tài liệu`.
 
 Nếu file không trích xuất được text, hệ thống hiển thị trạng thái lỗi và thông báo rõ lý do.
+
+Với PDF scan/ảnh không có text layer, MVP cần nhận diện và báo rõ rằng tài liệu cần OCR. OCR engine đầy đủ là hướng phát triển sau MVP.
 
 ### 6.5. AI analysis
 
@@ -432,3 +435,16 @@ MVP được xem là thành công khi:
 - User cấu hình được ít nhất OpenRouter, Ollama và Custom API.
 - Toàn bộ hệ thống có thể khởi động bằng Docker Compose với hướng dẫn ngắn gọn.
 - Có evaluation dataset và bảng kết quả đánh giá trong báo cáo.
+# Cập nhật UX/UI - Luồng dễ dùng cho người mới
+
+Sau khi review giao diện thực tế, MVP cần ưu tiên trải nghiệm theo hướng người dùng phổ thông có thể mở app và biết ngay phải làm gì. App không chỉ là công cụ kỹ thuật cho semantic search, mà cần hoạt động như một trợ lý quản lý và hỏi tài liệu.
+
+Yêu cầu UX bổ sung:
+
+- Dashboard phải dẫn người dùng theo 3 bước rõ ràng: kết nối AI, thêm tài liệu, hỏi/tìm trong tài liệu.
+- Menu dùng ngôn ngữ đời thường: `Thêm tài liệu`, `Hỏi tài liệu`, `Đề tài`, `Kết nối AI`; tránh đặt các thuật ngữ kỹ thuật ở UI chính.
+- Các trạng thái rỗng phải giải thích bước tiếp theo và có nút hành động chính.
+- Trang tìm kiếm ưu tiên ô hỏi tự nhiên và ví dụ mẫu; bộ lọc nâng cao đặt sau.
+- Trang provider cần giải thích rõ từng loại provider, có nút tải model, test kết nối và đặt mặc định.
+- Trang tài liệu phải là trung tâm quản lý: thêm tài liệu, xem trạng thái, mở chi tiết, chạy lại phân tích khi cần.
+- Các thuật ngữ như semantic retrieval, document intake, canonical tags, pipeline, embedding chỉ dùng ở phần chi tiết/kỹ thuật, không đặt nổi bật trước người dùng mới.

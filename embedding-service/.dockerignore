@@ -1,0 +1,11 @@
+.venv
+.gpu-packages
+__pycache__
+.pytest_cache
+models-cache
+benchmark-results
+benchmark-smoke
+*.log
+.env
+.env.*
+!.env.example

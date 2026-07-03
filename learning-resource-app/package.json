@@ -8,6 +8,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "npm run test:unit",
+    "test:unit": "npm run test:chunking && npm run test:tag-normalization && npm run test:extractors",
+    "test:integration": "npm run test:semantic-search && npm run test:canonical-tags && npm run test:tag-similarity && npm run test:project-recommendations && npm run test:ai-providers",
     "test:extractors": "node --experimental-strip-types scripts/test-extractors.mjs",
     "test:chunking": "node --experimental-strip-types scripts/test-chunking.mjs",
     "backfill:documents": "tsx scripts/backfill-document-processing.ts",
@@ -22,7 +25,9 @@
     "test:tag-normalization": "node --experimental-strip-types scripts/test-tag-normalization.mjs",
     "test:canonical-tags": "tsx scripts/canonical-tag-smoke.ts",
     "test:tag-similarity": "tsx scripts/tag-similarity-smoke.ts",
-    "test:project-recommendations": "tsx scripts/project-recommendation-smoke.ts"
+    "test:project-recommendations": "tsx scripts/project-recommendation-smoke.ts",
+    "eval:template": "tsx scripts/generate-evaluation-template.ts",
+    "eval:week11": "tsx scripts/week11-evaluation.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.2",

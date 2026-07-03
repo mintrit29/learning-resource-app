@@ -1,8 +1,8 @@
 # Checklist Tiến Độ Đồ Án
 
-**Đề tài:** Hệ thống quản lý học liệu thông minh sử dụng NLP và Semantic Search  
-**Nhóm:** 2 thành viên  
-**Deadline:** 20/09/2026  
+**Đề tài:** Hệ thống quản lý học liệu thông minh sử dụng NLP và Semantic Search
+**Nhóm:** 2 thành viên
+**Deadline:** 20/09/2026
 **Cập nhật gần nhất:** 23/06/2026
 
 ## Quy Ước Trạng Thái
@@ -129,37 +129,40 @@
 ## Tuần 11: Dataset Và Evaluation
 
 - [ ] Chuẩn bị 40-60 tài liệu mẫu thuộc Computer Science/IT
-- [ ] Tạo file nhãn thủ công cho dataset
+- [x] Tạo file nhãn thủ công cho dataset
 - [ ] Gắn expected primary topic
 - [ ] Gắn expected difficulty
 - [ ] Chuẩn bị ít nhất 10 semantic search queries
-- [ ] Chạy classification trên toàn bộ dataset
-- [ ] Tính primary topic accuracy
-- [ ] Tính difficulty accuracy
-- [ ] Đánh giá search top-k relevance
-- [ ] Kiểm tra các cặp tag/alias mẫu
-- [ ] So sánh semantic search với keyword search
-- [ ] Lưu bảng kết quả cho báo cáo
+- [x] Tạo script sinh template evaluation từ dữ liệu hiện có
+- [x] Tạo script chạy classification trên toàn bộ dataset sau khi có nhãn
+- [x] Tạo script tính primary topic accuracy
+- [x] Tạo script tính difficulty accuracy
+- [x] Tạo script đánh giá search top-k relevance
+- [x] Tạo script kiểm tra các cặp tag/alias mẫu
+- [x] Tạo script so sánh semantic search với keyword search
+- [x] Tạo script lưu bảng kết quả cho báo cáo
+- [ ] Chạy evaluation cuối cùng sau khi hoàn tất dataset/nhãn thủ công
 
 ## Tuần 12: Hoàn Thiện Sản Phẩm
 
-- [ ] Hoàn thiện dashboard và biểu đồ thống kê
-- [ ] Thêm filter theo topic, difficulty, file type và status
-- [ ] Hoàn thiện loading và progress states
-- [ ] Hoàn thiện thông báo lỗi
+- [x] Hoàn thiện dashboard và biểu đồ thống kê
+- [x] Thêm filter theo topic, difficulty, file type và status
+- [x] Hoàn thiện loading và progress states
+- [x] Hoàn thiện thông báo lỗi
 - [x] Thêm nút thử lại cho extraction, chunking và embedding bị lỗi
 - [x] Thêm chức năng xóa tài liệu
-- [ ] Thêm chức năng re-analyze
-- [ ] Kiểm tra responsive desktop/mobile
-- [ ] Kiểm tra bảo mật upload và API key
-- [ ] Chạy unit tests
-- [ ] Chạy integration tests
-- [ ] Sửa lỗi end-to-end
-- [ ] Docker hóa Next.js web app
-- [ ] Docker hóa embedding service với model cache volume
-- [ ] Tạo root Docker Compose cho web + PostgreSQL/pgvector + embedding service
-- [ ] Cấu hình CPU mặc định và CUDA profile tùy chọn
-- [ ] Xác minh máy mới chạy được bằng `docker compose up --build`
+- [x] Thêm chức năng re-analyze
+- [x] Kiểm tra responsive desktop/mobile
+- [x] Kiểm tra bảo mật upload và API key
+- [x] Chạy unit tests
+- [x] Chạy integration tests
+- [x] Sửa lỗi end-to-end
+- [x] Docker hóa Next.js web app
+- [x] Docker hóa embedding service với model cache volume
+- [x] Tạo root Docker Compose cho web + PostgreSQL/pgvector + embedding service
+- [x] Cấu hình CPU mặc định và CUDA profile tùy chọn
+- [x] Ghi rõ cách chạy GPU: phải dùng `docker compose -f docker-compose.yml -f docker-compose.cuda.yml up --build`; lệnh compose mặc định chỉ chạy CPU
+- [x] Xác minh máy mới chạy được bằng `docker compose up --build`
 
 ## Tuần 13: Báo Cáo Và Bảo Vệ
 
@@ -191,6 +194,22 @@
 - [x] Knowledge Graph và GraphRAG thuộc future work
 - [x] Không dùng embedding model fallback; BGE-M3 chạy GPU hoặc CPU
 - [x] Không huấn luyện hoặc fine-tune model trong MVP
+- [x] Không làm quota/usage provider, admin/storage dashboard, import/export dữ liệu, multi-user/phân quyền/chia sẻ nâng cao
+
+## Roadmap Sau MVP
+
+- [-] Cải thiện UI theo luồng dễ hiểu cho người mới
+- [ ] Preview/mở file gốc tốt hơn
+- [x] Chuẩn bị OCR cho PDF scan/ảnh/tài liệu không có text layer
+- [ ] Thêm OCR engine đầy đủ
+- [ ] Cố định tiến trình xử lý, chạy lại chỉ đổi trạng thái thay vì thêm dòng mới
+- [x] Nút chạy lại phần lỗi/còn thiếu trong pipeline
+- [ ] Cải thiện test kết nối/model và thông báo lỗi AI provider
+- [ ] Tối ưu embedding CPU/GPU, batch size và ước tính thời gian
+- [ ] Cải thiện filter semantic search theo tài liệu, chủ đề, ngày và loại file
+- [ ] Cải thiện hỏi đáp với tài liệu, trích dẫn nguồn và mở đúng trang/chunk
+- [ ] Cải thiện project/recommendation: outline và tài liệu liên quan
+- [ ] Chuẩn hóa test/release: test case demo, seed demo và CI build Docker
 
 ## Vấn Đề Cần Theo Dõi
 
@@ -217,5 +236,15 @@
 
 ## Tiến Độ Hiện Tại
 
-**Giai đoạn hiện tại:** Semantic search đã hoạt động end-to-end, gồm snippet, vị trí nguồn và điều hướng đúng chunk/trang PDF.  
+**Giai đoạn hiện tại:** Semantic search đã hoạt động end-to-end, gồm snippet, vị trí nguồn và điều hướng đúng chunk/trang PDF.
 **Bước tiếp theo:** Triển khai LLM analysis và AI Provider Settings cho OpenRouter, Ollama và Custom API.
+# UX Simplification: Giao diện dễ dùng
+
+- [x] Đổi wording/menu sang ngôn ngữ đời thường
+- [x] Thêm dashboard onboarding 3 bước
+- [x] Cải thiện empty state và CTA chính
+- [x] Cải thiện trang thêm tài liệu
+- [x] Cải thiện trang hỏi/tìm tài liệu
+- [x] Cải thiện trang đề tài
+- [x] Cải thiện trang kết nối AI/provider
+- [x] Kiểm tra lại UI bằng browser sau khi build

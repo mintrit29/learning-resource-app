@@ -1,39 +1,54 @@
 # ScholarFlow
 
-ScholarFlow là ứng dụng quản lý và tìm kiếm học liệu dành cho sinh viên. Bạn có thể tải lên PDF, DOCX, PPTX hoặc EPUB; hệ thống sẽ tự trích xuất nội dung, phân tích bằng AI và tìm đúng đoạn liên quan bằng câu hỏi tự nhiên.
+ScholarFlow là web app quản lý học liệu thông minh cho sinh viên. App cho phép tải lên PDF, DOCX, PPTX hoặc EPUB, tự trích xuất nội dung, phân tích bằng AI, tạo embedding BGE-M3 local và tìm đúng đoạn liên quan bằng semantic search.
 
-## Dành cho người sử dụng
+## Roadmap ngắn
 
-### Mở ứng dụng
+- Làm giao diện dễ dùng hơn cho người mới.
+- Cải thiện mở/preview file gốc.
+- Thêm OCR cho PDF scan/ảnh/tài liệu không copy được chữ.
+- Cố định tiến trình xử lý và chạy lại đúng phần lỗi.
+- Tối ưu embedding CPU/GPU và cải thiện semantic search.
 
-Truy cập địa chỉ do người quản trị cung cấp. Nếu ScholarFlow đang chạy trên máy của bạn, mở:
+Không nằm trong roadmap hiện tại: quota/usage provider, admin/storage dashboard, import/export dữ liệu, multi-user/phân quyền/chia sẻ nâng cao.
 
-**http://localhost:3000**
+## Chạy nhanh bằng Docker
 
-### Cách sử dụng
+Yêu cầu: Docker Desktop.
+
+```powershell
+docker compose up --build
+```
+
+Mở app tại:
+
+```text
+http://localhost:3000
+```
+
+Lần đầu chạy có thể lâu vì embedding service cần tải model `BAAI/bge-m3`. Dữ liệu được giữ trong Docker volumes gồm PostgreSQL, uploads và model cache.
+
+Nếu máy có NVIDIA GPU và đã cài NVIDIA Container Toolkit/WSL2, có thể chạy embedding bằng CUDA:
+
+```powershell
+docker compose -f docker-compose.yml -f docker-compose.cuda.yml up --build
+```
+
+Lưu ý quan trọng: `docker compose up --build` chỉ chạy cấu hình mặc định CPU. Muốn ưu tiên GPU cho embedding phải luôn chạy kèm file override `docker-compose.cuda.yml` như lệnh trên. CPU chỉ là fallback khi không dùng CUDA hoặc máy không hỗ trợ GPU trong Docker.
+
+## Cách dùng cho user
 
 1. Đăng ký hoặc đăng nhập.
-2. Vào **Tải lên** và chọn tài liệu.
-3. Chờ hệ thống xử lý xong.
-4. Vào **Tìm kiếm** và nhập nội dung cần tìm.
-5. Bấm vào kết quả để mở đúng đoạn hoặc đúng trang trong tài liệu.
+2. Vào `Tải lên` và chọn tài liệu.
+3. Chờ hệ thống trích xuất, chunk, embedding và phân tích AI.
+4. Vào `Tìm kiếm` để hỏi bằng ngôn ngữ tự nhiên.
+5. Bấm kết quả để mở đúng đoạn khớp hoặc đúng trang PDF.
 
-Nếu xử lý bị lỗi, mở chi tiết tài liệu và bấm chạy lại. Hệ thống chỉ chạy lại bước còn thiếu, không cần xóa tài liệu rồi tải lên lại.
+Nếu tài liệu lỗi một bước nào đó, mở chi tiết tài liệu rồi bấm `Xử lý phần còn thiếu`. Nếu chỉ muốn chạy lại metadata AI, bấm `Phân tích AI lại`.
 
----
+## Chạy kiểu dev
 
-## Dành cho nhà phát triển
-
-### Yêu cầu
-
-- Node.js và npm
-- Docker Desktop
-- Python
-- NVIDIA CUDA (không bắt buộc; có thể chạy bằng CPU)
-
-### Cài đặt lần đầu
-
-#### 1. Web app và database
+Yêu cầu: Node.js, npm, Python, Docker Desktop.
 
 ```powershell
 cd learning-resource-app
@@ -42,62 +57,57 @@ npm install
 docker compose up -d
 npx prisma generate
 npx prisma db push
+npm run dev
 ```
 
-Mở `learning-resource-app/.env` và thay `AUTH_SECRET` trước khi triển khai thật.
-
-#### 2. Embedding service
-
-Mở terminal mới từ thư mục gốc:
+Terminal khác:
 
 ```powershell
 cd embedding-service
 Copy-Item .env.example .env
-.\setup.ps1 -Device cuda
+.\setup.ps1 -Device cpu
+.\start.ps1 -Device cpu
 ```
 
-Máy không có NVIDIA CUDA thì đổi `cuda` thành `cpu`. Lần đầu hệ thống có thể mất vài phút để tải model BGE-M3.
+Máy có CUDA thì đổi `cpu` thành `cuda`.
 
-### Chạy ứng dụng
-
-Mỗi lần phát triển, mở hai terminal.
-
-**Terminal 1 — database và web:**
-
-```powershell
-cd learning-resource-app
-docker compose up -d
-npm run dev
-```
-
-**Terminal 2 — embedding service:**
-
-```powershell
-cd embedding-service
-.\start.ps1 -Device cuda
-```
-
-Sau đó mở **http://localhost:3000**. Máy không có CUDA thì đổi `cuda` thành `cpu`.
-
-### Kiểm tra trước khi commit
+## Kiểm tra
 
 ```powershell
 cd learning-resource-app
 npm run lint
+npm run test:unit
 npm run build
 ```
 
-Kiểm tra embedding service tại **http://127.0.0.1:8001/health**.
+Integration smoke tests cần database, embedding service và provider phù hợp:
+
+```powershell
+npm run test:integration
+```
+
+## Evaluation tuần 11
+
+```powershell
+cd learning-resource-app
+npm run eval:template
+```
+
+Điền nhãn thủ công trong `learning-resource-app/evaluation/labels.json`, sau đó chạy:
+
+```powershell
+npm run eval:week11
+```
+
+Kết quả nằm trong `learning-resource-app/evaluation/results`.
 
 ## Công nghệ chính
 
-Next.js, TypeScript, Auth.js, PostgreSQL, Prisma, pgvector, FastAPI và BGE-M3.
+Next.js, TypeScript, Auth.js, PostgreSQL, Prisma, pgvector, FastAPI, BGE-M3, OpenRouter, Ollama và Custom API.
 
 ## Tài liệu dự án
 
-- [Yêu cầu sản phẩm](PRD.md)
-- [Kế hoạch triển khai](IMPLEMENTATION_PLAN.md)
-- [Checklist tiến độ](PROJECT_CHECKLIST.md)
-- [Báo cáo lỗi](ERROR_REPORT.md)
-
-MVP tập trung vào Vector RAG cho học liệu Computer Science/IT.
+- [PRD.md](PRD.md)
+- [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md)
+- [PROJECT_CHECKLIST.md](PROJECT_CHECKLIST.md)
+- [ERROR_REPORT.md](ERROR_REPORT.md)

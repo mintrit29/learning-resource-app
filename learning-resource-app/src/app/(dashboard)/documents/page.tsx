@@ -1,16 +1,23 @@
 import Link from "next/link";
-import { FileStack, Upload } from "lucide-react";
+import { FileStack, Filter, Search, Upload, X } from "lucide-react";
 import { auth } from "@/auth";
 import { EmptyState } from "@/components/dashboard/empty-state";
+import { Difficulty, DocumentStatus, FileType } from "@/generated/prisma/enums";
 import { db } from "@/lib/db";
 
 const statusLabels: Record<string, string> = {
   UPLOADED: "Đã tải lên",
-  EXTRACTING: "Đang trích xuất",
-  EXTRACTED: "Đã trích xuất",
+  EXTRACTING: "Đang đọc file",
+  EXTRACTED: "Đã đọc nội dung",
   ANALYZING: "Đang phân tích",
   READY: "Sẵn sàng",
-  FAILED: "Thất bại",
+  FAILED: "Bị lỗi",
+};
+
+const difficultyLabels: Record<string, string> = {
+  BEGINNER: "Cơ bản",
+  INTERMEDIATE: "Trung cấp",
+  ADVANCED: "Nâng cao",
 };
 
 function formatBytes(bytes: number) {
@@ -19,41 +26,200 @@ function formatBytes(bytes: number) {
     : `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 }
 
-export default async function DocumentsPage() {
+function pickEnumValue<T extends string>(value: string | undefined, values: readonly T[]) {
+  return value && values.includes(value as T) ? (value as T) : undefined;
+}
+
+export default async function DocumentsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; topic?: string; difficulty?: string; fileType?: string; status?: string }>;
+}) {
   const session = await auth();
-  const documents = await db.document.findMany({
-    where: { userId: session!.user.id },
-    orderBy: { createdAt: "desc" },
-    select: {
-      id: true,
-      title: true,
-      originalFileName: true,
-      fileType: true,
-      fileSize: true,
-      status: true,
-      primaryTopic: true,
-      createdAt: true,
-    },
-  });
+  const userId = session!.user.id;
+  const filters = await searchParams;
+  const q = filters.q?.trim() ?? "";
+  const topic = filters.topic?.trim() ?? "";
+  const difficulty = pickEnumValue(filters.difficulty, Object.values(Difficulty));
+  const fileType = pickEnumValue(filters.fileType, Object.values(FileType));
+  const status = pickEnumValue(filters.status, Object.values(DocumentStatus));
+
+  const where = {
+    userId,
+    ...(q
+      ? {
+          OR: [
+            { title: { contains: q, mode: "insensitive" as const } },
+            { originalFileName: { contains: q, mode: "insensitive" as const } },
+          ],
+        }
+      : {}),
+    ...(topic ? { primaryTopic: topic } : {}),
+    ...(difficulty ? { difficulty } : {}),
+    ...(fileType ? { fileType } : {}),
+    ...(status ? { status } : {}),
+  };
+
+  const [documents, topics, totalDocuments] = await Promise.all([
+    db.document.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        title: true,
+        originalFileName: true,
+        fileType: true,
+        fileSize: true,
+        status: true,
+        primaryTopic: true,
+        difficulty: true,
+        createdAt: true,
+      },
+    }),
+    db.document.findMany({
+      where: { userId, primaryTopic: { not: null } },
+      distinct: ["primaryTopic"],
+      orderBy: { primaryTopic: "asc" },
+      select: { primaryTopic: true },
+    }),
+    db.document.count({ where: { userId } }),
+  ]);
+
+  const hasFilters = Boolean(q || topic || difficulty || fileType || status);
 
   return (
     <div className="page-wrap">
       <header className="page-header">
-        <div><p className="eyebrow">Library</p><h1>Tài liệu</h1><p>Quản lý toàn bộ học liệu đã tải lên.</p></div>
-        <Link className="primary-button compact" href="/upload"><Upload size={18} />Tải tài liệu</Link>
+        <div>
+          <p className="eyebrow">Tài liệu</p>
+          <h1>Thư viện của bạn</h1>
+          <p>Quản lý tài liệu đã thêm, xem trạng thái xử lý và mở lại kết quả phân tích.</p>
+        </div>
+        <Link className="primary-button compact" href="/upload">
+          <Upload size={18} />
+          Thêm tài liệu
+        </Link>
       </header>
-      {documents.length === 0 ? (
-        <section className="content-section"><EmptyState icon={FileStack} title="Thư viện đang trống" description="Tài liệu sau khi tải lên sẽ xuất hiện ở đây cùng chủ đề, độ khó và trạng thái phân tích." actionHref="/upload" actionLabel="Tải file đầu tiên" /></section>
+
+      {totalDocuments > 0 ? (
+        <form className="filter-panel">
+          <label className="filter-search">
+            <Search size={18} />
+            <input name="q" placeholder="Tìm theo tên file..." defaultValue={q} />
+          </label>
+          <label>
+            <span>Chủ đề</span>
+            <select name="topic" defaultValue={topic}>
+              <option value="">Tất cả</option>
+              {topics.map((item) =>
+                item.primaryTopic ? (
+                  <option value={item.primaryTopic} key={item.primaryTopic}>
+                    {item.primaryTopic}
+                  </option>
+                ) : null,
+              )}
+            </select>
+          </label>
+          <label>
+            <span>Độ khó</span>
+            <select name="difficulty" defaultValue={difficulty ?? ""}>
+              <option value="">Tất cả</option>
+              {Object.values(Difficulty).map((item) => (
+                <option value={item} key={item}>
+                  {difficultyLabels[item]}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            <span>Loại file</span>
+            <select name="fileType" defaultValue={fileType ?? ""}>
+              <option value="">Tất cả</option>
+              {Object.values(FileType).map((item) => (
+                <option value={item} key={item}>
+                  {item}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            <span>Trạng thái</span>
+            <select name="status" defaultValue={status ?? ""}>
+              <option value="">Tất cả</option>
+              {Object.values(DocumentStatus).map((item) => (
+                <option value={item} key={item}>
+                  {statusLabels[item]}
+                </option>
+              ))}
+            </select>
+          </label>
+          <button className="secondary-button compact-filter" type="submit">
+            <Filter size={16} />
+            Lọc
+          </button>
+          {hasFilters ? (
+            <Link className="filter-clear" href="/documents">
+              <X size={15} />
+              Xóa lọc
+            </Link>
+          ) : null}
+        </form>
+      ) : null}
+
+      {totalDocuments === 0 ? (
+        <section className="content-section">
+          <EmptyState
+            icon={FileStack}
+            title="Bạn chưa có tài liệu nào"
+            description="Thêm PDF, DOCX, PPTX hoặc EPUB. ScholarFlow sẽ đọc nội dung, tạo dữ liệu tìm kiếm và phân tích để bạn hỏi lại sau."
+            actionHref="/upload"
+            actionLabel="Thêm tài liệu đầu tiên"
+          />
+        </section>
+      ) : documents.length === 0 ? (
+        <section className="content-section">
+          <EmptyState
+            icon={FileStack}
+            title="Không có tài liệu khớp bộ lọc"
+            description="Thử đổi từ khóa, chủ đề, độ khó, loại file hoặc trạng thái."
+            actionHref="/documents"
+            actionLabel="Xóa bộ lọc"
+          />
+        </section>
       ) : (
         <section className="document-table-wrap">
-          <div className="document-table-header"><span>Tài liệu</span><span>Loại</span><span>Trạng thái</span><span>Ngày thêm</span></div>
+          <div className="document-table-header">
+            <span>Tài liệu</span>
+            <span>Loại</span>
+            <span>Chủ đề</span>
+            <span>Độ khó</span>
+            <span>Trạng thái</span>
+            <span>Ngày thêm</span>
+          </div>
           <div className="document-rows">
             {documents.map((document) => (
               <Link className="document-row" href={`/documents/${document.id}`} key={document.id}>
-                <div className="document-name"><span>{document.fileType}</span><div><strong>{document.title}</strong><small>{formatBytes(document.fileSize)} · {document.originalFileName}</small></div></div>
+                <div className="document-name">
+                  <span>{document.fileType}</span>
+                  <div>
+                    <strong>{document.title}</strong>
+                    <small>
+                      {formatBytes(document.fileSize)} · {document.originalFileName}
+                    </small>
+                  </div>
+                </div>
                 <span>{document.fileType}</span>
-                <span><i className={`status-dot ${document.status.toLowerCase()}`} />{statusLabels[document.status]}</span>
-                <span>{new Intl.DateTimeFormat("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" }).format(document.createdAt)}</span>
+                <span>{document.primaryTopic ?? "Chưa phân tích"}</span>
+                <span>{document.difficulty ? difficultyLabels[document.difficulty] : "Chưa rõ"}</span>
+                <span>
+                  <i className={`status-dot ${document.status.toLowerCase()}`} />
+                  {statusLabels[document.status]}
+                </span>
+                <span>
+                  {new Intl.DateTimeFormat("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" }).format(
+                    document.createdAt,
+                  )}
+                </span>
               </Link>
             ))}
           </div>

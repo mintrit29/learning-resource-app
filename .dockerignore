@@ -1,0 +1,15 @@
+**/.git
+**/.next
+**/node_modules
+**/.venv
+**/.gpu-packages
+**/__pycache__
+**/.pytest_cache
+**/models-cache
+**/storage/uploads
+**/benchmark-results
+**/benchmark-smoke
+**/*.log
+**/.env
+**/.env.*
+!**/.env.example

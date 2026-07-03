@@ -1,0 +1,10 @@
+.git
+.next
+node_modules
+storage/uploads
+evaluation/labels.json
+evaluation/labels.json.example-backup.json
+*.log
+.env
+.env.*
+!.env.example

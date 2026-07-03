@@ -5,6 +5,7 @@ import { auth } from "@/auth";
 import { DeleteDocumentButton } from "@/components/documents/delete-document-button";
 import { EditAnalysisButton } from "@/components/documents/edit-analysis-button";
 import { ProcessingRefresh } from "@/components/documents/processing-refresh";
+import { ReanalyzeButton } from "@/components/documents/reanalyze-button";
 import { RetryJobButton } from "@/components/documents/retry-job-button";
 import { db } from "@/lib/db";
 
@@ -30,6 +31,13 @@ const jobStatusLabels: Record<string, string> = {
   COMPLETED: "Hoàn thành",
   FAILED: "Thất bại",
 };
+
+const processingSteps = [
+  "EXTRACT_TEXT",
+  "CHUNK_DOCUMENT",
+  "EMBED_DOCUMENT",
+  "ANALYZE_DOCUMENT",
+] as const;
 
 function formatBytes(bytes: number) {
   return bytes < 1024 * 1024
@@ -75,6 +83,10 @@ export default async function DocumentDetailPage({
   );
   const needsProcessing = !document.textContent || document._count.chunks === 0 ||
     Number(missingEmbeddings) > 0 || !analysisComplete;
+  const originalFileHref = `/api/documents/${document.id}/file`;
+  const originalFileActionLabel = document.fileType === "PDF" ? "Mở file gốc" : "Tải file gốc";
+  const latestJobsByType = new Map<string, (typeof document.jobs)[number]>();
+  for (const job of document.jobs) latestJobsByType.set(job.type, job);
 
   return (
     <div className="page-wrap document-detail-page">
@@ -85,6 +97,7 @@ export default async function DocumentDetailPage({
         <div><p className="eyebrow">{document.fileType} document</p><h1>{document.title}</h1><p>{document.originalFileName}</p></div>
         <div className="document-header-actions">
           {!isProcessing && needsProcessing ? <RetryJobButton documentId={document.id} /> : null}
+          {!isProcessing && document.textContent ? <ReanalyzeButton documentId={document.id} /> : null}
           <span className={`status-pill ${document.status.toLowerCase()}`}><i className="status-dot" />{statusLabels[document.status]}</span>
           <DeleteDocumentButton documentId={document.id} documentTitle={document.title} />
         </div>
@@ -92,7 +105,10 @@ export default async function DocumentDetailPage({
 
       {document.summary ? (
         <section className="document-analysis-section">
-          <div className="analysis-heading"><div><p className="eyebrow">Phân tích AI</p><h2>Tóm tắt</h2></div><EditAnalysisButton documentId={document.id} initial={{ topic: document.primaryTopic ?? "Other", difficulty: document.difficulty ?? "INTERMEDIATE", summary: document.summary, subtopics: document.subtopics, keywords: document.keywords, reason: document.analysisReason ?? "Người dùng cập nhật kết quả phân loại" }} /></div>
+          <div className="analysis-heading">
+            <div><p className="eyebrow">Phân tích AI</p><h2>Tóm tắt</h2></div>
+            <EditAnalysisButton documentId={document.id} initial={{ topic: document.primaryTopic ?? "Other", difficulty: document.difficulty ?? "INTERMEDIATE", summary: document.summary, subtopics: document.subtopics, keywords: document.keywords, reason: document.analysisReason ?? "Người dùng cập nhật kết quả phân loại" }} />
+          </div>
           <p>{document.summary}</p>
           <div><strong>Chủ đề con</strong><div className="analysis-tags">{document.subtopics.map((item) => <span key={item}>{item}</span>)}</div></div>
           <div><strong>Từ khóa</strong><div className="analysis-tags muted">{document.keywords.map((item) => <span key={item}>{item}</span>)}</div></div>
@@ -112,13 +128,17 @@ export default async function DocumentDetailPage({
           {isProcessing ? <span className="processing-live"><i />Đang chạy</span> : null}
         </div>
         <div className="job-list">
-          {document.jobs.length ? document.jobs.map((job) => (
-            <div className="job-row" key={job.id}>
-              <i className={`status-dot ${job.status.toLowerCase()}`} />
-              <div><strong>{jobLabels[job.type]}</strong>{job.errorMessage ? <small>{job.errorMessage}</small> : null}</div>
-              <span className="job-result">{jobStatusLabels[job.status]}</span>
-            </div>
-          )) : <p>Đây là tài liệu được tạo trước khi hệ thống job được bổ sung.</p>}
+          {processingSteps.map((type) => {
+            const job = latestJobsByType.get(type);
+            const status = job?.status ?? "PENDING";
+            return (
+              <div className="job-row" key={type}>
+                <i className={`status-dot ${status.toLowerCase()}`} />
+                <div><strong>{jobLabels[type]}</strong>{job?.errorMessage ? <small>{job.errorMessage}</small> : null}</div>
+                <span className="job-result">{job ? jobStatusLabels[status] : "Chưa chạy"}</span>
+              </div>
+            );
+          })}
         </div>
       </section>
 
@@ -136,10 +156,28 @@ export default async function DocumentDetailPage({
       ) : null}
 
       {document.status === "FAILED" ? (
-        <section className="extraction-error"><strong>Không thể trích xuất nội dung</strong><p>{document.analysisReason ?? "File có thể không chứa text hoặc định dạng không hợp lệ."}</p></section>
+        <section className="extraction-error">
+          <div className="text-preview-heading">
+            <div>
+              <strong>Không thể trích xuất nội dung</strong>
+              <p>{document.analysisReason ?? "File có thể không chứa text hoặc định dạng không hợp lệ."}</p>
+            </div>
+            <a className="secondary-button compact" href={originalFileHref} target="_blank" rel="noreferrer">
+              {originalFileActionLabel} <ExternalLink size={15} />
+            </a>
+          </div>
+        </section>
       ) : (
         <section className="text-preview-section">
-          <div><h2>Nội dung đã trích xuất</h2><p>Hiển thị tối đa 15.000 ký tự đầu tiên.</p></div>
+          <div className="text-preview-heading">
+            <div>
+              <h2>Nội dung đã trích xuất</h2>
+              <p>Hiển thị tối đa 15.000 ký tự đầu tiên.</p>
+            </div>
+            <a className="secondary-button compact" href={originalFileHref} target="_blank" rel="noreferrer">
+              {originalFileActionLabel} <ExternalLink size={15} />
+            </a>
+          </div>
           <pre>{preview || "Nội dung đang được xử lý..."}</pre>
           {document.textContent && document.textContent.length > preview.length ? <small>Còn {document.textContent.length - preview.length} ký tự chưa hiển thị.</small> : null}
         </section>

@@ -1,0 +1,12 @@
+services:
+  embedding:
+    environment:
+      EMBEDDING_DEVICE: cuda
+      EMBEDDING_BATCH_SIZE: "2"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]

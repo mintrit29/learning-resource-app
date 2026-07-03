@@ -4,6 +4,7 @@ import { JobStatus, JobType } from "@/generated/prisma/enums";
 import { analyzeDocument } from "@/lib/ai/analyze-document";
 import { db } from "@/lib/db";
 import { processDocumentPipeline } from "@/lib/documents/process-document";
+import { resetDocumentJob } from "@/lib/documents/processing-jobs";
 import { embedDocumentChunks } from "@/lib/embedding/embed-document";
 
 export const runtime = "nodejs";
@@ -39,11 +40,11 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
   );
 
   if (!document.textContent || document._count.chunks === 0) {
-    const jobs = await db.$transaction([
-      db.analysisJob.create({ data: { documentId: id, type: JobType.EXTRACT_TEXT } }),
-      db.analysisJob.create({ data: { documentId: id, type: JobType.CHUNK_DOCUMENT } }),
-      db.analysisJob.create({ data: { documentId: id, type: JobType.EMBED_DOCUMENT } }),
-      db.analysisJob.create({ data: { documentId: id, type: JobType.ANALYZE_DOCUMENT } }),
+    const jobs = await Promise.all([
+      resetDocumentJob(id, JobType.EXTRACT_TEXT),
+      resetDocumentJob(id, JobType.CHUNK_DOCUMENT),
+      resetDocumentJob(id, JobType.EMBED_DOCUMENT),
+      resetDocumentJob(id, JobType.ANALYZE_DOCUMENT),
     ]);
     after(() => processDocumentPipeline({
       documentId: id,
@@ -61,12 +62,8 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
   );
 
   if (Number(missing) > 0) {
-    const embeddingJob = await db.analysisJob.create({
-      data: { documentId: id, type: JobType.EMBED_DOCUMENT },
-    });
-    const analysisJob = analysisComplete ? null : await db.analysisJob.create({
-      data: { documentId: id, type: JobType.ANALYZE_DOCUMENT },
-    });
+    const embeddingJob = await resetDocumentJob(id, JobType.EMBED_DOCUMENT);
+    const analysisJob = analysisComplete ? null : await resetDocumentJob(id, JobType.ANALYZE_DOCUMENT);
     after(async () => {
       const embedded = await embedDocumentChunks(id, embeddingJob.id);
       if (embedded && analysisJob) await analyzeDocument(id, analysisJob.id);
@@ -85,7 +82,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
   }
 
   if (!analysisComplete) {
-    const job = await db.analysisJob.create({ data: { documentId: id, type: JobType.ANALYZE_DOCUMENT } });
+    const job = await resetDocumentJob(id, JobType.ANALYZE_DOCUMENT);
     after(() => analyzeDocument(id, job.id));
     return NextResponse.json({ message: "Embedding được giữ nguyên; chỉ chạy lại phân tích AI" }, { status: 202 });
   }

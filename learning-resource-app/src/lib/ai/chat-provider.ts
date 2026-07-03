@@ -22,11 +22,49 @@ async function request(url: string, init: RequestInit) {
   }
 }
 
+function ollamaBaseUrlCandidates(baseUrl: string) {
+  const candidates = [baseUrl];
+  try {
+    const parsed = new URL(baseUrl);
+    if (["localhost", "127.0.0.1", "::1"].includes(parsed.hostname)) {
+      parsed.hostname = "host.docker.internal";
+      candidates.push(parsed.toString().replace(/\/+$/, ""));
+    }
+  } catch {
+    // URL validation happens before this point.
+  }
+  return [...new Set(candidates)];
+}
+
+async function requestOllama(baseUrl: string, path: string, init: RequestInit) {
+  const errors: string[] = [];
+  for (const candidate of ollamaBaseUrlCandidates(baseUrl)) {
+    try {
+      return await request(`${candidate}${path}`, init);
+    } catch (error) {
+      errors.push(`${candidate}: ${error instanceof Error ? error.message : "request failed"}`);
+    }
+  }
+  throw new Error(`Không kết nối được Ollama (${errors.join("; ")})`);
+}
+
+async function fetchOllama(baseUrl: string, path: string, init: RequestInit) {
+  const errors: string[] = [];
+  for (const candidate of ollamaBaseUrlCandidates(baseUrl)) {
+    try {
+      return await fetch(`${candidate}${path}`, init);
+    } catch (error) {
+      errors.push(`${candidate}: ${error instanceof Error ? error.message : "request failed"}`);
+    }
+  }
+  throw new Error(`Không kết nối được Ollama (${errors.join("; ")})`);
+}
+
 export async function listProviderModels(config: ProviderConfig) {
   const type = config.type as ProviderType;
   const baseUrl = normalizeBaseUrl(config.baseUrl ?? "");
   if (type === "OLLAMA") {
-    const response = await request(`${baseUrl}/api/tags`, { method: "GET" });
+    const response = await requestOllama(baseUrl, "/api/tags", { method: "GET" });
     if (!response.ok) throw new Error(`Ollama trả về HTTP ${response.status}`);
     const data = await response.json() as { models?: Array<{ name?: string }> };
     return (data.models ?? []).map((model) => model.name).filter((name): name is string => Boolean(name));
@@ -49,7 +87,7 @@ export async function testProviderConnection(config: ProviderConfig) {
   const type = config.type as ProviderType;
   const baseUrl = normalizeBaseUrl(config.baseUrl ?? "");
   if (type === "OLLAMA") {
-    const response = await request(`${baseUrl}/api/tags`, { method: "GET" });
+    const response = await requestOllama(baseUrl, "/api/tags", { method: "GET" });
     if (!response.ok) throw new Error(`Ollama trả về HTTP ${response.status}`);
     const data = await response.json() as { models?: Array<{ name?: string }> };
     const names = data.models?.map((model) => model.name).filter(Boolean) ?? [];
@@ -87,7 +125,7 @@ export async function completeChat(
 
   try {
     if (type === "OLLAMA") {
-      const response = await fetch(`${baseUrl}/api/chat`, {
+      const response = await fetchOllama(baseUrl, "/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -95,6 +133,7 @@ export async function completeChat(
           messages,
           stream: false,
           format: "json",
+          think: false,
         }),
         signal: controller.signal,
       });

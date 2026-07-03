@@ -6,7 +6,7 @@ import {
   BookOpen,
   FolderKanban,
   LayoutDashboard,
-  Search,
+  MessageCircleQuestion,
   Settings,
   Upload,
 } from "lucide-react";
@@ -14,9 +14,9 @@ import {
 const navigation = [
   { href: "/dashboard", label: "Tổng quan", icon: LayoutDashboard },
   { href: "/documents", label: "Tài liệu", icon: BookOpen },
-  { href: "/upload", label: "Tải lên", icon: Upload },
-  { href: "/search", label: "Tìm kiếm", icon: Search },
-  { href: "/projects", label: "Projects", icon: FolderKanban },
+  { href: "/upload", label: "Thêm tài liệu", icon: Upload },
+  { href: "/search", label: "Hỏi tài liệu", icon: MessageCircleQuestion },
+  { href: "/projects", label: "Đề tài", icon: FolderKanban },
 ];
 
 export function SidebarNav() {
@@ -25,7 +25,7 @@ export function SidebarNav() {
   return (
     <nav className="sidebar-nav" aria-label="Điều hướng chính">
       <div className="nav-group">
-        <p>Workspace</p>
+        <p>Không gian làm việc</p>
         {navigation.map((item) => {
           const Icon = item.icon;
           const active =

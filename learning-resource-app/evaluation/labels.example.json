@@ -1,0 +1,35 @@
+{
+  "notes": "Copy this file to evaluation/labels.json, then replace TODO values with manual ground-truth labels before running npm run eval:week11.",
+  "documents": [
+    {
+      "documentId": "TODO_DOCUMENT_ID",
+      "title": "TODO document title for human review",
+      "expectedPrimaryTopic": "Machine Learning",
+      "expectedDifficulty": "BEGINNER",
+      "notes": "Manual label. Topic should match one of the app analysis topics."
+    }
+  ],
+  "searchQueries": [
+    {
+      "id": "q01",
+      "query": "decision tree explanation for beginners",
+      "expectedDocumentIds": ["TODO_DOCUMENT_ID"],
+      "expectedChunkIds": [],
+      "notes": "Manual relevance label. Put at least one relevant document id."
+    },
+    {
+      "id": "q02",
+      "query": "database transaction isolation and recovery",
+      "expectedDocumentIds": ["TODO_DOCUMENT_ID"],
+      "expectedChunkIds": [],
+      "notes": "Add 10 or more query objects for the final evaluation."
+    }
+  ],
+  "tagAliases": [
+    {
+      "canonical": "Machine Learning",
+      "aliases": ["ML", "machine learning", "máy học"],
+      "notes": "Manual alias samples to inspect normalization behavior."
+    }
+  ]
+}

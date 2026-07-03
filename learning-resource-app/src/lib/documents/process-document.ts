@@ -68,6 +68,11 @@ export async function processDocumentPipeline(input: PipelineInput) {
     const buffer = await readFile(absolutePath);
     const result = await extractDocumentText(buffer, extensions[document.fileType]);
     if (result.text.length < 20) {
+      if (document.fileType === FileType.PDF && (result.pageCount ?? 0) > 0) {
+        throw new Error(
+          "Tài liệu có vẻ là PDF scan/ảnh và không có text layer. File này cần OCR trước khi phân tích.",
+        );
+      }
       throw new Error("Không tìm thấy đủ nội dung dạng text trong tài liệu");
     }
 
