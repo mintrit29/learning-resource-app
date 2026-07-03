@@ -176,9 +176,6 @@ export default async function DocumentDetailPage({
           <div className="matched-chunk-heading">
             <span><LocateFixed size={21} /></span>
             <div><p className="eyebrow">Đoạn khớp với tìm kiếm</p><h2>{matchedChunk.sourceLabel ?? "Vị trí chưa xác định"}</h2></div>
-            {canPreviewOriginalFile && matchedChunk.pageNumber ? (
-              <a className="secondary-button" href="#original-file">Xem trang {matchedChunk.pageNumber} trong file gốc</a>
-            ) : null}
           </div>
           <pre>{matchedChunk.content}</pre>
         </section>
