@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   BookOpen,
-  FolderKanban,
   LayoutDashboard,
   MessageCircleQuestion,
   Settings,
@@ -16,7 +15,6 @@ const navigation = [
   { href: "/documents", label: "Tài liệu", icon: BookOpen },
   { href: "/upload", label: "Thêm tài liệu", icon: Upload },
   { href: "/search", label: "Hỏi tài liệu", icon: MessageCircleQuestion },
-  { href: "/projects", label: "Đề tài", icon: FolderKanban },
 ];
 
 export function SidebarNav() {

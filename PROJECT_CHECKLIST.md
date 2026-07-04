@@ -22,7 +22,7 @@
 - [x] Chốt BGE-M3 local làm embedding model mặc định
 - [x] Hoàn thành nền tảng Next.js và database
 - [x] Hoàn thành pipeline xử lý tài liệu
-- [x] Hoàn thành semantic search và recommendation
+- [x] Hoàn thành semantic search và AI chọn giúp kết quả
 - [x] Hoàn thành AI provider settings
 - [x] Đồng bộ primary topics và lưu ngôn ngữ tài liệu theo PRD
 - [ ] Hoàn thành evaluation dataset và đánh giá
@@ -115,19 +115,13 @@
 - [x] Cho phép approve/reject đề xuất gộp tag
 - [x] Cho phép gộp thủ công hai canonical tags
 
-## Tuần 10: Research Project Và Recommendation
+## Tuần 10: Đơn giản hóa luồng tìm tài liệu
 
-- [x] Tạo schema Project
-- [x] Tạo trang danh sách project
-- [x] Tạo form nhập topic, mô tả và độ khó mục tiêu
-- [x] Tạo embedding cho project
-- [x] Tìm các chunks gần nghĩa bằng pgvector
-- [x] Gom kết quả theo document
-- [x] Kết hợp topic, difficulty và canonical tags khi xếp hạng
-- [x] Dùng LLM sinh lý do gợi ý
-- [x] Dùng AI đề xuất thứ tự nên đọc trong project
-- [x] Lưu Recommendation
-- [x] Hiển thị danh sách tài liệu được gợi ý
+- [x] Đánh giá lại Project/Đề tài và xác nhận bị trùng với Hỏi tài liệu
+- [x] Gỡ Project/Đề tài khỏi sidebar và UI chính
+- [x] Gỡ route/API chính của Project/Recommendation
+- [x] Giữ schema legacy để tránh migration rủi ro
+- [x] Tập trung vào semantic search và AI chọn giúp kết quả top đầu
 
 ## Tuần 11: Dataset Và Evaluation
 
@@ -214,7 +208,7 @@
 - [x] Thêm AI lọc kết quả semantic search theo mức nên đọc trước/đọc thêm/có thể bỏ qua
 - [x] Chuẩn hóa nhãn độ khó trên UI sang Cơ bản/Trung cấp/Nâng cao
 - [x] Cải thiện hỏi đáp với tài liệu, trích dẫn nguồn và mở đúng trang/chunk
-- [x] Cải thiện project/recommendation: AI đề xuất thứ tự đọc và tài liệu liên quan
+- [x] Gỡ project/recommendation khỏi UI chính để giảm rối
 - [x] Chuẩn hóa test/release: test case demo, seed demo và CI build Docker
 
 ## Vấn Đề Cần Theo Dõi
@@ -251,6 +245,6 @@
 - [x] Cải thiện empty state và CTA chính
 - [x] Cải thiện trang thêm tài liệu
 - [x] Cải thiện trang hỏi/tìm tài liệu
-- [x] Cải thiện trang đề tài
+- [x] Gỡ trang đề tài khỏi MVP
 - [x] Cải thiện trang kết nối AI/provider
 - [x] Kiểm tra lại UI bằng browser sau khi build

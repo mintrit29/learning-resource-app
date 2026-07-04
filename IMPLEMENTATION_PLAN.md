@@ -45,7 +45,6 @@ Next.js App Router
 - LLM analysis module.
 - Taxonomy/tag normalization module.
 - Semantic search module.
-- Recommendation module.
 - AI provider settings module.
 - Evaluation module.
 
@@ -244,35 +243,9 @@ Fields chính:
 - `ANALYZE_DOCUMENT`
 - `EMBED_DOCUMENT`
 
-### 3.10. Project
+### 3.10. Project/Recommendation legacy
 
-Lưu Research Project của user.
-
-Fields chính:
-
-- `id`
-- `userId`
-- `title`
-- `description`
-- `keywords`
-- `targetDifficulty`
-- `embedding` (`vector(1024)`, BGE-M3)
-- `createdAt`
-- `updatedAt`
-
-### 3.11. Recommendation
-
-Lưu kết quả gợi ý tài liệu cho project.
-
-Fields chính:
-
-- `id`
-- `projectId`
-- `documentId`
-- `score`
-- `reason`
-- `bestChunkId`
-- `createdAt`
+Project và Recommendation từng được thử nghiệm để gom tài liệu theo đề tài, nhưng đã bị loại khỏi MVP vì trùng với luồng Hỏi tài liệu + AI chọn giúp. Schema có thể còn tồn tại trong migration cũ để tránh phá dữ liệu, nhưng route/UI/API chính không còn dùng.
 
 ### 3.12. SearchLog
 
@@ -638,20 +611,18 @@ Nội dung:
 - Có nút AI đọc nhanh các kết quả semantic search hiện tại và chia thành `nên đọc trước`, `đọc thêm nếu cần`, `có thể bỏ qua`.
 - AI lọc kết quả dùng chung active chat provider với module phân tích tài liệu; nếu provider lỗi thì semantic search gốc vẫn hoạt động.
 
-### 6.6. Projects and Recommendations
+### 6.6. AI chọn giúp kết quả tìm kiếm
 
 Routes:
 
-- `/projects`
-- `/projects/[id]`
+- `/search`
+- `/api/search/curate`
 
 Chức năng:
 
-- Tạo project.
-- Nhập topic/description.
-- Chạy recommendation.
-- Hiện danh sách tài liệu gợi ý.
-- Hiện lý do AI đề xuất và thứ tự nên đọc.
+- Sau khi semantic search có kết quả, dùng active chat provider đọc top kết quả.
+- Phân nhóm kết quả thành nên đọc trước, đọc thêm hoặc có thể bỏ qua.
+- Hiện lý do ngắn gọn để người dùng đỡ phải tự đọc từng đoạn không liên quan.
 
 ### 6.7. AI Provider Settings
 
@@ -765,15 +736,11 @@ Deadline: 20/09. Mốc bắt đầu: 18/06. Tổng thời gian khoảng 13 tuầ
 - So sánh tag bằng embedding similarity.
 - Tạo hàng đợi review và giao diện approve/reject đề xuất gộp tag.
 
-### Tuần 10: Recommendation
+### Tuần 10: Đơn giản hóa luồng tìm tài liệu
 
-- Tạo Project schema và UI.
-- Tạo project embedding.
-- Tìm tài liệu liên quan bằng pgvector.
-- Kết hợp document chunks, primary topic và canonical tags khi xếp hạng.
-- Dùng LLM sinh lý do gợi ý và đề xuất tài liệu nên đọc trước.
-- Lưu Recommendation.
-- Nếu chat provider tạm lỗi, vẫn lưu lý do dự phòng dựa trên semantic score, difficulty và canonical tags.
+- Loại Project/Đề tài khỏi UI vì trùng với Hỏi tài liệu.
+- Giữ trọng tâm vào semantic search và AI chọn giúp kết quả top đầu.
+- Không xóa schema legacy ngay để tránh migration rủi ro.
 
 ### Tuần 11: Evaluation
 
@@ -934,7 +901,7 @@ Không đưa vào roadmap hiện tại:
 7. Tối ưu embedding CPU/GPU, batch size và ước tính thời gian xử lý.
 8. Cải thiện semantic search: ưu tiên hỏi tự nhiên, AI chọn giúp top kết quả và không hiện bộ lọc nâng cao ở UI chính.
 9. Cải thiện hỏi đáp với tài liệu: trích dẫn nguồn rõ và mở đúng trang/chunk.
-10. Cải thiện project/recommendation: gom tài liệu, đề xuất outline và tài liệu liên quan.
+10. Loại Project/Đề tài khỏi UI, tập trung vào Hỏi tài liệu + AI chọn giúp.
 11. Chuẩn hóa test/release: test case demo, seed demo và CI build Docker.
 
 ## 11. Definition of Done
@@ -949,7 +916,7 @@ Dự án nâng cấp được xem là hoàn thành khi:
 - Canonical tags/aliases/document tags hoạt động ở mức cơ bản.
 - Embedding và pgvector semantic search hoạt động.
 - BGE-M3 local là embedding mặc định, có benchmark trên máy phát triển và có fallback được tài liệu hóa.
-- Recommendation theo project topic hoạt động.
+- AI chọn giúp kết quả tìm kiếm hoạt động.
 - `docker compose up --build` khởi động được toàn bộ hệ thống trên cấu hình CPU mặc định.
 - AI Provider settings có OpenRouter, Ollama và Custom.
 - Có evaluation dataset và kết quả đo lường.
@@ -974,7 +941,7 @@ Dự án nâng cấp được xem là hoàn thành khi:
 - Semantic search có nút AI lọc kết quả: dùng provider đang active để gợi ý kết quả nên đọc trước, đọc thêm hoặc có thể bỏ qua.
 - Trang quản lý tags đã có gộp tag thủ công: chuyển aliases/tài liệu sang tag giữ lại rồi xóa tag nguồn.
 - Kết quả hỏi/tìm tài liệu hiển thị citation rõ (`Nguồn: tài liệu · trang/slide/chương`) và CTA mở đúng matched chunk.
-- Trang chi tiết project đã đổi sang khối “AI đề xuất cách đọc”, dùng lý do AI của recommendation để gợi ý thứ tự đọc thay vì outline rule-based cứng.
+- Project/Đề tài đã được gỡ khỏi UI/API chính vì trùng với Hỏi tài liệu; app tập trung vào AI chọn giúp kết quả tìm kiếm.
 - Test/release đã có `TEST_CASES.md`, script `npm run demo:seed` và GitHub Actions CI chạy lint, unit tests, build, Docker build web.
 - Upload kiểm tra thêm chữ ký file, không chỉ dựa vào phần mở rộng.
 - Unit test được gom vào `npm run test:unit`; integration smoke tests được gom vào `npm run test:integration`.
@@ -1010,12 +977,12 @@ Nguyên tắc:
 
 Phạm vi triển khai trước:
 
-- Đổi label sidebar: `Tải lên` thành `Thêm tài liệu`, `Tìm kiếm` thành `Hỏi tài liệu`, `Projects` thành `Đề tài`.
+- Đổi label sidebar: `Tải lên` thành `Thêm tài liệu`, `Tìm kiếm` thành `Hỏi tài liệu`; bỏ `Đề tài` khỏi sidebar.
 - Dashboard thêm khối checklist 3 bước và CTA theo trạng thái hiện tại.
 - Trang upload đổi wording thành “Thêm tài liệu”, giải thích sau khi tải app sẽ tự đọc nội dung và phân tích.
 - Trang search đổi wording thành “Hỏi tài liệu”, thêm ví dụ mẫu, bỏ bộ lọc nâng cao khỏi UI để người dùng chỉ tập trung vào câu hỏi tự nhiên và nút “AI chọn giúp”.
 - Chuẩn hóa nhãn độ khó trên UI sang tiếng Việt: `Cơ bản`, `Trung cấp`, `Nâng cao`; chỉ giữ `BEGINNER/INTERMEDIATE/ADVANCED` ở schema, API và prompt kỹ thuật.
-- Trang projects đổi thành “Đề tài”, giải thích đây là nơi gom tài liệu theo mục tiêu học/nghiên cứu.
+- Gỡ trang projects/Đề tài khỏi MVP để UI gọn và tránh trùng chức năng với Hỏi tài liệu.
 - Trang settings/provider đổi wording thành “Kết nối AI”, giải thích OpenRouter/Ollama/Custom theo ngôn ngữ dễ hiểu.
 - Sửa các chuỗi tiếng Việt bị lỗi mã hóa ở các màn hình chính được chỉnh sửa.
 

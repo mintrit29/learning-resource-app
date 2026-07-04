@@ -4,7 +4,6 @@ import {
   BookOpen,
   CheckCircle2,
   FileStack,
-  FolderKanban,
   MessageCircleQuestion,
   ServerCog,
   Sparkles,
@@ -70,7 +69,6 @@ export default async function DashboardPage() {
   const [
     documentCount,
     readyCount,
-    projectCount,
     recentDocuments,
     topicRows,
     difficultyRows,
@@ -79,7 +77,6 @@ export default async function DashboardPage() {
   ] = await Promise.all([
     db.document.count({ where: { userId } }),
     db.document.count({ where: { userId, status: { in: ["EXTRACTED", "READY"] } } }),
-    db.project.count({ where: { userId } }),
     db.document.findMany({
       where: { userId },
       orderBy: { createdAt: "desc" },
@@ -153,12 +150,6 @@ export default async function DashboardPage() {
       value: `${readyRate}%`,
       detail: `${readyCount}/${documentCount} tài liệu đã xử lý`,
       icon: Sparkles,
-    },
-    {
-      label: "Đề tài",
-      value: projectCount,
-      detail: projectCount ? "Đề tài đang theo dõi" : "Chưa có đề tài",
-      icon: FolderKanban,
     },
     {
       label: "Kết nối AI",
@@ -290,8 +281,8 @@ export default async function DashboardPage() {
             <li>
               <span>AI</span>
               <p>
-                <strong>Dùng đề tài để gom tài liệu</strong>
-                <small>Tạo đề tài khi bạn muốn app xếp hạng tài liệu nên đọc.</small>
+                <strong>Dùng AI chọn giúp</strong>
+                <small>Sau khi tìm kiếm, bấm AI gợi ý để biết kết quả nào nên đọc trước.</small>
               </p>
             </li>
           </ol>

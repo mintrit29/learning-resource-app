@@ -40,7 +40,6 @@ Xây dựng một web app giúp sinh viên:
 - Tự động đánh giá độ khó: `Beginner`, `Intermediate`, `Advanced`.
 - Tự động tạo tóm tắt và keywords.
 - Tìm kiếm tài liệu bằng keyword và semantic search.
-- Gợi ý tài liệu phù hợp với Research Project.
 - Cấu hình nhiều AI provider tùy theo nhu cầu: Local model, OpenRouter hoặc custom API.
 
 ### 3.2. Mục tiêu đồ án
@@ -92,7 +91,6 @@ MVP cần có các chức năng sau:
 - Xem chi tiết tài liệu.
 - Lọc theo primary topic, difficulty, file type.
 - Semantic search.
-- Gợi ý tài liệu theo Research Project topic.
 - Màn hình cấu hình AI providers.
 - Cho phép người dùng sửa lại primary topic/difficulty nếu AI phân loại sai.
 - Quản lý tags ở mức cơ bản để gộp các subtopics/tags bị trùng nghĩa.
@@ -204,7 +202,6 @@ Subtopics/tags được dùng cho:
 
 - Mô tả tài liệu chi tiết hơn.
 - Semantic search.
-- Recommendation.
 - Liên kết các tài liệu cùng chủ đề con.
 
 ### 6.5.2. Danh sách primary topics mặc định
@@ -288,22 +285,15 @@ Quyết định embedding cho MVP:
 
 MVP sử dụng Vector RAG: truy vấn được chuyển thành vector, tìm các chunks gần nghĩa bằng pgvector rồi cung cấp ngữ cảnh cho LLM khi cần. Knowledge Graph không phải thành phần bắt buộc của RAG và chưa cần thiết cho mục tiêu tìm kiếm/gợi ý tài liệu của phiên bản này.
 
-### 6.7. Recommendation theo Research Project
+### 6.7. AI chọn giúp kết quả tìm kiếm
 
-Người dùng tạo một project với:
+Trang Hỏi tài liệu là luồng chính để tìm học liệu. Sau khi semantic search trả về các đoạn phù hợp, người dùng có thể bấm `AI chọn giúp` để AI đọc nhanh các kết quả top đầu và phân nhóm:
 
-- Tên project.
-- Mô tả đề tài.
-- Keywords hoặc research question.
-- Mức độ mong muốn: beginner/intermediate/advanced hoặc auto.
+- Nên đọc trước.
+- Đọc thêm nếu cần.
+- Có thể bỏ qua.
 
-Hệ thống gợi ý tài liệu bằng cách:
-
-- Tạo embedding cho project topic.
-- Tìm documents/chunks gần nghĩa.
-- Lọc theo primary topic/difficulty nếu phù hợp.
-- Ưu tiên các tài liệu có canonical tags liên quan với project topic.
-- Dùng LLM tạo lý do vì sao tài liệu được gợi ý và đề xuất nên đọc tài liệu nào trước.
+Tính năng Project/Đề tài đã được loại khỏi MVP vì trùng mục tiêu với Hỏi tài liệu và làm UI rối hơn.
 
 ### 6.8. AI Provider Settings
 
@@ -421,7 +411,7 @@ MVP được xem là thành công khi:
 - Kết quả semantic search chỉ rõ vị trí nguồn và điều hướng đến đúng chunk; PDF mở được đúng trang.
 - BGE-M3 chạy local và tạo vector ổn định trên máy phát triển; ưu tiên CUDA batch 2 và tự fallback sang CPU batch 4 mà không cần re-embed.
 - Dashboard hiển thị thống kê cơ bản.
-- User tạo project topic và nhận gợi ý tài liệu phù hợp.
+- User hỏi/tìm tài liệu bằng ngôn ngữ tự nhiên và dùng AI chọn giúp để biết kết quả nên đọc.
 - Hệ thống chuẩn hóa được tags cơ bản bằng normalize, alias và embedding similarity.
 - User cấu hình được ít nhất OpenRouter, Ollama và Custom API.
 - Toàn bộ hệ thống có thể khởi động bằng Docker Compose với hướng dẫn ngắn gọn.
@@ -434,7 +424,7 @@ Sau khi review giao diện thực tế, MVP cần ưu tiên trải nghiệm theo
 Yêu cầu UX bổ sung:
 
 - Dashboard phải dẫn người dùng theo 3 bước rõ ràng: kết nối AI, thêm tài liệu, hỏi/tìm trong tài liệu.
-- Menu dùng ngôn ngữ đời thường: `Thêm tài liệu`, `Hỏi tài liệu`, `Đề tài`, `Kết nối AI`; tránh đặt các thuật ngữ kỹ thuật ở UI chính.
+- Menu dùng ngôn ngữ đời thường: `Thêm tài liệu`, `Hỏi tài liệu`, `Kết nối AI`; tránh đặt các thuật ngữ kỹ thuật ở UI chính.
 - Các trạng thái rỗng phải giải thích bước tiếp theo và có nút hành động chính.
 - Trang Hỏi tài liệu ưu tiên ô hỏi tự nhiên, ví dụ mẫu và nút `AI chọn giúp`; không hiển thị bộ lọc nâng cao để tránh rối cho người dùng phổ thông.
 - Các nhãn độ khó trên UI dùng tiếng Việt thống nhất: `Cơ bản`, `Trung cấp`, `Nâng cao`; enum kỹ thuật như `BEGINNER`, `INTERMEDIATE`, `ADVANCED` chỉ nằm trong code/API.
