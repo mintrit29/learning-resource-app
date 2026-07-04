@@ -303,7 +303,7 @@ Hệ thống gợi ý tài liệu bằng cách:
 - Tìm documents/chunks gần nghĩa.
 - Lọc theo primary topic/difficulty nếu phù hợp.
 - Ưu tiên các tài liệu có canonical tags liên quan với project topic.
-- Dùng LLM tạo lý do vì sao tài liệu được gợi ý.
+- Dùng LLM tạo lý do vì sao tài liệu được gợi ý và đề xuất nên đọc tài liệu nào trước.
 
 ### 6.8. AI Provider Settings
 

@@ -125,6 +125,7 @@
 - [x] Gom kết quả theo document
 - [x] Kết hợp topic, difficulty và canonical tags khi xếp hạng
 - [x] Dùng LLM sinh lý do gợi ý
+- [x] Dùng AI đề xuất thứ tự nên đọc trong project
 - [x] Lưu Recommendation
 - [x] Hiển thị danh sách tài liệu được gợi ý
 
@@ -213,7 +214,7 @@
 - [x] Thêm AI lọc kết quả semantic search theo mức nên đọc trước/đọc thêm/có thể bỏ qua
 - [x] Chuẩn hóa nhãn độ khó trên UI sang Cơ bản/Trung cấp/Nâng cao
 - [x] Cải thiện hỏi đáp với tài liệu, trích dẫn nguồn và mở đúng trang/chunk
-- [x] Cải thiện project/recommendation: outline và tài liệu liên quan
+- [x] Cải thiện project/recommendation: AI đề xuất thứ tự đọc và tài liệu liên quan
 - [x] Chuẩn hóa test/release: test case demo, seed demo và CI build Docker
 
 ## Vấn Đề Cần Theo Dõi

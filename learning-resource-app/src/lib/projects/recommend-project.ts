@@ -107,8 +107,15 @@ export async function generateProjectRecommendations(projectId: string, userId: 
   if (useLlm && provider && ranked.length) {
     try {
       const response = await completeChat(provider, [
-        { role: "system", content: "Viết lý do gợi ý học liệu ngắn gọn, trung thực. Chỉ trả về JSON array hợp lệ." },
-        { role: "user", content: `Đề tài: ${project.title}\nMô tả: ${project.description}\nĐộ khó: ${project.targetDifficulty ?? "không giới hạn"}\nHãy trả [{"documentId":"...","reason":"1-2 câu tiếng Việt"}] cho dữ liệu:\n${JSON.stringify(ranked.map(({ documentId, title, primaryTopic, difficulty, tags, excerpt }) => ({ documentId, title, primaryTopic, difficulty, tags, excerpt })))}` },
+        {
+          role: "system",
+          content:
+            "Bạn là trợ lý học tập. Hãy đọc danh sách tài liệu và giải thích tài liệu nào nên đọc, đọc để làm gì, có cần đọc ngay không. Viết ngắn gọn, thực tế, không thổi phồng. Chỉ trả về JSON array hợp lệ.",
+        },
+        {
+          role: "user",
+          content: `Đề tài: ${project.title}\nMô tả: ${project.description}\nĐộ khó mục tiêu: ${project.targetDifficulty ?? "không giới hạn"}\nHãy trả [{"documentId":"...","reason":"1-2 câu tiếng Việt, nói rõ nên đọc phần này để hiểu/gỡ vấn đề gì"}] cho dữ liệu:\n${JSON.stringify(ranked.map(({ documentId, title, primaryTopic, difficulty, tags, excerpt }) => ({ documentId, title, primaryTopic, difficulty, tags, excerpt })))}`,
+        },
       ]);
       reasons = parseReasons(response);
     } catch {

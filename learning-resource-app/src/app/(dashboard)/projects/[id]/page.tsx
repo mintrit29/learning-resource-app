@@ -1,16 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArrowUpRight, BookOpen, ListChecks, Target } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, BookOpen, Sparkles, Target } from "lucide-react";
 import { auth } from "@/auth";
 import { DeleteProjectButton } from "@/components/projects/delete-project-button";
 import { RecommendationRefresh } from "@/components/projects/recommendation-refresh";
 import { db } from "@/lib/db";
-
-const difficultyLabels: Record<string, string> = {
-  BEGINNER: "Cơ bản",
-  INTERMEDIATE: "Trung cấp",
-  ADVANCED: "Nâng cao",
-};
+import { formatDifficulty } from "@/lib/labels";
 
 export default async function ProjectDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
@@ -37,30 +32,8 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
   });
   if (!project) notFound();
 
-  const beginnerDocs = project.recommendations
-    .filter((item) => item.document.difficulty === "BEGINNER" || item.document.difficulty === "INTERMEDIATE")
-    .slice(0, 3);
-  const coreDocs = project.recommendations.slice(0, 4);
-  const advancedDocs = project.recommendations
-    .filter((item) => item.document.difficulty === "ADVANCED")
-    .slice(0, 3);
-  const outline = [
-    {
-      title: "1. Nắm tổng quan đề tài",
-      description: "Đọc mô tả project, keywords và các tài liệu dễ/trung cấp trước để có nền.",
-      items: beginnerDocs.length ? beginnerDocs : coreDocs.slice(0, 2),
-    },
-    {
-      title: "2. Đọc tài liệu trọng tâm",
-      description: "Ưu tiên các tài liệu có điểm phù hợp cao nhất với đề tài.",
-      items: coreDocs.slice(0, 3),
-    },
-    {
-      title: "3. Mở rộng hoặc đào sâu",
-      description: "Dùng tài liệu nâng cao để bổ sung phương pháp, thuật ngữ và hướng triển khai.",
-      items: advancedDocs.length ? advancedDocs : coreDocs.slice(2, 4),
-    },
-  ];
+  const priorityLabels = ["Nên đọc trước", "Đọc tiếp theo", "Có thể tham khảo", "Đọc khi cần đào sâu"];
+  const readingSuggestions = project.recommendations.slice(0, 4);
 
   return (
     <div className="page-wrap">
@@ -77,7 +50,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
             {project.targetDifficulty ? (
               <span>
                 <Target size={12} />
-                {difficultyLabels[project.targetDifficulty]}
+                {formatDifficulty(project.targetDifficulty)}
               </span>
             ) : null}
             {project.keywords.map((keyword) => (
@@ -95,26 +68,22 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
         <section className="project-outline">
           <div className="recommend-heading">
             <div>
-              <h2>Gợi ý outline đọc tài liệu</h2>
-              <p>Dùng như lộ trình ban đầu để đọc và triển khai project.</p>
+              <h2>AI đề xuất cách đọc</h2>
+              <p>AI đọc các tài liệu phù hợp nhất rồi gợi ý nên đọc cái nào trước và vì sao.</p>
             </div>
-            <ListChecks size={22} />
+            <Sparkles size={22} />
           </div>
-          <div className="outline-grid">
-            {outline.map((section) => (
-              <article key={section.title}>
-                <h3>{section.title}</h3>
-                <p>{section.description}</p>
-                <ul>
-                  {section.items.map((item) => (
-                    <li key={item.id}>
-                      <Link href={`/documents/${item.documentId}${item.bestChunkId ? `?chunk=${item.bestChunkId}#matched-chunk` : ""}`}>
-                        {item.document.title}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </article>
+          <div className="ai-reading-plan">
+            {readingSuggestions.map((item, index) => (
+              <Link href={`/documents/${item.documentId}${item.bestChunkId ? `?chunk=${item.bestChunkId}#matched-chunk` : ""}`} key={item.id}>
+                <span>{index + 1}</span>
+                <div>
+                  <small>{priorityLabels[index] ?? "Tham khảo thêm"}</small>
+                  <h3>{item.document.title}</h3>
+                  <p>{item.reason ?? item.document.summary ?? "Tài liệu này có mức phù hợp cao với đề tài."}</p>
+                </div>
+                <ArrowUpRight size={17} />
+              </Link>
             ))}
           </div>
         </section>
@@ -123,7 +92,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
       <div className="recommend-heading">
         <div>
           <h2>Tài liệu được gợi ý</h2>
-          <p>Xếp hạng từ semantic search, topic, độ khó và canonical tags.</p>
+          <p>Xếp hạng từ tìm kiếm ngữ nghĩa, chủ đề, độ khó và thẻ chuẩn hóa.</p>
         </div>
         <strong>{project.recommendations.length} kết quả</strong>
       </div>
@@ -140,7 +109,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
                 <p>{item.reason ?? item.document.summary}</p>
                 <div className="project-tags">
                   {item.document.primaryTopic ? <span>{item.document.primaryTopic}</span> : null}
-                  {item.document.difficulty ? <span>{difficultyLabels[item.document.difficulty]}</span> : null}
+                  {item.document.difficulty ? <span>{formatDifficulty(item.document.difficulty)}</span> : null}
                 </div>
               </div>
               <aside>

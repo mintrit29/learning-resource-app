@@ -651,7 +651,7 @@ Chức năng:
 - Nhập topic/description.
 - Chạy recommendation.
 - Hiện danh sách tài liệu gợi ý.
-- Hiện lý do AI đề xuất.
+- Hiện lý do AI đề xuất và thứ tự nên đọc.
 
 ### 6.7. AI Provider Settings
 
@@ -771,7 +771,7 @@ Deadline: 20/09. Mốc bắt đầu: 18/06. Tổng thời gian khoảng 13 tuầ
 - Tạo project embedding.
 - Tìm tài liệu liên quan bằng pgvector.
 - Kết hợp document chunks, primary topic và canonical tags khi xếp hạng.
-- Dùng LLM sinh lý do gợi ý.
+- Dùng LLM sinh lý do gợi ý và đề xuất tài liệu nên đọc trước.
 - Lưu Recommendation.
 - Nếu chat provider tạm lỗi, vẫn lưu lý do dự phòng dựa trên semantic score, difficulty và canonical tags.
 
@@ -974,7 +974,7 @@ Dự án nâng cấp được xem là hoàn thành khi:
 - Semantic search có nút AI lọc kết quả: dùng provider đang active để gợi ý kết quả nên đọc trước, đọc thêm hoặc có thể bỏ qua.
 - Trang quản lý tags đã có gộp tag thủ công: chuyển aliases/tài liệu sang tag giữ lại rồi xóa tag nguồn.
 - Kết quả hỏi/tìm tài liệu hiển thị citation rõ (`Nguồn: tài liệu · trang/slide/chương`) và CTA mở đúng matched chunk.
-- Trang chi tiết project đã có outline đọc tài liệu theo 3 bước dựa trên recommendations: tổng quan, trọng tâm, đào sâu.
+- Trang chi tiết project đã đổi sang khối “AI đề xuất cách đọc”, dùng lý do AI của recommendation để gợi ý thứ tự đọc thay vì outline rule-based cứng.
 - Test/release đã có `TEST_CASES.md`, script `npm run demo:seed` và GitHub Actions CI chạy lint, unit tests, build, Docker build web.
 - Upload kiểm tra thêm chữ ký file, không chỉ dựa vào phần mở rộng.
 - Unit test được gom vào `npm run test:unit`; integration smoke tests được gom vào `npm run test:integration`.
