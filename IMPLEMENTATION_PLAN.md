@@ -932,7 +932,7 @@ Không đưa vào roadmap hiện tại:
 5. Cho phép chạy lại đúng phần lỗi/còn thiếu: extraction, AI analysis, embedding hoặc search metadata.
 6. Cải thiện AI Provider settings: test kết nối/model và thông báo lỗi dễ hiểu.
 7. Tối ưu embedding CPU/GPU, batch size và ước tính thời gian xử lý.
-8. Cải thiện semantic search: filter theo tài liệu, chủ đề, ngày và loại file.
+8. Cải thiện semantic search: ưu tiên hỏi tự nhiên, AI chọn giúp top kết quả và không hiện bộ lọc nâng cao ở UI chính.
 9. Cải thiện hỏi đáp với tài liệu: trích dẫn nguồn rõ và mở đúng trang/chunk.
 10. Cải thiện project/recommendation: gom tài liệu, đề xuất outline và tài liệu liên quan.
 11. Chuẩn hóa test/release: test case demo, seed demo và CI build Docker.
@@ -962,7 +962,7 @@ Dự án nâng cấp được xem là hoàn thành khi:
 - Trang tài liệu đã có filter theo từ khóa, topic, difficulty, file type và status.
 - Trang chi tiết tài liệu đã có khu `File gốc`: PDF xem trực tiếp trong app; DOCX/PPTX/EPUB dùng nút tải rõ ràng vì trình duyệt thường không preview inline.
 - PDF scan/ảnh có thể fallback sang OCR bằng Poppler + Tesseract trong Docker web container.
-- Semantic search đã nhận thêm filter topic, difficulty và file type.
+- Semantic search API vẫn hỗ trợ filter nội bộ khi cần, nhưng UI Hỏi tài liệu đã bỏ bộ lọc nâng cao để người dùng phổ thông dễ dùng hơn.
 - Trang chi tiết tài liệu có hai luồng riêng:
   - `Xử lý phần còn thiếu`: chỉ chạy lại extraction/chunking/embedding/AI nếu bước đó thiếu hoặc lỗi.
   - `Phân tích AI lại`: giữ nguyên text/chunk/embedding và chỉ chạy lại AI analysis.
@@ -970,8 +970,7 @@ Dự án nâng cấp được xem là hoàn thành khi:
 - AI Provider test/model loading đã parse lỗi HTTP/provider thành thông báo dễ hiểu hơn: API key, quyền model/quota, sai endpoint/model, rate limit hoặc lỗi server.
 - Trang chi tiết tài liệu hiển thị ước tính thời gian embedding theo CPU/GPU và batch size hiện tại.
 - Danh sách primary topic trong code đã đồng bộ với PRD; AI analysis hiện trả về và lưu `language` của tài liệu.
-- Semantic search đã có filter theo tài liệu, chủ đề, độ khó, loại file và khoảng ngày upload.
-- Semantic search đã lưu `SearchLog` gồm query, filters và danh sách document trả về để hỗ trợ evaluation/báo cáo.
+- Semantic search đã lưu `SearchLog` gồm query, filter nội bộ nếu có và danh sách document trả về để hỗ trợ evaluation/báo cáo.
 - Semantic search có nút AI lọc kết quả: dùng provider đang active để gợi ý kết quả nên đọc trước, đọc thêm hoặc có thể bỏ qua.
 - Trang quản lý tags đã có gộp tag thủ công: chuyển aliases/tài liệu sang tag giữ lại rồi xóa tag nguồn.
 - Kết quả hỏi/tìm tài liệu hiển thị citation rõ (`Nguồn: tài liệu · trang/slide/chương`) và CTA mở đúng matched chunk.
@@ -1014,7 +1013,8 @@ Phạm vi triển khai trước:
 - Đổi label sidebar: `Tải lên` thành `Thêm tài liệu`, `Tìm kiếm` thành `Hỏi tài liệu`, `Projects` thành `Đề tài`.
 - Dashboard thêm khối checklist 3 bước và CTA theo trạng thái hiện tại.
 - Trang upload đổi wording thành “Thêm tài liệu”, giải thích sau khi tải app sẽ tự đọc nội dung và phân tích.
-- Trang search đổi wording thành “Hỏi tài liệu”, thêm ví dụ mẫu, đưa filter thành tùy chọn nâng cao.
+- Trang search đổi wording thành “Hỏi tài liệu”, thêm ví dụ mẫu, bỏ bộ lọc nâng cao khỏi UI để người dùng chỉ tập trung vào câu hỏi tự nhiên và nút “AI chọn giúp”.
+- Chuẩn hóa nhãn độ khó trên UI sang tiếng Việt: `Cơ bản`, `Trung cấp`, `Nâng cao`; chỉ giữ `BEGINNER/INTERMEDIATE/ADVANCED` ở schema, API và prompt kỹ thuật.
 - Trang projects đổi thành “Đề tài”, giải thích đây là nơi gom tài liệu theo mục tiêu học/nghiên cứu.
 - Trang settings/provider đổi wording thành “Kết nối AI”, giải thích OpenRouter/Ollama/Custom theo ngôn ngữ dễ hiểu.
 - Sửa các chuỗi tiếng Việt bị lỗi mã hóa ở các màn hình chính được chỉnh sửa.

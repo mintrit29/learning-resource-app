@@ -148,7 +148,7 @@
 ## Tuần 12: Hoàn Thiện Sản Phẩm
 
 - [x] Hoàn thiện dashboard và biểu đồ thống kê
-- [x] Thêm filter theo topic, difficulty, file type và status
+- [x] Thêm filter quản lý ở trang Tài liệu theo topic, độ khó, loại file và status
 - [x] Hoàn thiện loading và progress states
 - [x] Hoàn thiện thông báo lỗi
 - [x] Thêm nút thử lại cho extraction, chunking và embedding bị lỗi
@@ -208,9 +208,10 @@
 - [x] Nút chạy lại phần lỗi/còn thiếu trong pipeline
 - [x] Cải thiện test kết nối/model và thông báo lỗi AI provider
 - [x] Tối ưu embedding CPU/GPU, batch size và ước tính thời gian
-- [x] Cải thiện filter semantic search theo tài liệu, chủ đề, ngày và loại file
+- [x] Bỏ bộ lọc nâng cao khỏi trang Hỏi tài liệu để UX đơn giản hơn
 - [x] Lưu lịch sử truy vấn semantic search phục vụ evaluation/báo cáo
 - [x] Thêm AI lọc kết quả semantic search theo mức nên đọc trước/đọc thêm/có thể bỏ qua
+- [x] Chuẩn hóa nhãn độ khó trên UI sang Cơ bản/Trung cấp/Nâng cao
 - [x] Cải thiện hỏi đáp với tài liệu, trích dẫn nguồn và mở đúng trang/chunk
 - [x] Cải thiện project/recommendation: outline và tài liệu liên quan
 - [x] Chuẩn hóa test/release: test case demo, seed demo và CI build Docker

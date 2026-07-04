@@ -271,7 +271,7 @@ Hệ thống sẽ:
 
 - Tạo embedding cho query.
 - Tìm các document chunks gần nghĩa nhất bằng pgvector.
-- Kết hợp với metadata filters nếu có.
+- Trang Hỏi tài liệu mặc định không hiển thị bộ lọc nâng cao; người dùng chỉ cần nhập câu hỏi tự nhiên, hệ thống tự tìm các đoạn phù hợp nhất.
 - Trả về danh sách tài liệu phù hợp, có score và đoạn nội dung liên quan.
 - Mỗi kết quả phải hiển thị vị trí của chunk trong tài liệu, ví dụ `Trang 18`, `Slide 7` hoặc `Chương 3: Neural Networks`.
 - Khi người dùng mở kết quả, trang chi tiết phải hiển thị và làm nổi bật đúng chunk đã khớp.
@@ -436,7 +436,8 @@ Yêu cầu UX bổ sung:
 - Dashboard phải dẫn người dùng theo 3 bước rõ ràng: kết nối AI, thêm tài liệu, hỏi/tìm trong tài liệu.
 - Menu dùng ngôn ngữ đời thường: `Thêm tài liệu`, `Hỏi tài liệu`, `Đề tài`, `Kết nối AI`; tránh đặt các thuật ngữ kỹ thuật ở UI chính.
 - Các trạng thái rỗng phải giải thích bước tiếp theo và có nút hành động chính.
-- Trang tìm kiếm ưu tiên ô hỏi tự nhiên và ví dụ mẫu; bộ lọc nâng cao đặt sau.
+- Trang Hỏi tài liệu ưu tiên ô hỏi tự nhiên, ví dụ mẫu và nút `AI chọn giúp`; không hiển thị bộ lọc nâng cao để tránh rối cho người dùng phổ thông.
+- Các nhãn độ khó trên UI dùng tiếng Việt thống nhất: `Cơ bản`, `Trung cấp`, `Nâng cao`; enum kỹ thuật như `BEGINNER`, `INTERMEDIATE`, `ADVANCED` chỉ nằm trong code/API.
 - Trang provider cần giải thích rõ từng loại provider, có nút tải model, test kết nối và đặt mặc định.
 - Trang tài liệu phải là trung tâm quản lý: thêm tài liệu, xem trạng thái, mở chi tiết, chạy lại phân tích khi cần.
 - Các thuật ngữ như semantic retrieval, document intake, canonical tags, pipeline, embedding chỉ dùng ở phần chi tiết/kỹ thuật, không đặt nổi bật trước người dùng mới.

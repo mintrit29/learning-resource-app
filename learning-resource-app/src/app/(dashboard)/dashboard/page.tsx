@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
+import { formatDifficulty } from "@/lib/labels";
 
 const statusLabels: Record<string, string> = {
   UPLOADED: "Đã tải lên",
@@ -121,7 +122,7 @@ export default async function DashboardPage() {
         href: "/settings/ai-providers",
         label: activeProvider ? "Kiểm tra kết nối AI" : "Kết nối AI",
         helper: activeProvider
-          ? "Provider mặc định chưa kết nối ổn. Hãy test lại hoặc sửa cấu hình."
+          ? "Kết nối AI mặc định chưa ổn. Hãy kiểm tra lại hoặc sửa cấu hình."
           : "Cần provider để app tóm tắt, phân loại và gợi ý tài liệu.",
         icon: ServerCog,
       }
@@ -332,7 +333,7 @@ export default async function DashboardPage() {
             {difficultyRows.length ? (
               difficultyRows.map((row) => (
                 <div className="bar-row" key={row.difficulty ?? "unknown"}>
-                  <span>{row.difficulty ?? "Chưa rõ"}</span>
+                  <span>{formatDifficulty(row.difficulty)}</span>
                   <div>
                     <i style={{ width: `${Math.max(8, (row._count._all / maxDifficultyCount) * 100)}%` }} />
                   </div>

@@ -8,6 +8,7 @@ import { ProcessingRefresh } from "@/components/documents/processing-refresh";
 import { ReanalyzeButton } from "@/components/documents/reanalyze-button";
 import { RetryJobButton } from "@/components/documents/retry-job-button";
 import { db } from "@/lib/db";
+import { formatDifficulty } from "@/lib/labels";
 
 const statusLabels: Record<string, string> = {
   UPLOADED: "Đã tải lên",
@@ -20,7 +21,7 @@ const statusLabels: Record<string, string> = {
 
 const jobLabels: Record<string, string> = {
   EXTRACT_TEXT: "Trích xuất nội dung",
-  CHUNK_DOCUMENT: "Chia nội dung thành chunks",
+  CHUNK_DOCUMENT: "Chia nội dung thành đoạn",
   EMBED_DOCUMENT: "Tạo vector embedding",
   ANALYZE_DOCUMENT: "Phân tích bằng AI",
 };
@@ -116,7 +117,7 @@ export default async function DocumentDetailPage({
       <Link className="back-link" href="/documents"><ArrowLeft size={17} />Quay lại thư viện</Link>
       <header className="document-detail-header">
         <div className="document-file-icon"><FileText size={26} /></div>
-        <div><p className="eyebrow">{document.fileType} document</p><h1>{document.title}</h1><p>{document.originalFileName}</p></div>
+        <div><p className="eyebrow">Tài liệu {document.fileType}</p><h1>{document.title}</h1><p>{document.originalFileName}</p></div>
         <div className="document-header-actions">
           {!isProcessing && needsProcessing ? <RetryJobButton documentId={document.id} /> : null}
           {!isProcessing && document.textContent ? <ReanalyzeButton documentId={document.id} /> : null}
@@ -141,17 +142,17 @@ export default async function DocumentDetailPage({
         <div><span>Kích thước</span><strong>{formatBytes(document.fileSize)}</strong></div>
         <div><span>Ký tự đã trích xuất</span><strong>{document.textContent?.length.toLocaleString("vi-VN") ?? 0}</strong></div>
         <div><span>Chủ đề</span><strong>{document.primaryTopic ?? "Chưa phân tích"}</strong></div>
-        <div><span>Độ khó</span><strong>{document.difficulty ?? "Chưa phân tích"}</strong></div>
+        <div><span>Độ khó</span><strong>{document.difficulty ? formatDifficulty(document.difficulty) : "Chưa phân tích"}</strong></div>
         <div><span>Ngôn ngữ</span><strong>{document.language ?? "Chưa nhận diện"}</strong></div>
       </section>
 
       <section className="processing-section">
         <div className="processing-heading">
-          <div><h2>Tiến trình xử lý</h2><p>{document._count.chunks.toLocaleString("vi-VN")} chunks đã được tạo.</p></div>
+          <div><h2>Tiến trình xử lý</h2><p>{document._count.chunks.toLocaleString("vi-VN")} đoạn đã được tạo.</p></div>
           <div className="processing-side">
             {embeddingEstimate ? (
               <span className="processing-estimate">
-                Embedding {embeddingDevice === "cuda" ? "GPU" : "CPU"} · batch {embeddingBatchSize} · {formatDuration(embeddingEstimate)}
+                Tạo vector {embeddingDevice === "cuda" ? "GPU" : "CPU"} · lô {embeddingBatchSize} · {formatDuration(embeddingEstimate)}
               </span>
             ) : null}
             {isProcessing ? <span className="processing-live"><i />Đang chạy</span> : null}

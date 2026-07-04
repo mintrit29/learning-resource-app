@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { FormEvent, useState } from "react";
-import { ArrowUpRight, FileSearch, LoaderCircle, Search, SlidersHorizontal, Sparkles } from "lucide-react";
+import { ArrowUpRight, FileSearch, LoaderCircle, Search, Sparkles } from "lucide-react";
+import { formatDifficulty } from "@/lib/labels";
 
 type SearchResult = {
   chunkId: string;
@@ -15,12 +16,6 @@ type SearchResult = {
   pageNumber: number | null;
   sourceLabel: string | null;
   score: number;
-};
-
-type SearchDocument = {
-  id: string;
-  title: string;
-  fileType: string;
 };
 
 type CuratedSearchItem = {
@@ -40,22 +35,15 @@ const examples = [
   "Có tài liệu nào liên quan đến machine learning không?",
 ];
 
-export function SemanticSearch({ documents }: { documents: SearchDocument[] }) {
+export function SemanticSearch() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [searchedQuery, setSearchedQuery] = useState("");
-  const [topic, setTopic] = useState("");
-  const [difficulty, setDifficulty] = useState("");
-  const [fileType, setFileType] = useState("");
-  const [documentId, setDocumentId] = useState("");
-  const [dateFrom, setDateFrom] = useState("");
-  const [dateTo, setDateTo] = useState("");
   const [error, setError] = useState("");
   const [curationError, setCurationError] = useState("");
   const [curatedSearch, setCuratedSearch] = useState<CuratedSearch | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [isCurating, setIsCurating] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -73,12 +61,6 @@ export function SemanticSearch({ documents }: { documents: SearchDocument[] }) {
         body: JSON.stringify({
           query: normalizedQuery,
           limit: 10,
-          topic: topic.trim() || undefined,
-          difficulty: difficulty || undefined,
-          fileType: fileType || undefined,
-          documentId: documentId || undefined,
-          dateFrom: dateFrom || undefined,
-          dateTo: dateTo || undefined,
         }),
       });
       const data = (await response.json()) as {
@@ -177,58 +159,6 @@ export function SemanticSearch({ documents }: { documents: SearchDocument[] }) {
         </div>
       )}
 
-      <button className="advanced-toggle" onClick={() => setShowFilters((value) => !value)} type="button">
-        <SlidersHorizontal size={16} />
-        {showFilters ? "Ẩn bộ lọc nâng cao" : "Hiện bộ lọc nâng cao"}
-      </button>
-
-      {showFilters ? (
-        <div className="search-filters">
-          <label>
-            <span>Tài liệu</span>
-            <select onChange={(event) => setDocumentId(event.target.value)} value={documentId}>
-              <option value="">Tất cả tài liệu</option>
-              {documents.map((document) => (
-                <option key={document.id} value={document.id}>
-                  {document.title} ({document.fileType})
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            <span>Chủ đề</span>
-            <input onChange={(event) => setTopic(event.target.value)} placeholder="VD: Database, AI..." value={topic} />
-          </label>
-          <label>
-            <span>Độ khó</span>
-            <select onChange={(event) => setDifficulty(event.target.value)} value={difficulty}>
-              <option value="">Tất cả</option>
-              <option value="BEGINNER">Cơ bản</option>
-              <option value="INTERMEDIATE">Trung cấp</option>
-              <option value="ADVANCED">Nâng cao</option>
-            </select>
-          </label>
-          <label>
-            <span>Loại file</span>
-            <select onChange={(event) => setFileType(event.target.value)} value={fileType}>
-              <option value="">Tất cả</option>
-              <option value="PDF">PDF</option>
-              <option value="PPTX">PPTX</option>
-              <option value="DOCX">DOCX</option>
-              <option value="EPUB">EPUB</option>
-            </select>
-          </label>
-          <label>
-            <span>Từ ngày</span>
-            <input onChange={(event) => setDateFrom(event.target.value)} type="date" value={dateFrom} />
-          </label>
-          <label>
-            <span>Đến ngày</span>
-            <input onChange={(event) => setDateTo(event.target.value)} type="date" value={dateTo} />
-          </label>
-        </div>
-      ) : null}
-
       {error ? (
         <div className="search-error">
           <strong>Chưa tìm được</strong>
@@ -323,7 +253,7 @@ export function SemanticSearch({ documents }: { documents: SearchDocument[] }) {
                 <div className="result-tags">
                   {result.sourceLabel ? <span className="source-tag">{result.sourceLabel}</span> : null}
                   {result.primaryTopic ? <span>{result.primaryTopic}</span> : null}
-                  {result.difficulty ? <span>{result.difficulty}</span> : null}
+                  {result.difficulty ? <span>{formatDifficulty(result.difficulty)}</span> : null}
                 </div>
                 <small className="result-citation">
                   Nguồn: {result.title}
