@@ -3,9 +3,13 @@
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { FileText, LoaderCircle, UploadCloud, X } from "lucide-react";
-
-const MAX_FILE_SIZE = 25 * 1024 * 1024;
-const ACCEPTED_EXTENSIONS = ["pdf", "pptx", "docx", "epub"];
+import {
+  MAX_UPLOAD_FILE_SIZE_BYTES,
+  MAX_UPLOAD_FILE_SIZE_MB,
+  SUPPORTED_UPLOAD_ACCEPT,
+  SUPPORTED_UPLOAD_EXTENSIONS,
+  SUPPORTED_UPLOAD_LABEL,
+} from "@/lib/documents/upload-policy";
 
 function formatFileSize(bytes: number) {
   return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
@@ -23,12 +27,12 @@ export function UploadForm() {
     setError("");
     if (!candidate) return;
     const extension = candidate.name.split(".").pop()?.toLowerCase() ?? "";
-    if (!ACCEPTED_EXTENSIONS.includes(extension)) {
-      setError("Chỉ hỗ trợ PDF, PPTX, DOCX và EPUB.");
+    if (!SUPPORTED_UPLOAD_EXTENSIONS.includes(extension as (typeof SUPPORTED_UPLOAD_EXTENSIONS)[number])) {
+      setError(`Chỉ hỗ trợ ${SUPPORTED_UPLOAD_LABEL}.`);
       return;
     }
-    if (candidate.size === 0 || candidate.size > MAX_FILE_SIZE) {
-      setError("File phải có dung lượng từ 1 byte đến 25 MB.");
+    if (candidate.size === 0 || candidate.size > MAX_UPLOAD_FILE_SIZE_BYTES) {
+      setError(`File phải có dung lượng từ 1 byte đến ${MAX_UPLOAD_FILE_SIZE_MB} MB.`);
       return;
     }
     setFile(candidate);
@@ -84,7 +88,7 @@ export function UploadForm() {
       >
         <input
           ref={inputRef}
-          accept=".pdf,.pptx,.docx,.epub"
+          accept={SUPPORTED_UPLOAD_ACCEPT}
           className="visually-hidden"
           onChange={(event) => chooseFile(event.target.files?.[0])}
           type="file"
@@ -93,12 +97,12 @@ export function UploadForm() {
           <>
             <UploadCloud size={34} />
             <h2>Kéo thả file vào đây</h2>
-            <p>Hoặc chọn file từ máy tính. Mỗi file tối đa 25 MB.</p>
+            <p>Hoặc chọn file từ máy tính. Mỗi file tối đa {MAX_UPLOAD_FILE_SIZE_MB} MB.</p>
             <button className="primary-button compact" onClick={() => inputRef.current?.click()} type="button">
               <FileText size={18} />
               Chọn tài liệu
             </button>
-            <small>Hỗ trợ: PDF, PPTX, DOCX, EPUB</small>
+            <small>Hỗ trợ: {SUPPORTED_UPLOAD_LABEL}</small>
           </>
         ) : (
           <div className="selected-file">

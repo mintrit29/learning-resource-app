@@ -140,16 +140,18 @@ Người dùng có thể upload:
 - DOCX.
 - EPUB.
 
+Giới hạn upload MVP: tối đa 25 MB cho mỗi file. Giới hạn này giúp tránh trường hợp OCR/embedding chạy quá lâu trên môi trường Docker/local. File lớn hơn nên được chia nhỏ hoặc tối ưu trước khi upload; sau MVP có thể cân nhắc tăng lên 50 MB nếu background jobs ổn định hơn.
+
 Sau khi upload, hệ thống lưu file, tạo record document và bắt đầu pipeline xử lý.
 
 ### 6.4. Extract text
 
 Hệ thống trích xuất text từ tài liệu:
 
-- PDF: dùng thư viện PDF parser.
-- PPTX: đọc text từ slides.
-- DOCX: đọc paragraphs/tables cơ bản.
-- EPUB: đọc HTML/text từ ebook.
+- PDF: dùng `unpdf` để đọc text layer; nếu trang gần như không có text thì fallback OCR bằng Poppler + Tesseract.
+- PPTX: đọc text từ slide XML bằng `jszip` + `cheerio`.
+- DOCX: dùng `mammoth` để đọc nội dung Word.
+- EPUB: đọc cấu trúc EPUB/XHTML bằng `jszip` + `cheerio`.
 
 Ngoài toàn bộ text, extractor cần trả về các section có vị trí:
 
@@ -160,7 +162,7 @@ Ngoài toàn bộ text, extractor cần trả về các section có vị trí:
 
 Nếu file không trích xuất được text, hệ thống hiển thị trạng thái lỗi và thông báo rõ lý do.
 
-Với PDF scan/ảnh không có text layer, hệ thống có OCR bằng Poppler + Tesseract trong Docker web container. Text layer vẫn được ưu tiên; OCR chỉ chạy khi PDF gần như không có text.
+Với PDF scan/ảnh không có text layer, hệ thống có OCR bằng Poppler + Tesseract trong Docker web container. Text layer vẫn được ưu tiên; OCR chỉ chạy cho toàn bộ file hoặc từng trang có text quá ít. Parser hiện tại được chốt cho MVP; chỉ đổi thư viện nếu test thực tế cho thấy một định dạng bị miss nội dung nhiều.
 
 ### 6.5. AI analysis
 

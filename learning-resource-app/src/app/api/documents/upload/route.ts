@@ -6,11 +6,15 @@ import { auth } from "@/auth";
 import { DocumentStatus, FileType, JobType } from "@/generated/prisma/enums";
 import { db } from "@/lib/db";
 import type { SupportedExtension } from "@/lib/documents/extract-text";
+import {
+  MAX_UPLOAD_FILE_SIZE_BYTES,
+  MAX_UPLOAD_FILE_SIZE_MB,
+  SUPPORTED_UPLOAD_LABEL,
+} from "@/lib/documents/upload-policy";
 import { processDocumentPipeline } from "@/lib/documents/process-document";
 
 export const runtime = "nodejs";
 
-const MAX_FILE_SIZE = 25 * 1024 * 1024;
 const FILE_TYPES: Record<SupportedExtension, FileType> = {
   pdf: FileType.PDF,
   pptx: FileType.PPTX,
@@ -43,14 +47,14 @@ export async function POST(request: Request) {
   const extension = getExtension(file.name);
   if (!extension) {
     return NextResponse.json(
-      { message: "Chỉ hỗ trợ PDF, PPTX, DOCX và EPUB" },
+      { message: `Chỉ hỗ trợ ${SUPPORTED_UPLOAD_LABEL}` },
       { status: 415 },
     );
   }
 
-  if (file.size === 0 || file.size > MAX_FILE_SIZE) {
+  if (file.size === 0 || file.size > MAX_UPLOAD_FILE_SIZE_BYTES) {
     return NextResponse.json(
-      { message: "File phải có dung lượng từ 1 byte đến 25 MB" },
+      { message: `File phải có dung lượng từ 1 byte đến ${MAX_UPLOAD_FILE_SIZE_MB} MB` },
       { status: 413 },
     );
   }

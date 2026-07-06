@@ -187,6 +187,8 @@
 - [x] Embedding mặc định: BAAI/bge-m3 local
 - [x] Vector dimension: 1024
 - [x] Chunk size: 300-500 tokens, overlap 10-15%
+- [x] Parser MVP: PDF dùng `unpdf` + OCR Poppler/Tesseract khi cần; DOCX dùng `mammoth`; PPTX/EPUB đọc bằng `jszip` + `cheerio`
+- [x] Giới hạn upload MVP: tối đa 25 MB/file
 - [x] Vector RAG thuộc phạm vi MVP
 - [x] Knowledge Graph và GraphRAG thuộc future work
 - [x] Không dùng embedding model fallback; BGE-M3 chạy GPU hoặc CPU
@@ -211,11 +213,9 @@
 - [x] Gỡ project/recommendation khỏi UI chính để giảm rối
 - [x] Chuẩn hóa test/release: test case demo, seed demo và CI build Docker
 
-## Vấn Đề Cần Theo Dõi
+## Vấn Đề Cần Theo Dõi Sau MVP
 
-- [ ] Chọn thư viện trích xuất tốt nhất cho từng định dạng
 - [ ] Benchmark BGE-M3 thực tế trên máy phát triển
-- [ ] Chốt giới hạn kích thước file upload
 - [ ] Chốt cách chạy background jobs khi triển khai production
 - [ ] Chốt nơi lưu file khi deploy
 

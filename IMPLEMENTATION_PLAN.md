@@ -281,6 +281,8 @@ User upload file
 - `.docx`
 - `.epub`
 
+Giới hạn upload MVP: tối đa 25 MB/file. Mức này được chọn để OCR và embedding không chạy quá lâu trên Docker/local. Nếu sau này có queue/worker production ổn định hơn, có thể tăng lên 50 MB.
+
 ### 4.2. Extract text
 
 Flow:
@@ -293,12 +295,12 @@ Document status EXTRACTING
 -> Document status EXTRACTED
 ```
 
-Thư viện đề xuất:
+Thư viện/parser chốt cho MVP:
 
-- PDF: `pdf-parse` hoặc gọi Python extractor riêng nếu parser Node không ổn.
-- PPTX: `pptx-parser` hoặc mammoth/unzip XML parser tùy khả dụng.
+- PDF: `unpdf` để đọc text layer; fallback OCR từng trang/toàn file bằng Poppler + Tesseract khi text layer thiếu.
+- PPTX: `jszip` + `cheerio` để đọc text trong slide XML.
 - DOCX: `mammoth`.
-- EPUB: `epub2` hoặc unzip + parse XHTML.
+- EPUB: `jszip` + `cheerio` để đọc XHTML/text trong EPUB.
 
 Extractor trả về `sections[]` thay vì chỉ một chuỗi text:
 
@@ -315,7 +317,7 @@ Mapping vị trí:
 - EPUB: mỗi spine item/chapter là một section; ưu tiên heading đầu tiên làm `sourceLabel`.
 - DOCX: nhóm paragraphs theo heading gần nhất; lưu heading vào `sourceLabel`.
 
-Nếu Node extractor không ổn định, có thể tạo Python micro-script cho extraction và gọi từ Next.js bằng child process. Đây là phương án dự phòng, không phải kiến trúc chính.
+Parser hiện tại được giữ cho MVP vì đã đủ cho PDF/PPTX/DOCX/EPUB và có OCR fallback cho PDF scan/ảnh. Chỉ đổi thư viện nếu test tài liệu thật cho thấy một định dạng bị miss nội dung đáng kể.
 
 ### 4.3. Chunking
 
