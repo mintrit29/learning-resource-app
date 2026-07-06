@@ -27,6 +27,14 @@ Nếu muốn tự gõ lệnh:
 docker compose up --build -d web
 ```
 
+Nếu dùng Podman/Arch Linux thay cho Docker Desktop, nên chạy toàn bộ service:
+
+```powershell
+docker compose up --build -d
+```
+
+Không nên chỉ chạy riêng `web` trên Podman, vì Podman Compose có thể không tự tạo đủ service phụ thuộc như `postgres` và `embedding`.
+
 Chạy bằng GPU:
 
 ```powershell
