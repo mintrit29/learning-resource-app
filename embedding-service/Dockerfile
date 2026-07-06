@@ -4,8 +4,10 @@ WORKDIR /app
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV HF_HOME=/app/models-cache
+ARG TORCH_INDEX_URL=https://download.pytorch.org/whl/cpu
 
 COPY requirements.txt .
+RUN pip install --no-cache-dir --index-url "${TORCH_INDEX_URL}" torch
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app ./app

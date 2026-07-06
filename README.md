@@ -64,6 +64,7 @@ Nếu tài liệu bị lỗi hoặc thiếu bước xử lý, mở chi tiết t�
 - Embedding dùng BGE-M3 local.
 - CPU là chế độ mặc định.
 - GPU chỉ dùng khi chạy bằng `start-gpu.bat` hoặc lệnh GPU ở trên.
+- Image CPU nhẹ hơn; image GPU sẽ nặng hơn vì cần thêm thư viện CUDA.
 - App có OCR cho PDF scan/tài liệu không copy được chữ.
 - Dữ liệu được lưu trong Docker volumes gồm database, uploads và cache model.
 
