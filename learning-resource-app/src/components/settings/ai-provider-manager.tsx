@@ -40,7 +40,7 @@ const choices = {
   OLLAMA: {
     label: "Ollama",
     description: "Dùng model Ollama đang chạy trên máy của bạn.",
-    hint: "Nếu chạy bằng Docker, app sẽ tự thử localhost và host.docker.internal.",
+    hint: "Docker Desktop trên Windows thường dùng host.docker.internal. Nếu dùng Podman/WSL/Linux, nên chạy Ollama trong cùng môi trường Linux/WSL.",
     icon: Cpu,
     baseUrl: "http://localhost:11434",
     model: "qwen3:latest",

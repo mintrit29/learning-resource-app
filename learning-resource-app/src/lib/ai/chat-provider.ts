@@ -61,6 +61,15 @@ function ollamaBaseUrlCandidates(baseUrl: string) {
   return [...new Set(candidates)];
 }
 
+function formatOllamaConnectionError(errors: string[]) {
+  const detail = errors.join("; ");
+  return [
+    `Không kết nối được Ollama (${detail})`,
+    "Nếu app chạy bằng Docker Desktop trên Windows, hãy thử Base URL http://host.docker.internal:11434 và mở Ollama bằng PowerShell với OLLAMA_HOST=0.0.0.0:11434.",
+    "Nếu app chạy bằng Podman/Docker trong Linux hoặc WSL, cách ổn định nhất là chạy Ollama trong cùng Linux/WSL. Nếu Ollama vẫn chạy bên Windows thì cần dùng IP gateway từ `ip route | grep default` và mở firewall port 11434.",
+  ].join(" ");
+}
+
 async function requestOllama(baseUrl: string, path: string, init: RequestInit) {
   const errors: string[] = [];
   for (const candidate of ollamaBaseUrlCandidates(baseUrl)) {
@@ -70,7 +79,7 @@ async function requestOllama(baseUrl: string, path: string, init: RequestInit) {
       errors.push(`${candidate}: ${error instanceof Error ? error.message : "request failed"}`);
     }
   }
-  throw new Error(`Không kết nối được Ollama (${errors.join("; ")})`);
+  throw new Error(formatOllamaConnectionError(errors));
 }
 
 async function fetchOllama(baseUrl: string, path: string, init: RequestInit) {
@@ -82,7 +91,7 @@ async function fetchOllama(baseUrl: string, path: string, init: RequestInit) {
       errors.push(`${candidate}: ${error instanceof Error ? error.message : "request failed"}`);
     }
   }
-  throw new Error(`Không kết nối được Ollama (${errors.join("; ")})`);
+  throw new Error(formatOllamaConnectionError(errors));
 }
 
 export async function listProviderModels(config: ProviderConfig) {

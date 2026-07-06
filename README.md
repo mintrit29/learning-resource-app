@@ -49,9 +49,22 @@ docker compose down
 
 Lần đầu chạy có thể lâu vì app cần tải model embedding `BAAI/bge-m3`.
 
-## Dùng Ollama với Docker trên Linux/WSL
+## Dùng Ollama với Docker
 
-Nếu app chạy bằng Docker/Podman trong Linux hoặc WSL, nên chạy Ollama trong cùng môi trường Linux/WSL đó:
+Nếu app chạy bằng Docker Desktop trên Windows và Ollama cũng chạy trên Windows, mở Ollama bằng PowerShell:
+
+```powershell
+$env:OLLAMA_HOST="0.0.0.0:11434"
+ollama serve
+```
+
+Trong app chọn `Ollama` và dùng Base URL:
+
+```text
+http://host.docker.internal:11434
+```
+
+Nếu app chạy bằng Docker/Podman trong Linux hoặc WSL, cách ổn định nhất là chạy Ollama trong cùng môi trường Linux/WSL đó:
 
 ```bash
 OLLAMA_HOST=0.0.0.0:11434 ollama serve
@@ -69,7 +82,29 @@ Nếu thấy `Ollama is running`, vào app chọn `Ollama` và để Base URL:
 http://localhost:11434
 ```
 
-App sẽ tự thử `localhost` và `host.docker.internal`. Nếu Docker chạy trong Linux/WSL nhưng Ollama chạy bên Windows, cách kết nối sẽ rắc rối hơn vì phải dùng IP Windows và mở firewall; người mới nên chạy Ollama cùng Linux/WSL cho dễ.
+Nếu bắt buộc chạy Ollama bên Windows nhưng app/container chạy trong WSL/Podman, đây là setup nâng cao vì `localhost` của container không phải Windows. Trong WSL lấy IP gateway:
+
+```bash
+ip route | grep default
+```
+
+Lấy IP sau chữ `via`, ví dụ `172.x.x.1`, rồi thử:
+
+```bash
+curl http://172.x.x.1:11434
+```
+
+Nếu Windows chặn kết nối, mở PowerShell bằng quyền admin và cho phép port Ollama:
+
+```powershell
+New-NetFirewallRule -DisplayName "Ollama 11434 for WSL" -Direction Inbound -Action Allow -Protocol TCP -LocalPort 11434
+```
+
+Khi `curl` từ WSL trả về `Ollama is running`, nhập Base URL trong app theo IP đó, ví dụ:
+
+```text
+http://172.x.x.1:11434
+```
 
 ## Cách dùng
 
