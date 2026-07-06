@@ -20,7 +20,7 @@ export default async function AiProvidersPage() {
           <h1>Chọn model để phân tích tài liệu</h1>
           <p>
             Kết nối mặc định sẽ được dùng khi app tóm tắt, phân loại độ khó, tạo từ khóa
-            và gợi ý tài liệu theo đề tài.
+            và AI chọn giúp kết quả tìm kiếm.
           </p>
         </div>
       </header>

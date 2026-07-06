@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
+import { getDocumentDisplayStatus } from "@/lib/documents/display-status";
 import { formatDifficulty } from "@/lib/labels";
 
 const statusLabels: Record<string, string> = {
@@ -21,11 +22,6 @@ const statusLabels: Record<string, string> = {
   READY: "Sẵn sàng",
   FAILED: "Bị lỗi",
 };
-
-function getRecentDocumentHint(status: string, originalFileName: string) {
-  if (status === "READY" || status === "EXTRACTED") return originalFileName;
-  return statusLabels[status] ?? status;
-}
 
 function getProviderStatus(provider: { displayName: string; type: string; authStatus: string } | null) {
   if (!provider) {
@@ -68,7 +64,7 @@ export default async function DashboardPage() {
   const userId = session!.user.id;
   const [
     documentCount,
-    readyCount,
+    readyRows,
     recentDocuments,
     topicRows,
     difficultyRows,
@@ -76,12 +72,37 @@ export default async function DashboardPage() {
     activeProvider,
   ] = await Promise.all([
     db.document.count({ where: { userId } }),
-    db.document.count({ where: { userId, status: { in: ["EXTRACTED", "READY"] } } }),
+    db.$queryRawUnsafe<Array<{ count: bigint }>>(
+      `SELECT COUNT(*) AS "count"
+       FROM "Document" d
+       WHERE d."userId" = $1
+         AND d."status" <> 'FAILED'
+         AND EXISTS (
+           SELECT 1 FROM "DocumentChunk" c WHERE c."documentId" = d."id"
+         )
+         AND NOT EXISTS (
+           SELECT 1 FROM "DocumentChunk" c
+           WHERE c."documentId" = d."id" AND c."embedding" IS NULL
+         )`,
+      userId,
+    ),
     db.document.findMany({
       where: { userId },
       orderBy: { createdAt: "desc" },
       take: 5,
-      select: { id: true, title: true, originalFileName: true, fileType: true, status: true, createdAt: true },
+      select: {
+        id: true,
+        title: true,
+        originalFileName: true,
+        fileType: true,
+        status: true,
+        textContent: true,
+        createdAt: true,
+        jobs: {
+          orderBy: { createdAt: "asc" },
+          select: { type: true, status: true, createdAt: true },
+        },
+      },
     }),
     db.document.groupBy({
       by: ["primaryTopic"],
@@ -110,6 +131,7 @@ export default async function DashboardPage() {
 
   const maxTopicCount = Math.max(1, ...topicRows.map((row) => row._count._all));
   const maxDifficultyCount = Math.max(1, ...difficultyRows.map((row) => row._count._all));
+  const readyCount = Number(readyRows[0]?.count ?? 0);
   const readyRate = documentCount ? Math.round((readyCount / documentCount) * 100) : 0;
   const visibleStatusRows = statusRows.filter((row) => row.status !== "READY" && row.status !== "EXTRACTED");
   const providerStatus = getProviderStatus(activeProvider);
@@ -245,18 +267,21 @@ export default async function DashboardPage() {
             </div>
           ) : (
             <div className="recent-documents">
-              {recentDocuments.map((document) => (
-                <Link href={`/documents/${document.id}`} key={document.id}>
-                  <span>{document.fileType}</span>
-                  <div>
-                    <strong>{document.title}</strong>
-                    <small>{getRecentDocumentHint(document.status, document.originalFileName)}</small>
-                  </div>
-                  <time>
-                    {new Intl.DateTimeFormat("vi-VN", { day: "2-digit", month: "2-digit" }).format(document.createdAt)}
-                  </time>
-                </Link>
-              ))}
+              {recentDocuments.map((document) => {
+                const displayStatus = getDocumentDisplayStatus(document, document.jobs);
+                return (
+                  <Link href={`/documents/${document.id}`} key={document.id}>
+                    <span>{document.fileType}</span>
+                    <div>
+                      <strong>{document.title}</strong>
+                      <small>{displayStatus.isReadyToAsk ? document.originalFileName : displayStatus.label}</small>
+                    </div>
+                    <time>
+                      {new Intl.DateTimeFormat("vi-VN", { day: "2-digit", month: "2-digit" }).format(document.createdAt)}
+                    </time>
+                  </Link>
+                );
+              })}
             </div>
           )}
         </div>

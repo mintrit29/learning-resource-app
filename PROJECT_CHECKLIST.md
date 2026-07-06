@@ -230,7 +230,7 @@
 | 20/06/2026 | Hoàn thành background job và chunking | Hoàn thành | Backfill tài liệu thật thành 341 chunks |
 | 21/06/2026 | BGE-M3 và semantic search hoạt động | Hoàn thành | 341 chunks trong 615 giây; truy vấn mẫu trả đúng đoạn decision tree |
 | 21/06/2026 | Source-aware semantic search | Hoàn thành | 525/525 chunks có vị trí; query decision tree trả về Trang 11 |
-| 03/07/2026 | MVP chạy end-to-end | Hoàn thành | Upload, extract, AI analysis, embedding, semantic search, recommendation, Docker |
+| 03/07/2026 | MVP chạy end-to-end | Hoàn thành | Upload, extract, AI analysis, embedding, semantic search, AI chọn giúp, Docker |
 |  | Hoàn thành evaluation | Chưa bắt đầu |  |
 | 20/09/2026 | Nộp đồ án | Chưa hoàn thành | Deadline |
 

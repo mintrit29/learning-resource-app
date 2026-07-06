@@ -10,6 +10,7 @@ import { extractText as extractPdfText, getDocumentProxy } from "unpdf";
 
 const execFile = promisify(execFileCallback);
 const MIN_EXTRACTED_TEXT_LENGTH = 20;
+const MIN_PAGE_TEXT_LENGTH_BEFORE_OCR = Number(process.env.OCR_PAGE_TEXT_THRESHOLD ?? 80);
 const OCR_DPI = Number(process.env.OCR_DPI ?? 180);
 const OCR_MAX_PAGES = Number(process.env.OCR_MAX_PAGES ?? 20);
 const OCR_LANGS = process.env.OCR_LANGS ?? "vie+eng";
@@ -38,12 +39,23 @@ function normalizeExtractedText(value: string) {
     .trim();
 }
 
-async function runPdfOcr(buffer: Buffer, pageCount: number): Promise<ExtractionResult> {
+async function runPdfOcr(
+  buffer: Buffer,
+  pageCount: number,
+  pageNumbers?: number[],
+): Promise<ExtractionResult> {
   if (process.env.OCR_ENABLED === "0") {
     throw new Error("PDF này cần OCR, nhưng OCR đang bị tắt bằng OCR_ENABLED=0.");
   }
 
   const maxPages = Math.max(1, Math.min(pageCount, OCR_MAX_PAGES));
+  const pagesToOcr = (pageNumbers?.length
+    ? pageNumbers
+    : Array.from({ length: maxPages }, (_, index) => index + 1)
+  ).filter((pageNumber) => pageNumber >= 1 && pageNumber <= maxPages);
+
+  if (!pagesToOcr.length) return { text: "", pageCount, sections: [] };
+
   const workDir = await mkdtemp(path.join(os.tmpdir(), "scholarflow-ocr-"));
   const pdfPath = path.join(workDir, "source.pdf");
   const imagePrefix = path.join(workDir, "page");
@@ -54,7 +66,7 @@ async function runPdfOcr(buffer: Buffer, pageCount: number): Promise<ExtractionR
       "-f",
       "1",
       "-l",
-      String(maxPages),
+      String(Math.max(...pagesToOcr)),
       "-r",
       String(OCR_DPI),
       "-png",
@@ -63,7 +75,10 @@ async function runPdfOcr(buffer: Buffer, pageCount: number): Promise<ExtractionR
     ]);
 
     const images = (await readdir(workDir))
-      .filter((fileName) => /^page-\d+\.png$/i.test(fileName))
+      .filter((fileName) => {
+        const pageNumber = Number(fileName.match(/page-(\d+)\.png/i)?.[1] ?? 0);
+        return /^page-\d+\.png$/i.test(fileName) && pagesToOcr.includes(pageNumber);
+      })
       .sort((a, b) => {
         const aNumber = Number(a.match(/page-(\d+)\.png/i)?.[1] ?? 0);
         const bNumber = Number(b.match(/page-(\d+)\.png/i)?.[1] ?? 0);
@@ -92,7 +107,7 @@ async function runPdfOcr(buffer: Buffer, pageCount: number): Promise<ExtractionR
     }
 
     const text = normalizeExtractedText(sections.map((section) => section.text).join("\n\n"));
-    if (text.length < MIN_EXTRACTED_TEXT_LENGTH) {
+    if (!pageNumbers?.length && text.length < MIN_EXTRACTED_TEXT_LENGTH) {
       throw new Error("OCR đã chạy nhưng không đọc được đủ chữ từ PDF scan/ảnh.");
     }
 
@@ -110,16 +125,44 @@ async function runPdfOcr(buffer: Buffer, pageCount: number): Promise<ExtractionR
 async function extractPdf(buffer: Buffer): Promise<ExtractionResult> {
   const pdf = await getDocumentProxy(new Uint8Array(buffer));
   const result = await extractPdfText(pdf);
-  const sections = result.text
-    .map((text, index) => ({
-      text: normalizeExtractedText(text),
-      pageNumber: index + 1,
-      sourceLabel: `Trang ${index + 1}`,
-    }))
-    .filter((section) => section.text.length > 0);
+  const pageSections = result.text.map((text, index) => ({
+    text: normalizeExtractedText(text),
+    pageNumber: index + 1,
+    sourceLabel: `Trang ${index + 1}`,
+  }));
+  const sections = pageSections.filter((section) => section.text.length > 0);
   const text = normalizeExtractedText(sections.map((section) => section.text).join("\n\n"));
   if (text.length < MIN_EXTRACTED_TEXT_LENGTH && result.totalPages > 0) {
     return runPdfOcr(buffer, result.totalPages);
+  }
+
+  const pagesNeedingOcr = pageSections
+    .filter((section) => section.pageNumber <= OCR_MAX_PAGES)
+    .filter((section) => section.text.length < MIN_PAGE_TEXT_LENGTH_BEFORE_OCR)
+    .map((section) => section.pageNumber);
+
+  if (pagesNeedingOcr.length > 0) {
+    try {
+      const ocrResult = await runPdfOcr(buffer, result.totalPages, pagesNeedingOcr);
+      const ocrSectionsByPage = new Map(
+        ocrResult.sections.map((section) => [section.pageNumber, section]),
+      );
+      const mergedSections = pageSections
+        .map((section) => ocrSectionsByPage.get(section.pageNumber) ?? section)
+        .filter((section) => section.text.length > 0);
+
+      return {
+        text: normalizeExtractedText(mergedSections.map((section) => section.text).join("\n\n")),
+        pageCount: result.totalPages,
+        sections: mergedSections,
+      };
+    } catch {
+      return {
+        text,
+        pageCount: result.totalPages,
+        sections,
+      };
+    }
   }
 
   return {

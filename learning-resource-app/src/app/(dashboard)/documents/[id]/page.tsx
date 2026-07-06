@@ -8,16 +8,8 @@ import { ProcessingRefresh } from "@/components/documents/processing-refresh";
 import { ReanalyzeButton } from "@/components/documents/reanalyze-button";
 import { RetryJobButton } from "@/components/documents/retry-job-button";
 import { db } from "@/lib/db";
+import { getDocumentDisplayStatus } from "@/lib/documents/display-status";
 import { formatDifficulty } from "@/lib/labels";
-
-const statusLabels: Record<string, string> = {
-  UPLOADED: "Đã tải lên",
-  EXTRACTING: "Đang trích xuất",
-  EXTRACTED: "Đã trích xuất",
-  ANALYZING: "Đang phân tích",
-  READY: "Sẵn sàng",
-  FAILED: "Trích xuất thất bại",
-};
 
 const jobLabels: Record<string, string> = {
   EXTRACT_TEXT: "Trích xuất nội dung",
@@ -66,11 +58,12 @@ export default async function DocumentDetailPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ chunk?: string }>;
+  searchParams: Promise<{ chunk?: string; fullText?: string }>;
 }) {
   const session = await auth();
   const { id } = await params;
-  const { chunk: matchedChunkId } = await searchParams;
+  const { chunk: matchedChunkId, fullText } = await searchParams;
+  const shouldShowFullText = fullText === "1";
   const document = await db.document.findFirst({
     where: { id, userId: session!.user.id },
     include: {
@@ -88,7 +81,10 @@ export default async function DocumentDetailPage({
     document.id,
   );
 
-  const preview = document.textContent?.slice(0, 15000) ?? "";
+  const textContent = document.textContent ?? "";
+  const previewLimit = 15000;
+  const preview = shouldShowFullText ? textContent : textContent.slice(0, previewLimit);
+  const hiddenCharacterCount = Math.max(0, textContent.length - preview.length);
   const matchedChunk = document.chunks[0];
   const isProcessing = document.jobs.some((job) =>
     job.status === "PENDING" || job.status === "PROCESSING"
@@ -101,6 +97,11 @@ export default async function DocumentDetailPage({
     Number(missingEmbeddings) > 0 || !analysisComplete;
   const originalFileHref = `/api/documents/${document.id}/file`;
   const originalFileDownloadHref = `${originalFileHref}?download=1`;
+  const extractedTextDownloadHref = `/api/documents/${document.id}/text`;
+  const textViewParams = new URLSearchParams();
+  if (matchedChunkId) textViewParams.set("chunk", matchedChunkId);
+  if (!shouldShowFullText) textViewParams.set("fullText", "1");
+  const textViewHref = `/documents/${document.id}${textViewParams.size ? `?${textViewParams.toString()}` : ""}#extracted-text`;
   const canPreviewOriginalFile = document.fileType === "PDF";
   const matchedPdfPage = canPreviewOriginalFile && matchedChunk?.pageNumber ? matchedChunk.pageNumber : null;
   const originalFilePreviewHref = matchedPdfPage ? `${originalFileHref}#page=${matchedPdfPage}` : originalFileHref;
@@ -110,6 +111,7 @@ export default async function DocumentDetailPage({
   const embeddingEstimate = estimateEmbeddingSeconds(document._count.chunks, embeddingDevice);
   const latestJobsByType = new Map<string, (typeof document.jobs)[number]>();
   for (const job of document.jobs) latestJobsByType.set(job.type, job);
+  const displayStatus = getDocumentDisplayStatus(document, document.jobs);
 
   return (
     <div className="page-wrap document-detail-page">
@@ -121,7 +123,7 @@ export default async function DocumentDetailPage({
         <div className="document-header-actions">
           {!isProcessing && needsProcessing ? <RetryJobButton documentId={document.id} /> : null}
           {!isProcessing && document.textContent ? <ReanalyzeButton documentId={document.id} /> : null}
-          <span className={`status-pill ${document.status.toLowerCase()}`}><i className="status-dot" />{statusLabels[document.status]}</span>
+          <span className={`status-pill ${displayStatus.className}`}><i className="status-dot" />{displayStatus.label}</span>
           <DeleteDocumentButton documentId={document.id} documentTitle={document.title} />
         </div>
       </header>
@@ -241,15 +243,31 @@ export default async function DocumentDetailPage({
           </div>
         </section>
       ) : (
-        <section className="text-preview-section">
+        <section className="text-preview-section" id="extracted-text">
           <div className="text-preview-heading">
             <div>
               <h2>Nội dung đã trích xuất</h2>
-              <p>Hiển thị tối đa 15.000 ký tự đầu tiên.</p>
+              <p>
+                {document.textContent
+                  ? shouldShowFullText
+                    ? `Đang hiển thị toàn bộ ${document.textContent.length.toLocaleString("vi-VN")} ký tự để bạn kiểm tra nội dung bị miss.`
+                    : `Đang xem nhanh ${preview.length.toLocaleString("vi-VN")} / ${document.textContent.length.toLocaleString("vi-VN")} ký tự.`
+                  : "Nội dung đang được xử lý..."}
+              </p>
             </div>
+            {document.textContent ? (
+              <div className="original-file-actions">
+                <Link className="secondary-button compact" href={textViewHref}>
+                  {shouldShowFullText ? "Thu gọn" : "Xem toàn bộ"}
+                </Link>
+                <a className="secondary-button compact" href={extractedTextDownloadHref}>
+                  Tải .txt <Download size={15} />
+                </a>
+              </div>
+            ) : null}
           </div>
           <pre>{preview || "Nội dung đang được xử lý..."}</pre>
-          {document.textContent && document.textContent.length > preview.length ? <small>Còn {document.textContent.length - preview.length} ký tự chưa hiển thị.</small> : null}
+          {hiddenCharacterCount > 0 ? <small>Còn {hiddenCharacterCount.toLocaleString("vi-VN")} ký tự chưa hiển thị.</small> : null}
         </section>
       )}
     </div>

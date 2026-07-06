@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { EmptyState } from "@/components/dashboard/empty-state";
 import { Difficulty, DocumentStatus, FileType } from "@/generated/prisma/enums";
 import { db } from "@/lib/db";
+import { getDocumentDisplayStatus } from "@/lib/documents/display-status";
 
 const statusLabels: Record<string, string> = {
   UPLOADED: "Đã tải lên",
@@ -71,9 +72,14 @@ export default async function DocumentsPage({
         fileType: true,
         fileSize: true,
         status: true,
+        textContent: true,
         primaryTopic: true,
         difficulty: true,
         createdAt: true,
+        jobs: {
+          orderBy: { createdAt: "asc" },
+          select: { type: true, status: true, createdAt: true },
+        },
       },
     }),
     db.document.findMany({
@@ -197,31 +203,34 @@ export default async function DocumentsPage({
             <span>Ngày thêm</span>
           </div>
           <div className="document-rows">
-            {documents.map((document) => (
-              <Link className="document-row" href={`/documents/${document.id}`} key={document.id}>
-                <div className="document-name">
-                  <span>{document.fileType}</span>
-                  <div>
-                    <strong>{document.title}</strong>
-                    <small>
-                      {formatBytes(document.fileSize)} · {document.originalFileName}
-                    </small>
+            {documents.map((document) => {
+              const displayStatus = getDocumentDisplayStatus(document, document.jobs);
+              return (
+                <Link className="document-row" href={`/documents/${document.id}`} key={document.id}>
+                  <div className="document-name">
+                    <span>{document.fileType}</span>
+                    <div>
+                      <strong>{document.title}</strong>
+                      <small>
+                        {formatBytes(document.fileSize)} · {document.originalFileName}
+                      </small>
+                    </div>
                   </div>
-                </div>
-                <span>{document.fileType}</span>
-                <span>{document.primaryTopic ?? "Chưa phân tích"}</span>
-                <span>{document.difficulty ? difficultyLabels[document.difficulty] : "Chưa rõ"}</span>
-                <span>
-                  <i className={`status-dot ${document.status.toLowerCase()}`} />
-                  {statusLabels[document.status]}
-                </span>
-                <span>
-                  {new Intl.DateTimeFormat("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" }).format(
-                    document.createdAt,
-                  )}
-                </span>
-              </Link>
-            ))}
+                  <span>{document.fileType}</span>
+                  <span>{document.primaryTopic ?? "Chưa phân tích"}</span>
+                  <span>{document.difficulty ? difficultyLabels[document.difficulty] : "Chưa rõ"}</span>
+                  <span>
+                    <i className={`status-dot ${displayStatus.className}`} />
+                    {displayStatus.label}
+                  </span>
+                  <span>
+                    {new Intl.DateTimeFormat("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" }).format(
+                      document.createdAt,
+                    )}
+                  </span>
+                </Link>
+              );
+            })}
           </div>
         </section>
       )}

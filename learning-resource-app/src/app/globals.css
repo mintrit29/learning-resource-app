@@ -238,8 +238,9 @@ a { color: inherit; text-decoration: none; }
 .document-name strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ink); font-size: 14px; }
 .document-name small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); }
 .status-dot { width: 8px; height: 8px; display: inline-block; border-radius: 50%; background: #94a09d; }
-.status-dot.extracted, .status-dot.ready, .status-pill.extracted .status-dot, .status-pill.ready .status-dot { background: #0d9f6e; }
-.status-dot.extracting, .status-dot.analyzing, .status-pill.extracting .status-dot, .status-pill.analyzing .status-dot { background: var(--amber); }
+.status-dot.ready, .status-pill.ready .status-dot { background: #0d9f6e; }
+.status-dot.extracted, .status-pill.extracted .status-dot { background: #94a09d; }
+.status-dot.extracting, .status-dot.analyzing, .status-dot.warning, .status-pill.extracting .status-dot, .status-pill.analyzing .status-dot, .status-pill.warning .status-dot { background: var(--amber); }
 .status-dot.failed, .status-pill.failed .status-dot { background: var(--danger); }
 .status-dot.completed { background: #0d9f6e; }
 .status-dot.processing { background: var(--amber); animation: pulse 1.4s ease-in-out infinite; }

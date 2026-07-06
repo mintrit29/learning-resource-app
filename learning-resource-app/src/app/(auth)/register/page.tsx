@@ -6,7 +6,7 @@ export default function RegisterPage() {
       <div>
         <p className="eyebrow">Bắt đầu thư viện mới</p>
         <h2>Tạo tài khoản</h2>
-        <p>Mỗi tài khoản có không gian tài liệu và project riêng.</p>
+        <p>Mỗi tài khoản có không gian tài liệu riêng.</p>
       </div>
       <RegisterForm />
     </div>

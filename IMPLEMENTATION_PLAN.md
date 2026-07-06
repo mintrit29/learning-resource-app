@@ -323,7 +323,7 @@ Mục tiêu chunking:
 
 - Tài liệu dài không gửi thẳng toàn bộ vào LLM.
 - Semantic search cần tìm theo đoạn nhỏ, không chỉ theo document.
-- Recommendation cần dựa trên nội dung liên quan nhất.
+- AI chọn giúp cần dựa trên các kết quả semantic search liên quan nhất.
 
 Quy tắc MVP:
 
@@ -476,7 +476,7 @@ testConnection() -> status
 listModels()? -> models
 ```
 
-Tất cả provider cần được wrap qua interface này để các module analysis/search/recommendation không phụ thuộc trực tiếp vào OpenRouter/Ollama/Custom.
+Tất cả provider cần được wrap qua interface này để các module analysis/search/AI chọn giúp không phụ thuộc trực tiếp vào OpenRouter/Ollama/Custom.
 
 ### 5.2. OpenRouter provider
 
@@ -801,7 +801,7 @@ Cần test:
 - Tag similarity lưng chừng -> hệ thống tạo TagMergeReview.
 - Semantic search -> trả về kết quả.
 - Search result trả đúng page/slide/chapter/heading và điều hướng đúng matched chunk.
-- Recommendation -> trả về tài liệu liên quan.
+- AI chọn giúp -> phân nhóm kết quả thành nên đọc trước, đọc thêm nếu cần hoặc có thể bỏ qua.
 
 ### 9.3. Acceptance tests
 
@@ -815,8 +815,8 @@ Kịch bản demo:
 6. Dashboard hiện document mới.
 7. User search "tài liệu dễ hiểu về SQL cho người mới".
 8. Hệ thống trả về tài liệu SQL với difficulty phù hợp.
-9. User tạo project "Deep learning for image classification".
-10. Hệ thống gợi ý tài liệu liên quan.
+9. User bấm `AI chọn giúp` sau khi có kết quả semantic search.
+10. Hệ thống gợi ý kết quả nên đọc trước, đọc thêm nếu cần hoặc có thể bỏ qua.
 
 ### 9.4. Evaluation tests
 
@@ -876,7 +876,7 @@ Cách xử lý:
 Cách xử lý:
 
 - Ưu tiên pipeline end-to-end trước.
-- Knowledge Graph, GraphRAG, chatbot RAG nâng cao và OCR để future work.
+- Knowledge Graph, GraphRAG và chatbot RAG nâng cao để future work.
 - Giữ đúng ba chat provider: OpenRouter, Ollama và Custom API.
 
 ### 10.6. Các hướng không làm tiếp
@@ -894,7 +894,7 @@ Không đưa vào roadmap hiện tại:
 
 1. Làm giao diện dễ dùng hơn theo luồng `Tải tài liệu -> AI phân tích -> Hỏi/tìm kiếm -> mở đoạn gốc`.
 2. Cải thiện preview/mở file gốc, đặc biệt PDF mở trực tiếp và DOCX/PPTX có hướng dẫn rõ khi trình duyệt tải file.
-3. Thêm OCR cho PDF scan/ảnh/tài liệu không có text layer.
+3. Tối ưu OCR cho PDF scan/ảnh/tài liệu không có text layer nếu cần xử lý tài liệu scan dài.
 4. Giữ tiến trình xử lý cố định; khi chạy lại chỉ đổi trạng thái/màu, không sinh thêm dòng dài.
 5. Cho phép chạy lại đúng phần lỗi/còn thiếu: extraction, AI analysis, embedding hoặc search metadata.
 6. Cải thiện AI Provider settings: test kết nối/model và thông báo lỗi dễ hiểu.
@@ -921,7 +921,6 @@ Dự án nâng cấp được xem là hoàn thành khi:
 - AI Provider settings có OpenRouter, Ollama và Custom.
 - Có evaluation dataset và kết quả đo lường.
 - Có demo script cho ngày bảo vệ.
-- Streamlit demo cũ vẫn được giữ làm reference.
 
 ## 12. Cập nhật triển khai tuần 12
 

@@ -19,15 +19,15 @@ Hệ thống giúp sinh viên quản lý, phân loại, tìm kiếm và gợi ý
 
 ## 2. Vấn Đề Cần Giải Quyết
 
-Sinh viên thường có nhiều tài liệu học tập và nghiên cứu nằm rải rác ở các định dạng khác nhau như PDF, PPTX, DOCX, EPUB. Khi làm Research Project, sinh viên gặp các vấn đề:
+Sinh viên thường có nhiều tài liệu học tập và nghiên cứu nằm rải rác ở các định dạng khác nhau như PDF, PPTX, DOCX, EPUB. Khi học hoặc làm bài nghiên cứu/dự án, sinh viên gặp các vấn đề:
 
-- Khó biết tài liệu nào phù hợp với đề tài.
+- Khó biết tài liệu nào phù hợp với câu hỏi hoặc mục tiêu học hiện tại.
 - Khó phân biệt tài liệu thuộc chủ đề nào.
 - Khó đánh giá tài liệu đó phù hợp với người mới học hay người đã có nền tảng.
 - Tìm kiếm keyword thường không đủ tốt, vì có trường hợp người dùng hỏi theo ý nghĩa thay vì dùng đúng từ khóa trong tài liệu.
 - Không có dashboard tổng hợp tài liệu theo chủ đề, độ khó và loại file.
 
-Hệ thống cần giải quyết các vấn đề trên bằng một pipeline rõ ràng: upload tài liệu, trích xuất nội dung, phân tích AI, tạo vector embedding, tìm kiếm semantic và gợi ý tài liệu theo project topic.
+Hệ thống cần giải quyết các vấn đề trên bằng một pipeline rõ ràng: upload tài liệu, trích xuất nội dung, phân tích AI, tạo vector embedding, semantic search và AI chọn giúp các kết quả nên đọc.
 
 ## 3. Mục Tiêu Sản Phẩm
 
@@ -57,11 +57,11 @@ Sản phẩm cần đủ rõ để trình bày như một đề án cuối khóa
 
 ### 4.1. Sinh viên
 
-Người dùng chính của hệ thống. Sinh viên cần upload tài liệu, tìm tài liệu theo đề tài, xem tóm tắt, lọc theo độ khó và chọn tài liệu phù hợp để làm research/project.
+Người dùng chính của hệ thống. Sinh viên cần upload tài liệu, hỏi/tìm trong thư viện tài liệu, xem tóm tắt, lọc theo độ khó và chọn tài liệu phù hợp để học hoặc nghiên cứu.
 
-### 4.2. Nhóm làm Research Project
+### 4.2. Nhóm học tập/nghiên cứu
 
-Nhóm sinh viên cần gom tài liệu tham khảo, phân loại theo chủ đề, gợi ý tài liệu nên đọc trước, và tìm tài liệu liên quan theo project topic.
+Nhóm sinh viên cần gom tài liệu tham khảo, phân loại theo chủ đề, tìm đúng đoạn liên quan và dùng AI để biết tài liệu/đoạn nào nên đọc trước.
 
 ### 4.3. Giảng viên hoặc người quản lý tài liệu
 
@@ -102,7 +102,6 @@ Các chức năng sau không làm trong MVP, chỉ ghi là hướng phát triể
 - Knowledge Graph đầy đủ.
 - GraphRAG kết hợp Knowledge Graph và vector retrieval.
 - Chatbot RAG phức tạp trên toàn bộ thư viện tài liệu.
-- OCR cho PDF scan, ảnh hoặc tài liệu không có text layer để người dùng không phải chuyển file thủ công.
 - Mobile app.
 - Realtime collaboration.
 - Train model NLP riêng từ đầu.
@@ -161,7 +160,7 @@ Ngoài toàn bộ text, extractor cần trả về các section có vị trí:
 
 Nếu file không trích xuất được text, hệ thống hiển thị trạng thái lỗi và thông báo rõ lý do.
 
-Với PDF scan/ảnh không có text layer, MVP cần nhận diện và báo rõ rằng tài liệu cần OCR. OCR engine đầy đủ là hướng phát triển sau MVP.
+Với PDF scan/ảnh không có text layer, hệ thống có OCR bằng Poppler + Tesseract trong Docker web container. Text layer vẫn được ưu tiên; OCR chỉ chạy khi PDF gần như không có text.
 
 ### 6.5. AI analysis
 
