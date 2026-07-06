@@ -1,107 +1,71 @@
 # ScholarFlow
 
-ScholarFlow là web app quản lý học liệu thông minh cho sinh viên. App cho phép tải lên PDF, DOCX, PPTX hoặc EPUB, tự trích xuất nội dung, phân tích bằng AI, tạo embedding BGE-M3 local và tìm đúng đoạn liên quan bằng semantic search.
+ScholarFlow là app quản lý và hỏi đáp tài liệu học tập. Bạn có thể tải PDF, DOCX, PPTX hoặc EPUB lên app, để hệ thống tự trích xuất nội dung, phân tích bằng AI, tạo embedding local và tìm đúng đoạn liên quan khi cần hỏi lại.
 
-## Roadmap ngắn
+## Cần cài trước
 
-- Làm giao diện dễ dùng hơn cho người mới.
-- Cải thiện mở/preview file gốc.
-- Thêm OCR cho PDF scan/ảnh/tài liệu không copy được chữ.
-- Cố định tiến trình xử lý và chạy lại đúng phần lỗi.
-- Tối ưu embedding CPU/GPU và cải thiện semantic search.
+- Docker Desktop
+- Nếu muốn chạy GPU: máy cần NVIDIA GPU và Docker đã hỗ trợ GPU/WSL2
 
-Không nằm trong roadmap hiện tại: quota/usage provider, admin/storage dashboard, import/export dữ liệu, multi-user/phân quyền/chia sẻ nâng cao.
+## Mở app
 
-## Chạy nhanh bằng Docker
+Cách dễ nhất trên Windows là double-click file ở thư mục này:
 
-Yêu cầu: Docker Desktop.
+- `start-cpu.bat`: chạy app bình thường, dùng được cho hầu hết máy.
+- `start-gpu.bat`: chạy app với GPU/CUDA để embedding nhanh hơn.
+- `stop.bat`: tắt app.
 
-```powershell
-docker compose up --build
-```
-
-Mở app tại:
+Sau khi mở thành công, vào:
 
 ```text
 http://localhost:3000
 ```
 
-Lần đầu chạy có thể lâu vì embedding service cần tải model `BAAI/bge-m3`. Dữ liệu được giữ trong Docker volumes gồm PostgreSQL, uploads và model cache.
-
-Docker web container đã cài Poppler + Tesseract để OCR PDF scan khi file không có text layer. Có thể chỉnh OCR bằng biến môi trường `OCR_LANGS`, `OCR_DPI`, `OCR_MAX_PAGES` hoặc tắt bằng `OCR_ENABLED=0`.
-
-Nếu máy có NVIDIA GPU và đã cài NVIDIA Container Toolkit/WSL2, có thể chạy embedding bằng CUDA:
+Nếu muốn tự gõ lệnh:
 
 ```powershell
-docker compose -f docker-compose.yml -f docker-compose.cuda.yml up --build
+docker compose up --build -d web
 ```
 
-Lưu ý quan trọng: `docker compose up --build` chỉ chạy cấu hình mặc định CPU. Muốn ưu tiên GPU cho embedding phải luôn chạy kèm file override `docker-compose.cuda.yml` như lệnh trên. CPU chỉ là fallback khi không dùng CUDA hoặc máy không hỗ trợ GPU trong Docker.
-
-## Cách dùng cho user
-
-1. Đăng ký hoặc đăng nhập.
-2. Vào `Tải lên` và chọn tài liệu.
-3. Chờ hệ thống trích xuất, chunk, embedding và phân tích AI.
-4. Vào `Tìm kiếm` để hỏi bằng ngôn ngữ tự nhiên.
-5. Bấm kết quả để mở đúng đoạn khớp hoặc đúng trang PDF.
-
-Nếu tài liệu lỗi một bước nào đó, mở chi tiết tài liệu rồi bấm `Xử lý phần còn thiếu`. Nếu chỉ muốn chạy lại metadata AI, bấm `Phân tích AI lại`.
-
-## Chạy kiểu dev
-
-Yêu cầu: Node.js, npm, Python, Docker Desktop.
+Chạy bằng GPU:
 
 ```powershell
-cd learning-resource-app
-Copy-Item .env.example .env
-npm install
-docker compose up -d
-npx prisma generate
-npx prisma db push
-npm run dev
+docker compose -f docker-compose.yml -f docker-compose.cuda.yml up --build -d web
 ```
 
-Terminal khác:
+Tắt app:
 
 ```powershell
-cd embedding-service
-Copy-Item .env.example .env
-.\setup.ps1 -Device cpu
-.\start.ps1 -Device cpu
+docker compose down
 ```
 
-Máy có CUDA thì đổi `cpu` thành `cuda`.
+Lần đầu chạy có thể lâu vì app cần tải model embedding `BAAI/bge-m3`.
 
-## Kiểm tra
+## Cách dùng
+
+1. Mở app và đăng ký/đăng nhập.
+2. Vào `Thêm tài liệu` để tải file lên.
+3. Chờ app trích xuất nội dung, chia chunk, tạo embedding và phân tích AI.
+4. Vào `Hỏi tài liệu` để hỏi bằng ngôn ngữ tự nhiên.
+5. Bấm kết quả để mở đúng đoạn hoặc đúng trang trong file gốc.
+
+Nếu tài liệu bị lỗi hoặc thiếu bước xử lý, mở chi tiết tài liệu rồi bấm `Xử lý phần còn thiếu`. Nếu chỉ muốn chạy lại phần AI, bấm `Phân tích AI lại`.
+
+## Ghi chú nhanh
+
+- Embedding dùng BGE-M3 local.
+- CPU là chế độ mặc định.
+- GPU chỉ dùng khi chạy bằng `start-gpu.bat` hoặc lệnh GPU ở trên.
+- App có OCR cho PDF scan/tài liệu không copy được chữ.
+- Dữ liệu được lưu trong Docker volumes gồm database, uploads và cache model.
+
+## Kiểm tra code khi cần
 
 ```powershell
 cd learning-resource-app
 npm run lint
-npm run test:unit
 npm run build
 ```
-
-Integration smoke tests cần database, embedding service và provider phù hợp:
-
-```powershell
-npm run test:integration
-```
-
-## Evaluation tuần 11
-
-```powershell
-cd learning-resource-app
-npm run eval:template
-```
-
-Điền nhãn thủ công trong `learning-resource-app/evaluation/labels.json`, sau đó chạy:
-
-```powershell
-npm run eval:week11
-```
-
-Kết quả nằm trong `learning-resource-app/evaluation/results`.
 
 ## Công nghệ chính
 
