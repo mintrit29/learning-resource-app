@@ -19,6 +19,7 @@ services:
       retries: 20
 
   embedding:
+    image: localhost/scholarflow-embedding:latest
     build:
       context: ./embedding-service
     container_name: scholarflow-embedding
@@ -40,6 +41,7 @@ services:
       start_period: 60s
 
   web:
+    image: localhost/scholarflow-web:latest
     build:
       context: ./learning-resource-app
     container_name: scholarflow-web
