@@ -49,6 +49,28 @@ docker compose down
 
 Lần đầu chạy có thể lâu vì app cần tải model embedding `BAAI/bge-m3`.
 
+## Dùng Ollama với Docker trên Linux/WSL
+
+Nếu app chạy bằng Docker/Podman trong Linux hoặc WSL, nên chạy Ollama trong cùng môi trường Linux/WSL đó:
+
+```bash
+OLLAMA_HOST=0.0.0.0:11434 ollama serve
+```
+
+Kiểm tra Ollama từ Linux/WSL:
+
+```bash
+curl http://localhost:11434
+```
+
+Nếu thấy `Ollama is running`, vào app chọn `Ollama` và để Base URL:
+
+```text
+http://localhost:11434
+```
+
+App sẽ tự thử `localhost` và `host.docker.internal`. Nếu Docker chạy trong Linux/WSL nhưng Ollama chạy bên Windows, cách kết nối sẽ rắc rối hơn vì phải dùng IP Windows và mở firewall; người mới nên chạy Ollama cùng Linux/WSL cho dễ.
+
 ## Cách dùng
 
 1. Mở app và đăng ký/đăng nhập.

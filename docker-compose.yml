@@ -56,6 +56,8 @@ services:
       EMBEDDING_BATCH_SIZE: "4"
     ports:
       - "3000:3000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - scholarflow_uploads:/app/storage/uploads
     depends_on:
