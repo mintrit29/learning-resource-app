@@ -131,6 +131,7 @@ svg { flex-shrink: 0; stroke-width: 1.8; }
 .nav-group a:active { transform: translateY(1px); }
 .nav-group a.active { background: var(--mint); color: #08695d; box-shadow: inset 3px 0 0 var(--teal); }
 .nav-bottom { margin-top: auto; }
+.mobile-logout { display: none; }
 .user-summary { display: grid; grid-template-columns: 36px minmax(0,1fr) 36px; align-items: center; gap: 9px; border-top: 1px solid var(--line); padding: 14px 4px 0; }
 .avatar { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 50%; background: #f2e8d7; color: #9a5a05; font-weight: 800; }
 .user-summary > div { min-width: 0; display: grid; }
@@ -478,14 +479,18 @@ svg { flex-shrink: 0; stroke-width: 1.8; }
 
 @media (max-width: 640px) {
   .app-shell { display: block; }
-  .sidebar { position: fixed; z-index: 10; top: auto; bottom: 0; width: 100%; height: 74px; padding: 8px max(10px, env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-right)); border: 0; border-top: 1px solid var(--line); background: rgba(255,255,255,.98); box-shadow: 0 -14px 30px rgba(23, 33, 31, .08); }
+  .sidebar { position: fixed; z-index: 10; top: auto; bottom: 0; width: 100%; height: 74px; display: grid; grid-template-columns: minmax(0, 1fr) 52px; align-items: center; gap: 6px; padding: 8px max(10px, env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-right)); border: 0; border-top: 1px solid var(--line); background: rgba(255,255,255,.98); box-shadow: 0 -14px 30px rgba(23, 33, 31, .08); }
   .app-brand, .nav-group > p, .user-summary { display: none; }
   .sidebar-nav { height: 100%; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); align-items: center; gap: 6px; padding: 0; }
   .nav-group { display: contents; }
   .nav-bottom { margin-top: 0; }
-  .nav-group a { min-width: 0; width: 100%; height: 52px; justify-content: center; gap: 0; border-radius: 9px; padding: 0; }
-  .nav-group a svg { width: var(--icon-md); height: var(--icon-md); }
+  .nav-group a, .mobile-logout button { min-width: 0; width: 100%; height: 52px; justify-content: center; gap: 0; border: 0; border-radius: 9px; padding: 0; background: transparent; color: #45524f; cursor: pointer; }
+  .nav-group a svg, .mobile-logout button svg { width: var(--icon-md); height: var(--icon-md); stroke-width: 1.9; }
   .nav-group a.active { background: var(--mint); box-shadow: inset 0 -3px 0 var(--teal); }
+  .mobile-logout { display: block; height: 52px; }
+  .mobile-logout button { display: flex; align-items: center; color: var(--danger); }
+  .mobile-logout button:hover { background: #fff3f2; }
+  .mobile-logout button:active { transform: translateY(1px); }
   .nav-group a span { display: none; }
   .page-wrap { padding: 28px 18px 104px; }
   .page-header { display: grid; margin-bottom: 24px; }

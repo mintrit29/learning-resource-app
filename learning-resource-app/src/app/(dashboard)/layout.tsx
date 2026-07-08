@@ -20,6 +20,17 @@ export default async function DashboardLayout({
           <strong>ScholarFlow</strong>
         </Link>
         <SidebarNav />
+        <form
+          className="mobile-logout"
+          action={async () => {
+            "use server";
+            await signOut({ redirectTo: "/login" });
+          }}
+        >
+          <button aria-label="Đăng xuất" title="Đăng xuất" type="submit">
+            <LogOut size={19} />
+          </button>
+        </form>
         <div className="user-summary">
           <span className="avatar">{session.user.name?.slice(0, 1).toUpperCase() ?? "U"}</span>
           <div>
