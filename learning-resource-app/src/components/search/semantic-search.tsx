@@ -139,7 +139,7 @@ export function SemanticSearch() {
         <input
           aria-label="Hỏi tài liệu"
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Ví dụ: phần nào giải thích database transaction?"
+          placeholder="Hỏi về tài liệu của bạn..."
           value={query}
         />
         <button disabled={isSearching || query.trim().length < 2} type="submit">

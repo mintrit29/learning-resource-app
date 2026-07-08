@@ -232,7 +232,7 @@ export default async function DashboardPage() {
         </ol>
       </section>
 
-      <section className="metrics-grid metrics-grid-four" aria-label="Thống kê">
+      <section className="metrics-grid" aria-label="Thống kê">
         {metrics.map((metric) => {
           const Icon = metric.icon;
           return (
@@ -290,21 +290,27 @@ export default async function DashboardPage() {
           <h2>Không cần nhớ đúng từ khóa trong tài liệu</h2>
           <ol>
             <li>
-              <span>?</span>
+              <span>
+                <MessageCircleQuestion size={16} />
+              </span>
               <p>
                 <strong>Hỏi như đang hỏi bạn học</strong>
                 <small>Ví dụ: “phần nào giải thích transaction trong database?”</small>
               </p>
             </li>
             <li>
-              <span>↗</span>
+              <span>
+                <ArrowUpRight size={16} />
+              </span>
               <p>
                 <strong>Mở đúng đoạn liên quan</strong>
                 <small>Kết quả tìm kiếm sẽ dẫn tới chunk/page đã khớp.</small>
               </p>
             </li>
             <li>
-              <span>AI</span>
+              <span>
+                <Sparkles size={16} />
+              </span>
               <p>
                 <strong>Dùng AI chọn giúp</strong>
                 <small>Sau khi tìm kiếm, bấm AI gợi ý để biết kết quả nào nên đọc trước.</small>
