@@ -2,18 +2,15 @@ import Link from "next/link";
 import { FileStack, Filter, Search, Upload, X } from "lucide-react";
 import { auth } from "@/auth";
 import { EmptyState } from "@/components/dashboard/empty-state";
-import { Difficulty, DocumentStatus, FileType } from "@/generated/prisma/enums";
+import { ProcessingRefresh } from "@/components/documents/processing-refresh";
+import { Difficulty, FileType, JobStatus } from "@/generated/prisma/enums";
 import { db } from "@/lib/db";
 import { getDocumentDisplayStatus } from "@/lib/documents/display-status";
 
-const statusLabels: Record<string, string> = {
-  UPLOADED: "Đã tải lên",
-  EXTRACTING: "Đang đọc file",
-  EXTRACTED: "Đã đọc nội dung",
-  ANALYZING: "Đang phân tích",
-  READY: "Sẵn sàng",
-  FAILED: "Bị lỗi",
-};
+const statusOptions = [
+  { value: "READY", label: "Sẵn sàng" },
+  { value: "FAILED", label: "Bị lỗi" },
+] as const;
 
 const difficultyLabels: Record<string, string> = {
   BEGINNER: "Cơ bản",
@@ -43,7 +40,7 @@ export default async function DocumentsPage({
   const topic = filters.topic?.trim() ?? "";
   const difficulty = pickEnumValue(filters.difficulty, Object.values(Difficulty));
   const fileType = pickEnumValue(filters.fileType, Object.values(FileType));
-  const status = pickEnumValue(filters.status, Object.values(DocumentStatus));
+  const status = pickEnumValue(filters.status, statusOptions.map((option) => option.value));
 
   const where = {
     userId,
@@ -58,10 +55,9 @@ export default async function DocumentsPage({
     ...(topic ? { primaryTopic: topic } : {}),
     ...(difficulty ? { difficulty } : {}),
     ...(fileType ? { fileType } : {}),
-    ...(status ? { status } : {}),
   };
 
-  const [documents, topics, totalDocuments] = await Promise.all([
+  const [documentRows, topics, totalDocuments, activeProcessingJobs] = await Promise.all([
     db.document.findMany({
       where,
       orderBy: { createdAt: "desc" },
@@ -89,12 +85,25 @@ export default async function DocumentsPage({
       select: { primaryTopic: true },
     }),
     db.document.count({ where: { userId } }),
+    db.analysisJob.count({
+      where: {
+        status: { in: [JobStatus.PENDING, JobStatus.PROCESSING] },
+        document: { userId },
+      },
+    }),
   ]);
 
   const hasFilters = Boolean(q || topic || difficulty || fileType || status);
+  const documents = status
+    ? documentRows.filter((document) => {
+        const displayStatus = getDocumentDisplayStatus(document, document.jobs);
+        return status === "READY" ? displayStatus.isReadyToAsk : displayStatus.className === "failed";
+      })
+    : documentRows;
 
   return (
     <div className="page-wrap">
+      <ProcessingRefresh active={activeProcessingJobs > 0} />
       <header className="page-header">
         <div>
           <p className="eyebrow">Tài liệu</p>
@@ -152,9 +161,9 @@ export default async function DocumentsPage({
             <span>Trạng thái</span>
             <select name="status" defaultValue={status ?? ""}>
               <option value="">Tất cả</option>
-              {Object.values(DocumentStatus).map((item) => (
-                <option value={item} key={item}>
-                  {statusLabels[item]}
+              {statusOptions.map((item) => (
+                <option value={item.value} key={item.value}>
+                  {item.label}
                 </option>
               ))}
             </select>

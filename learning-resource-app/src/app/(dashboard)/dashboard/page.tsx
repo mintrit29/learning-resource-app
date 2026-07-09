@@ -10,6 +10,8 @@ import {
   Upload,
 } from "lucide-react";
 import { auth } from "@/auth";
+import { ProcessingRefresh } from "@/components/documents/processing-refresh";
+import { JobStatus } from "@/generated/prisma/enums";
 import { db } from "@/lib/db";
 import { getDocumentDisplayStatus } from "@/lib/documents/display-status";
 import { formatDifficulty } from "@/lib/labels";
@@ -70,6 +72,7 @@ export default async function DashboardPage() {
     difficultyRows,
     statusRows,
     activeProvider,
+    activeProcessingJobs,
   ] = await Promise.all([
     db.document.count({ where: { userId } }),
     db.$queryRawUnsafe<Array<{ count: bigint }>>(
@@ -127,13 +130,19 @@ export default async function DashboardPage() {
       where: { userId, isActive: true },
       select: { displayName: true, type: true, authStatus: true },
     }),
+    db.analysisJob.count({
+      where: {
+        status: { in: [JobStatus.PENDING, JobStatus.PROCESSING] },
+        document: { userId },
+      },
+    }),
   ]);
 
   const maxTopicCount = Math.max(1, ...topicRows.map((row) => row._count._all));
   const maxDifficultyCount = Math.max(1, ...difficultyRows.map((row) => row._count._all));
   const readyCount = Number(readyRows[0]?.count ?? 0);
   const readyRate = documentCount ? Math.round((readyCount / documentCount) * 100) : 0;
-  const visibleStatusRows = statusRows.filter((row) => row.status !== "READY" && row.status !== "EXTRACTED");
+  const visibleStatusRows = statusRows.filter((row) => row.status === "FAILED");
   const providerStatus = getProviderStatus(activeProvider);
 
   const nextAction = !providerStatus.isConnected
@@ -183,6 +192,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="page-wrap">
+      <ProcessingRefresh active={activeProcessingJobs > 0} />
       <header className="page-header">
         <div>
           <p className="eyebrow">Tổng quan</p>
