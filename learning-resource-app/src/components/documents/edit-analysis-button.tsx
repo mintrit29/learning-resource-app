@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { LoaderCircle, Pencil, Save, X } from "lucide-react";
-import { analysisTopics } from "@/lib/ai/analysis-schema";
 
 type Analysis = {
   topic: string;
@@ -49,7 +48,7 @@ export function EditAnalysisButton({ documentId, initial }: { documentId: string
         <div className="dialog-heading"><div><p className="eyebrow">Kết quả phân tích</p><h2 id="edit-analysis-title">Chỉnh sửa phân loại</h2></div><button aria-label="Đóng" className="icon-button" disabled={isSaving} onClick={() => setIsOpen(false)} type="button"><X size={19} /></button></div>
         <form className="analysis-form" onSubmit={save}>
           <div className="form-grid-two">
-            <label>Chủ đề chính<select value={form.topic} onChange={(event) => setForm({ ...form, topic: event.target.value })}>{analysisTopics.map((topic) => <option key={topic}>{topic}</option>)}</select></label>
+            <label>Chủ đề chính<input maxLength={100} required value={form.topic} onChange={(event) => setForm({ ...form, topic: event.target.value })} placeholder="Ví dụ: Văn học, Cơ sở dữ liệu, Kinh tế..." /></label>
             <label>Độ khó<select value={form.difficulty} onChange={(event) => setForm({ ...form, difficulty: event.target.value })}><option value="BEGINNER">Cơ bản</option><option value="INTERMEDIATE">Trung cấp</option><option value="ADVANCED">Nâng cao</option></select></label>
           </div>
           <label>Ngôn ngữ chính<input maxLength={80} required value={form.language} onChange={(event) => setForm({ ...form, language: event.target.value })} placeholder="English, Vietnamese..." /></label>

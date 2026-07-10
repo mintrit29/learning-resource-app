@@ -1,7 +1,8 @@
 import { Difficulty, DocumentStatus, JobStatus } from "@/generated/prisma/enums";
-import { analysisTopics, documentAnalysisSchema } from "@/lib/ai/analysis-schema";
+import { documentAnalysisSchema } from "@/lib/ai/analysis-schema";
 import { completeChat } from "@/lib/ai/chat-provider";
 import { db } from "@/lib/db";
+import { canonicalizePrimaryTopic, getExistingTopicContext } from "@/lib/taxonomy/canonical-topic";
 import { syncDocumentTags } from "@/lib/taxonomy/sync-document-tags";
 
 function parseJson(value: string) {
@@ -34,15 +35,23 @@ export async function analyzeDocument(documentId: string, jobId: string) {
     ]);
 
     const content = document.textContent.slice(0, 100_000);
+    const existingTopics = await getExistingTopicContext(document.userId);
     const response = await completeChat(provider, [
       {
         role: "system",
-        content: "You analyze learning resources. Return one valid JSON object only, with no markdown.",
+        content:
+          "You analyze learning resources in any field, not only IT or AI. Return one valid JSON object only, with no markdown.",
       },
       {
         role: "user",
-        content: `Phân tích học liệu sau và trả về JSON theo đúng cấu trúc. Topic phải là một trong: ${analysisTopics.join(", ")}.
-{"topic":"chủ đề chính","difficulty":"BEGINNER|INTERMEDIATE|ADVANCED","language":"ngôn ngữ chính của tài liệu, ví dụ English hoặc Vietnamese","summary":"tóm tắt tiếng Việt 5-8 câu","subtopics":["2-12 chủ đề con cụ thể"],"keywords":["3-30 từ khóa"],"reason":"lý do chọn chủ đề và độ khó"}
+        content: `Phân tích học liệu sau và trả về JSON theo đúng cấu trúc.
+Chủ đề chính là danh mục mở: hãy tự đặt tên ngắn gọn, dễ hiểu, bằng tiếng Việt nếu phù hợp.
+Nếu tài liệu thuộc một chủ đề đã có bên dưới, hãy dùng đúng tên chủ đề đó. Chỉ tạo chủ đề mới khi thật sự khác.
+
+Chủ đề đã có trong thư viện:
+${existingTopics}
+
+{"topic":"chủ đề chính","topicAliases":["0-12 tên tương đương hoặc cách gọi khác, ví dụ Ngữ văn, Literature"],"difficulty":"BEGINNER|INTERMEDIATE|ADVANCED","language":"ngôn ngữ chính của tài liệu, ví dụ English hoặc Vietnamese","summary":"tóm tắt tiếng Việt 5-8 câu","subtopics":["2-12 chủ đề con cụ thể"],"keywords":["3-30 từ khóa"],"reason":"lý do chọn chủ đề và độ khó"}
 
 Tên file: ${document.originalFileName}
 Nội dung:
@@ -50,14 +59,15 @@ ${content}`,
       },
     ]);
     const result = documentAnalysisSchema.parse(parseJson(response));
+    const canonicalTopic = await canonicalizePrimaryTopic(document.userId, result.topic, result.topicAliases);
     const subtopics = [...new Set(result.subtopics)];
-    await syncDocumentTags(document.id, document.userId, subtopics);
+    await syncDocumentTags(document.id, document.userId, [canonicalTopic, ...subtopics]);
 
     await db.$transaction([
       db.document.update({
         where: { id: document.id },
         data: {
-          primaryTopic: result.topic,
+          primaryTopic: canonicalTopic,
           difficulty: result.difficulty as Difficulty,
           language: result.language,
           summary: result.summary,

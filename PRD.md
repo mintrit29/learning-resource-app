@@ -432,3 +432,26 @@ Yêu cầu UX bổ sung:
 - Trang provider cần giải thích rõ từng loại provider, có nút tải model, test kết nối và đặt mặc định.
 - Trang tài liệu phải là trung tâm quản lý: thêm tài liệu, xem trạng thái, mở chi tiết, chạy lại phân tích khi cần.
 - Các thuật ngữ như semantic retrieval, document intake, canonical tags, pipeline, embedding chỉ dùng ở phần chi tiết/kỹ thuật, không đặt nổi bật trước người dùng mới.
+
+## Cập nhật 10/07/2026 - Chủ đề mở và alias
+
+App không còn giới hạn `primaryTopic` trong danh sách Computer Science/IT cố định. Chủ đề chính chuyển sang cơ chế mở để hỗ trợ mọi loại tài liệu học tập như văn học, ngữ văn, kinh tế, luật, y tế, giáo dục, ngoại ngữ hoặc tài liệu kỹ thuật.
+
+Luồng xử lý mới:
+
+- AI phân tích tài liệu và đề xuất `topic` ngắn gọn, dễ hiểu.
+- AI trả thêm `topicAliases`, tức các tên tương đương hoặc cách gọi khác của chủ đề đó.
+- App dùng script normalize để viết thường, bỏ dấu, dọn ký tự đặc biệt và so với các alias đã biết.
+- Nếu topic/alias trùng chủ đề đã có, app lưu lại theo tên chuẩn cũ.
+- Nếu chưa có chủ đề tương đương, app tạo chủ đề mới và lưu alias để lần sau gom đúng hơn.
+- Nếu AI hoặc app phân loại sai, người dùng có thể sửa topic thủ công; tên đã sửa trở thành tên chuẩn mới cho thư viện của user.
+
+Ví dụ:
+
+```text
+File A -> AI đề xuất: Văn học, alias: Ngữ văn, Literature, Môn Văn
+File B -> AI đề xuất: Ngữ văn
+App nhận ra alias đã có -> lưu chung primaryTopic là Văn học
+```
+
+`Subtopics` và `keywords` tiếp tục được dùng như metadata phụ/nội bộ để mô tả chi tiết tài liệu và hỗ trợ tìm kiếm, nhưng không phải luồng chính thay thế `primaryTopic`.

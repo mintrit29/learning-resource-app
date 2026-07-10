@@ -993,3 +993,36 @@ Phạm vi sau:
 - Thêm guided tour ngắn lần đầu mở app.
 - Làm provider wizard nhiều bước nếu modal hiện tại vẫn quá dày.
 - Tối ưu responsive/mobile sau khi chốt desktop UX.
+
+## Cập nhật 10/07/2026 - Open topic taxonomy
+
+Quyết định mới: `primaryTopic` không còn là enum cố định trong Computer Science/IT. App dùng cơ chế chủ đề mở có canonical name và alias:
+
+- AI analysis trả về `topic` và `topicAliases`.
+- Prompt gửi kèm danh sách topic đã có trong thư viện để AI ưu tiên dùng lại tên chuẩn cũ.
+- Backend chạy normalize bằng code: viết thường, bỏ dấu, dọn ký tự đặc biệt, chuẩn hóa khoảng trắng.
+- Backend kiểm tra `Tag.normalizedName` và `TagAlias.normalizedAlias`.
+- Nếu khớp topic/alias đã có, `Document.primaryTopic` lưu tên chuẩn cũ.
+- Nếu không khớp, backend tạo canonical tag mới, lưu embedding và lưu alias do AI đề xuất.
+- User vẫn có thể sửa topic thủ công trong trang chi tiết; topic sửa tay cũng đi qua canonicalizer.
+- `subtopics` và `keywords` giữ vai trò metadata phụ/nội bộ, không còn phụ thuộc vào tính năng Project/Đề tài.
+
+Luồng triển khai:
+
+```text
+AI phân tích tài liệu
+-> trả topic + topicAliases + difficulty + summary + subtopics + keywords
+-> script normalize/check alias
+-> nếu khớp: dùng canonical topic cũ
+-> nếu chưa khớp: tạo canonical topic mới
+-> lưu primaryTopic theo tên chuẩn
+-> sync topic/subtopics vào Tag/DocumentTag
+```
+
+Ví dụ:
+
+```text
+AI trả "Ngữ văn"
+TagAlias đã có "Ngữ văn" -> canonical tag "Văn học"
+Document.primaryTopic = "Văn học"
+```

@@ -248,3 +248,13 @@
 - [x] Gỡ trang đề tài khỏi MVP
 - [x] Cải thiện trang kết nối AI/provider
 - [x] Kiểm tra lại UI bằng browser sau khi build
+
+## Cập nhật 10/07/2026 - Chủ đề mở và alias
+
+- [x] Chốt bỏ giới hạn primary topic cố định trong Computer Science/IT.
+- [x] Chốt cơ chế topic mở: AI đề xuất tên chủ đề, app canonical hóa bằng normalize + alias.
+- [x] Chốt `topicAliases` do AI đề xuất được lưu vào hệ thống alias để lần sau gom đúng hơn.
+- [x] Chốt user có thể sửa topic thủ công; topic sửa tay cũng đi qua canonicalizer.
+- [x] Triển khai code topic mở + canonical alias trong AI analysis.
+- [x] Kiểm tra lint/build sau khi sửa.
+- [x] Push thay đổi lên GitHub.
