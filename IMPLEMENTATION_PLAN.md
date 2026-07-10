@@ -1005,7 +1005,7 @@ Quyết định mới: `primaryTopic` không còn là enum cố định trong Co
 - Nếu khớp topic/alias đã có, `Document.primaryTopic` lưu tên chuẩn cũ.
 - Nếu không khớp, backend tạo canonical tag mới, lưu embedding và lưu alias do AI đề xuất.
 - User vẫn có thể sửa topic thủ công trong trang chi tiết; topic sửa tay cũng đi qua canonicalizer.
-- `subtopics` và `keywords` giữ vai trò metadata phụ/nội bộ, không còn phụ thuộc vào tính năng Project/Đề tài.
+- `subtopics` và `keywords` đã bị loại khỏi schema/app chính để UI không rối; app chỉ giữ `primaryTopic` và alias chủ đề.
 
 Luồng triển khai:
 

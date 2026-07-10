@@ -18,8 +18,6 @@ const documents = await db.document.findMany({
     originalFileName: true,
     primaryTopic: true,
     difficulty: true,
-    keywords: true,
-    subtopics: true,
   },
   orderBy: { createdAt: "asc" },
   take: Number.isFinite(maxDocuments) ? Math.max(1, Math.min(60, maxDocuments)) : 60,

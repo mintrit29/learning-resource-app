@@ -29,8 +29,7 @@ export async function PATCH(
 
   const result = parsed.data;
   const canonicalTopic = await canonicalizePrimaryTopic(session.user.id, result.topic, result.topicAliases);
-  const subtopics = [...new Set(result.subtopics)];
-  await syncDocumentTags(document.id, session.user.id, [canonicalTopic, ...subtopics]);
+  await syncDocumentTags(document.id, session.user.id, [canonicalTopic]);
   await db.document.update({
     where: { id: document.id },
     data: {
@@ -38,8 +37,6 @@ export async function PATCH(
       difficulty: result.difficulty as Difficulty,
       language: result.language,
       summary: result.summary,
-      subtopics,
-      keywords: [...new Set(result.keywords)],
       analysisReason: result.reason,
     },
   });

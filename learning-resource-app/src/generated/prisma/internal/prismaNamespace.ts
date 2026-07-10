@@ -395,8 +395,6 @@ export const ModelName = {
   TagMergeReview: 'TagMergeReview',
   AnalysisJob: 'AnalysisJob',
   DocumentChunk: 'DocumentChunk',
-  Project: 'Project',
-  Recommendation: 'Recommendation',
   AiProvider: 'AiProvider',
   SearchLog: 'SearchLog'
 } as const
@@ -414,7 +412,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "account" | "session" | "verificationToken" | "document" | "tag" | "tagAlias" | "documentTag" | "tagMergeReview" | "analysisJob" | "documentChunk" | "project" | "recommendation" | "aiProvider" | "searchLog"
+    modelProps: "user" | "account" | "session" | "verificationToken" | "document" | "tag" | "tagAlias" | "documentTag" | "tagMergeReview" | "analysisJob" | "documentChunk" | "aiProvider" | "searchLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1232,154 +1230,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    Project: {
-      payload: Prisma.$ProjectPayload<ExtArgs>
-      fields: Prisma.ProjectFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.ProjectFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.ProjectFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectPayload>
-        }
-        findFirst: {
-          args: Prisma.ProjectFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.ProjectFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectPayload>
-        }
-        findMany: {
-          args: Prisma.ProjectFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectPayload>[]
-        }
-        create: {
-          args: Prisma.ProjectCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectPayload>
-        }
-        createMany: {
-          args: Prisma.ProjectCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.ProjectCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectPayload>[]
-        }
-        delete: {
-          args: Prisma.ProjectDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectPayload>
-        }
-        update: {
-          args: Prisma.ProjectUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectPayload>
-        }
-        deleteMany: {
-          args: Prisma.ProjectDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.ProjectUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.ProjectUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectPayload>[]
-        }
-        upsert: {
-          args: Prisma.ProjectUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectPayload>
-        }
-        aggregate: {
-          args: Prisma.ProjectAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateProject>
-        }
-        groupBy: {
-          args: Prisma.ProjectGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ProjectGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.ProjectCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ProjectCountAggregateOutputType> | number
-        }
-      }
-    }
-    Recommendation: {
-      payload: Prisma.$RecommendationPayload<ExtArgs>
-      fields: Prisma.RecommendationFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.RecommendationFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecommendationPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.RecommendationFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecommendationPayload>
-        }
-        findFirst: {
-          args: Prisma.RecommendationFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecommendationPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.RecommendationFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecommendationPayload>
-        }
-        findMany: {
-          args: Prisma.RecommendationFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecommendationPayload>[]
-        }
-        create: {
-          args: Prisma.RecommendationCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecommendationPayload>
-        }
-        createMany: {
-          args: Prisma.RecommendationCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.RecommendationCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecommendationPayload>[]
-        }
-        delete: {
-          args: Prisma.RecommendationDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecommendationPayload>
-        }
-        update: {
-          args: Prisma.RecommendationUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecommendationPayload>
-        }
-        deleteMany: {
-          args: Prisma.RecommendationDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.RecommendationUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.RecommendationUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecommendationPayload>[]
-        }
-        upsert: {
-          args: Prisma.RecommendationUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecommendationPayload>
-        }
-        aggregate: {
-          args: Prisma.RecommendationAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateRecommendation>
-        }
-        groupBy: {
-          args: Prisma.RecommendationGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.RecommendationGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.RecommendationCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.RecommendationCountAggregateOutputType> | number
-        }
-      }
-    }
     AiProvider: {
       payload: Prisma.$AiProviderPayload<ExtArgs>
       fields: Prisma.AiProviderFieldRefs
@@ -1629,8 +1479,6 @@ export const DocumentScalarFieldEnum = {
   primaryTopic: 'primaryTopic',
   difficulty: 'difficulty',
   summary: 'summary',
-  subtopics: 'subtopics',
-  keywords: 'keywords',
   analysisReason: 'analysisReason',
   status: 'status',
   createdAt: 'createdAt',
@@ -1719,33 +1567,6 @@ export const DocumentChunkScalarFieldEnum = {
 } as const
 
 export type DocumentChunkScalarFieldEnum = (typeof DocumentChunkScalarFieldEnum)[keyof typeof DocumentChunkScalarFieldEnum]
-
-
-export const ProjectScalarFieldEnum = {
-  id: 'id',
-  userId: 'userId',
-  title: 'title',
-  description: 'description',
-  keywords: 'keywords',
-  targetDifficulty: 'targetDifficulty',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type ProjectScalarFieldEnum = (typeof ProjectScalarFieldEnum)[keyof typeof ProjectScalarFieldEnum]
-
-
-export const RecommendationScalarFieldEnum = {
-  id: 'id',
-  projectId: 'projectId',
-  documentId: 'documentId',
-  score: 'score',
-  reason: 'reason',
-  bestChunkId: 'bestChunkId',
-  createdAt: 'createdAt'
-} as const
-
-export type RecommendationScalarFieldEnum = (typeof RecommendationScalarFieldEnum)[keyof typeof RecommendationScalarFieldEnum]
 
 
 export const AiProviderScalarFieldEnum = {
@@ -2120,8 +1941,6 @@ export type GlobalOmitConfig = {
   tagMergeReview?: Prisma.TagMergeReviewOmit
   analysisJob?: Prisma.AnalysisJobOmit
   documentChunk?: Prisma.DocumentChunkOmit
-  project?: Prisma.ProjectOmit
-  recommendation?: Prisma.RecommendationOmit
   aiProvider?: Prisma.AiProviderOmit
   searchLog?: Prisma.SearchLogOmit
 }

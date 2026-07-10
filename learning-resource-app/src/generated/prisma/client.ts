@@ -97,16 +97,6 @@ export type AnalysisJob = Prisma.AnalysisJobModel
  */
 export type DocumentChunk = Prisma.DocumentChunkModel
 /**
- * Model Project
- * 
- */
-export type Project = Prisma.ProjectModel
-/**
- * Model Recommendation
- * 
- */
-export type Recommendation = Prisma.RecommendationModel
-/**
  * Model AiProvider
  * 
  */

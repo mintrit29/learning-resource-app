@@ -89,10 +89,7 @@ export default async function DocumentDetailPage({
   const isProcessing = document.jobs.some((job) =>
     job.status === "PENDING" || job.status === "PROCESSING"
   );
-  const analysisComplete = Boolean(
-    document.primaryTopic && document.difficulty && document.summary &&
-    document.subtopics.length && document.keywords.length,
-  );
+  const analysisComplete = Boolean(document.primaryTopic && document.difficulty && document.summary);
   const needsProcessing = !document.textContent || document._count.chunks === 0 ||
     Number(missingEmbeddings) > 0 || !analysisComplete;
   const originalFileHref = `/api/documents/${document.id}/file`;
@@ -132,11 +129,9 @@ export default async function DocumentDetailPage({
         <section className="document-analysis-section">
           <div className="analysis-heading">
             <div><p className="eyebrow">Phân tích AI</p><h2>Tóm tắt</h2></div>
-            <EditAnalysisButton documentId={document.id} initial={{ topic: document.primaryTopic ?? "Other", difficulty: document.difficulty ?? "INTERMEDIATE", language: document.language ?? "Unknown", summary: document.summary, subtopics: document.subtopics, keywords: document.keywords, reason: document.analysisReason ?? "Người dùng cập nhật kết quả phân loại" }} />
+            <EditAnalysisButton documentId={document.id} initial={{ topic: document.primaryTopic ?? "Other", difficulty: document.difficulty ?? "INTERMEDIATE", language: document.language ?? "Unknown", summary: document.summary, reason: document.analysisReason ?? "Người dùng cập nhật kết quả phân loại" }} />
           </div>
           <p>{document.summary}</p>
-          <div><strong>Chủ đề con</strong><div className="analysis-tags">{document.subtopics.map((item) => <span key={item}>{item}</span>)}</div></div>
-          <div><strong>Từ khóa</strong><div className="analysis-tags muted">{document.keywords.map((item) => <span key={item}>{item}</span>)}</div></div>
         </section>
       ) : null}
 

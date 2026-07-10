@@ -9,21 +9,15 @@ type Analysis = {
   difficulty: string;
   language: string;
   summary: string;
-  subtopics: string[];
-  keywords: string[];
   reason: string;
 };
-
-function splitItems(value: string) {
-  return [...new Set(value.split(/[\n,]/).map((item) => item.trim()).filter(Boolean))];
-}
 
 export function EditAnalysisButton({ documentId, initial }: { documentId: string; initial: Analysis }) {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
-  const [form, setForm] = useState({ ...initial, subtopics: initial.subtopics.join("\n"), keywords: initial.keywords.join("\n") });
+  const [form, setForm] = useState({ ...initial });
 
   async function save(event: React.FormEvent) {
     event.preventDefault();
@@ -32,7 +26,7 @@ export function EditAnalysisButton({ documentId, initial }: { documentId: string
     const response = await fetch(`/api/documents/${documentId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...form, subtopics: splitItems(form.subtopics), keywords: splitItems(form.keywords) }),
+      body: JSON.stringify({ ...form }),
     });
     const data = await response.json() as { message?: string };
     setIsSaving(false);
@@ -53,10 +47,6 @@ export function EditAnalysisButton({ documentId, initial }: { documentId: string
           </div>
           <label>Ngôn ngữ chính<input maxLength={80} required value={form.language} onChange={(event) => setForm({ ...form, language: event.target.value })} placeholder="English, Vietnamese..." /></label>
           <label>Tóm tắt<textarea rows={5} value={form.summary} onChange={(event) => setForm({ ...form, summary: event.target.value })} /></label>
-          <div className="form-grid-two">
-            <label>Chủ đề con <small>Mỗi dòng hoặc cách nhau bằng dấu phẩy</small><textarea rows={5} value={form.subtopics} onChange={(event) => setForm({ ...form, subtopics: event.target.value })} /></label>
-            <label>Từ khóa <small>Mỗi dòng hoặc cách nhau bằng dấu phẩy</small><textarea rows={5} value={form.keywords} onChange={(event) => setForm({ ...form, keywords: event.target.value })} /></label>
-          </div>
           <label>Lý do phân loại<textarea rows={3} value={form.reason} onChange={(event) => setForm({ ...form, reason: event.target.value })} /></label>
           {error ? <p className="form-error">{error}</p> : null}
           <div className="dialog-actions"><button className="secondary-button" disabled={isSaving} onClick={() => setIsOpen(false)} type="button">Hủy</button><button className="primary-button" disabled={isSaving} type="submit">{isSaving ? <LoaderCircle className="spin" size={18} /> : <Save size={18} />}{isSaving ? "Đang lưu" : "Lưu thay đổi"}</button></div>

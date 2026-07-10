@@ -256,5 +256,7 @@
 - [x] Chốt `topicAliases` do AI đề xuất được lưu vào hệ thống alias để lần sau gom đúng hơn.
 - [x] Chốt user có thể sửa topic thủ công; topic sửa tay cũng đi qua canonicalizer.
 - [x] Triển khai code topic mở + canonical alias trong AI analysis.
+- [x] Xóa `subtopics` và `keywords` khỏi schema/app chính; chỉ giữ chủ đề chính + alias.
+- [x] Xóa schema Project/Recommendation legacy vì đã bỏ khỏi MVP.
 - [x] Kiểm tra lint/build sau khi sửa.
 - [x] Push thay đổi lên GitHub.

@@ -454,4 +454,4 @@ File B -> AI đề xuất: Ngữ văn
 App nhận ra alias đã có -> lưu chung primaryTopic là Văn học
 ```
 
-`Subtopics` và `keywords` tiếp tục được dùng như metadata phụ/nội bộ để mô tả chi tiết tài liệu và hỗ trợ tìm kiếm, nhưng không phải luồng chính thay thế `primaryTopic`.
+Sau khi chốt lại UX, `subtopics` và `keywords` không còn thuộc schema/app chính. App chỉ dùng `primaryTopic` làm chủ đề hiển thị và `TagAlias` làm danh sách tên tương đương nội bộ để gom chủ đề.

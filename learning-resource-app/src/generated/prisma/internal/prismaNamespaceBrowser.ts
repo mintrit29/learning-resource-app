@@ -62,8 +62,6 @@ export const ModelName = {
   TagMergeReview: 'TagMergeReview',
   AnalysisJob: 'AnalysisJob',
   DocumentChunk: 'DocumentChunk',
-  Project: 'Project',
-  Recommendation: 'Recommendation',
   AiProvider: 'AiProvider',
   SearchLog: 'SearchLog'
 } as const
@@ -146,8 +144,6 @@ export const DocumentScalarFieldEnum = {
   primaryTopic: 'primaryTopic',
   difficulty: 'difficulty',
   summary: 'summary',
-  subtopics: 'subtopics',
-  keywords: 'keywords',
   analysisReason: 'analysisReason',
   status: 'status',
   createdAt: 'createdAt',
@@ -236,33 +232,6 @@ export const DocumentChunkScalarFieldEnum = {
 } as const
 
 export type DocumentChunkScalarFieldEnum = (typeof DocumentChunkScalarFieldEnum)[keyof typeof DocumentChunkScalarFieldEnum]
-
-
-export const ProjectScalarFieldEnum = {
-  id: 'id',
-  userId: 'userId',
-  title: 'title',
-  description: 'description',
-  keywords: 'keywords',
-  targetDifficulty: 'targetDifficulty',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type ProjectScalarFieldEnum = (typeof ProjectScalarFieldEnum)[keyof typeof ProjectScalarFieldEnum]
-
-
-export const RecommendationScalarFieldEnum = {
-  id: 'id',
-  projectId: 'projectId',
-  documentId: 'documentId',
-  score: 'score',
-  reason: 'reason',
-  bestChunkId: 'bestChunkId',
-  createdAt: 'createdAt'
-} as const
-
-export type RecommendationScalarFieldEnum = (typeof RecommendationScalarFieldEnum)[keyof typeof RecommendationScalarFieldEnum]
 
 
 export const AiProviderScalarFieldEnum = {

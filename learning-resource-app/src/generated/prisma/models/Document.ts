@@ -85,8 +85,6 @@ export type DocumentCountAggregateOutputType = {
   primaryTopic: number
   difficulty: number
   summary: number
-  subtopics: number
-  keywords: number
   analysisReason: number
   status: number
   createdAt: number
@@ -154,8 +152,6 @@ export type DocumentCountAggregateInputType = {
   primaryTopic?: true
   difficulty?: true
   summary?: true
-  subtopics?: true
-  keywords?: true
   analysisReason?: true
   status?: true
   createdAt?: true
@@ -262,8 +258,6 @@ export type DocumentGroupByOutputType = {
   primaryTopic: string | null
   difficulty: $Enums.Difficulty | null
   summary: string | null
-  subtopics: string[]
-  keywords: string[]
   analysisReason: string | null
   status: $Enums.DocumentStatus
   createdAt: Date
@@ -306,8 +300,6 @@ export type DocumentWhereInput = {
   primaryTopic?: Prisma.StringNullableFilter<"Document"> | string | null
   difficulty?: Prisma.EnumDifficultyNullableFilter<"Document"> | $Enums.Difficulty | null
   summary?: Prisma.StringNullableFilter<"Document"> | string | null
-  subtopics?: Prisma.StringNullableListFilter<"Document">
-  keywords?: Prisma.StringNullableListFilter<"Document">
   analysisReason?: Prisma.StringNullableFilter<"Document"> | string | null
   status?: Prisma.EnumDocumentStatusFilter<"Document"> | $Enums.DocumentStatus
   createdAt?: Prisma.DateTimeFilter<"Document"> | Date | string
@@ -315,7 +307,6 @@ export type DocumentWhereInput = {
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   chunks?: Prisma.DocumentChunkListRelationFilter
   jobs?: Prisma.AnalysisJobListRelationFilter
-  recommendations?: Prisma.RecommendationListRelationFilter
   tags?: Prisma.DocumentTagListRelationFilter
   tagMergeReviews?: Prisma.TagMergeReviewListRelationFilter
 }
@@ -333,8 +324,6 @@ export type DocumentOrderByWithRelationInput = {
   primaryTopic?: Prisma.SortOrderInput | Prisma.SortOrder
   difficulty?: Prisma.SortOrderInput | Prisma.SortOrder
   summary?: Prisma.SortOrderInput | Prisma.SortOrder
-  subtopics?: Prisma.SortOrder
-  keywords?: Prisma.SortOrder
   analysisReason?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -342,7 +331,6 @@ export type DocumentOrderByWithRelationInput = {
   user?: Prisma.UserOrderByWithRelationInput
   chunks?: Prisma.DocumentChunkOrderByRelationAggregateInput
   jobs?: Prisma.AnalysisJobOrderByRelationAggregateInput
-  recommendations?: Prisma.RecommendationOrderByRelationAggregateInput
   tags?: Prisma.DocumentTagOrderByRelationAggregateInput
   tagMergeReviews?: Prisma.TagMergeReviewOrderByRelationAggregateInput
 }
@@ -363,8 +351,6 @@ export type DocumentWhereUniqueInput = Prisma.AtLeast<{
   primaryTopic?: Prisma.StringNullableFilter<"Document"> | string | null
   difficulty?: Prisma.EnumDifficultyNullableFilter<"Document"> | $Enums.Difficulty | null
   summary?: Prisma.StringNullableFilter<"Document"> | string | null
-  subtopics?: Prisma.StringNullableListFilter<"Document">
-  keywords?: Prisma.StringNullableListFilter<"Document">
   analysisReason?: Prisma.StringNullableFilter<"Document"> | string | null
   status?: Prisma.EnumDocumentStatusFilter<"Document"> | $Enums.DocumentStatus
   createdAt?: Prisma.DateTimeFilter<"Document"> | Date | string
@@ -372,7 +358,6 @@ export type DocumentWhereUniqueInput = Prisma.AtLeast<{
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   chunks?: Prisma.DocumentChunkListRelationFilter
   jobs?: Prisma.AnalysisJobListRelationFilter
-  recommendations?: Prisma.RecommendationListRelationFilter
   tags?: Prisma.DocumentTagListRelationFilter
   tagMergeReviews?: Prisma.TagMergeReviewListRelationFilter
 }, "id">
@@ -390,8 +375,6 @@ export type DocumentOrderByWithAggregationInput = {
   primaryTopic?: Prisma.SortOrderInput | Prisma.SortOrder
   difficulty?: Prisma.SortOrderInput | Prisma.SortOrder
   summary?: Prisma.SortOrderInput | Prisma.SortOrder
-  subtopics?: Prisma.SortOrder
-  keywords?: Prisma.SortOrder
   analysisReason?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -419,8 +402,6 @@ export type DocumentScalarWhereWithAggregatesInput = {
   primaryTopic?: Prisma.StringNullableWithAggregatesFilter<"Document"> | string | null
   difficulty?: Prisma.EnumDifficultyNullableWithAggregatesFilter<"Document"> | $Enums.Difficulty | null
   summary?: Prisma.StringNullableWithAggregatesFilter<"Document"> | string | null
-  subtopics?: Prisma.StringNullableListFilter<"Document">
-  keywords?: Prisma.StringNullableListFilter<"Document">
   analysisReason?: Prisma.StringNullableWithAggregatesFilter<"Document"> | string | null
   status?: Prisma.EnumDocumentStatusWithAggregatesFilter<"Document"> | $Enums.DocumentStatus
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Document"> | Date | string
@@ -439,8 +420,6 @@ export type DocumentCreateInput = {
   primaryTopic?: string | null
   difficulty?: $Enums.Difficulty | null
   summary?: string | null
-  subtopics?: Prisma.DocumentCreatesubtopicsInput | string[]
-  keywords?: Prisma.DocumentCreatekeywordsInput | string[]
   analysisReason?: string | null
   status?: $Enums.DocumentStatus
   createdAt?: Date | string
@@ -448,7 +427,6 @@ export type DocumentCreateInput = {
   user: Prisma.UserCreateNestedOneWithoutDocumentsInput
   chunks?: Prisma.DocumentChunkCreateNestedManyWithoutDocumentInput
   jobs?: Prisma.AnalysisJobCreateNestedManyWithoutDocumentInput
-  recommendations?: Prisma.RecommendationCreateNestedManyWithoutDocumentInput
   tags?: Prisma.DocumentTagCreateNestedManyWithoutDocumentInput
   tagMergeReviews?: Prisma.TagMergeReviewCreateNestedManyWithoutDocumentInput
 }
@@ -466,15 +444,12 @@ export type DocumentUncheckedCreateInput = {
   primaryTopic?: string | null
   difficulty?: $Enums.Difficulty | null
   summary?: string | null
-  subtopics?: Prisma.DocumentCreatesubtopicsInput | string[]
-  keywords?: Prisma.DocumentCreatekeywordsInput | string[]
   analysisReason?: string | null
   status?: $Enums.DocumentStatus
   createdAt?: Date | string
   updatedAt?: Date | string
   chunks?: Prisma.DocumentChunkUncheckedCreateNestedManyWithoutDocumentInput
   jobs?: Prisma.AnalysisJobUncheckedCreateNestedManyWithoutDocumentInput
-  recommendations?: Prisma.RecommendationUncheckedCreateNestedManyWithoutDocumentInput
   tags?: Prisma.DocumentTagUncheckedCreateNestedManyWithoutDocumentInput
   tagMergeReviews?: Prisma.TagMergeReviewUncheckedCreateNestedManyWithoutDocumentInput
 }
@@ -491,8 +466,6 @@ export type DocumentUpdateInput = {
   primaryTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficulty?: Prisma.NullableEnumDifficultyFieldUpdateOperationsInput | $Enums.Difficulty | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  subtopics?: Prisma.DocumentUpdatesubtopicsInput | string[]
-  keywords?: Prisma.DocumentUpdatekeywordsInput | string[]
   analysisReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -500,7 +473,6 @@ export type DocumentUpdateInput = {
   user?: Prisma.UserUpdateOneRequiredWithoutDocumentsNestedInput
   chunks?: Prisma.DocumentChunkUpdateManyWithoutDocumentNestedInput
   jobs?: Prisma.AnalysisJobUpdateManyWithoutDocumentNestedInput
-  recommendations?: Prisma.RecommendationUpdateManyWithoutDocumentNestedInput
   tags?: Prisma.DocumentTagUpdateManyWithoutDocumentNestedInput
   tagMergeReviews?: Prisma.TagMergeReviewUpdateManyWithoutDocumentNestedInput
 }
@@ -518,15 +490,12 @@ export type DocumentUncheckedUpdateInput = {
   primaryTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficulty?: Prisma.NullableEnumDifficultyFieldUpdateOperationsInput | $Enums.Difficulty | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  subtopics?: Prisma.DocumentUpdatesubtopicsInput | string[]
-  keywords?: Prisma.DocumentUpdatekeywordsInput | string[]
   analysisReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   chunks?: Prisma.DocumentChunkUncheckedUpdateManyWithoutDocumentNestedInput
   jobs?: Prisma.AnalysisJobUncheckedUpdateManyWithoutDocumentNestedInput
-  recommendations?: Prisma.RecommendationUncheckedUpdateManyWithoutDocumentNestedInput
   tags?: Prisma.DocumentTagUncheckedUpdateManyWithoutDocumentNestedInput
   tagMergeReviews?: Prisma.TagMergeReviewUncheckedUpdateManyWithoutDocumentNestedInput
 }
@@ -544,8 +513,6 @@ export type DocumentCreateManyInput = {
   primaryTopic?: string | null
   difficulty?: $Enums.Difficulty | null
   summary?: string | null
-  subtopics?: Prisma.DocumentCreatesubtopicsInput | string[]
-  keywords?: Prisma.DocumentCreatekeywordsInput | string[]
   analysisReason?: string | null
   status?: $Enums.DocumentStatus
   createdAt?: Date | string
@@ -564,8 +531,6 @@ export type DocumentUpdateManyMutationInput = {
   primaryTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficulty?: Prisma.NullableEnumDifficultyFieldUpdateOperationsInput | $Enums.Difficulty | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  subtopics?: Prisma.DocumentUpdatesubtopicsInput | string[]
-  keywords?: Prisma.DocumentUpdatekeywordsInput | string[]
   analysisReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -585,8 +550,6 @@ export type DocumentUncheckedUpdateManyInput = {
   primaryTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficulty?: Prisma.NullableEnumDifficultyFieldUpdateOperationsInput | $Enums.Difficulty | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  subtopics?: Prisma.DocumentUpdatesubtopicsInput | string[]
-  keywords?: Prisma.DocumentUpdatekeywordsInput | string[]
   analysisReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -603,14 +566,6 @@ export type DocumentOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type StringNullableListFilter<$PrismaModel = never> = {
-  equals?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel> | null
-  has?: string | Prisma.StringFieldRefInput<$PrismaModel> | null
-  hasEvery?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
-  hasSome?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
-  isEmpty?: boolean
-}
-
 export type DocumentCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -624,8 +579,6 @@ export type DocumentCountOrderByAggregateInput = {
   primaryTopic?: Prisma.SortOrder
   difficulty?: Prisma.SortOrder
   summary?: Prisma.SortOrder
-  subtopics?: Prisma.SortOrder
-  keywords?: Prisma.SortOrder
   analysisReason?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -730,14 +683,6 @@ export type DocumentUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.DocumentScalarWhereInput | Prisma.DocumentScalarWhereInput[]
 }
 
-export type DocumentCreatesubtopicsInput = {
-  set: string[]
-}
-
-export type DocumentCreatekeywordsInput = {
-  set: string[]
-}
-
 export type EnumFileTypeFieldUpdateOperationsInput = {
   set?: $Enums.FileType
 }
@@ -752,16 +697,6 @@ export type IntFieldUpdateOperationsInput = {
 
 export type NullableEnumDifficultyFieldUpdateOperationsInput = {
   set?: $Enums.Difficulty | null
-}
-
-export type DocumentUpdatesubtopicsInput = {
-  set?: string[]
-  push?: string | string[]
-}
-
-export type DocumentUpdatekeywordsInput = {
-  set?: string[]
-  push?: string | string[]
 }
 
 export type EnumDocumentStatusFieldUpdateOperationsInput = {
@@ -826,20 +761,6 @@ export type DocumentUpdateOneRequiredWithoutChunksNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.DocumentUpdateToOneWithWhereWithoutChunksInput, Prisma.DocumentUpdateWithoutChunksInput>, Prisma.DocumentUncheckedUpdateWithoutChunksInput>
 }
 
-export type DocumentCreateNestedOneWithoutRecommendationsInput = {
-  create?: Prisma.XOR<Prisma.DocumentCreateWithoutRecommendationsInput, Prisma.DocumentUncheckedCreateWithoutRecommendationsInput>
-  connectOrCreate?: Prisma.DocumentCreateOrConnectWithoutRecommendationsInput
-  connect?: Prisma.DocumentWhereUniqueInput
-}
-
-export type DocumentUpdateOneRequiredWithoutRecommendationsNestedInput = {
-  create?: Prisma.XOR<Prisma.DocumentCreateWithoutRecommendationsInput, Prisma.DocumentUncheckedCreateWithoutRecommendationsInput>
-  connectOrCreate?: Prisma.DocumentCreateOrConnectWithoutRecommendationsInput
-  upsert?: Prisma.DocumentUpsertWithoutRecommendationsInput
-  connect?: Prisma.DocumentWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.DocumentUpdateToOneWithWhereWithoutRecommendationsInput, Prisma.DocumentUpdateWithoutRecommendationsInput>, Prisma.DocumentUncheckedUpdateWithoutRecommendationsInput>
-}
-
 export type DocumentCreateWithoutUserInput = {
   id?: string
   title: string
@@ -852,15 +773,12 @@ export type DocumentCreateWithoutUserInput = {
   primaryTopic?: string | null
   difficulty?: $Enums.Difficulty | null
   summary?: string | null
-  subtopics?: Prisma.DocumentCreatesubtopicsInput | string[]
-  keywords?: Prisma.DocumentCreatekeywordsInput | string[]
   analysisReason?: string | null
   status?: $Enums.DocumentStatus
   createdAt?: Date | string
   updatedAt?: Date | string
   chunks?: Prisma.DocumentChunkCreateNestedManyWithoutDocumentInput
   jobs?: Prisma.AnalysisJobCreateNestedManyWithoutDocumentInput
-  recommendations?: Prisma.RecommendationCreateNestedManyWithoutDocumentInput
   tags?: Prisma.DocumentTagCreateNestedManyWithoutDocumentInput
   tagMergeReviews?: Prisma.TagMergeReviewCreateNestedManyWithoutDocumentInput
 }
@@ -877,15 +795,12 @@ export type DocumentUncheckedCreateWithoutUserInput = {
   primaryTopic?: string | null
   difficulty?: $Enums.Difficulty | null
   summary?: string | null
-  subtopics?: Prisma.DocumentCreatesubtopicsInput | string[]
-  keywords?: Prisma.DocumentCreatekeywordsInput | string[]
   analysisReason?: string | null
   status?: $Enums.DocumentStatus
   createdAt?: Date | string
   updatedAt?: Date | string
   chunks?: Prisma.DocumentChunkUncheckedCreateNestedManyWithoutDocumentInput
   jobs?: Prisma.AnalysisJobUncheckedCreateNestedManyWithoutDocumentInput
-  recommendations?: Prisma.RecommendationUncheckedCreateNestedManyWithoutDocumentInput
   tags?: Prisma.DocumentTagUncheckedCreateNestedManyWithoutDocumentInput
   tagMergeReviews?: Prisma.TagMergeReviewUncheckedCreateNestedManyWithoutDocumentInput
 }
@@ -932,8 +847,6 @@ export type DocumentScalarWhereInput = {
   primaryTopic?: Prisma.StringNullableFilter<"Document"> | string | null
   difficulty?: Prisma.EnumDifficultyNullableFilter<"Document"> | $Enums.Difficulty | null
   summary?: Prisma.StringNullableFilter<"Document"> | string | null
-  subtopics?: Prisma.StringNullableListFilter<"Document">
-  keywords?: Prisma.StringNullableListFilter<"Document">
   analysisReason?: Prisma.StringNullableFilter<"Document"> | string | null
   status?: Prisma.EnumDocumentStatusFilter<"Document"> | $Enums.DocumentStatus
   createdAt?: Prisma.DateTimeFilter<"Document"> | Date | string
@@ -952,8 +865,6 @@ export type DocumentCreateWithoutTagsInput = {
   primaryTopic?: string | null
   difficulty?: $Enums.Difficulty | null
   summary?: string | null
-  subtopics?: Prisma.DocumentCreatesubtopicsInput | string[]
-  keywords?: Prisma.DocumentCreatekeywordsInput | string[]
   analysisReason?: string | null
   status?: $Enums.DocumentStatus
   createdAt?: Date | string
@@ -961,7 +872,6 @@ export type DocumentCreateWithoutTagsInput = {
   user: Prisma.UserCreateNestedOneWithoutDocumentsInput
   chunks?: Prisma.DocumentChunkCreateNestedManyWithoutDocumentInput
   jobs?: Prisma.AnalysisJobCreateNestedManyWithoutDocumentInput
-  recommendations?: Prisma.RecommendationCreateNestedManyWithoutDocumentInput
   tagMergeReviews?: Prisma.TagMergeReviewCreateNestedManyWithoutDocumentInput
 }
 
@@ -978,15 +888,12 @@ export type DocumentUncheckedCreateWithoutTagsInput = {
   primaryTopic?: string | null
   difficulty?: $Enums.Difficulty | null
   summary?: string | null
-  subtopics?: Prisma.DocumentCreatesubtopicsInput | string[]
-  keywords?: Prisma.DocumentCreatekeywordsInput | string[]
   analysisReason?: string | null
   status?: $Enums.DocumentStatus
   createdAt?: Date | string
   updatedAt?: Date | string
   chunks?: Prisma.DocumentChunkUncheckedCreateNestedManyWithoutDocumentInput
   jobs?: Prisma.AnalysisJobUncheckedCreateNestedManyWithoutDocumentInput
-  recommendations?: Prisma.RecommendationUncheckedCreateNestedManyWithoutDocumentInput
   tagMergeReviews?: Prisma.TagMergeReviewUncheckedCreateNestedManyWithoutDocumentInput
 }
 
@@ -1018,8 +925,6 @@ export type DocumentUpdateWithoutTagsInput = {
   primaryTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficulty?: Prisma.NullableEnumDifficultyFieldUpdateOperationsInput | $Enums.Difficulty | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  subtopics?: Prisma.DocumentUpdatesubtopicsInput | string[]
-  keywords?: Prisma.DocumentUpdatekeywordsInput | string[]
   analysisReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1027,7 +932,6 @@ export type DocumentUpdateWithoutTagsInput = {
   user?: Prisma.UserUpdateOneRequiredWithoutDocumentsNestedInput
   chunks?: Prisma.DocumentChunkUpdateManyWithoutDocumentNestedInput
   jobs?: Prisma.AnalysisJobUpdateManyWithoutDocumentNestedInput
-  recommendations?: Prisma.RecommendationUpdateManyWithoutDocumentNestedInput
   tagMergeReviews?: Prisma.TagMergeReviewUpdateManyWithoutDocumentNestedInput
 }
 
@@ -1044,15 +948,12 @@ export type DocumentUncheckedUpdateWithoutTagsInput = {
   primaryTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficulty?: Prisma.NullableEnumDifficultyFieldUpdateOperationsInput | $Enums.Difficulty | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  subtopics?: Prisma.DocumentUpdatesubtopicsInput | string[]
-  keywords?: Prisma.DocumentUpdatekeywordsInput | string[]
   analysisReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   chunks?: Prisma.DocumentChunkUncheckedUpdateManyWithoutDocumentNestedInput
   jobs?: Prisma.AnalysisJobUncheckedUpdateManyWithoutDocumentNestedInput
-  recommendations?: Prisma.RecommendationUncheckedUpdateManyWithoutDocumentNestedInput
   tagMergeReviews?: Prisma.TagMergeReviewUncheckedUpdateManyWithoutDocumentNestedInput
 }
 
@@ -1068,8 +969,6 @@ export type DocumentCreateWithoutTagMergeReviewsInput = {
   primaryTopic?: string | null
   difficulty?: $Enums.Difficulty | null
   summary?: string | null
-  subtopics?: Prisma.DocumentCreatesubtopicsInput | string[]
-  keywords?: Prisma.DocumentCreatekeywordsInput | string[]
   analysisReason?: string | null
   status?: $Enums.DocumentStatus
   createdAt?: Date | string
@@ -1077,7 +976,6 @@ export type DocumentCreateWithoutTagMergeReviewsInput = {
   user: Prisma.UserCreateNestedOneWithoutDocumentsInput
   chunks?: Prisma.DocumentChunkCreateNestedManyWithoutDocumentInput
   jobs?: Prisma.AnalysisJobCreateNestedManyWithoutDocumentInput
-  recommendations?: Prisma.RecommendationCreateNestedManyWithoutDocumentInput
   tags?: Prisma.DocumentTagCreateNestedManyWithoutDocumentInput
 }
 
@@ -1094,15 +992,12 @@ export type DocumentUncheckedCreateWithoutTagMergeReviewsInput = {
   primaryTopic?: string | null
   difficulty?: $Enums.Difficulty | null
   summary?: string | null
-  subtopics?: Prisma.DocumentCreatesubtopicsInput | string[]
-  keywords?: Prisma.DocumentCreatekeywordsInput | string[]
   analysisReason?: string | null
   status?: $Enums.DocumentStatus
   createdAt?: Date | string
   updatedAt?: Date | string
   chunks?: Prisma.DocumentChunkUncheckedCreateNestedManyWithoutDocumentInput
   jobs?: Prisma.AnalysisJobUncheckedCreateNestedManyWithoutDocumentInput
-  recommendations?: Prisma.RecommendationUncheckedCreateNestedManyWithoutDocumentInput
   tags?: Prisma.DocumentTagUncheckedCreateNestedManyWithoutDocumentInput
 }
 
@@ -1134,8 +1029,6 @@ export type DocumentUpdateWithoutTagMergeReviewsInput = {
   primaryTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficulty?: Prisma.NullableEnumDifficultyFieldUpdateOperationsInput | $Enums.Difficulty | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  subtopics?: Prisma.DocumentUpdatesubtopicsInput | string[]
-  keywords?: Prisma.DocumentUpdatekeywordsInput | string[]
   analysisReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1143,7 +1036,6 @@ export type DocumentUpdateWithoutTagMergeReviewsInput = {
   user?: Prisma.UserUpdateOneRequiredWithoutDocumentsNestedInput
   chunks?: Prisma.DocumentChunkUpdateManyWithoutDocumentNestedInput
   jobs?: Prisma.AnalysisJobUpdateManyWithoutDocumentNestedInput
-  recommendations?: Prisma.RecommendationUpdateManyWithoutDocumentNestedInput
   tags?: Prisma.DocumentTagUpdateManyWithoutDocumentNestedInput
 }
 
@@ -1160,15 +1052,12 @@ export type DocumentUncheckedUpdateWithoutTagMergeReviewsInput = {
   primaryTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficulty?: Prisma.NullableEnumDifficultyFieldUpdateOperationsInput | $Enums.Difficulty | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  subtopics?: Prisma.DocumentUpdatesubtopicsInput | string[]
-  keywords?: Prisma.DocumentUpdatekeywordsInput | string[]
   analysisReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   chunks?: Prisma.DocumentChunkUncheckedUpdateManyWithoutDocumentNestedInput
   jobs?: Prisma.AnalysisJobUncheckedUpdateManyWithoutDocumentNestedInput
-  recommendations?: Prisma.RecommendationUncheckedUpdateManyWithoutDocumentNestedInput
   tags?: Prisma.DocumentTagUncheckedUpdateManyWithoutDocumentNestedInput
 }
 
@@ -1184,15 +1073,12 @@ export type DocumentCreateWithoutJobsInput = {
   primaryTopic?: string | null
   difficulty?: $Enums.Difficulty | null
   summary?: string | null
-  subtopics?: Prisma.DocumentCreatesubtopicsInput | string[]
-  keywords?: Prisma.DocumentCreatekeywordsInput | string[]
   analysisReason?: string | null
   status?: $Enums.DocumentStatus
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutDocumentsInput
   chunks?: Prisma.DocumentChunkCreateNestedManyWithoutDocumentInput
-  recommendations?: Prisma.RecommendationCreateNestedManyWithoutDocumentInput
   tags?: Prisma.DocumentTagCreateNestedManyWithoutDocumentInput
   tagMergeReviews?: Prisma.TagMergeReviewCreateNestedManyWithoutDocumentInput
 }
@@ -1210,14 +1096,11 @@ export type DocumentUncheckedCreateWithoutJobsInput = {
   primaryTopic?: string | null
   difficulty?: $Enums.Difficulty | null
   summary?: string | null
-  subtopics?: Prisma.DocumentCreatesubtopicsInput | string[]
-  keywords?: Prisma.DocumentCreatekeywordsInput | string[]
   analysisReason?: string | null
   status?: $Enums.DocumentStatus
   createdAt?: Date | string
   updatedAt?: Date | string
   chunks?: Prisma.DocumentChunkUncheckedCreateNestedManyWithoutDocumentInput
-  recommendations?: Prisma.RecommendationUncheckedCreateNestedManyWithoutDocumentInput
   tags?: Prisma.DocumentTagUncheckedCreateNestedManyWithoutDocumentInput
   tagMergeReviews?: Prisma.TagMergeReviewUncheckedCreateNestedManyWithoutDocumentInput
 }
@@ -1250,15 +1133,12 @@ export type DocumentUpdateWithoutJobsInput = {
   primaryTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficulty?: Prisma.NullableEnumDifficultyFieldUpdateOperationsInput | $Enums.Difficulty | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  subtopics?: Prisma.DocumentUpdatesubtopicsInput | string[]
-  keywords?: Prisma.DocumentUpdatekeywordsInput | string[]
   analysisReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutDocumentsNestedInput
   chunks?: Prisma.DocumentChunkUpdateManyWithoutDocumentNestedInput
-  recommendations?: Prisma.RecommendationUpdateManyWithoutDocumentNestedInput
   tags?: Prisma.DocumentTagUpdateManyWithoutDocumentNestedInput
   tagMergeReviews?: Prisma.TagMergeReviewUpdateManyWithoutDocumentNestedInput
 }
@@ -1276,14 +1156,11 @@ export type DocumentUncheckedUpdateWithoutJobsInput = {
   primaryTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficulty?: Prisma.NullableEnumDifficultyFieldUpdateOperationsInput | $Enums.Difficulty | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  subtopics?: Prisma.DocumentUpdatesubtopicsInput | string[]
-  keywords?: Prisma.DocumentUpdatekeywordsInput | string[]
   analysisReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   chunks?: Prisma.DocumentChunkUncheckedUpdateManyWithoutDocumentNestedInput
-  recommendations?: Prisma.RecommendationUncheckedUpdateManyWithoutDocumentNestedInput
   tags?: Prisma.DocumentTagUncheckedUpdateManyWithoutDocumentNestedInput
   tagMergeReviews?: Prisma.TagMergeReviewUncheckedUpdateManyWithoutDocumentNestedInput
 }
@@ -1300,15 +1177,12 @@ export type DocumentCreateWithoutChunksInput = {
   primaryTopic?: string | null
   difficulty?: $Enums.Difficulty | null
   summary?: string | null
-  subtopics?: Prisma.DocumentCreatesubtopicsInput | string[]
-  keywords?: Prisma.DocumentCreatekeywordsInput | string[]
   analysisReason?: string | null
   status?: $Enums.DocumentStatus
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutDocumentsInput
   jobs?: Prisma.AnalysisJobCreateNestedManyWithoutDocumentInput
-  recommendations?: Prisma.RecommendationCreateNestedManyWithoutDocumentInput
   tags?: Prisma.DocumentTagCreateNestedManyWithoutDocumentInput
   tagMergeReviews?: Prisma.TagMergeReviewCreateNestedManyWithoutDocumentInput
 }
@@ -1326,14 +1200,11 @@ export type DocumentUncheckedCreateWithoutChunksInput = {
   primaryTopic?: string | null
   difficulty?: $Enums.Difficulty | null
   summary?: string | null
-  subtopics?: Prisma.DocumentCreatesubtopicsInput | string[]
-  keywords?: Prisma.DocumentCreatekeywordsInput | string[]
   analysisReason?: string | null
   status?: $Enums.DocumentStatus
   createdAt?: Date | string
   updatedAt?: Date | string
   jobs?: Prisma.AnalysisJobUncheckedCreateNestedManyWithoutDocumentInput
-  recommendations?: Prisma.RecommendationUncheckedCreateNestedManyWithoutDocumentInput
   tags?: Prisma.DocumentTagUncheckedCreateNestedManyWithoutDocumentInput
   tagMergeReviews?: Prisma.TagMergeReviewUncheckedCreateNestedManyWithoutDocumentInput
 }
@@ -1366,15 +1237,12 @@ export type DocumentUpdateWithoutChunksInput = {
   primaryTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficulty?: Prisma.NullableEnumDifficultyFieldUpdateOperationsInput | $Enums.Difficulty | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  subtopics?: Prisma.DocumentUpdatesubtopicsInput | string[]
-  keywords?: Prisma.DocumentUpdatekeywordsInput | string[]
   analysisReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutDocumentsNestedInput
   jobs?: Prisma.AnalysisJobUpdateManyWithoutDocumentNestedInput
-  recommendations?: Prisma.RecommendationUpdateManyWithoutDocumentNestedInput
   tags?: Prisma.DocumentTagUpdateManyWithoutDocumentNestedInput
   tagMergeReviews?: Prisma.TagMergeReviewUpdateManyWithoutDocumentNestedInput
 }
@@ -1392,129 +1260,10 @@ export type DocumentUncheckedUpdateWithoutChunksInput = {
   primaryTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficulty?: Prisma.NullableEnumDifficultyFieldUpdateOperationsInput | $Enums.Difficulty | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  subtopics?: Prisma.DocumentUpdatesubtopicsInput | string[]
-  keywords?: Prisma.DocumentUpdatekeywordsInput | string[]
   analysisReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  jobs?: Prisma.AnalysisJobUncheckedUpdateManyWithoutDocumentNestedInput
-  recommendations?: Prisma.RecommendationUncheckedUpdateManyWithoutDocumentNestedInput
-  tags?: Prisma.DocumentTagUncheckedUpdateManyWithoutDocumentNestedInput
-  tagMergeReviews?: Prisma.TagMergeReviewUncheckedUpdateManyWithoutDocumentNestedInput
-}
-
-export type DocumentCreateWithoutRecommendationsInput = {
-  id?: string
-  title: string
-  originalFileName: string
-  fileType: $Enums.FileType
-  filePath: string
-  fileSize: number
-  textContent?: string | null
-  language?: string | null
-  primaryTopic?: string | null
-  difficulty?: $Enums.Difficulty | null
-  summary?: string | null
-  subtopics?: Prisma.DocumentCreatesubtopicsInput | string[]
-  keywords?: Prisma.DocumentCreatekeywordsInput | string[]
-  analysisReason?: string | null
-  status?: $Enums.DocumentStatus
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  user: Prisma.UserCreateNestedOneWithoutDocumentsInput
-  chunks?: Prisma.DocumentChunkCreateNestedManyWithoutDocumentInput
-  jobs?: Prisma.AnalysisJobCreateNestedManyWithoutDocumentInput
-  tags?: Prisma.DocumentTagCreateNestedManyWithoutDocumentInput
-  tagMergeReviews?: Prisma.TagMergeReviewCreateNestedManyWithoutDocumentInput
-}
-
-export type DocumentUncheckedCreateWithoutRecommendationsInput = {
-  id?: string
-  userId: string
-  title: string
-  originalFileName: string
-  fileType: $Enums.FileType
-  filePath: string
-  fileSize: number
-  textContent?: string | null
-  language?: string | null
-  primaryTopic?: string | null
-  difficulty?: $Enums.Difficulty | null
-  summary?: string | null
-  subtopics?: Prisma.DocumentCreatesubtopicsInput | string[]
-  keywords?: Prisma.DocumentCreatekeywordsInput | string[]
-  analysisReason?: string | null
-  status?: $Enums.DocumentStatus
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  chunks?: Prisma.DocumentChunkUncheckedCreateNestedManyWithoutDocumentInput
-  jobs?: Prisma.AnalysisJobUncheckedCreateNestedManyWithoutDocumentInput
-  tags?: Prisma.DocumentTagUncheckedCreateNestedManyWithoutDocumentInput
-  tagMergeReviews?: Prisma.TagMergeReviewUncheckedCreateNestedManyWithoutDocumentInput
-}
-
-export type DocumentCreateOrConnectWithoutRecommendationsInput = {
-  where: Prisma.DocumentWhereUniqueInput
-  create: Prisma.XOR<Prisma.DocumentCreateWithoutRecommendationsInput, Prisma.DocumentUncheckedCreateWithoutRecommendationsInput>
-}
-
-export type DocumentUpsertWithoutRecommendationsInput = {
-  update: Prisma.XOR<Prisma.DocumentUpdateWithoutRecommendationsInput, Prisma.DocumentUncheckedUpdateWithoutRecommendationsInput>
-  create: Prisma.XOR<Prisma.DocumentCreateWithoutRecommendationsInput, Prisma.DocumentUncheckedCreateWithoutRecommendationsInput>
-  where?: Prisma.DocumentWhereInput
-}
-
-export type DocumentUpdateToOneWithWhereWithoutRecommendationsInput = {
-  where?: Prisma.DocumentWhereInput
-  data: Prisma.XOR<Prisma.DocumentUpdateWithoutRecommendationsInput, Prisma.DocumentUncheckedUpdateWithoutRecommendationsInput>
-}
-
-export type DocumentUpdateWithoutRecommendationsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  title?: Prisma.StringFieldUpdateOperationsInput | string
-  originalFileName?: Prisma.StringFieldUpdateOperationsInput | string
-  fileType?: Prisma.EnumFileTypeFieldUpdateOperationsInput | $Enums.FileType
-  filePath?: Prisma.StringFieldUpdateOperationsInput | string
-  fileSize?: Prisma.IntFieldUpdateOperationsInput | number
-  textContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  primaryTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  difficulty?: Prisma.NullableEnumDifficultyFieldUpdateOperationsInput | $Enums.Difficulty | null
-  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  subtopics?: Prisma.DocumentUpdatesubtopicsInput | string[]
-  keywords?: Prisma.DocumentUpdatekeywordsInput | string[]
-  analysisReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  user?: Prisma.UserUpdateOneRequiredWithoutDocumentsNestedInput
-  chunks?: Prisma.DocumentChunkUpdateManyWithoutDocumentNestedInput
-  jobs?: Prisma.AnalysisJobUpdateManyWithoutDocumentNestedInput
-  tags?: Prisma.DocumentTagUpdateManyWithoutDocumentNestedInput
-  tagMergeReviews?: Prisma.TagMergeReviewUpdateManyWithoutDocumentNestedInput
-}
-
-export type DocumentUncheckedUpdateWithoutRecommendationsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
-  title?: Prisma.StringFieldUpdateOperationsInput | string
-  originalFileName?: Prisma.StringFieldUpdateOperationsInput | string
-  fileType?: Prisma.EnumFileTypeFieldUpdateOperationsInput | $Enums.FileType
-  filePath?: Prisma.StringFieldUpdateOperationsInput | string
-  fileSize?: Prisma.IntFieldUpdateOperationsInput | number
-  textContent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  language?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  primaryTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  difficulty?: Prisma.NullableEnumDifficultyFieldUpdateOperationsInput | $Enums.Difficulty | null
-  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  subtopics?: Prisma.DocumentUpdatesubtopicsInput | string[]
-  keywords?: Prisma.DocumentUpdatekeywordsInput | string[]
-  analysisReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  chunks?: Prisma.DocumentChunkUncheckedUpdateManyWithoutDocumentNestedInput
   jobs?: Prisma.AnalysisJobUncheckedUpdateManyWithoutDocumentNestedInput
   tags?: Prisma.DocumentTagUncheckedUpdateManyWithoutDocumentNestedInput
   tagMergeReviews?: Prisma.TagMergeReviewUncheckedUpdateManyWithoutDocumentNestedInput
@@ -1532,8 +1281,6 @@ export type DocumentCreateManyUserInput = {
   primaryTopic?: string | null
   difficulty?: $Enums.Difficulty | null
   summary?: string | null
-  subtopics?: Prisma.DocumentCreatesubtopicsInput | string[]
-  keywords?: Prisma.DocumentCreatekeywordsInput | string[]
   analysisReason?: string | null
   status?: $Enums.DocumentStatus
   createdAt?: Date | string
@@ -1552,15 +1299,12 @@ export type DocumentUpdateWithoutUserInput = {
   primaryTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficulty?: Prisma.NullableEnumDifficultyFieldUpdateOperationsInput | $Enums.Difficulty | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  subtopics?: Prisma.DocumentUpdatesubtopicsInput | string[]
-  keywords?: Prisma.DocumentUpdatekeywordsInput | string[]
   analysisReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   chunks?: Prisma.DocumentChunkUpdateManyWithoutDocumentNestedInput
   jobs?: Prisma.AnalysisJobUpdateManyWithoutDocumentNestedInput
-  recommendations?: Prisma.RecommendationUpdateManyWithoutDocumentNestedInput
   tags?: Prisma.DocumentTagUpdateManyWithoutDocumentNestedInput
   tagMergeReviews?: Prisma.TagMergeReviewUpdateManyWithoutDocumentNestedInput
 }
@@ -1577,15 +1321,12 @@ export type DocumentUncheckedUpdateWithoutUserInput = {
   primaryTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficulty?: Prisma.NullableEnumDifficultyFieldUpdateOperationsInput | $Enums.Difficulty | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  subtopics?: Prisma.DocumentUpdatesubtopicsInput | string[]
-  keywords?: Prisma.DocumentUpdatekeywordsInput | string[]
   analysisReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   chunks?: Prisma.DocumentChunkUncheckedUpdateManyWithoutDocumentNestedInput
   jobs?: Prisma.AnalysisJobUncheckedUpdateManyWithoutDocumentNestedInput
-  recommendations?: Prisma.RecommendationUncheckedUpdateManyWithoutDocumentNestedInput
   tags?: Prisma.DocumentTagUncheckedUpdateManyWithoutDocumentNestedInput
   tagMergeReviews?: Prisma.TagMergeReviewUncheckedUpdateManyWithoutDocumentNestedInput
 }
@@ -1602,8 +1343,6 @@ export type DocumentUncheckedUpdateManyWithoutUserInput = {
   primaryTopic?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   difficulty?: Prisma.NullableEnumDifficultyFieldUpdateOperationsInput | $Enums.Difficulty | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  subtopics?: Prisma.DocumentUpdatesubtopicsInput | string[]
-  keywords?: Prisma.DocumentUpdatekeywordsInput | string[]
   analysisReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumDocumentStatusFieldUpdateOperationsInput | $Enums.DocumentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1618,7 +1357,6 @@ export type DocumentUncheckedUpdateManyWithoutUserInput = {
 export type DocumentCountOutputType = {
   chunks: number
   jobs: number
-  recommendations: number
   tags: number
   tagMergeReviews: number
 }
@@ -1626,7 +1364,6 @@ export type DocumentCountOutputType = {
 export type DocumentCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   chunks?: boolean | DocumentCountOutputTypeCountChunksArgs
   jobs?: boolean | DocumentCountOutputTypeCountJobsArgs
-  recommendations?: boolean | DocumentCountOutputTypeCountRecommendationsArgs
   tags?: boolean | DocumentCountOutputTypeCountTagsArgs
   tagMergeReviews?: boolean | DocumentCountOutputTypeCountTagMergeReviewsArgs
 }
@@ -1658,13 +1395,6 @@ export type DocumentCountOutputTypeCountJobsArgs<ExtArgs extends runtime.Types.E
 /**
  * DocumentCountOutputType without action
  */
-export type DocumentCountOutputTypeCountRecommendationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.RecommendationWhereInput
-}
-
-/**
- * DocumentCountOutputType without action
- */
 export type DocumentCountOutputTypeCountTagsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.DocumentTagWhereInput
 }
@@ -1690,8 +1420,6 @@ export type DocumentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   primaryTopic?: boolean
   difficulty?: boolean
   summary?: boolean
-  subtopics?: boolean
-  keywords?: boolean
   analysisReason?: boolean
   status?: boolean
   createdAt?: boolean
@@ -1699,7 +1427,6 @@ export type DocumentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   chunks?: boolean | Prisma.Document$chunksArgs<ExtArgs>
   jobs?: boolean | Prisma.Document$jobsArgs<ExtArgs>
-  recommendations?: boolean | Prisma.Document$recommendationsArgs<ExtArgs>
   tags?: boolean | Prisma.Document$tagsArgs<ExtArgs>
   tagMergeReviews?: boolean | Prisma.Document$tagMergeReviewsArgs<ExtArgs>
   _count?: boolean | Prisma.DocumentCountOutputTypeDefaultArgs<ExtArgs>
@@ -1718,8 +1445,6 @@ export type DocumentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   primaryTopic?: boolean
   difficulty?: boolean
   summary?: boolean
-  subtopics?: boolean
-  keywords?: boolean
   analysisReason?: boolean
   status?: boolean
   createdAt?: boolean
@@ -1740,8 +1465,6 @@ export type DocumentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   primaryTopic?: boolean
   difficulty?: boolean
   summary?: boolean
-  subtopics?: boolean
-  keywords?: boolean
   analysisReason?: boolean
   status?: boolean
   createdAt?: boolean
@@ -1762,20 +1485,17 @@ export type DocumentSelectScalar = {
   primaryTopic?: boolean
   difficulty?: boolean
   summary?: boolean
-  subtopics?: boolean
-  keywords?: boolean
   analysisReason?: boolean
   status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type DocumentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "title" | "originalFileName" | "fileType" | "filePath" | "fileSize" | "textContent" | "language" | "primaryTopic" | "difficulty" | "summary" | "subtopics" | "keywords" | "analysisReason" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["document"]>
+export type DocumentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "title" | "originalFileName" | "fileType" | "filePath" | "fileSize" | "textContent" | "language" | "primaryTopic" | "difficulty" | "summary" | "analysisReason" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["document"]>
 export type DocumentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   chunks?: boolean | Prisma.Document$chunksArgs<ExtArgs>
   jobs?: boolean | Prisma.Document$jobsArgs<ExtArgs>
-  recommendations?: boolean | Prisma.Document$recommendationsArgs<ExtArgs>
   tags?: boolean | Prisma.Document$tagsArgs<ExtArgs>
   tagMergeReviews?: boolean | Prisma.Document$tagMergeReviewsArgs<ExtArgs>
   _count?: boolean | Prisma.DocumentCountOutputTypeDefaultArgs<ExtArgs>
@@ -1793,7 +1513,6 @@ export type $DocumentPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     user: Prisma.$UserPayload<ExtArgs>
     chunks: Prisma.$DocumentChunkPayload<ExtArgs>[]
     jobs: Prisma.$AnalysisJobPayload<ExtArgs>[]
-    recommendations: Prisma.$RecommendationPayload<ExtArgs>[]
     tags: Prisma.$DocumentTagPayload<ExtArgs>[]
     tagMergeReviews: Prisma.$TagMergeReviewPayload<ExtArgs>[]
   }
@@ -1810,8 +1529,6 @@ export type $DocumentPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     primaryTopic: string | null
     difficulty: $Enums.Difficulty | null
     summary: string | null
-    subtopics: string[]
-    keywords: string[]
     analysisReason: string | null
     status: $Enums.DocumentStatus
     createdAt: Date
@@ -2213,7 +1930,6 @@ export interface Prisma__DocumentClient<T, Null = never, ExtArgs extends runtime
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   chunks<T extends Prisma.Document$chunksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Document$chunksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DocumentChunkPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   jobs<T extends Prisma.Document$jobsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Document$jobsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AnalysisJobPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  recommendations<T extends Prisma.Document$recommendationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Document$recommendationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RecommendationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   tags<T extends Prisma.Document$tagsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Document$tagsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DocumentTagPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   tagMergeReviews<T extends Prisma.Document$tagMergeReviewsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Document$tagMergeReviewsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TagMergeReviewPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -2257,8 +1973,6 @@ export interface DocumentFieldRefs {
   readonly primaryTopic: Prisma.FieldRef<"Document", 'String'>
   readonly difficulty: Prisma.FieldRef<"Document", 'Difficulty'>
   readonly summary: Prisma.FieldRef<"Document", 'String'>
-  readonly subtopics: Prisma.FieldRef<"Document", 'String[]'>
-  readonly keywords: Prisma.FieldRef<"Document", 'String[]'>
   readonly analysisReason: Prisma.FieldRef<"Document", 'String'>
   readonly status: Prisma.FieldRef<"Document", 'DocumentStatus'>
   readonly createdAt: Prisma.FieldRef<"Document", 'DateTime'>
@@ -2709,30 +2423,6 @@ export type Document$jobsArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   take?: number
   skip?: number
   distinct?: Prisma.AnalysisJobScalarFieldEnum | Prisma.AnalysisJobScalarFieldEnum[]
-}
-
-/**
- * Document.recommendations
- */
-export type Document$recommendationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Recommendation
-   */
-  select?: Prisma.RecommendationSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Recommendation
-   */
-  omit?: Prisma.RecommendationOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.RecommendationInclude<ExtArgs> | null
-  where?: Prisma.RecommendationWhereInput
-  orderBy?: Prisma.RecommendationOrderByWithRelationInput | Prisma.RecommendationOrderByWithRelationInput[]
-  cursor?: Prisma.RecommendationWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.RecommendationScalarFieldEnum | Prisma.RecommendationScalarFieldEnum[]
 }
 
 /**

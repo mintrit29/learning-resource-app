@@ -51,7 +51,7 @@ Nếu tài liệu thuộc một chủ đề đã có bên dưới, hãy dùng đ
 Chủ đề đã có trong thư viện:
 ${existingTopics}
 
-{"topic":"chủ đề chính","topicAliases":["0-12 tên tương đương hoặc cách gọi khác, ví dụ Ngữ văn, Literature"],"difficulty":"BEGINNER|INTERMEDIATE|ADVANCED","language":"ngôn ngữ chính của tài liệu, ví dụ English hoặc Vietnamese","summary":"tóm tắt tiếng Việt 5-8 câu","subtopics":["2-12 chủ đề con cụ thể"],"keywords":["3-30 từ khóa"],"reason":"lý do chọn chủ đề và độ khó"}
+{"topic":"chủ đề chính","topicAliases":["0-12 tên tương đương hoặc cách gọi khác, ví dụ Ngữ văn, Literature"],"difficulty":"BEGINNER|INTERMEDIATE|ADVANCED","language":"ngôn ngữ chính của tài liệu, ví dụ English hoặc Vietnamese","summary":"tóm tắt tiếng Việt 5-8 câu","reason":"lý do chọn chủ đề và độ khó"}
 
 Tên file: ${document.originalFileName}
 Nội dung:
@@ -60,8 +60,7 @@ ${content}`,
     ]);
     const result = documentAnalysisSchema.parse(parseJson(response));
     const canonicalTopic = await canonicalizePrimaryTopic(document.userId, result.topic, result.topicAliases);
-    const subtopics = [...new Set(result.subtopics)];
-    await syncDocumentTags(document.id, document.userId, [canonicalTopic, ...subtopics]);
+    await syncDocumentTags(document.id, document.userId, [canonicalTopic]);
 
     await db.$transaction([
       db.document.update({
@@ -71,8 +70,6 @@ ${content}`,
           difficulty: result.difficulty as Difficulty,
           language: result.language,
           summary: result.summary,
-          subtopics,
-          keywords: [...new Set(result.keywords)],
           analysisReason: result.reason,
           status: DocumentStatus.READY,
         },

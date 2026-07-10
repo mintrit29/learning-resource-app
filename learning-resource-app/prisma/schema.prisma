@@ -65,7 +65,6 @@ model User {
   accounts        Account[]
   sessions        Session[]
   documents       Document[]
-  projects        Project[]
   aiProviders     AiProvider[]
   searchLogs      SearchLog[]
   createdTags     Tag[]            @relation("TagCreator")
@@ -119,14 +118,11 @@ model Document {
   primaryTopic     String?
   difficulty       Difficulty?
   summary          String?
-  subtopics        String[]         @default([])
-  keywords         String[]         @default([])
   analysisReason   String?
   status           DocumentStatus   @default(UPLOADED)
   user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   chunks           DocumentChunk[]
   jobs             AnalysisJob[]
-  recommendations  Recommendation[]
   tags             DocumentTag[]
   tagMergeReviews  TagMergeReview[]
   createdAt        DateTime         @default(now())
@@ -232,36 +228,6 @@ model DocumentChunk {
 
   @@unique([documentId, chunkIndex])
   @@index([documentId])
-}
-
-model Project {
-  id               String           @id @default(cuid())
-  userId           String
-  title            String
-  description      String
-  keywords         String[]         @default([])
-  targetDifficulty Difficulty?
-  embedding        Unsupported("vector(1024)")?
-  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  recommendations  Recommendation[]
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
-
-  @@index([userId, createdAt])
-}
-
-model Recommendation {
-  id         String   @id @default(cuid())
-  projectId  String
-  documentId String
-  score      Float
-  reason     String?
-  bestChunkId String?
-  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
-  createdAt  DateTime @default(now())
-
-  @@unique([projectId, documentId])
 }
 
 model AiProvider {

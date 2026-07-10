@@ -12,26 +12,5 @@ const user = await db.user.upsert({
   create: { email, name: "Tài khoản Demo", passwordHash },
 });
 
-await db.project.upsert({
-  where: {
-    id: "demo-project-scholarflow",
-  },
-  update: {
-    userId: user.id,
-    title: "Demo: Database transaction processing",
-    description: "Đề tài demo để kiểm tra gợi ý tài liệu, outline và semantic search.",
-    keywords: ["Database", "Transactions", "Concurrency Control"],
-    targetDifficulty: "INTERMEDIATE",
-  },
-  create: {
-    id: "demo-project-scholarflow",
-    userId: user.id,
-    title: "Demo: Database transaction processing",
-    description: "Đề tài demo để kiểm tra gợi ý tài liệu, outline và semantic search.",
-    keywords: ["Database", "Transactions", "Concurrency Control"],
-    targetDifficulty: "INTERMEDIATE",
-  },
-});
-
 console.log(JSON.stringify({ email, password, userId: user.id }, null, 2));
 await db.$disconnect();
