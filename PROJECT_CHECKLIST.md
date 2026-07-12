@@ -265,6 +265,7 @@
 
 - [x] Bỏ tùy chọn tổng số đoạn khỏi trang Hỏi tài liệu để UI đỡ rối.
 - [x] Cho phép chỉnh số đoạn tối đa hiển thị cho mỗi tài liệu.
+- [x] Ghi rõ giới hạn nội bộ 40 chunk/search; khi vượt giới hạn thì ưu tiên kết quả điểm cao và cắt bớt kết quả yếu hơn.
 - [x] API semantic search hỗ trợ `chunksPerDocument`.
 - [x] Lưu `chunksPerDocument` vào SearchLog để phục vụ evaluation/debug.
 - [x] Thu gọn alias trong trang Chủ đề chuẩn & tên gọi khác khi alias quá nhiều.
