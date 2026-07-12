@@ -6,7 +6,6 @@ import { embedTexts, toPgVector } from "@/lib/embedding/client";
 
 const searchSchema = z.object({
   query: z.string().trim().min(2).max(500),
-  limit: z.number().int().min(1).max(40).default(10),
   chunksPerDocument: z.number().int().min(1).max(5).default(1),
   topic: z.string().trim().max(120).optional(),
   difficulty: z.enum(["BEGINNER", "INTERMEDIATE", "ADVANCED"]).optional(),
@@ -44,7 +43,8 @@ export async function POST(request: Request) {
   try {
     const embedded = await embedTexts([parsed.data.query]);
     const vector = toPgVector(embedded.embeddings[0]);
-    const candidateLimit = parsed.data.limit * parsed.data.chunksPerDocument * 5;
+    const resultLimit = 40;
+    const candidateLimit = resultLimit * parsed.data.chunksPerDocument * 5;
     const rows = await db.$queryRawUnsafe<SearchRow[]>(
     `SELECT
       c."id" AS "chunkId",
@@ -86,7 +86,7 @@ export async function POST(request: Request) {
       if (currentCount >= parsed.data.chunksPerDocument) return false;
       chunksByDocument.set(row.documentId, currentCount + 1);
       return true;
-    }).slice(0, parsed.data.limit);
+    }).slice(0, resultLimit);
 
     await db.searchLog.create({
       data: {
@@ -99,7 +99,7 @@ export async function POST(request: Request) {
           documentId: parsed.data.documentId || null,
           dateFrom: parsed.data.dateFrom || null,
           dateTo: parsed.data.dateTo || null,
-          limit: parsed.data.limit,
+          limit: resultLimit,
           chunksPerDocument: parsed.data.chunksPerDocument,
         },
         resultDocumentIds: [...new Set(results.map((result) => result.documentId))],

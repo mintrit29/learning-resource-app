@@ -37,7 +37,6 @@ const examples = [
 
 export function SemanticSearch() {
   const [query, setQuery] = useState("");
-  const [resultLimit, setResultLimit] = useState(10);
   const [chunksPerDocument, setChunksPerDocument] = useState(1);
   const [results, setResults] = useState<SearchResult[]>([]);
   const [searchedQuery, setSearchedQuery] = useState("");
@@ -62,7 +61,6 @@ export function SemanticSearch() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           query: normalizedQuery,
-          limit: resultLimit,
           chunksPerDocument,
         }),
       });
@@ -153,15 +151,6 @@ export function SemanticSearch() {
 
       <div className="search-display-options" aria-label="Tùy chỉnh kết quả tìm kiếm">
         <label>
-          Tổng số đoạn
-          <select value={resultLimit} onChange={(event) => setResultLimit(Number(event.target.value))}>
-            <option value={5}>5 đoạn</option>
-            <option value={10}>10 đoạn</option>
-            <option value={20}>20 đoạn</option>
-            <option value={40}>40 đoạn</option>
-          </select>
-        </label>
-        <label>
           Mỗi tài liệu tối đa
           <select value={chunksPerDocument} onChange={(event) => setChunksPerDocument(Number(event.target.value))}>
             <option value={1}>1 đoạn</option>
@@ -170,7 +159,7 @@ export function SemanticSearch() {
             <option value={5}>5 đoạn</option>
           </select>
         </label>
-        <span>Muốn xem nhiều ý trong cùng một file thì tăng “mỗi tài liệu”.</span>
+        <span>Muốn xem nhiều ý trong cùng một file thì tăng số này.</span>
       </div>
 
       {!searchedQuery && (
@@ -208,7 +197,7 @@ export function SemanticSearch() {
             <span>{results.length} đoạn phù hợp</span>
           </div>
           <p className="search-results-note">
-            App biến câu hỏi và từng đoạn tài liệu thành vector ý nghĩa rồi so độ gần nhau. Kết quả bên dưới đang hiển thị tối đa {chunksPerDocument} đoạn phù hợp cho mỗi tài liệu.
+            App biến câu hỏi và từng đoạn tài liệu thành vector ý nghĩa rồi so độ gần nhau. Mỗi tài liệu đang hiển thị tối đa {chunksPerDocument} đoạn phù hợp.
           </p>
           <div className="ai-curation-toolbar">
             <div>

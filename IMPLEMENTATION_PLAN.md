@@ -1029,11 +1029,10 @@ Document.primaryTopic = "Văn học"
 
 ## Cập nhật 12/07/2026 - Search result controls và alias collapse
 
-- `/api/search` nhận thêm `chunksPerDocument` để giới hạn số chunk tối đa cho mỗi tài liệu.
-- UI `/search` cho người dùng chỉnh:
-  - Tổng số đoạn hiển thị: 5, 10, 20 hoặc 40.
-  - Mỗi tài liệu tối đa: 1, 2, 3 hoặc 5 đoạn.
+- `/api/search` nhận `chunksPerDocument` để giới hạn số chunk tối đa cho mỗi tài liệu.
+- UI `/search` chỉ cho người dùng chỉnh `Mỗi tài liệu tối đa`: 1, 2, 3 hoặc 5 đoạn.
+- Không hiển thị tùy chọn tổng số đoạn; API dùng giới hạn nội bộ để tránh trả quá nhiều chunk trong một lần tìm.
 - Search API vẫn lấy candidate bằng pgvector rồi lọc theo số chunk/tài liệu trước khi trả kết quả.
-- `SearchLog.filters` lưu thêm `chunksPerDocument` để phục vụ evaluation và debug.
+- `SearchLog.filters` lưu `chunksPerDocument` và giới hạn nội bộ để phục vụ evaluation/debug.
 - Trang `/settings/tags` thu gọn alias: mặc định hiện 6 alias đầu, alias còn lại hiển thị bằng nút `+n tên khác`.
 - Không triển khai runtime UI cho GPU/CPU batch trong đợt này; batch tiếp tục là cấu hình vận hành Docker/env.

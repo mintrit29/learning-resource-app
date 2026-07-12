@@ -263,7 +263,7 @@
 
 ## Cập nhật 12/07/2026 - Search result controls và alias collapse
 
-- [x] Cho phép chỉnh tổng số đoạn kết quả trong trang Hỏi tài liệu.
+- [x] Bỏ tùy chọn tổng số đoạn khỏi trang Hỏi tài liệu để UI đỡ rối.
 - [x] Cho phép chỉnh số đoạn tối đa hiển thị cho mỗi tài liệu.
 - [x] API semantic search hỗ trợ `chunksPerDocument`.
 - [x] Lưu `chunksPerDocument` vào SearchLog để phục vụ evaluation/debug.
