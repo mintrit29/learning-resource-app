@@ -27,8 +27,8 @@ export default function SettingsPage() {
             <Tags size={21} />
           </span>
           <div>
-            <strong>Chủ đề và tags</strong>
-            <p>Quản lý tag chuẩn, alias và đề xuất gộp chủ đề.</p>
+            <strong>Chủ đề chuẩn & tên gọi khác</strong>
+            <p>Gom “Học máy”, “Machine Learning”, “ML”… về cùng một chủ đề.</p>
           </div>
           <ChevronRight size={18} />
         </Link>

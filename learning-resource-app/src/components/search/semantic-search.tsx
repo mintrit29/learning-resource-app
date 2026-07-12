@@ -180,6 +180,10 @@ export function SemanticSearch() {
             <h2>Kết quả cho “{searchedQuery}”</h2>
             <span>{results.length} đoạn phù hợp</span>
           </div>
+          <p className="search-results-note">
+            App biến câu hỏi và từng đoạn tài liệu thành vector ý nghĩa rồi so độ gần nhau. Kết quả bên dưới đang ưu tiên
+            1 đoạn khớp nhất cho mỗi tài liệu để bạn không bị một file chiếm hết danh sách.
+          </p>
           <div className="ai-curation-toolbar">
             <div>
               <strong>Không chắc nên đọc đoạn nào?</strong>

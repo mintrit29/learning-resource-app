@@ -64,7 +64,7 @@ export function getDocumentDisplayStatus(document: DocumentLike, jobs: JobLike[]
   }
 
   if (isRunning(analysisJob?.status)) {
-    return { label: "Đang phân tích AI", className: "processing", isReadyToAsk: true };
+    return { label: "Đang phân tích AI", className: "processing", isReadyToAsk: false };
   }
 
   if (analysisJob?.status === JobStatus.FAILED) {

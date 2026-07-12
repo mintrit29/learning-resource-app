@@ -80,12 +80,19 @@ export default async function DashboardPage() {
        FROM "Document" d
        WHERE d."userId" = $1
          AND d."status" <> 'FAILED'
+         AND d."primaryTopic" IS NOT NULL
+         AND d."difficulty" IS NOT NULL
+         AND d."summary" IS NOT NULL
          AND EXISTS (
            SELECT 1 FROM "DocumentChunk" c WHERE c."documentId" = d."id"
          )
          AND NOT EXISTS (
            SELECT 1 FROM "DocumentChunk" c
            WHERE c."documentId" = d."id" AND c."embedding" IS NULL
+         )
+         AND NOT EXISTS (
+           SELECT 1 FROM "AnalysisJob" j
+           WHERE j."documentId" = d."id" AND j."status" IN ('PENDING', 'PROCESSING')
          )`,
       userId,
     ),
@@ -177,9 +184,9 @@ export default async function DashboardPage() {
       icon: FileStack,
     },
     {
-      label: "Sẵn sàng để hỏi",
+      label: "Đã xử lý xong",
       value: `${readyRate}%`,
-      detail: `${readyCount}/${documentCount} tài liệu đã xử lý`,
+      detail: `${readyCount}/${documentCount} tài liệu đã đọc + phân tích`,
       icon: Sparkles,
     },
     {
