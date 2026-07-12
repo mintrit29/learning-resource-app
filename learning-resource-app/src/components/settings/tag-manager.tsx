@@ -19,6 +19,7 @@ export function TagManager({ initialTags }: { initialTags: TagItem[] }) {
   const [isMerging, setIsMerging] = useState(false);
   const [form, setForm] = useState({ name: "", description: "" });
   const [mergeForm, setMergeForm] = useState({ sourceTagId: "", targetTagId: "" });
+  const [expandedAliases, setExpandedAliases] = useState<Set<string>>(new Set());
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
 
@@ -81,6 +82,16 @@ export function TagManager({ initialTags }: { initialTags: TagItem[] }) {
   }
 
   const targetOptions = initialTags.filter((tag) => tag.id !== mergeForm.sourceTagId);
+  const visibleAliasLimit = 6;
+
+  function toggleAliases(tagId: string) {
+    setExpandedAliases((current) => {
+      const next = new Set(current);
+      if (next.has(tagId)) next.delete(tagId);
+      else next.add(tagId);
+      return next;
+    });
+  }
 
   return (
     <>
@@ -117,9 +128,14 @@ export function TagManager({ initialTags }: { initialTags: TagItem[] }) {
                 <small>{tag.description ?? "Tên chính dùng để lọc và hiển thị trong tài liệu."}</small>
                 {tag.aliases.length ? (
                   <div className="tag-alias-list" aria-label={`Tên gọi khác của ${tag.name}`}>
-                    {tag.aliases.map((alias) => (
+                    {(expandedAliases.has(tag.id) ? tag.aliases : tag.aliases.slice(0, visibleAliasLimit)).map((alias) => (
                       <span key={alias.id}>{alias.alias}</span>
                     ))}
+                    {tag.aliases.length > visibleAliasLimit ? (
+                      <button className="tag-alias-toggle" onClick={() => toggleAliases(tag.id)} type="button">
+                        {expandedAliases.has(tag.id) ? "Thu gọn" : `+${tag.aliases.length - visibleAliasLimit} tên khác`}
+                      </button>
+                    ) : null}
                   </div>
                 ) : (
                   <div className="tag-alias-list empty-alias">Chưa có tên gọi khác</div>

@@ -6,7 +6,8 @@ import { embedTexts, toPgVector } from "@/lib/embedding/client";
 
 const searchSchema = z.object({
   query: z.string().trim().min(2).max(500),
-  limit: z.number().int().min(1).max(20).default(10),
+  limit: z.number().int().min(1).max(40).default(10),
+  chunksPerDocument: z.number().int().min(1).max(5).default(1),
   topic: z.string().trim().max(120).optional(),
   difficulty: z.enum(["BEGINNER", "INTERMEDIATE", "ADVANCED"]).optional(),
   fileType: z.enum(["PDF", "PPTX", "DOCX", "EPUB"]).optional(),
@@ -43,7 +44,7 @@ export async function POST(request: Request) {
   try {
     const embedded = await embedTexts([parsed.data.query]);
     const vector = toPgVector(embedded.embeddings[0]);
-    const candidateLimit = parsed.data.limit * 5;
+    const candidateLimit = parsed.data.limit * parsed.data.chunksPerDocument * 5;
     const rows = await db.$queryRawUnsafe<SearchRow[]>(
     `SELECT
       c."id" AS "chunkId",
@@ -79,10 +80,11 @@ export async function POST(request: Request) {
       candidateLimit,
     );
 
-    const seenDocuments = new Set<string>();
+    const chunksByDocument = new Map<string, number>();
     const results = rows.filter((row) => {
-      if (seenDocuments.has(row.documentId)) return false;
-      seenDocuments.add(row.documentId);
+      const currentCount = chunksByDocument.get(row.documentId) ?? 0;
+      if (currentCount >= parsed.data.chunksPerDocument) return false;
+      chunksByDocument.set(row.documentId, currentCount + 1);
       return true;
     }).slice(0, parsed.data.limit);
 
@@ -98,8 +100,9 @@ export async function POST(request: Request) {
           dateFrom: parsed.data.dateFrom || null,
           dateTo: parsed.data.dateTo || null,
           limit: parsed.data.limit,
+          chunksPerDocument: parsed.data.chunksPerDocument,
         },
-        resultDocumentIds: results.map((result) => result.documentId),
+        resultDocumentIds: [...new Set(results.map((result) => result.documentId))],
       },
     }).catch(() => null);
 

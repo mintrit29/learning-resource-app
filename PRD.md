@@ -455,3 +455,11 @@ App nhận ra alias đã có -> lưu chung primaryTopic là Văn học
 ```
 
 Sau khi chốt lại UX, `subtopics` và `keywords` không còn thuộc schema/app chính. App chỉ dùng `primaryTopic` làm chủ đề hiển thị và `TagAlias` làm danh sách tên tương đương nội bộ để gom chủ đề.
+
+## Cập nhật 12/07/2026 - Tùy chỉnh kết quả tìm kiếm và hiển thị alias
+
+- Trang `Hỏi tài liệu` cho phép người dùng tự chỉnh tổng số đoạn kết quả và số đoạn tối đa hiển thị cho mỗi tài liệu.
+- Mặc định vẫn ưu tiên danh sách gọn để người mới dễ đọc; khi cần xem nhiều ý trong cùng một file, người dùng tăng số đoạn mỗi tài liệu.
+- Search vẫn là semantic search theo chunk: query và từng đoạn tài liệu được embedding rồi so độ gần nhau bằng pgvector.
+- Trang `Chủ đề chuẩn & tên gọi khác` chỉ hiển thị một số alias đầu tiên; nếu alias nhiều, UI thu gọn bằng nút `+n tên khác` và cho phép bung/thu gọn.
+- Không đưa batch GPU/CPU vào UI người dùng ở giai đoạn này vì batch là cấu hình vận hành container, dễ gây lỗi RAM/VRAM nếu chỉnh sai.

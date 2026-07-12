@@ -260,3 +260,12 @@
 - [x] Xóa schema Project/Recommendation legacy vì đã bỏ khỏi MVP.
 - [x] Kiểm tra lint/build sau khi sửa.
 - [x] Push thay đổi lên GitHub.
+
+## Cập nhật 12/07/2026 - Search result controls và alias collapse
+
+- [x] Cho phép chỉnh tổng số đoạn kết quả trong trang Hỏi tài liệu.
+- [x] Cho phép chỉnh số đoạn tối đa hiển thị cho mỗi tài liệu.
+- [x] API semantic search hỗ trợ `chunksPerDocument`.
+- [x] Lưu `chunksPerDocument` vào SearchLog để phục vụ evaluation/debug.
+- [x] Thu gọn alias trong trang Chủ đề chuẩn & tên gọi khác khi alias quá nhiều.
+- [x] Chốt chưa đưa GPU/CPU batch vào UI người dùng; giữ batch ở cấu hình Docker/env.

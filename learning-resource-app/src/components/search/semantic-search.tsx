@@ -37,6 +37,8 @@ const examples = [
 
 export function SemanticSearch() {
   const [query, setQuery] = useState("");
+  const [resultLimit, setResultLimit] = useState(10);
+  const [chunksPerDocument, setChunksPerDocument] = useState(1);
   const [results, setResults] = useState<SearchResult[]>([]);
   const [searchedQuery, setSearchedQuery] = useState("");
   const [error, setError] = useState("");
@@ -60,7 +62,8 @@ export function SemanticSearch() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           query: normalizedQuery,
-          limit: 10,
+          limit: resultLimit,
+          chunksPerDocument,
         }),
       });
       const data = (await response.json()) as {
@@ -148,6 +151,28 @@ export function SemanticSearch() {
         </button>
       </form>
 
+      <div className="search-display-options" aria-label="Tùy chỉnh kết quả tìm kiếm">
+        <label>
+          Tổng số đoạn
+          <select value={resultLimit} onChange={(event) => setResultLimit(Number(event.target.value))}>
+            <option value={5}>5 đoạn</option>
+            <option value={10}>10 đoạn</option>
+            <option value={20}>20 đoạn</option>
+            <option value={40}>40 đoạn</option>
+          </select>
+        </label>
+        <label>
+          Mỗi tài liệu tối đa
+          <select value={chunksPerDocument} onChange={(event) => setChunksPerDocument(Number(event.target.value))}>
+            <option value={1}>1 đoạn</option>
+            <option value={2}>2 đoạn</option>
+            <option value={3}>3 đoạn</option>
+            <option value={5}>5 đoạn</option>
+          </select>
+        </label>
+        <span>Muốn xem nhiều ý trong cùng một file thì tăng “mỗi tài liệu”.</span>
+      </div>
+
       {!searchedQuery && (
         <div className="query-examples">
           <span>Thử hỏi:</span>
@@ -165,6 +190,7 @@ export function SemanticSearch() {
           <p>{error}</p>
         </div>
       ) : null}
+
       {!error && searchedQuery && results.length === 0 ? (
         <div className="empty-state search-empty">
           <div className="empty-icon">
@@ -174,6 +200,7 @@ export function SemanticSearch() {
           <p>Thử hỏi ngắn hơn, dùng từ khác, hoặc thêm nhiều tài liệu hơn vào thư viện.</p>
         </div>
       ) : null}
+
       {results.length ? (
         <section className="search-results">
           <div className="search-results-heading">
@@ -181,8 +208,7 @@ export function SemanticSearch() {
             <span>{results.length} đoạn phù hợp</span>
           </div>
           <p className="search-results-note">
-            App biến câu hỏi và từng đoạn tài liệu thành vector ý nghĩa rồi so độ gần nhau. Kết quả bên dưới đang ưu tiên
-            1 đoạn khớp nhất cho mỗi tài liệu để bạn không bị một file chiếm hết danh sách.
+            App biến câu hỏi và từng đoạn tài liệu thành vector ý nghĩa rồi so độ gần nhau. Kết quả bên dưới đang hiển thị tối đa {chunksPerDocument} đoạn phù hợp cho mỗi tài liệu.
           </p>
           <div className="ai-curation-toolbar">
             <div>
@@ -219,10 +245,7 @@ export function SemanticSearch() {
                   {(entries as Array<{ item: CuratedSearchItem; result: SearchResult }>).length ? (
                     <div className="ai-curation-items">
                       {(entries as Array<{ item: CuratedSearchItem; result: SearchResult }>).map(({ item, result }) => (
-                        <Link
-                          href={`/documents/${result.documentId}?chunk=${result.chunkId}#matched-chunk`}
-                          key={item.chunkId}
-                        >
+                        <Link href={`/documents/${result.documentId}?chunk=${result.chunkId}#matched-chunk`} key={item.chunkId}>
                           <span>{result.fileType}</span>
                           <div>
                             <strong>{result.title}</strong>
