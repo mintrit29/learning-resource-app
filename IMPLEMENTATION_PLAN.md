@@ -964,6 +964,73 @@ Dự án nâng cấp được xem là hoàn thành khi:
 - HTTP `localhost:3000` trả 200.
 - Embedding health ready với `BAAI/bge-m3`, CPU, batch 4, 1024 dimensions.
 - Browser check pass cho dashboard, search filters và responsive mobile DOM.
+
+## Cập nhật 16/07/2026 - Implementation plan cho Evidence Search
+
+> **Trạng thái tài liệu:** Đây là change plan cho bản nâng cấp trên search MVP hiện tại, không phải plan cho module độc lập. Các API, component và schema hiện có phải được ưu tiên tái sử dụng. Sau khi hoàn thành và kiểm thử, phần này sẽ được hợp nhất vào các mục pipeline search, UI search, test plan và Definition of Done chính.
+
+### 1. Nguyên tắc triển khai
+
+Giữ nguyên pipeline upload, chunking, BGE-M3 và pgvector. Chỉ nâng cấp lớp search/retrieval và thêm bước trả lời có dẫn chứng. Không gửi toàn bộ tài liệu vào LLM.
+
+### 2. Pipeline mới
+
+```text
+POST /api/search
+-> parse query
+-> query understanding (optional metadata extraction)
+-> vector candidates từ pgvector
+-> keyword candidates từ PostgreSQL full-text search
+-> merge bằng Reciprocal Rank Fusion hoặc weighted score
+-> deduplicate và group theo document
+-> rerank top 20
+-> trả top 40 result chunks cho UI
+
+POST /api/search/answer
+-> nhận query và top results đã kiểm chứng
+-> chọn tối đa 8 chunks làm context
+-> gọi active chat provider
+-> parse JSON answer + citations
+-> validate citation chỉ trỏ tới chunk đã gửi
+```
+
+### 3. Backend modules
+
+- Tạo hàm `searchByVector` chứa truy vấn pgvector hiện tại.
+- Tạo hàm `searchByKeyword` dùng PostgreSQL `tsvector`/`tsquery` hoặc cơ chế full-text tương đương.
+- Tạo hàm `mergeSearchCandidates` để hợp nhất hai danh sách và loại trùng chunk.
+- Tạo hàm `rankSearchResults` với điểm thành phần rõ ràng; không coi điểm là accuracy.
+- Tạo schema request/response cho `/api/search/answer`.
+- Tạo prompt bắt buộc LLM chỉ dùng context, trả `answer`, `citations`, `confidence`, `notEnoughEvidence`.
+- Validate mọi citation bằng `chunkId` trong tập context đã gửi.
+- Giữ `SearchLog`, bổ sung mode, candidate count và answer generation status nếu cần.
+
+### 4. UI/UX
+
+- Giữ ô hỏi tự nhiên hiện tại.
+- Hiển thị các tiêu chí query được suy ra dưới dạng chip chỉnh được; nếu chưa làm query understanding tự động thì để sau rerank.
+- Đổi cách hiển thị `87%` thành `Mức phù hợp` hoặc thanh điểm không gây hiểu nhầm là độ chính xác.
+- Thêm nút `Trả lời có dẫn chứng` sau khi có kết quả.
+- Hiển thị answer ở đầu, citation bên dưới mỗi ý và link mở đúng chunk/trang.
+- Có trạng thái `Không đủ bằng chứng trong thư viện`.
+- Cho phép chuyển giữa `Kết quả theo đoạn` và `Kết quả theo tài liệu`.
+
+### 5. Thứ tự làm để giảm rủi ro
+
+1. Sửa nhãn score và kiểm tra retrieval hiện tại.
+2. Thêm keyword search và merge với vector search.
+3. Thêm rerank/group theo document.
+4. Thêm answer API có citation.
+5. Tích hợp UI, loading, lỗi provider và empty state.
+6. Chạy evaluation so sánh search cũ và mới.
+
+### 6. Không làm trong đợt này
+
+- Không đưa nguyên tài liệu vào prompt.
+- Không làm GraphRAG/knowledge graph.
+- Không fine-tune hoặc train model.
+- Không xây chatbot hội thoại dài hạn.
+- Không thêm recommendation/project workspace riêng.
 # UX Simplification - Cải tiến giao diện dễ dùng
 
 Mục tiêu của đợt cải tiến này là đổi app từ giao diện thiên về kỹ thuật sang luồng thao tác dễ hiểu cho người không rành AI/NLP.

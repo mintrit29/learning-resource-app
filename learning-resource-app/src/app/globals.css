@@ -221,6 +221,10 @@ svg { flex-shrink: 0; stroke-width: 1.8; }
 .search-results-heading { min-height: 60px; display: flex; align-items: center; justify-content: space-between; gap: 18px; border-bottom: 1px solid var(--line); padding: 12px 20px; }
 .search-results-heading h2 { margin: 0; font-size: var(--text-base); }
 .search-results-heading span { color: var(--muted); font-size: var(--text-xs); }
+.search-view-toggle { display: inline-flex; border: 1px solid var(--line); border-radius: 7px; overflow: hidden; }
+.search-view-toggle button { min-height: 32px; border: 0; border-right: 1px solid var(--line); background: white; padding: 0 10px; color: var(--muted); font-size: 11px; font-weight: 750; cursor: pointer; }
+.search-view-toggle button:last-child { border-right: 0; }
+.search-view-toggle button.active { background: var(--mint); color: var(--teal); }
 .search-results-note { margin: 0; border-bottom: 1px solid var(--line); background: #fbfefd; padding: 12px 20px; color: #52605d; font-size: var(--text-xs); line-height: 1.55; }
 .search-results-note.secondary-note { background: #f8fbfa; color: var(--teal); font-weight: 750; }
 .ai-curation-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid var(--line); background: #f8fbfa; padding: 14px 20px; }
@@ -229,6 +233,25 @@ svg { flex-shrink: 0; stroke-width: 1.8; }
 .ai-curate-button { min-height: 40px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid #9fc8c0; border-radius: 7px; background: var(--teal); padding: 0 14px; color: white; font-size: var(--text-sm); font-weight: 800; cursor: pointer; white-space: nowrap; }
 .ai-curate-button:hover:not(:disabled) { background: #08695d; }
 .ai-curate-button:disabled { cursor: not-allowed; opacity: .7; }
+.ai-search-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+.ai-secondary-button { min-height: 40px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid #9fc8c0; border-radius: 7px; background: white; padding: 0 14px; color: var(--teal); font-size: var(--text-sm); font-weight: 800; cursor: pointer; white-space: nowrap; }
+.ai-secondary-button:hover:not(:disabled) { background: var(--mint); }
+.ai-secondary-button:disabled { cursor: not-allowed; opacity: .7; }
+.interpreted-query { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; border-bottom: 1px solid var(--line); padding: 10px 20px; color: var(--muted); font-size: var(--text-xs); }
+.interpreted-query strong { color: var(--ink); }
+.interpreted-query span { border: 1px solid #b9d9d2; border-radius: 999px; background: #f0faf7; padding: 4px 8px; color: #08695d; font-weight: 750; }
+.evidence-answer { display: grid; gap: 12px; border-bottom: 1px solid var(--line); background: #f0faf7; padding: 18px 20px; }
+.evidence-answer.insufficient { background: #fffaf0; }
+.evidence-answer-heading { display: flex; align-items: center; gap: 10px; color: var(--teal); }
+.evidence-answer-heading div { display: grid; gap: 2px; }
+.evidence-answer-heading strong { font-size: var(--text-md); }
+.evidence-answer-heading span { color: var(--muted); font-size: var(--text-xs); }
+.evidence-answer > p { margin: 0; color: #314743; font-size: var(--text-sm); line-height: 1.7; white-space: pre-wrap; }
+.evidence-citations { display: grid; gap: 8px; }
+.evidence-citations a { display: grid; gap: 4px; border: 1px solid #b9d9d2; border-radius: 7px; background: white; padding: 10px 12px; }
+.evidence-citations a:hover { border-color: var(--teal); }
+.evidence-citations strong { color: var(--teal); font-size: var(--text-xs); }
+.evidence-citations span, .evidence-citations q { color: var(--muted); font-size: 11px; line-height: 1.5; }
 .ai-curation-error { border-bottom: 1px solid #f0c6c2; background: #fff7f6; padding: 14px 20px; }
 .ai-curation-error strong { color: var(--danger); font-size: var(--text-sm); }
 .ai-curation-error p { margin: 5px 0 0; color: #7a4843; font-size: var(--text-sm); }
@@ -544,6 +567,8 @@ svg { flex-shrink: 0; stroke-width: 1.8; }
   .search-bar button { grid-column: 1 / -1; width: 100%; }
   .ai-curation-toolbar { align-items: stretch; flex-direction: column; }
   .ai-curate-button { width: 100%; }
+  .ai-search-actions { display: grid; width: 100%; }
+  .ai-secondary-button { width: 100%; }
   .ai-curation-items > a { grid-template-columns: auto minmax(0, 1fr); }
   .ai-curation-items > a > svg { display: none; }
   .search-results > a { grid-template-columns: 1fr; }

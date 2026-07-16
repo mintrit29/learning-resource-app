@@ -270,3 +270,47 @@
 - [x] Lưu `chunksPerDocument` vào SearchLog để phục vụ evaluation/debug.
 - [x] Thu gọn alias trong trang Chủ đề chuẩn & tên gọi khác khi alias quá nhiều.
 - [x] Chốt chưa đưa GPU/CPU batch vào UI người dùng; giữ batch ở cấu hình Docker/env.
+
+## Cập nhật 16/07/2026 - Evidence Search
+
+> **Cách theo dõi:** Các mục dưới đây là phần việc bổ sung cho semantic search MVP đã hoàn thành. Không đánh dấu lại các mục cũ là chưa hoàn thành. Khi toàn bộ mục bổ sung được hoàn tất, cần gộp chúng vào các mục Semantic Search, AI chọn giúp, Evaluation và Tiến độ hiện tại để checklist chỉ còn phản ánh một hệ thống duy nhất.
+
+### PRD và thiết kế
+
+- [x] Chốt contract của Evidence Search và citation schema.
+- [x] Chốt giới hạn context: tối đa 30 candidate chunks, 8 chunks gửi cho LLM.
+- [x] Chốt cách tính điểm hybrid và cách đặt tên score trên UI.
+
+### Retrieval backend
+
+- [x] Tách vector retrieval thành module riêng.
+- [x] Thêm PostgreSQL keyword/full-text search.
+- [x] Merge vector + keyword candidates.
+- [x] Loại chunk trùng và group kết quả theo document.
+- [x] Thêm rerank với các tín hiệu semantic, keyword, topic và difficulty.
+- [ ] Bổ sung test cho query tiếng Việt có dấu/không dấu và query diễn đạt khác từ tài liệu.
+
+### Evidence answer
+
+- [x] Tạo `/api/search/answer`.
+- [x] Chỉ gửi top chunks đã retrieval vào context của LLM.
+- [x] Parse `answer`, `citations`, `confidence`, `notEnoughEvidence`.
+- [x] Validate citation chỉ trỏ tới chunk hợp lệ.
+- [x] Xử lý trường hợp không đủ bằng chứng và provider lỗi.
+
+### UI
+
+- [x] Đổi nhãn score để không hiểu nhầm là phần trăm chính xác.
+- [x] Thêm nút `Trả lời có dẫn chứng`.
+- [x] Hiển thị câu trả lời và citation có link tới đúng chunk/trang.
+- [x] Thêm chuyển đổi xem theo đoạn/theo tài liệu.
+- [ ] Kiểm tra responsive và loading state.
+
+### Evaluation
+
+- [ ] Chuẩn bị ít nhất 20 query mẫu có expected relevant documents/chunks.
+- [ ] Chạy baseline semantic search hiện tại.
+- [ ] Chạy hybrid + rerank.
+- [ ] Tính Precision@5, Recall@5 và MRR.
+- [ ] So sánh thời gian phản hồi và số token dùng cho answer.
+- [ ] Ghi kết quả vào báo cáo và chuẩn bị một case demo end-to-end.

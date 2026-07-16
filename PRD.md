@@ -465,3 +465,52 @@ Sau khi chốt lại UX, `subtopics` và `keywords` không còn thuộc schema/a
 - Search vẫn là semantic search theo chunk: query và từng đoạn tài liệu được embedding rồi so độ gần nhau bằng pgvector.
 - Trang `Chủ đề chuẩn & tên gọi khác` chỉ hiển thị một số alias đầu tiên; nếu alias nhiều, UI thu gọn bằng nút `+n tên khác` và cho phép bung/thu gọn.
 - Không đưa batch GPU/CPU vào UI người dùng ở giai đoạn này vì batch là cấu hình vận hành container, dễ gây lỗi RAM/VRAM nếu chỉnh sai.
+
+## Cập nhật 16/07/2026 - Evidence Search
+
+> **Quan hệ với MVP hiện tại:** Đây là bản nâng cấp trực tiếp của chức năng `Semantic search` và `AI chọn giúp kết quả tìm kiếm` đã hoàn thành. Không tạo chức năng tìm kiếm độc lập và không thay thế pipeline upload, chunking, embedding hoặc dữ liệu hiện có. Khi triển khai xong, nội dung cập nhật này sẽ được gộp vào mục `6.6 Semantic search`, mục `6.7 AI chọn giúp kết quả` và phần `Evaluation` của PRD chính.
+
+### Mục tiêu
+
+Nâng cấp semantic search thành **Evidence Search**: hệ thống hiểu yêu cầu tìm kiếm, xếp hạng kết quả bằng nhiều tín hiệu và tạo câu trả lời ngắn có dẫn chứng từ đúng tài liệu/chunk. Hệ thống không gửi toàn bộ file cho LLM; chỉ gửi các chunk liên quan nhất sau bước retrieval.
+
+### Luồng xử lý chuẩn
+
+```text
+Query người dùng
+-> phân tích ý định và tiêu chí tìm kiếm
+-> tạo query embedding
+-> lấy candidate bằng hybrid search (vector + keyword)
+-> gộp/xếp hạng lại kết quả
+-> chọn top chunks có bằng chứng tốt
+-> LLM trả lời từ các chunks đó
+-> trả citation: tài liệu + vị trí + chunk
+```
+
+### Phạm vi chức năng
+
+- Chấp nhận câu hỏi tự nhiên bằng tiếng Việt hoặc tiếng Anh.
+- Tách các tiêu chí nếu có: chủ đề, độ khó, loại tài liệu, mục đích tìm kiếm.
+- Cho phép người dùng xem và chỉnh các tiêu chí được hệ thống suy ra.
+- Kết hợp semantic similarity và keyword matching.
+- Rerank candidate theo điểm semantic, keyword, topic, difficulty và độ đầy đủ bằng chứng.
+- Gom kết quả theo tài liệu nhưng vẫn hiển thị chunk/đoạn phù hợp nhất.
+- Trả lời ngắn gọn dựa trên top chunks, không dùng kiến thức ngoài context.
+- Mỗi ý chính trong câu trả lời phải liên kết tới tài liệu và vị trí nguồn.
+- Hiển thị trạng thái không đủ bằng chứng thay vì suy đoán.
+
+### Giới hạn kỹ thuật
+
+- Retrieval lấy tối đa 30 candidate chunks.
+- Sau rerank, LLM chỉ nhận tối đa 8 chunks; mỗi chunk bị giới hạn độ dài.
+- Không gửi nguyên văn toàn bộ tài liệu cho LLM.
+- Điểm similarity không được gọi là phần trăm chính xác; UI dùng nhãn như `Mức phù hợp`.
+
+### Tiêu chí chấp nhận
+
+- Query có từ khóa chính xác vẫn tìm thấy tài liệu phù hợp.
+- Query diễn đạt khác từ trong tài liệu vẫn tìm thấy bằng semantic search.
+- Kết quả đầu có lý do xếp hạng dễ hiểu.
+- Câu trả lời chỉ sử dụng context được truy xuất và có citation hợp lệ.
+- Khi không có context đủ tốt, hệ thống nói rõ không tìm thấy bằng chứng.
+- Evaluation cho thấy Evidence Search tốt hơn hoặc không kém semantic search hiện tại trên dataset truy vấn mẫu.

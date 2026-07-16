@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { FormEvent, useState } from "react";
-import { ArrowUpRight, FileSearch, LoaderCircle, Search, Sparkles } from "lucide-react";
+import { ArrowUpRight, FileSearch, LoaderCircle, MessageSquareQuote, Search, Sparkles } from "lucide-react";
 import { formatDifficulty } from "@/lib/labels";
 
 type SearchResult = {
@@ -16,6 +16,30 @@ type SearchResult = {
   pageNumber: number | null;
   sourceLabel: string | null;
   score: number;
+  semanticScore: number | null;
+  keywordScore: number | null;
+  matchReasons: string[];
+};
+
+type InterpretedQuery = {
+  difficulty: string | null;
+  fileType: string | null;
+  keywords: string[];
+};
+
+type EvidenceAnswer = {
+  answer: string;
+  confidence: "LOW" | "MEDIUM" | "HIGH";
+  notEnoughEvidence: boolean;
+  citations: Array<{
+    chunkId: string;
+    documentId: string;
+    title: string;
+    fileType: string;
+    quote: string;
+    pageNumber: number | null;
+    sourceLabel: string | null;
+  }>;
 };
 
 type CuratedSearchItem = {
@@ -43,8 +67,14 @@ export function SemanticSearch() {
   const [error, setError] = useState("");
   const [curationError, setCurationError] = useState("");
   const [curatedSearch, setCuratedSearch] = useState<CuratedSearch | null>(null);
+  const [evidenceAnswer, setEvidenceAnswer] = useState<EvidenceAnswer | null>(null);
+  const [answerError, setAnswerError] = useState("");
+  const [interpretedQuery, setInterpretedQuery] = useState<InterpretedQuery | null>(null);
+  const [retrievalMode, setRetrievalMode] = useState<"hybrid" | "semantic" | "keyword">("hybrid");
+  const [viewMode, setViewMode] = useState<"chunks" | "documents">("chunks");
   const [isSearching, setIsSearching] = useState(false);
   const [isCurating, setIsCurating] = useState(false);
+  const [isAnswering, setIsAnswering] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -54,7 +84,9 @@ export function SemanticSearch() {
     setIsSearching(true);
     setError("");
     setCurationError("");
+    setAnswerError("");
     setCuratedSearch(null);
+    setEvidenceAnswer(null);
     try {
       const response = await fetch("/api/search", {
         method: "POST",
@@ -67,6 +99,8 @@ export function SemanticSearch() {
       const data = (await response.json()) as {
         message?: string;
         results?: SearchResult[];
+        interpretedQuery?: InterpretedQuery;
+        retrievalMode?: "hybrid" | "semantic" | "keyword";
       };
       if (!response.ok) {
         setError(data.message ?? "Không thể tìm trong tài liệu.");
@@ -74,12 +108,42 @@ export function SemanticSearch() {
         return;
       }
       setResults(data.results ?? []);
+      setInterpretedQuery(data.interpretedQuery ?? null);
+      setRetrievalMode(data.retrievalMode ?? "hybrid");
       setSearchedQuery(normalizedQuery);
     } catch {
       setError("Không thể kết nối tới máy chủ.");
       setResults([]);
     } finally {
       setIsSearching(false);
+    }
+  }
+
+  async function handleAnswerResults() {
+    if (!searchedQuery || !results.length) return;
+
+    setIsAnswering(true);
+    setAnswerError("");
+    setEvidenceAnswer(null);
+    try {
+      const response = await fetch("/api/search/answer", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          query: searchedQuery,
+          chunkIds: results.slice(0, 8).map((result) => result.chunkId),
+        }),
+      });
+      const data = (await response.json()) as EvidenceAnswer & { message?: string };
+      if (!response.ok) {
+        setAnswerError(data.message ?? "AI chưa tạo được câu trả lời.");
+        return;
+      }
+      setEvidenceAnswer(data);
+    } catch {
+      setAnswerError("Không thể kết nối tới AI để tạo câu trả lời.");
+    } finally {
+      setIsAnswering(false);
     }
   }
 
@@ -118,6 +182,13 @@ export function SemanticSearch() {
   }
 
   const resultsById = new Map(results.map((result) => [result.chunkId, result]));
+  const chunkCountByDocument = results.reduce((counts, result) => {
+    counts.set(result.documentId, (counts.get(result.documentId) ?? 0) + 1);
+    return counts;
+  }, new Map<string, number>());
+  const displayResults = viewMode === "chunks"
+    ? results
+    : results.filter((result, index) => results.findIndex((item) => item.documentId === result.documentId) === index);
   const curatedGroups = {
     READ_FIRST: curatedSearch?.items
       .filter((item) => item.group === "READ_FIRST")
@@ -194,21 +265,67 @@ export function SemanticSearch() {
         <section className="search-results">
           <div className="search-results-heading">
             <h2>Kết quả cho “{searchedQuery}”</h2>
-            <span>{results.length} đoạn phù hợp</span>
+            <div className="search-view-toggle" aria-label="Cách hiển thị kết quả">
+              <button className={viewMode === "chunks" ? "active" : ""} onClick={() => setViewMode("chunks")} type="button">Theo đoạn</button>
+              <button className={viewMode === "documents" ? "active" : ""} onClick={() => setViewMode("documents")} type="button">Theo tài liệu</button>
+            </div>
           </div>
           <p className="search-results-note">
-            App biến câu hỏi và từng đoạn tài liệu thành vector ý nghĩa rồi so độ gần nhau. Mỗi tài liệu đang hiển thị tối đa {chunksPerDocument} đoạn phù hợp.
+            App đang kết hợp {retrievalMode === "hybrid" ? "ngữ nghĩa và từ khóa" : retrievalMode === "semantic" ? "ngữ nghĩa" : "từ khóa"}, rồi xếp hạng lại. Mỗi tài liệu hiển thị tối đa {chunksPerDocument} đoạn.
           </p>
+          {interpretedQuery ? (
+            <div className="interpreted-query" aria-label="Cách app hiểu câu hỏi">
+              <strong>App hiểu:</strong>
+              {interpretedQuery.fileType ? <span>{interpretedQuery.fileType}</span> : null}
+              {interpretedQuery.difficulty ? <span>{formatDifficulty(interpretedQuery.difficulty)}</span> : null}
+              {interpretedQuery.keywords.slice(0, 5).map((keyword) => <span key={keyword}>{keyword}</span>)}
+            </div>
+          ) : null}
           <div className="ai-curation-toolbar">
             <div>
-              <strong>Không chắc nên đọc đoạn nào?</strong>
-              <p>Để AI đọc nhanh kết quả và chia nhóm ưu tiên cho bạn.</p>
+              <strong>Dùng các đoạn tốt nhất làm bằng chứng</strong>
+              <p>AI chỉ nhận tối đa 8 đoạn, không nhận nguyên tài liệu.</p>
             </div>
-            <button className="ai-curate-button" disabled={isCurating} onClick={handleCurateResults} type="button">
-              {isCurating ? <LoaderCircle className="spin" size={16} /> : <Sparkles size={16} />}
-              {isCurating ? "AI đang đọc" : "AI chọn giúp"}
-            </button>
+            <div className="ai-search-actions">
+              <button className="ai-secondary-button" disabled={isCurating} onClick={handleCurateResults} type="button">
+                {isCurating ? <LoaderCircle className="spin" size={16} /> : <Sparkles size={16} />}
+                {isCurating ? "Đang lọc" : "AI chọn giúp"}
+              </button>
+              <button className="ai-curate-button" disabled={isAnswering} onClick={handleAnswerResults} type="button">
+                {isAnswering ? <LoaderCircle className="spin" size={16} /> : <MessageSquareQuote size={16} />}
+                {isAnswering ? "Đang trả lời" : "Trả lời có dẫn chứng"}
+              </button>
+            </div>
           </div>
+          {answerError ? (
+            <div className="ai-curation-error">
+              <strong>Chưa tạo được câu trả lời</strong>
+              <p>{answerError}</p>
+            </div>
+          ) : null}
+          {evidenceAnswer ? (
+            <div className={`evidence-answer ${evidenceAnswer.notEnoughEvidence ? "insufficient" : ""}`}>
+              <div className="evidence-answer-heading">
+                <MessageSquareQuote size={19} />
+                <div>
+                  <strong>{evidenceAnswer.notEnoughEvidence ? "Bằng chứng chưa đủ" : "Câu trả lời từ tài liệu"}</strong>
+                  <span>Độ tin cậy: {evidenceAnswer.confidence === "HIGH" ? "Cao" : evidenceAnswer.confidence === "MEDIUM" ? "Trung bình" : "Thấp"}</span>
+                </div>
+              </div>
+              <p>{evidenceAnswer.answer}</p>
+              {evidenceAnswer.citations.length ? (
+                <div className="evidence-citations">
+                  {evidenceAnswer.citations.map((citation, index) => (
+                    <Link href={`/documents/${citation.documentId}?chunk=${citation.chunkId}#matched-chunk`} key={citation.chunkId}>
+                      <strong>[{index + 1}] {citation.title}</strong>
+                      <span>{citation.sourceLabel ?? (citation.pageNumber ? `Trang ${citation.pageNumber}` : "Mở đoạn nguồn")}</span>
+                      {citation.quote ? <q>{citation.quote}</q> : null}
+                    </Link>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          ) : null}
           {curationError ? (
             <div className="ai-curation-error">
               <strong>AI chọn kết quả chưa được</strong>
@@ -241,7 +358,7 @@ export function SemanticSearch() {
                             <p>{item.reason}</p>
                             <small>
                               {result.sourceLabel ? `${result.sourceLabel} · ` : ""}
-                              {Math.round(result.score * 100)}% khớp
+                              Điểm xếp hạng {Math.round(result.score * 100)}/100
                             </small>
                           </div>
                           <ArrowUpRight size={15} />
@@ -255,7 +372,7 @@ export function SemanticSearch() {
               ))}
             </div>
           ) : null}
-          {results.map((result) => (
+          {displayResults.map((result) => (
             <Link href={`/documents/${result.documentId}?chunk=${result.chunkId}#matched-chunk`} key={result.chunkId}>
               <div className="result-main">
                 <div className="result-title">
@@ -270,6 +387,8 @@ export function SemanticSearch() {
                   {result.sourceLabel ? <span className="source-tag">{result.sourceLabel}</span> : null}
                   {result.primaryTopic ? <span>{result.primaryTopic}</span> : null}
                   {result.difficulty ? <span>{formatDifficulty(result.difficulty)}</span> : null}
+                  {result.matchReasons.map((reason) => <span key={reason}>{reason}</span>)}
+                  {viewMode === "documents" ? <span>{chunkCountByDocument.get(result.documentId) ?? 1} đoạn phù hợp</span> : null}
                 </div>
                 <small className="result-citation">
                   Nguồn: {result.title}
@@ -277,8 +396,8 @@ export function SemanticSearch() {
                 </small>
               </div>
               <div className="result-score">
-                <strong>{Math.round(result.score * 100)}%</strong>
-                <small>Mức khớp</small>
+                <strong>{Math.round(result.score * 100)}</strong>
+                <small>Điểm xếp hạng</small>
                 <span>Mở đúng đoạn</span>
                 <ArrowUpRight size={17} />
               </div>
