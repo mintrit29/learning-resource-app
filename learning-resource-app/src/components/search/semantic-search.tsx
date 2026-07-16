@@ -53,32 +53,49 @@ type CuratedSearch = {
   items: CuratedSearchItem[];
 };
 
+type SavedSearchState = {
+  query: string;
+  results: SearchResult[];
+  interpretedQuery: InterpretedQuery | null;
+  retrievalMode: "hybrid" | "semantic" | "keyword";
+};
+
 const examples = [
   "Tài liệu nào giải thích SQL cho người mới?",
   "Tìm phần nói về transaction trong database",
   "Có tài liệu nào liên quan đến machine learning không?",
 ];
 
+function readSavedSearch(): SavedSearchState | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const saved = window.sessionStorage.getItem("scholarflow:last-search");
+    return saved ? JSON.parse(saved) as SavedSearchState : null;
+  } catch {
+    window.sessionStorage.removeItem("scholarflow:last-search");
+    return null;
+  }
+}
+
 export function SemanticSearch() {
-  const [query, setQuery] = useState("");
+  const [savedSearch] = useState(readSavedSearch);
+  const [query, setQuery] = useState(savedSearch?.query ?? "");
   const [chunksPerDocument, setChunksPerDocument] = useState(1);
-  const [results, setResults] = useState<SearchResult[]>([]);
-  const [searchedQuery, setSearchedQuery] = useState("");
+  const [results, setResults] = useState<SearchResult[]>(savedSearch?.results ?? []);
+  const [searchedQuery, setSearchedQuery] = useState(savedSearch?.query ?? "");
   const [error, setError] = useState("");
   const [curationError, setCurationError] = useState("");
   const [curatedSearch, setCuratedSearch] = useState<CuratedSearch | null>(null);
   const [evidenceAnswer, setEvidenceAnswer] = useState<EvidenceAnswer | null>(null);
   const [answerError, setAnswerError] = useState("");
-  const [interpretedQuery, setInterpretedQuery] = useState<InterpretedQuery | null>(null);
-  const [retrievalMode, setRetrievalMode] = useState<"hybrid" | "semantic" | "keyword">("hybrid");
+  const [interpretedQuery, setInterpretedQuery] = useState<InterpretedQuery | null>(savedSearch?.interpretedQuery ?? null);
+  const [retrievalMode, setRetrievalMode] = useState<"hybrid" | "semantic" | "keyword">(savedSearch?.retrievalMode ?? "hybrid");
   const [viewMode, setViewMode] = useState<"chunks" | "documents">("chunks");
   const [isSearching, setIsSearching] = useState(false);
   const [isCurating, setIsCurating] = useState(false);
   const [isAnswering, setIsAnswering] = useState(false);
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const normalizedQuery = query.trim();
+  async function runSearch(normalizedQuery: string) {
     if (normalizedQuery.length < 2) return;
 
     setIsSearching(true);
@@ -111,12 +128,27 @@ export function SemanticSearch() {
       setInterpretedQuery(data.interpretedQuery ?? null);
       setRetrievalMode(data.retrievalMode ?? "hybrid");
       setSearchedQuery(normalizedQuery);
+      sessionStorage.setItem("scholarflow:last-search", JSON.stringify({
+        query: normalizedQuery,
+        results: data.results ?? [],
+        interpretedQuery: data.interpretedQuery ?? null,
+        retrievalMode: data.retrievalMode ?? "hybrid",
+      } satisfies SavedSearchState));
     } catch {
       setError("Không thể kết nối tới máy chủ.");
       setResults([]);
     } finally {
       setIsSearching(false);
     }
+  }
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    void runSearch(query.trim());
+  }
+
+  function handleRefreshSearch() {
+    void runSearch(searchedQuery);
   }
 
   async function handleAnswerResults() {
@@ -265,9 +297,15 @@ export function SemanticSearch() {
         <section className="search-results">
           <div className="search-results-heading">
             <h2>Kết quả cho “{searchedQuery}”</h2>
-            <div className="search-view-toggle" aria-label="Cách hiển thị kết quả">
+            <div className="search-heading-actions">
+              <button className="search-refresh-button" disabled={isSearching} onClick={handleRefreshSearch} type="button">
+                {isSearching ? <LoaderCircle className="spin" size={15} /> : null}
+                {isSearching ? "Đang cập nhật" : "Làm mới kết quả"}
+              </button>
+              <div className="search-view-toggle" aria-label="Cách hiển thị kết quả">
               <button className={viewMode === "chunks" ? "active" : ""} onClick={() => setViewMode("chunks")} type="button">Theo đoạn</button>
               <button className={viewMode === "documents" ? "active" : ""} onClick={() => setViewMode("documents")} type="button">Theo tài liệu</button>
+              </div>
             </div>
           </div>
           <p className="search-results-note">
