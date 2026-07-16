@@ -147,8 +147,16 @@ export function SemanticSearch() {
     void runSearch(query.trim());
   }
 
-  function handleRefreshSearch() {
-    void runSearch(searchedQuery);
+  function handleClearSearch() {
+    setResults([]);
+    setSearchedQuery("");
+    setInterpretedQuery(null);
+    setCuratedSearch(null);
+    setEvidenceAnswer(null);
+    setError("");
+    setCurationError("");
+    setAnswerError("");
+    sessionStorage.removeItem("scholarflow:last-search");
   }
 
   async function handleAnswerResults() {
@@ -298,9 +306,8 @@ export function SemanticSearch() {
           <div className="search-results-heading">
             <h2>Kết quả cho “{searchedQuery}”</h2>
             <div className="search-heading-actions">
-              <button className="search-refresh-button" disabled={isSearching} onClick={handleRefreshSearch} type="button">
-                {isSearching ? <LoaderCircle className="spin" size={15} /> : null}
-                {isSearching ? "Đang cập nhật" : "Làm mới kết quả"}
+              <button className="search-clear-button" onClick={handleClearSearch} type="button">
+                Xóa kết quả
               </button>
               <div className="search-view-toggle" aria-label="Cách hiển thị kết quả">
               <button className={viewMode === "chunks" ? "active" : ""} onClick={() => setViewMode("chunks")} type="button">Theo đoạn</button>
