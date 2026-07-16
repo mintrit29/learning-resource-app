@@ -8,6 +8,7 @@ import {
 
 assert.equal(normalizeSearchText("  Tìm hiểu Cơ sở DỮ LIỆU! "), "tim hieu co so du lieu");
 assert.deepEqual(extractKeywordTerms("Tìm tài liệu về transaction trong database"), ["transaction", "database"]);
+assert.deepEqual(extractKeywordTerms("cơ sở dữ liệu cho người mới"), []);
 assert.deepEqual(inferSearchCriteria("Slide nhập môn SQL cho người mới"), {
   difficulty: "BEGINNER",
   fileType: "PPTX",

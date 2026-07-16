@@ -26,7 +26,7 @@ type RankCriteria = {
 };
 
 const STOP_WORDS = new Set([
-  "ai", "cai", "cac", "cho", "co", "cua", "do", "duoc", "gi", "giai", "hay", "la", "lieu", "moi", "mot", "nao", "nay", "nguoi", "nhung", "phan", "tai", "the", "thich", "tim", "toi", "trong", "va", "ve", "voi",
+  "ai", "cai", "cac", "cho", "co", "cua", "do", "du", "duoc", "gi", "giai", "hay", "la", "lieu", "moi", "mot", "nao", "nay", "nguoi", "nhung", "phan", "so", "tai", "the", "thich", "tim", "toi", "trong", "va", "ve", "voi",
   "a", "an", "and", "are", "for", "in", "is", "of", "on", "or", "the", "to", "what", "with",
 ]);
 

@@ -38,6 +38,10 @@ function normalizedSql(expression: string) {
   return `translate(lower(${expression}), '${DIACRITIC_FROM}', '${DIACRITIC_TO}')`;
 }
 
+function termMatchSql(expression: string, placeholder: string) {
+  return `${expression} ~ ('(^|[^a-z0-9])' || ${placeholder} || '([^a-z0-9]|$)')`;
+}
+
 function filterSql() {
   return `d."userId" = $2
     AND ($3::text IS NULL OR d."primaryTopic" = $3::text)
@@ -87,11 +91,11 @@ export async function searchByKeyword(userId: string, query: string, filters: Se
   const contentExpression = normalizedSql(`coalesce(c."content", '')`);
   const termPlaceholders = terms.map((_, index) => `$${9 + index}::text`);
   const scoreSql = termPlaceholders
-    .map((placeholder) => `(CASE WHEN ${titleExpression} LIKE ${placeholder} THEN 2 ELSE 0 END + CASE WHEN ${contentExpression} LIKE ${placeholder} THEN 1 ELSE 0 END)`)
+    .map((placeholder) => `(CASE WHEN ${termMatchSql(titleExpression, placeholder)} THEN 2 ELSE 0 END + CASE WHEN ${termMatchSql(contentExpression, placeholder)} THEN 1 ELSE 0 END)`)
     .join(" + ");
   const phraseBonusSql = `(CASE WHEN ${titleExpression} LIKE $1::text THEN 3 WHEN ${contentExpression} LIKE $1::text THEN 1.5 ELSE 0 END)`;
   const matchSql = termPlaceholders
-    .map((placeholder) => `(${titleExpression} LIKE ${placeholder} OR ${contentExpression} LIKE ${placeholder})`)
+    .map((placeholder) => `(${termMatchSql(titleExpression, placeholder)} OR ${termMatchSql(contentExpression, placeholder)})`)
     .join(" OR ");
   const limitPlaceholder = `$${9 + terms.length}`;
 
@@ -106,7 +110,7 @@ export async function searchByKeyword(userId: string, query: string, filters: Se
     LIMIT ${limitPlaceholder}`,
     `%${normalizeSearchText(query)}%`,
     ...filterParams(userId, filters),
-    ...terms.map((term) => `%${normalizeSearchText(term)}%`),
+    ...terms.map((term) => normalizeSearchText(term)),
     limit,
   );
 }
