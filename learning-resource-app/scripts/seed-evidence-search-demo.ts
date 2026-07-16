@@ -27,6 +27,54 @@ const fixtures = [
       "Regularization, learning rate, and tree depth are key hyperparameters that reduce overfitting in gradient boosted models.",
     ],
   },
+  {
+    title: "Research Methods for Student Projects",
+    originalFileName: "evidence-search-research-methods.pdf",
+    fileType: "PDF" as const,
+    primaryTopic: "Research Methods",
+    difficulty: "INTERMEDIATE" as const,
+    chunks: [
+      "A strong research project begins with a focused research question that defines the population, problem, scope, and expected contribution.",
+      "A literature review compares prior studies, identifies disagreements and research gaps, and explains how the new project extends existing knowledge.",
+      "Academic sources should be evaluated by author expertise, publication venue, evidence quality, recency, and relevance before they are cited.",
+    ],
+  },
+  {
+    title: "Practical REST API Design",
+    originalFileName: "evidence-search-rest-api.pptx",
+    fileType: "PPTX" as const,
+    primaryTopic: "Software Engineering",
+    difficulty: "INTERMEDIATE" as const,
+    chunks: [
+      "REST APIs model resources with clear nouns in URLs and use HTTP methods such as GET, POST, PUT, PATCH, and DELETE consistently.",
+      "Good API error responses use suitable HTTP status codes and return a stable machine-readable body with an error code and helpful message.",
+      "Authentication, authorization, input validation, rate limiting, and idempotency protect production APIs from common failures and abuse.",
+    ],
+  },
+  {
+    title: "Data Structures Quick Guide",
+    originalFileName: "evidence-search-data-structures.epub",
+    fileType: "EPUB" as const,
+    primaryTopic: "Computer Science",
+    difficulty: "BEGINNER" as const,
+    chunks: [
+      "Arrays provide constant-time indexed access, while linked lists make insertion easier when the node position is already known.",
+      "A stack follows last in first out and is useful for undo operations, expression evaluation, and depth-first traversal.",
+      "A queue follows first in first out and is commonly used for task scheduling, buffering, and breadth-first search.",
+    ],
+  },
+  {
+    title: "Cybersecurity Threat Modeling Handbook",
+    originalFileName: "evidence-search-threat-modeling.docx",
+    fileType: "DOCX" as const,
+    primaryTopic: "Cybersecurity",
+    difficulty: "ADVANCED" as const,
+    chunks: [
+      "Threat modeling identifies valuable assets, trust boundaries, entry points, attackers, and possible abuse cases before implementation is complete.",
+      "STRIDE classifies threats as spoofing, tampering, repudiation, information disclosure, denial of service, and elevation of privilege.",
+      "Risk treatment prioritizes mitigations by likelihood and impact, then records accepted risks and verifies controls through security testing.",
+    ],
+  },
 ];
 
 for (const fixture of fixtures) {
@@ -55,7 +103,11 @@ for (const fixture of fixtures) {
           chunkIndex,
           content,
           pageNumber: fixture.fileType === "PDF" ? chunkIndex + 1 : null,
-          sourceLabel: fixture.fileType === "PDF" ? `Trang ${chunkIndex + 1}` : `Slide ${chunkIndex + 1}`,
+          sourceLabel: fixture.fileType === "PDF"
+            ? `Trang ${chunkIndex + 1}`
+            : fixture.fileType === "PPTX"
+              ? `Slide ${chunkIndex + 1}`
+              : `Mục ${chunkIndex + 1}`,
         })),
       },
     },
@@ -73,4 +125,3 @@ for (const fixture of fixtures) {
 
 console.log(`PASS evidence search demo seed: ${fixtures.length} documents for ${email}`);
 await db.$disconnect();
-

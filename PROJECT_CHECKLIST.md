@@ -300,15 +300,16 @@
 
 ### UI
 
-- [x] Đổi nhãn score để không hiểu nhầm là phần trăm chính xác.
-- [x] Thêm nút `Trả lời có dẫn chứng`.
-- [x] Hiển thị câu trả lời và citation có link tới đúng chunk/trang.
-- [x] Thêm chuyển đổi xem theo đoạn/theo tài liệu.
+- [x] Bỏ điểm kỹ thuật, thông tin debug và tùy chỉnh retrieval khỏi UI chính.
+- [x] Bỏ `AI chọn giúp` vì trùng giá trị với kết quả đã xếp hạng.
+- [x] Gom kết quả thành một card/tài liệu và hiển thị đoạn phù hợp nhất.
+- [x] Thêm nút `Trả lời từ kết quả` và citation có link tới đúng chunk/trang.
+- [x] Giữ query, kết quả và câu trả lời khi mở tài liệu rồi quay lại; có nút `Xóa kết quả`.
 - [x] Kiểm tra responsive và loading state.
 
 ### Evaluation
 
-- [x] Chuẩn bị ít nhất 20 query mẫu có expected relevant documents/chunks.
+- [x] Chuẩn bị 28 query mẫu trên 6 tài liệu đa dạng có expected relevant documents/chunks.
 - [x] Chạy baseline semantic search hiện tại.
 - [x] Chạy hybrid + rerank.
 - [x] Tính Precision@5, Recall@5 và MRR.

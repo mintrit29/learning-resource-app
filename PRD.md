@@ -468,7 +468,7 @@ Sau khi chốt lại UX, `subtopics` và `keywords` không còn thuộc schema/a
 
 ## Cập nhật 16/07/2026 - Evidence Search
 
-> **Quan hệ với MVP hiện tại:** Đây là bản nâng cấp trực tiếp của chức năng `Semantic search` và `AI chọn giúp kết quả tìm kiếm` đã hoàn thành. Không tạo chức năng tìm kiếm độc lập và không thay thế pipeline upload, chunking, embedding hoặc dữ liệu hiện có. Khi triển khai xong, nội dung cập nhật này sẽ được gộp vào mục `6.6 Semantic search`, mục `6.7 AI chọn giúp kết quả` và phần `Evaluation` của PRD chính.
+> **Quan hệ với MVP hiện tại:** Đây là bản nâng cấp trực tiếp của chức năng `Semantic search`. Không tạo chức năng tìm kiếm độc lập và không thay thế pipeline upload, chunking, embedding hoặc dữ liệu hiện có. Qua kiểm thử UX, `AI chọn giúp` bị loại khỏi giao diện vì lặp lại kết quả đã xếp hạng mà không tạo đủ giá trị. Khi triển khai xong, nội dung cập nhật này sẽ được gộp vào mục `6.6 Semantic search`, phần trả lời có dẫn chứng và phần `Evaluation` của PRD chính.
 
 ### Mục tiêu
 
@@ -491,7 +491,7 @@ Query người dùng
 
 - Chấp nhận câu hỏi tự nhiên bằng tiếng Việt hoặc tiếng Anh.
 - Tách các tiêu chí nếu có: chủ đề, độ khó, loại tài liệu, mục đích tìm kiếm.
-- Cho phép người dùng xem và chỉnh các tiêu chí được hệ thống suy ra.
+- Tự động suy ra tiêu chí tìm kiếm; không bắt người dùng chỉnh thông số retrieval trước khi xem kết quả.
 - Kết hợp semantic similarity và keyword matching.
 - Rerank candidate theo điểm semantic, keyword, topic, difficulty và độ đầy đủ bằng chứng.
 - Gom kết quả theo tài liệu nhưng vẫn hiển thị chunk/đoạn phù hợp nhất.
@@ -510,7 +510,15 @@ Query người dùng
 
 - Query có từ khóa chính xác vẫn tìm thấy tài liệu phù hợp.
 - Query diễn đạt khác từ trong tài liệu vẫn tìm thấy bằng semantic search.
-- Kết quả đầu có lý do xếp hạng dễ hiểu.
+- Kết quả đầu hiển thị rõ tài liệu, đoạn liên quan, chủ đề, độ khó và vị trí nguồn; không hiển thị điểm kỹ thuật khó diễn giải.
 - Câu trả lời chỉ sử dụng context được truy xuất và có citation hợp lệ.
 - Khi không có context đủ tốt, hệ thống nói rõ không tìm thấy bằng chứng.
 - Evaluation cho thấy Evidence Search tốt hơn hoặc không kém semantic search hiện tại trên dataset truy vấn mẫu.
+
+### Quyết định đơn giản hóa UX
+
+- Luồng chính chỉ gồm: nhập câu hỏi -> xem tài liệu phù hợp -> mở đúng đoạn nguồn.
+- Mỗi tài liệu chỉ hiển thị một card và đoạn phù hợp nhất; backend vẫn giữ tối đa hai đoạn/tài liệu để câu trả lời có đủ bằng chứng.
+- Chỉ giữ một hành động AI tùy chọn: `Trả lời từ kết quả` kèm citation.
+- Bỏ `AI chọn giúp`, chuyển đổi theo đoạn/theo tài liệu, chọn số đoạn, nhãn cách app hiểu query và điểm xếp hạng khỏi UI chính.
+- Query, kết quả và câu trả lời được giữ trong phiên khi người dùng mở tài liệu rồi quay lại. `Xóa kết quả` dọn danh sách và câu trả lời nhưng giữ nội dung ô hỏi để người dùng sửa hoặc tìm lại.

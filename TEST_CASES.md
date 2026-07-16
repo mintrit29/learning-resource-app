@@ -56,20 +56,19 @@ npm run test:hybrid-search
 npm run eval:evidence-search
 ```
 
-Luồng UI đã kiểm tra trên desktop và viewport mobile 390 x 844:
+Luồng UI đã kiểm tra trên desktop:
 
-1. Search `PDF giải thích transaction và ACID cho người mới` trả đúng 3 đoạn PDF, không lẫn tài liệu Machine Learning.
-2. Query không dấu tìm được nội dung tiếng Việt có dấu.
-3. Chuyển `Theo tài liệu` gom 3 đoạn thành 1 tài liệu.
-4. `AI chọn giúp` vẫn hoạt động sau nâng cấp.
-5. `Trả lời có dẫn chứng` chỉ dùng top chunks; citation mở đúng chunk và Trang 2.
-6. Mobile không có horizontal overflow; toggle và hai nút AI full-width.
+1. Search `API error response và HTTP status code` chỉ trả tài liệu REST API và mở đúng Slide 2.
+2. Search `stack và queue khác nhau thế nào cho người mới` trả một card EPUB; `Trả lời từ kết quả` dùng được cả Mục 2 và Mục 3 để so sánh.
+3. Query tiếng Việt tìm đúng tài liệu nghiên cứu tiếng Anh ở vị trí đầu.
+4. Mở tài liệu rồi quay lại vẫn giữ query, kết quả và câu trả lời; `Xóa kết quả` dọn kết quả/câu trả lời nhưng giữ nội dung ô hỏi.
+5. PDF dùng nhãn Trang, PPTX dùng Slide, DOCX/EPUB dùng Mục.
 
-Kết quả benchmark 20 query trên bộ demo 2 tài liệu:
+Kết quả benchmark 28 query trên bộ demo 6 tài liệu:
 
 | Pipeline | Precision@5 | Recall@5 | MRR | Trung bình |
 |---|---:|---:|---:|---:|
-| Semantic baseline | 0.50 | 1.00 | 0.975 | 95.45 ms |
-| Hybrid + rerank | 0.95 | 1.00 | 1.00 | 81.85 ms |
+| Semantic baseline | 0.20 | 1.00 | 0.936 | ~86 ms |
+| Hybrid + rerank | 0.895 | 1.00 | 0.936 | ~84 ms |
 
 Đây là smoke benchmark nhỏ để kiểm tra regression, không thay thế evaluation trên tập tài liệu thật. API answer trả thêm `usage.contextChunks`, `usage.contextCharacters` và `usage.estimatedContextTokens`; token là ước lượng vì provider hiện tại không bảo đảm trả usage theo cùng một schema.

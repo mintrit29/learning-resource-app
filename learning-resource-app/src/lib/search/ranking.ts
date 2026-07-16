@@ -140,6 +140,10 @@ export function rankSearchCandidates(
     })
     .sort((left, right) => right.score - left.score);
   const bestScore = ranked[0]?.score ?? 0;
-  const relevanceFloor = Math.max(0.45, bestScore - 0.25);
+  // Cross-language queries often produce lower absolute cosine scores even when
+  // the correct document is still near the top. Keep a wider candidate window
+  // for those low-confidence searches; the API then keeps only the best chunk
+  // from each document so one weak document cannot flood the result list.
+  const relevanceFloor = Math.max(0.38, bestScore - 0.25);
   return ranked.filter((result) => result.score >= relevanceFloor).slice(0, limit);
 }

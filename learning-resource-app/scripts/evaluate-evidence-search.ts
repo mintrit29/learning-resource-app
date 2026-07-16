@@ -2,14 +2,31 @@ import { db } from "../src/lib/db";
 import { hybridSearch, searchByVector } from "../src/lib/search/hybrid-search";
 
 const user = await db.user.findUniqueOrThrow({ where: { email: "demo@scholarflow.local" } });
+const fixtureFiles = [
+  "evidence-search-database.pdf",
+  "evidence-search-ml.pptx",
+  "evidence-search-research-methods.pdf",
+  "evidence-search-rest-api.pptx",
+  "evidence-search-data-structures.epub",
+  "evidence-search-threat-modeling.docx",
+] as const;
 const documents = await db.document.findMany({
-  where: { userId: user.id, originalFileName: { in: ["evidence-search-database.pdf", "evidence-search-ml.pptx"] } },
+  where: { userId: user.id, originalFileName: { in: [...fixtureFiles] } },
   select: { id: true, originalFileName: true },
 });
 const documentIdByFile = new Map(documents.map((document) => [document.originalFileName, document.id]));
-const databaseId = documentIdByFile.get("evidence-search-database.pdf");
-const machineLearningId = documentIdByFile.get("evidence-search-ml.pptx");
-if (!databaseId || !machineLearningId) throw new Error("Run npm run demo:seed-evidence before evaluation");
+function documentId(fileName: typeof fixtureFiles[number]) {
+  const id = documentIdByFile.get(fileName);
+  if (!id) throw new Error(`Missing ${fileName}. Run npm run demo:seed-evidence before evaluation`);
+  return id;
+}
+
+const databaseId = documentId("evidence-search-database.pdf");
+const machineLearningId = documentId("evidence-search-ml.pptx");
+const researchMethodsId = documentId("evidence-search-research-methods.pdf");
+const restApiId = documentId("evidence-search-rest-api.pptx");
+const dataStructuresId = documentId("evidence-search-data-structures.epub");
+const threatModelingId = documentId("evidence-search-threat-modeling.docx");
 
 const cases = [
   ["transaction as a logical unit of work", databaseId],
@@ -17,21 +34,29 @@ const cases = [
   ["atomicity consistency isolation durability", databaseId],
   ["how ACID protects database data", databaseId],
   ["concurrent transaction isolation levels", databaseId],
-  ["tai lieu nhap mon ve transaction", databaseId],
   ["giao dich co so du lieu la gi", databaseId],
-  ["how database changes become durable", databaseId],
-  ["correctness when transactions run together", databaseId],
-  ["PDF database cho nguoi moi", databaseId],
   ["gradient boosting with weak decision trees", machineLearningId],
   ["how each tree corrects previous errors", machineLearningId],
   ["regularization for boosted models", machineLearningId],
   ["learning rate and tree depth hyperparameters", machineLearningId],
   ["reduce overfitting in gradient boosting", machineLearningId],
-  ["slide machine learning nang cao", machineLearningId],
   ["mo hinh cay sua loi cua cay truoc", machineLearningId],
-  ["sequential ensemble of decision trees", machineLearningId],
-  ["boosted model overfit prevention", machineLearningId],
-  ["advanced tree ensemble hyperparameters", machineLearningId],
+  ["how to find a research gap in previous studies", researchMethodsId],
+  ["cach danh gia nguon hoc thuat dang tin cay", researchMethodsId],
+  ["literature review for a student project", researchMethodsId],
+  ["focused research question and project scope", researchMethodsId],
+  ["HTTP methods for REST resources", restApiId],
+  ["API error response and status code", restApiId],
+  ["bao mat API bang authentication va rate limiting", restApiId],
+  ["idempotency in production APIs", restApiId],
+  ["difference between stack and queue", dataStructuresId],
+  ["cau truc du lieu cho nguoi moi", dataStructuresId],
+  ["breadth first search uses which structure", dataStructuresId],
+  ["array versus linked list insertion", dataStructuresId],
+  ["STRIDE threat categories", threatModelingId],
+  ["xac dinh trust boundary va attack entry point", threatModelingId],
+  ["prioritize security risk by likelihood and impact", threatModelingId],
+  ["advanced DOCX about threat modeling", threatModelingId],
 ] as const;
 
 type Metrics = { precisionAt5: number; recallAt5: number; reciprocalRank: number; latencyMs: number };
@@ -59,6 +84,7 @@ function average(rows: Metrics[]) {
 
 const baselineRows: Metrics[] = [];
 const hybridRows: Metrics[] = [];
+const hybridFailures: Array<{ query: string; returned: string[] }> = [];
 for (const [query, expectedId] of cases) {
   let startedAt = Date.now();
   const baseline = await searchByVector(user.id, query, {}, 30);
@@ -66,9 +92,20 @@ for (const [query, expectedId] of cases) {
 
   startedAt = Date.now();
   const hybrid = await hybridSearch(user.id, query, {});
-  hybridRows.push(score(hybrid.candidates.map((result) => result.documentId), expectedId, Date.now() - startedAt));
+  const hybridDocumentIds = hybrid.candidates.map((result) => result.documentId);
+  hybridRows.push(score(hybridDocumentIds, expectedId, Date.now() - startedAt));
+  if (!hybridDocumentIds.includes(expectedId)) {
+    hybridFailures.push({
+      query,
+      returned: hybrid.candidates.slice(0, 3).map((result) => `${result.title} (${result.score.toFixed(3)})`),
+    });
+  }
 }
 
-console.log(JSON.stringify({ queryCount: cases.length, baseline: average(baselineRows), hybrid: average(hybridRows) }, null, 2));
+console.log(JSON.stringify({
+  queryCount: cases.length,
+  baseline: average(baselineRows),
+  hybrid: average(hybridRows),
+  hybridFailures,
+}, null, 2));
 await db.$disconnect();
-
