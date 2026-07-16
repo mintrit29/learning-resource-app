@@ -567,8 +567,11 @@ svg { flex-shrink: 0; stroke-width: 1.8; }
   .search-bar button { grid-column: 1 / -1; width: 100%; }
   .ai-curation-toolbar { align-items: stretch; flex-direction: column; }
   .ai-curate-button { width: 100%; }
-  .ai-search-actions { display: grid; width: 100%; }
+  .ai-search-actions { display: grid; grid-template-columns: 1fr; width: 100%; }
   .ai-secondary-button { width: 100%; }
+  .search-results-heading { align-items: stretch; flex-direction: column; }
+  .search-view-toggle { display: flex; width: 100%; }
+  .search-view-toggle button { flex: 1; }
   .ai-curation-items > a { grid-template-columns: auto minmax(0, 1fr); }
   .ai-curation-items > a > svg { display: none; }
   .search-results > a { grid-template-columns: 1fr; }

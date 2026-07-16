@@ -113,6 +113,7 @@ export async function POST(request: Request) {
         };
       });
     const notEnoughEvidence = aiResponse.notEnoughEvidence || citations.length === 0;
+    const contextCharacters = evidence.reduce((total, item) => total + item.content.length, 0);
 
     return NextResponse.json({
       answer: notEnoughEvidence && citations.length === 0
@@ -121,6 +122,11 @@ export async function POST(request: Request) {
       citations,
       confidence: notEnoughEvidence ? "LOW" : aiResponse.confidence,
       notEnoughEvidence,
+      usage: {
+        contextChunks: evidence.length,
+        contextCharacters,
+        estimatedContextTokens: Math.ceil(contextCharacters / 4),
+      },
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "AI chưa tạo được câu trả lời có dẫn chứng";

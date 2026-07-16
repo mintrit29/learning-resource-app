@@ -60,7 +60,7 @@ function filterParams(userId: string, filters: SearchFilters) {
   ];
 }
 
-async function searchByVector(userId: string, query: string, filters: SearchFilters, limit: number) {
+export async function searchByVector(userId: string, query: string, filters: SearchFilters, limit: number) {
   const embedded = await embedTexts([query]);
   const vector = toPgVector(embedded.embeddings[0]);
   return db.$queryRawUnsafe<VectorRow[]>(

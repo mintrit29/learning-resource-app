@@ -26,7 +26,7 @@ type RankCriteria = {
 };
 
 const STOP_WORDS = new Set([
-  "ai", "cai", "cac", "cho", "co", "cua", "duoc", "gi", "la", "mot", "nao", "nhung", "phan", "tai", "the", "tim", "toi", "trong", "ve",
+  "ai", "cai", "cac", "cho", "co", "cua", "do", "duoc", "gi", "giai", "hay", "la", "lieu", "moi", "mot", "nao", "nay", "nguoi", "nhung", "phan", "tai", "the", "thich", "tim", "toi", "trong", "va", "ve", "voi",
   "a", "an", "and", "are", "for", "in", "is", "of", "on", "or", "the", "to", "what", "with",
 ]);
 
@@ -91,7 +91,7 @@ export function rankSearchCandidates(
   });
 
   const maxKeywordScore = Math.max(1, ...keywordCandidates.map((item) => item.keywordScore ?? 0));
-  return [...merged.values()]
+  const ranked = [...merged.values()]
     .map((candidate): RankedSearchResult => {
       const semantic = candidate.semanticScore == null ? null : clamp(candidate.semanticScore);
       const keyword = candidate.keywordScore == null ? null : clamp(candidate.keywordScore / maxKeywordScore);
@@ -138,6 +138,8 @@ export function rankSearchCandidates(
         matchReasons,
       };
     })
-    .sort((left, right) => right.score - left.score)
-    .slice(0, limit);
+    .sort((left, right) => right.score - left.score);
+  const bestScore = ranked[0]?.score ?? 0;
+  const relevanceFloor = Math.max(0.45, bestScore - 0.25);
+  return ranked.filter((result) => result.score >= relevanceFloor).slice(0, limit);
 }

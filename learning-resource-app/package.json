@@ -29,7 +29,10 @@
     "test:tag-similarity": "tsx scripts/tag-similarity-smoke.ts",
     "eval:template": "tsx scripts/generate-evaluation-template.ts",
     "eval:week11": "tsx scripts/week11-evaluation.ts",
-    "demo:seed": "tsx scripts/seed-demo.ts"
+    "eval:evidence-search": "tsx scripts/evaluate-evidence-search.ts",
+    "demo:seed": "tsx scripts/seed-demo.ts",
+    "demo:seed-evidence": "tsx scripts/seed-evidence-search-demo.ts",
+    "test:mock-ai": "node scripts/mock-ai-provider.mjs"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.2",

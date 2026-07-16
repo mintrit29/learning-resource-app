@@ -7,11 +7,11 @@ import {
 } from "../src/lib/search/ranking.ts";
 
 assert.equal(normalizeSearchText("  Tìm hiểu Cơ sở DỮ LIỆU! "), "tim hieu co so du lieu");
-assert.deepEqual(extractKeywordTerms("Tìm tài liệu về transaction trong database"), ["lieu", "transaction", "database"]);
+assert.deepEqual(extractKeywordTerms("Tìm tài liệu về transaction trong database"), ["transaction", "database"]);
 assert.deepEqual(inferSearchCriteria("Slide nhập môn SQL cho người mới"), {
   difficulty: "BEGINNER",
   fileType: "PPTX",
-  keywords: ["slide", "nhap", "mon", "sql", "nguoi", "moi"],
+  keywords: ["slide", "nhap", "mon", "sql"],
 });
 
 const common = {
@@ -41,4 +41,3 @@ assert.ok(ranked.every((result) => result.score >= 0 && result.score <= 1));
 assert.equal(new Set(ranked.map((result) => result.chunkId)).size, ranked.length);
 
 console.log("PASS search ranking: normalization, intent, merge and score");
-

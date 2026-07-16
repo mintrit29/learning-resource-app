@@ -43,3 +43,33 @@ Docker GPU:
 ```powershell
 docker compose -f docker-compose.yml -f docker-compose.cuda.yml up --build
 ```
+
+## Evidence Search - cập nhật 16/07/2026
+
+Chuẩn bị demo và chạy kiểm tra:
+
+```powershell
+cd learning-resource-app
+npm run demo:seed
+npm run demo:seed-evidence
+npm run test:hybrid-search
+npm run eval:evidence-search
+```
+
+Luồng UI đã kiểm tra trên desktop và viewport mobile 390 x 844:
+
+1. Search `PDF giải thích transaction và ACID cho người mới` trả đúng 3 đoạn PDF, không lẫn tài liệu Machine Learning.
+2. Query không dấu tìm được nội dung tiếng Việt có dấu.
+3. Chuyển `Theo tài liệu` gom 3 đoạn thành 1 tài liệu.
+4. `AI chọn giúp` vẫn hoạt động sau nâng cấp.
+5. `Trả lời có dẫn chứng` chỉ dùng top chunks; citation mở đúng chunk và Trang 2.
+6. Mobile không có horizontal overflow; toggle và hai nút AI full-width.
+
+Kết quả benchmark 20 query trên bộ demo 2 tài liệu:
+
+| Pipeline | Precision@5 | Recall@5 | MRR | Trung bình |
+|---|---:|---:|---:|---:|
+| Semantic baseline | 0.50 | 1.00 | 0.975 | 95.45 ms |
+| Hybrid + rerank | 0.95 | 1.00 | 1.00 | 81.85 ms |
+
+Đây là smoke benchmark nhỏ để kiểm tra regression, không thay thế evaluation trên tập tài liệu thật. API answer trả thêm `usage.contextChunks`, `usage.contextCharacters` và `usage.estimatedContextTokens`; token là ước lượng vì provider hiện tại không bảo đảm trả usage theo cùng một schema.

@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { db } from "../src/lib/db";
-import { searchByKeyword } from "../src/lib/search/hybrid-search";
+import { embedTexts, toPgVector } from "../src/lib/embedding/client";
+import { hybridSearch, searchByKeyword, searchByVector } from "../src/lib/search/hybrid-search";
 
 const suffix = randomUUID();
 const owner = await db.user.create({ data: { email: `hybrid-owner-${suffix}@example.test` } });
@@ -35,6 +36,13 @@ try {
       chunks: { create: { chunkIndex: 0, content: "Transaction private content" } },
     },
   });
+  const ownedChunk = await db.documentChunk.findFirstOrThrow({ where: { documentId: ownedDocument.id } });
+  const [chunkEmbedding] = (await embedTexts([ownedChunk.content])).embeddings;
+  await db.$executeRawUnsafe(
+    'UPDATE "DocumentChunk" SET "embedding" = $1::vector WHERE "id" = $2',
+    toPgVector(chunkEmbedding),
+    ownedChunk.id,
+  );
 
   const accentlessResults = await searchByKeyword(owner.id, "co so du lieu transaction", {}, 10);
   assert.ok(accentlessResults.length > 0, "Accentless Vietnamese query must find accented content");
@@ -43,9 +51,16 @@ try {
   const filteredResults = await searchByKeyword(owner.id, "transaction", { fileType: "PPTX" }, 10);
   assert.equal(filteredResults.length, 0, "File type filter must be applied");
 
-  console.log("PASS hybrid search SQL: accent-insensitive keyword, ownership and filters");
+  const vectorResults = await searchByVector(owner.id, "transaction co so du lieu cho nguoi moi", {}, 10);
+  assert.ok(vectorResults.length > 0, "Vector retrieval must find the embedded chunk");
+  const hybridResults = await hybridSearch(owner.id, "transaction co so du lieu cho nguoi moi", {});
+  assert.equal(hybridResults.retrievalMode, "hybrid", "Embedding and keyword retrieval must both contribute");
+  assert.equal(hybridResults.candidates[0]?.documentId, ownedDocument.id, "Owned relevant document must rank first");
+  assert.ok(hybridResults.candidates[0]?.matchReasons.includes("Khớp ngữ nghĩa"));
+  assert.ok(hybridResults.candidates[0]?.matchReasons.includes("Khớp từ khóa"));
+
+  console.log("PASS hybrid search: accent-insensitive keyword, semantic merge, ownership and filters");
 } finally {
   await db.user.deleteMany({ where: { id: { in: [owner.id, otherOwner.id] } } });
   await db.$disconnect();
 }
-

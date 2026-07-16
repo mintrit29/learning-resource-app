@@ -288,7 +288,7 @@
 - [x] Merge vector + keyword candidates.
 - [x] Loại chunk trùng và group kết quả theo document.
 - [x] Thêm rerank với các tín hiệu semantic, keyword, topic và difficulty.
-- [ ] Bổ sung test cho query tiếng Việt có dấu/không dấu và query diễn đạt khác từ tài liệu.
+- [x] Bổ sung test cho query tiếng Việt có dấu/không dấu và query diễn đạt khác từ tài liệu.
 
 ### Evidence answer
 
@@ -304,13 +304,13 @@
 - [x] Thêm nút `Trả lời có dẫn chứng`.
 - [x] Hiển thị câu trả lời và citation có link tới đúng chunk/trang.
 - [x] Thêm chuyển đổi xem theo đoạn/theo tài liệu.
-- [ ] Kiểm tra responsive và loading state.
+- [x] Kiểm tra responsive và loading state.
 
 ### Evaluation
 
-- [ ] Chuẩn bị ít nhất 20 query mẫu có expected relevant documents/chunks.
-- [ ] Chạy baseline semantic search hiện tại.
-- [ ] Chạy hybrid + rerank.
-- [ ] Tính Precision@5, Recall@5 và MRR.
-- [ ] So sánh thời gian phản hồi và số token dùng cho answer.
-- [ ] Ghi kết quả vào báo cáo và chuẩn bị một case demo end-to-end.
+- [x] Chuẩn bị ít nhất 20 query mẫu có expected relevant documents/chunks.
+- [x] Chạy baseline semantic search hiện tại.
+- [x] Chạy hybrid + rerank.
+- [x] Tính Precision@5, Recall@5 và MRR.
+- [x] So sánh thời gian phản hồi và số token dùng cho answer.
+- [x] Ghi kết quả vào báo cáo và chuẩn bị một case demo end-to-end.
