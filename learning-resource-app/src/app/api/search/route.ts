@@ -7,6 +7,7 @@ import { inferSearchCriteria } from "@/lib/search/ranking";
 
 const searchSchema = z.object({
   query: z.string().trim().min(2).max(500),
+  mode: z.enum(["SEARCH", "ASK"]).default("SEARCH"),
   chunksPerDocument: z.number().int().min(1).max(5).default(1),
   topic: z.string().trim().max(120).optional(),
   difficulty: z.enum(["BEGINNER", "INTERMEDIATE", "ADVANCED"]).optional(),
@@ -30,7 +31,7 @@ export async function POST(request: Request) {
 
   try {
     const resultLimit = 30;
-    const { candidates, retrievalMode } = await hybridSearch(session.user.id, parsed.data.query, parsed.data);
+    const { candidates, diagnostics, retrievalMode } = await hybridSearch(session.user.id, parsed.data.query, parsed.data);
 
     const chunksByDocument = new Map<string, number>();
     const results = candidates.filter((row) => {
@@ -39,6 +40,11 @@ export async function POST(request: Request) {
       chunksByDocument.set(row.documentId, currentCount + 1);
       return true;
     }).slice(0, resultLimit);
+    const status = results.length
+      ? "OK"
+      : await db.document.count({ where: { userId: session.user.id } }) === 0
+        ? "EMPTY_LIBRARY"
+        : "NO_RELEVANT_RESULTS";
 
     await db.searchLog.create({
       data: {
@@ -53,7 +59,11 @@ export async function POST(request: Request) {
           dateTo: parsed.data.dateTo || null,
           limit: resultLimit,
           chunksPerDocument: parsed.data.chunksPerDocument,
+          queryMode: parsed.data.mode,
           retrievalMode,
+          bestScore: diagnostics.bestScore,
+          acceptanceThreshold: diagnostics.acceptanceThreshold,
+          rejectionReason: diagnostics.rejectionReason,
         },
         resultDocumentIds: [...new Set(results.map((result) => result.documentId))],
       },
@@ -61,6 +71,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       query: parsed.data.query,
+      status,
       interpretedQuery: inferSearchCriteria(parsed.data.query),
       retrievalMode,
       results,

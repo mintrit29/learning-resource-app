@@ -5,11 +5,10 @@ export default function SearchPage() {
     <div className="page-wrap">
       <header className="page-header">
         <div>
-          <p className="eyebrow">Hỏi tài liệu</p>
-          <h1>Bạn muốn tìm gì?</h1>
+          <p className="eyebrow">Tìm kiếm thông minh</p>
+          <h1>Tìm và hỏi tài liệu</h1>
           <p>
-            Gõ câu hỏi bằng ngôn ngữ tự nhiên. ScholarFlow sẽ tìm các đoạn liên quan
-            nhất trong thư viện của bạn.
+            Tìm tài liệu theo chủ đề hoặc đặt câu hỏi để nhận câu trả lời kèm đúng nguồn.
           </p>
         </div>
       </header>

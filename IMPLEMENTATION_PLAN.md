@@ -1104,3 +1104,97 @@ Document.primaryTopic = "Văn học"
 - `SearchLog.filters` lưu `chunksPerDocument` và giới hạn nội bộ để phục vụ evaluation/debug.
 - Trang `/settings/tags` thu gọn alias: mặc định hiện 6 alias đầu, alias còn lại hiển thị bằng nút `+n tên khác`.
 - Không triển khai runtime UI cho GPU/CPU batch trong đợt này; batch tiếp tục là cấu hình vận hành Docker/env.
+
+## Cập nhật 21/07/2026 - Search Relevance Gate và tách luồng tìm/hỏi
+
+> **Quan hệ với bản cũ:** Đây là đợt hoàn thiện tiếp theo của Evidence Search ngày 16/07/2026. Không tạo module search mới và không thay đổi pipeline upload, extraction, chunking, BGE-M3 hoặc pgvector. Sau khi hoàn thành, phần này phải được gộp vào implementation plan chính của search để tài liệu chỉ mô tả một phiên bản cuối cùng.
+
+### 1. Vấn đề cần sửa
+
+- Retrieval hiện tại luôn giữ lại ứng viên tốt nhất trong thư viện, kể cả khi ứng viên đó có độ liên quan tuyệt đối thấp. Vì vậy truy vấn ngoài phạm vi như `tôi tìm khóa học trung cấp` vẫn có thể trả về một tài liệu Database không liên quan.
+- Ngưỡng hiện tại phụ thuộc vào điểm cao nhất của chính lần tìm (`bestScore - 0.25`) và có sàn khá rộng, nên chỉ loại kết quả yếu hơn tương đối chứ chưa trả lời được câu hỏi quan trọng: kết quả tốt nhất có thực sự phù hợp hay không.
+- Các đoạn bản quyền, mục lục, giới thiệu hoặc thông tin xuất bản có thể được đẩy lên do chứa tên/chủ đề tài liệu nhưng không cung cấp nội dung học thuật hữu ích.
+- UI hiện gộp hai nhu cầu `tìm tài liệu` và `hỏi để lấy câu trả lời`, khiến nút `Trả lời từ kết quả` xuất hiện cả khi người dùng chỉ nhập một từ khóa chung.
+
+### 2. Mục tiêu
+
+- Giữ hybrid retrieval hiện có: vector search + keyword search.
+- Thêm relevance gate tuyệt đối để kết quả yếu được trả về dưới dạng `không tìm thấy tài liệu phù hợp`.
+- Rerank ứng viên bằng tín hiệu dễ giải thích và không phụ thuộc LLM: semantic score, keyword coverage, phrase match, metadata match và content quality.
+- Phạt hoặc loại boilerplate như copyright, license, table of contents, about the book và publisher information khi có đoạn nội dung tốt hơn.
+- Tách rõ hai trải nghiệm: `Tìm tài liệu` và `Hỏi tài liệu`.
+- Không làm tăng đáng kể latency, chi phí AI hoặc VRAM của thao tác tìm kiếm.
+
+### 3. Luồng retrieval mục tiêu
+
+```text
+Query
+-> lấy tối đa 30 vector candidates và 30 keyword candidates
+-> merge + deduplicate theo chunkId
+-> tính semantic, keyword coverage, phrase và metadata signals
+-> tính content-quality penalty cho boilerplate
+-> rerank top candidates
+-> relevance gate tuyệt đối
+-> không đạt: trả empty result + reason code
+-> đạt: group theo document và trả các tài liệu phù hợp
+```
+
+Luồng hỏi đáp dùng chung retrieval ở trên:
+
+```text
+Câu hỏi
+-> retrieval + relevance gate
+-> không có bằng chứng đạt ngưỡng: không gọi LLM
+-> có bằng chứng: chọn tối đa 8 chunks
+-> LLM trả lời chỉ từ context
+-> validate citations
+```
+
+### 4. Thiết kế backend
+
+1. Ghi lại baseline của 28 positive queries hiện có trước khi đổi thuật toán.
+2. Bổ sung negative/out-of-scope queries, ví dụ tìm khóa học, thời tiết hoặc nội dung không tồn tại trong thư viện.
+3. Tách scoring thành các hàm có thể unit test:
+   - semantic relevance;
+   - keyword/phrase coverage;
+   - topic, difficulty và file type match;
+   - boilerplate/content-quality penalty;
+   - final acceptance decision.
+4. Chỉ coi keyword là bằng chứng mạnh khi từ khóa khớp nội dung/chủ đề có ý nghĩa; không để việc lặp tên tài liệu trong boilerplate chi phối toàn bộ điểm.
+5. Đặt ngưỡng tuyệt đối bằng kết quả evaluation, không chọn ngưỡng chỉ từ một ảnh hoặc một truy vấn đơn lẻ.
+6. `/api/search` trả thêm trạng thái máy đọc được như `OK` hoặc `NO_RELEVANT_RESULTS`; không trả kết quả yếu chỉ để danh sách không bị rỗng.
+7. `/api/search/answer` chỉ được gọi với các chunk đã vượt relevance gate; tiếp tục giữ cơ chế `notEnoughEvidence` ở lớp LLM như hàng rào thứ hai.
+8. Giữ SearchLog và bổ sung thông tin cần cho debug/evaluation: query mode, best score, acceptance threshold và rejection reason. Không hiển thị các giá trị kỹ thuật này trên UI chính.
+
+### 5. Thiết kế UI/UX
+
+- Tạo hai chế độ rõ ràng trên cùng trang:
+  - `Tìm tài liệu`: dành cho từ khóa/chủ đề như `database`, trả danh sách tài liệu và đoạn liên quan; không tạo câu trả lời AI.
+  - `Hỏi tài liệu`: dành cho câu hỏi cụ thể; tự retrieval rồi tạo câu trả lời có citation nếu bằng chứng đạt ngưỡng.
+- Đổi CTA theo chế độ thành `Tìm tài liệu` hoặc `Hỏi tài liệu`; bỏ nút trung gian `Trả lời từ kết quả`.
+- Mỗi chế độ có placeholder và ví dụ riêng để người dùng hiểu cách nhập.
+- Empty state phải phân biệt:
+  - thư viện chưa có tài liệu;
+  - không có kết quả đủ liên quan;
+  - có tài liệu nhưng chưa đủ bằng chứng để trả lời;
+  - AI provider chưa sẵn sàng.
+- Giữ session persistence, mở đúng chunk/trang và nút `Xóa kết quả` đã có.
+
+### 6. Evaluation và tiêu chí nghiệm thu
+
+- Bộ positive queries hiện tại vẫn đạt Recall@5 bằng hoặc tốt hơn baseline đã lưu.
+- Thêm tối thiểu 10 negative/out-of-scope queries; tỷ lệ từ chối đúng mục tiêu tối thiểu 90%.
+- Query `tôi tìm khóa học trung cấp` không được trả tài liệu Database nếu thư viện không có tài liệu phù hợp.
+- Query từ khóa như `database` được phép trả tài liệu để đọc nhưng không tự tạo câu trả lời AI.
+- Câu hỏi cụ thể như `Database transaction rollback hoạt động thế nào?` phải tìm đúng đoạn trước khi gọi LLM.
+- Boilerplate không đứng đầu nếu có chunk nội dung liên quan tốt hơn trong cùng tài liệu.
+- Search thuần không gọi chat provider và không tăng đáng kể thời gian phản hồi so với hybrid search hiện tại.
+- Unit test, integration/smoke test, lint, build Docker và browser test đều pass trước khi bàn giao.
+
+### 7. Không làm trong đợt này
+
+- Không thêm agent, HyDE, multi-query hoặc knowledge graph.
+- Không thêm cross-encoder/model reranker riêng trong lần đầu vì máy hiện tại chạy embedding chủ yếu bằng CPU và cần giữ tài nguyên nhẹ.
+- Không dùng LLM để quyết định mọi kết quả search.
+- Không thay đổi embedding model hoặc re-embed toàn bộ tài liệu.
+- Không mở rộng app thành công cụ tìm khóa học hoặc tìm dữ liệu trên Internet.

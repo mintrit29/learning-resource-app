@@ -4,7 +4,7 @@ import {
   extractKeywordTerms,
   inferSearchCriteria,
   normalizeSearchText,
-  rankSearchCandidates,
+  rankSearchCandidatesWithDiagnostics,
   type SearchCandidate,
 } from "@/lib/search/ranking";
 
@@ -131,13 +131,16 @@ export async function hybridSearch(userId: string, query: string, filters: Searc
     if (errors.length) throw new Error(errors.join("; "));
   }
 
+  const ranking = rankSearchCandidatesWithDiagnostics(
+    vectorCandidates,
+    keywordCandidates,
+    candidateLimit,
+    inferSearchCriteria(query),
+  );
+
   return {
-    candidates: rankSearchCandidates(
-      vectorCandidates,
-      keywordCandidates,
-      candidateLimit,
-      inferSearchCriteria(query),
-    ),
+    candidates: ranking.results,
+    diagnostics: ranking.diagnostics,
     retrievalMode: vectorCandidates.length && keywordCandidates.length
       ? "hybrid"
       : vectorCandidates.length

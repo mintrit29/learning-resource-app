@@ -522,3 +522,23 @@ Query người dùng
 - Chỉ giữ một hành động AI tùy chọn: `Trả lời từ kết quả` kèm citation.
 - Bỏ `AI chọn giúp`, chuyển đổi theo đoạn/theo tài liệu, chọn số đoạn, nhãn cách app hiểu query và điểm xếp hạng khỏi UI chính.
 - Query, kết quả và câu trả lời được giữ trong phiên khi người dùng mở tài liệu rồi quay lại. `Xóa kết quả` dọn danh sách và câu trả lời nhưng giữ nội dung ô hỏi để người dùng sửa hoặc tìm lại.
+
+## Cập nhật 21/07/2026 - Search Relevance Gate và UX cuối
+
+Đây là bản hoàn thiện tiếp theo của Evidence Search, không phải chức năng độc lập. Quyết định UX `Trả lời từ kết quả` ở bản 16/07 được thay thế bằng hai chế độ rõ ràng trên cùng trang:
+
+- `Tìm tài liệu`: nhận từ khóa/chủ đề, trả danh sách tài liệu và đoạn phù hợp; không gọi chat provider.
+- `Hỏi tài liệu`: nhận câu hỏi cụ thể, tự retrieval rồi gọi AI trả lời có citation nếu có đủ bằng chứng.
+- Khi câu hỏi đã có citation, danh sách bên dưới chỉ hiển thị các tài liệu thực sự được AI dùng làm nguồn.
+
+Retrieval cuối cùng sử dụng vector + keyword, mở rộng một số khái niệm Việt-Anh, rerank theo độ phủ nội dung/tiêu đề/chủ đề, áp dụng đúng tiêu chí độ khó/loại file được nói rõ trong query và phạt boilerplate như Copyright, Table of Contents, Preface, About the Book. Relevance gate tuyệt đối phải trả empty state khi không có ứng viên đạt yêu cầu thay vì luôn chọn kết quả tốt nhất trong thư viện.
+
+API search trả một trong ba trạng thái: `OK`, `NO_RELEVANT_RESULTS`, `EMPTY_LIBRARY`. LLM không được gọi nếu retrieval không có bằng chứng đạt ngưỡng; `notEnoughEvidence` ở answer API tiếp tục là hàng rào thứ hai.
+
+Tiêu chí nghiệm thu cuối:
+
+- 28 positive demo queries giữ Recall@5 = 1.00 và đạt MRR = 1.00.
+- Ít nhất 10 negative/out-of-scope queries đạt rejection rate từ 90%; kết quả hiện tại đạt 100% trên demo fixture.
+- Query yêu cầu độ khó/định dạng cụ thể không trả tài liệu sai tiêu chí.
+- Query `database` không ưu tiên các chương bản quyền/mục lục nếu có chương nội dung phù hợp hơn.
+- Hỏi đáp trên dữ liệu thật trả citation hợp lệ, mở đúng chunk và giữ trạng thái khi quay lại.

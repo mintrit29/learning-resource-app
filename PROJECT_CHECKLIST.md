@@ -315,3 +315,52 @@
 - [x] Tính Precision@5, Recall@5 và MRR.
 - [x] So sánh thời gian phản hồi và số token dùng cho answer.
 - [x] Ghi kết quả vào báo cáo và chuẩn bị một case demo end-to-end.
+
+## Cập nhật 21/07/2026 - Search Relevance Gate và tách luồng tìm/hỏi
+
+> **Cách theo dõi:** Đây là checklist nâng cấp Evidence Search hiện có, không phải chức năng độc lập. Các mục cũ đã hoàn thành giữ nguyên trạng thái. Khi đợt này hoàn tất, cần gộp kết quả vào phần Search/Evaluation chính và bỏ các mô tả phiên bản trung gian đã lỗi thời.
+
+### Baseline và test data
+
+- [x] Lưu kết quả benchmark của 28 positive queries hiện tại trước khi sửa scoring.
+- [x] Thêm tối thiểu 10 negative/out-of-scope queries có expected result là không tìm thấy.
+- [x] Thêm case từ khóa ngắn, câu hỏi cụ thể, tiếng Việt không dấu và truy vấn Việt-Anh.
+- [x] Thêm case boilerplate: copyright, license, mục lục, giới thiệu và thông tin xuất bản.
+
+### Retrieval và relevance gate
+
+- [x] Tách semantic, keyword coverage, metadata match và content-quality penalty thành các hàm có unit test.
+- [x] Thêm phrase/term coverage để phân biệt khớp nội dung thật với khớp tên tài liệu chung chung.
+- [x] Thêm penalty cho boilerplate và kiểm tra không loại nhầm nội dung học thuật hợp lệ.
+- [x] Rerank candidate sau bước merge vector + keyword.
+- [x] Hiệu chỉnh ngưỡng relevance tuyệt đối bằng positive và negative evaluation set.
+- [x] Trả `NO_RELEVANT_RESULTS` khi ứng viên tốt nhất vẫn không đạt ngưỡng.
+- [x] Đảm bảo không gọi LLM khi retrieval không có bằng chứng đạt ngưỡng.
+- [x] Bổ sung SearchLog cho query mode, best score, threshold và rejection reason.
+
+### UI/UX
+
+- [x] Tách rõ chế độ `Tìm tài liệu` và `Hỏi tài liệu` trên cùng trang.
+- [x] Thêm placeholder/ví dụ riêng cho từng chế độ.
+- [x] Chế độ tìm kiếm chỉ trả tài liệu; không hiện hành động tạo câu trả lời AI.
+- [x] Chế độ hỏi tự retrieval rồi trả lời có citation khi đủ bằng chứng.
+- [x] Bỏ nút trung gian `Trả lời từ kết quả`.
+- [x] Thêm empty state riêng cho thư viện rỗng, không có kết quả, thiếu bằng chứng và thiếu AI provider.
+- [x] Giữ nguyên session persistence, `Xóa kết quả` và mở đúng chunk/trang.
+- [x] Kiểm tra responsive trên desktop và mobile.
+
+### Evaluation và nghiệm thu
+
+- [x] Positive Recall@5 không thấp hơn baseline hiện tại.
+- [x] Negative query rejection rate đạt tối thiểu 90%.
+- [x] Case `tôi tìm khóa học trung cấp` không trả tài liệu Database khi không có dữ liệu phù hợp.
+- [x] Case `database` trả tài liệu phù hợp nhưng không tự tạo câu trả lời.
+- [x] Câu hỏi Database cụ thể tìm đúng chunk nội dung thay vì copyright/about-the-book.
+- [x] Boilerplate không đứng đầu khi cùng tài liệu có đoạn nội dung phù hợp hơn.
+- [x] Chạy unit tests và hybrid search smoke tests.
+- [x] Chạy evaluation script và lưu báo cáo so sánh trước/sau.
+- [x] Chạy lint và production build.
+- [x] Build/restart Docker web và kiểm tra health các service.
+- [x] Test browser end-to-end cho cả hai chế độ, citation, back navigation và clear.
+- [x] Kiểm tra browser console không có error/warning mới.
+- [x] Cập nhật PRD, implementation plan, checklist và test cases thành trạng thái cuối sau khi code hoàn tất.

@@ -59,6 +59,19 @@ const cases = [
   ["advanced DOCX about threat modeling", threatModelingId],
 ] as const;
 
+const negativeCases = [
+  "tôi tìm khóa học trung cấp",
+  "khóa học nấu ăn cho người mới",
+  "dự báo thời tiết ngày mai",
+  "lịch thi đấu bóng đá tối nay",
+  "hướng dẫn chăm sóc cây cảnh",
+  "giá vé máy bay đi Hà Nội",
+  "công thức làm bánh chocolate",
+  "review điện thoại mới nhất",
+  "tìm việc làm bán thời gian",
+  "địa điểm du lịch gần biển",
+] as const;
+
 type Metrics = { precisionAt5: number; recallAt5: number; reciprocalRank: number; latencyMs: number };
 
 function score(documentIds: string[], expectedId: string, latencyMs: number): Metrics {
@@ -85,6 +98,13 @@ function average(rows: Metrics[]) {
 const baselineRows: Metrics[] = [];
 const hybridRows: Metrics[] = [];
 const hybridFailures: Array<{ query: string; returned: string[] }> = [];
+const positiveBestScores: Array<{
+  query: string;
+  score: number;
+  semanticScore: number | null;
+  keywordScore: number | null;
+  top: Array<{ title: string; score: number }>;
+}> = [];
 for (const [query, expectedId] of cases) {
   let startedAt = Date.now();
   const baseline = await searchByVector(user.id, query, {}, 30);
@@ -93,6 +113,13 @@ for (const [query, expectedId] of cases) {
   startedAt = Date.now();
   const hybrid = await hybridSearch(user.id, query, {});
   const hybridDocumentIds = hybrid.candidates.map((result) => result.documentId);
+  positiveBestScores.push({
+    query,
+    score: hybrid.candidates[0]?.score ?? 0,
+    semanticScore: hybrid.candidates[0]?.semanticScore ?? null,
+    keywordScore: hybrid.candidates[0]?.keywordScore ?? null,
+    top: hybrid.candidates.slice(0, 5).map((result) => ({ title: result.title, score: Number(result.score.toFixed(3)) })),
+  });
   hybridRows.push(score(hybridDocumentIds, expectedId, Date.now() - startedAt));
   if (!hybridDocumentIds.includes(expectedId)) {
     hybridFailures.push({
@@ -102,10 +129,41 @@ for (const [query, expectedId] of cases) {
   }
 }
 
+const negativeResults = [];
+for (const query of negativeCases) {
+  const hybrid = await hybridSearch(user.id, query, {});
+  negativeResults.push({
+    query,
+    accepted: hybrid.candidates.length > 0,
+    top: hybrid.candidates.slice(0, 3).map((result) => ({
+      title: result.title,
+      score: Number(result.score.toFixed(3)),
+      semanticScore: result.semanticScore == null ? null : Number(result.semanticScore.toFixed(3)),
+      keywordScore: result.keywordScore == null ? null : Number(result.keywordScore.toFixed(3)),
+    })),
+  });
+}
+
 console.log(JSON.stringify({
   queryCount: cases.length,
   baseline: average(baselineRows),
   hybrid: average(hybridRows),
   hybridFailures,
+  positiveBestScoreRange: {
+    min: Number(Math.min(...positiveBestScores.map((result) => result.score)).toFixed(3)),
+    max: Number(Math.max(...positiveBestScores.map((result) => result.score)).toFixed(3)),
+  },
+  lowestPositiveResults: [...positiveBestScores]
+    .sort((left, right) => left.score - right.score)
+    .slice(0, 5)
+    .map((result) => ({
+      ...result,
+      score: Number(result.score.toFixed(3)),
+      semanticScore: result.semanticScore == null ? null : Number(result.semanticScore.toFixed(3)),
+      keywordScore: result.keywordScore == null ? null : Number(result.keywordScore.toFixed(3)),
+    })),
+  negativeQueryCount: negativeCases.length,
+  negativeRejectionRate: Number((negativeResults.filter((result) => !result.accepted).length / negativeResults.length).toFixed(3)),
+  negativeResults,
 }, null, 2));
 await db.$disconnect();

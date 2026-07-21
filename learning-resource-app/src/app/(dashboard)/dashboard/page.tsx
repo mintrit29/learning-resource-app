@@ -329,8 +329,8 @@ export default async function DashboardPage() {
                 <Sparkles size={16} />
               </span>
               <p>
-                <strong>Dùng AI chọn giúp</strong>
-                <small>Sau khi tìm kiếm, bấm AI gợi ý để biết kết quả nào nên đọc trước.</small>
+                <strong>Hỏi và kiểm tra nguồn</strong>
+                <small>Chọn Hỏi tài liệu để nhận câu trả lời chỉ từ các đoạn có dẫn nguồn.</small>
               </p>
             </li>
           </ol>

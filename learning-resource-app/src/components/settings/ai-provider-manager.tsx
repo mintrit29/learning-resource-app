@@ -203,7 +203,7 @@ export function AiProviderManager({ initialProviders }: { initialProviders: Prov
       <div className="provider-toolbar">
         <div>
           <h2>Kết nối AI đã thêm</h2>
-          <p>Kết nối mặc định sẽ được dùng cho phân tích tài liệu và AI chọn giúp kết quả tìm kiếm.</p>
+          <p>Kết nối mặc định được dùng để phân tích tài liệu và trả lời câu hỏi có dẫn nguồn.</p>
         </div>
         <button className="primary-button compact" onClick={openCreate} type="button">
           <Plus size={17} />
