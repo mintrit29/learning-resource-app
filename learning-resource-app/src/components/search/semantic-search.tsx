@@ -36,7 +36,6 @@ type EvidenceAnswer = {
   }>;
 };
 
-type QueryIntent = "DISCOVERY" | "QUESTION";
 type SearchStatus = "OK" | "NO_RELEVANT_RESULTS" | "EMPTY_LIBRARY";
 
 type SavedSearchState = {
@@ -44,8 +43,10 @@ type SavedSearchState = {
   results: SearchResult[];
   evidenceAnswer?: EvidenceAnswer | null;
   status?: SearchStatus;
-  queryIntent?: QueryIntent;
 };
+
+const SEARCH_STORAGE_KEY = "scholarflow:last-search:v2";
+const LEGACY_SEARCH_STORAGE_KEY = "scholarflow:last-search";
 
 const examples = [
   "database",
@@ -56,11 +57,19 @@ const examples = [
 function readSavedSearch(): SavedSearchState | null {
   if (typeof window === "undefined") return null;
   try {
-    const saved = window.sessionStorage.getItem("scholarflow:last-search");
+    const saved = window.sessionStorage.getItem(SEARCH_STORAGE_KEY);
     return saved ? JSON.parse(saved) as SavedSearchState : null;
   } catch {
-    window.sessionStorage.removeItem("scholarflow:last-search");
+    window.sessionStorage.removeItem(SEARCH_STORAGE_KEY);
     return null;
+  }
+}
+
+function saveSearch(state: SavedSearchState) {
+  try {
+    window.sessionStorage.setItem(SEARCH_STORAGE_KEY, JSON.stringify(state));
+  } catch {
+    // Search still works if storage is unavailable or full.
   }
 }
 
@@ -72,7 +81,6 @@ export function SemanticSearch() {
   const [evidenceAnswer, setEvidenceAnswer] = useState<EvidenceAnswer | null>(null);
   const [answerError, setAnswerError] = useState("");
   const [searchStatus, setSearchStatus] = useState<SearchStatus | null>(null);
-  const [queryIntent, setQueryIntent] = useState<QueryIntent>("DISCOVERY");
   const [isSearching, setIsSearching] = useState(false);
   const [isAnswering, setIsAnswering] = useState(false);
 
@@ -85,12 +93,12 @@ export function SemanticSearch() {
       setResults(savedSearch.results ?? []);
       setEvidenceAnswer(savedSearch.evidenceAnswer ?? null);
       setSearchStatus(savedSearch.status ?? (savedSearch.results?.length ? "OK" : null));
-      setQueryIntent(savedSearch.queryIntent ?? (savedSearch.evidenceAnswer ? "QUESTION" : "DISCOVERY"));
+      window.sessionStorage.removeItem(LEGACY_SEARCH_STORAGE_KEY);
     }, 0);
     return () => window.clearTimeout(restoreTimer);
   }, []);
 
-  async function runSearch(normalizedQuery: string): Promise<{ results: SearchResult[]; queryIntent: QueryIntent } | null> {
+  async function runSearch(normalizedQuery: string): Promise<SearchResult[] | null> {
     if (normalizedQuery.length < 2) return null;
 
     setIsSearching(true);
@@ -110,7 +118,6 @@ export function SemanticSearch() {
       const data = (await response.json()) as {
         message?: string;
         status?: SearchStatus;
-        queryIntent?: QueryIntent;
         results?: SearchResult[];
       };
       if (!response.ok) {
@@ -121,17 +128,14 @@ export function SemanticSearch() {
       const nextResults = data.results ?? [];
       setResults(nextResults);
       setSearchStatus(data.status ?? (nextResults.length ? "OK" : "NO_RELEVANT_RESULTS"));
-      const nextIntent = data.queryIntent ?? "DISCOVERY";
-      setQueryIntent(nextIntent);
       setSearchedQuery(normalizedQuery);
-      sessionStorage.setItem("scholarflow:last-search", JSON.stringify({
+      saveSearch({
         query: normalizedQuery,
         results: nextResults,
         evidenceAnswer: null,
         status: data.status,
-        queryIntent: nextIntent,
-      } satisfies SavedSearchState));
-      return { results: nextResults, queryIntent: nextIntent };
+      });
+      return nextResults;
     } catch {
       setError("Không thể kết nối tới máy chủ.");
       setResults([]);
@@ -144,10 +148,7 @@ export function SemanticSearch() {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const normalizedQuery = query.trim();
-    const searchOutcome = await runSearch(normalizedQuery);
-    if (searchOutcome?.queryIntent === "QUESTION" && searchOutcome.results.length) {
-      await answerFromResults(normalizedQuery, searchOutcome.results);
-    }
+    await runSearch(normalizedQuery);
   }
 
   function handleClearSearch() {
@@ -157,7 +158,8 @@ export function SemanticSearch() {
     setError("");
     setAnswerError("");
     setSearchStatus(null);
-    sessionStorage.removeItem("scholarflow:last-search");
+    sessionStorage.removeItem(SEARCH_STORAGE_KEY);
+    sessionStorage.removeItem(LEGACY_SEARCH_STORAGE_KEY);
   }
 
   async function answerFromResults(answerQuery: string, answerResults: SearchResult[]) {
@@ -179,13 +181,12 @@ export function SemanticSearch() {
         return;
       }
       setEvidenceAnswer(data);
-      sessionStorage.setItem("scholarflow:last-search", JSON.stringify({
+      saveSearch({
         query: answerQuery,
         results: answerResults,
         evidenceAnswer: data,
         status: "OK",
-        queryIntent: "QUESTION",
-      } satisfies SavedSearchState));
+      });
     } catch {
       setAnswerError("Không thể kết nối tới AI để tạo câu trả lời.");
     } finally {
@@ -196,10 +197,7 @@ export function SemanticSearch() {
   const uniqueResults = results.filter(
     (result, index) => results.findIndex((item) => item.documentId === result.documentId) === index,
   );
-  const citedDocumentIds = new Set(evidenceAnswer?.citations.map((citation) => citation.documentId) ?? []);
-  const displayResults = evidenceAnswer && citedDocumentIds.size
-    ? uniqueResults.filter((result) => citedDocumentIds.has(result.documentId))
-    : uniqueResults;
+  const displayResults = uniqueResults;
   const isBusy = isSearching || isAnswering;
 
   return (
@@ -213,8 +211,8 @@ export function SemanticSearch() {
           value={query}
         />
         <button disabled={isBusy || query.trim().length < 2} type="submit">
-          {isBusy ? <LoaderCircle className="spin" size={17} /> : null}
-          {isSearching ? "Đang tìm" : isAnswering ? "Đang trả lời" : "Tìm kiếm"}
+          {isSearching ? <LoaderCircle className="spin" size={17} /> : null}
+          {isSearching ? "Đang tìm" : "Tìm kiếm"}
         </button>
       </form>
 
@@ -245,9 +243,7 @@ export function SemanticSearch() {
           <p>
             {searchStatus === "EMPTY_LIBRARY"
               ? "Hãy thêm tài liệu trước để ScholarFlow có dữ liệu tìm kiếm và trả lời."
-              : queryIntent === "QUESTION"
-                ? "Chưa có đoạn nào đủ liên quan để trả lời chắc chắn. Hãy hỏi cụ thể hơn hoặc thêm tài liệu phù hợp."
-                : "Thư viện chưa có tài liệu đủ liên quan. Thử từ khóa khác hoặc thêm tài liệu mới."}
+              : "Thư viện chưa có tài liệu đủ liên quan. Thử từ khóa khác hoặc thêm tài liệu mới."}
           </p>
         </div>
       ) : null}
@@ -260,7 +256,16 @@ export function SemanticSearch() {
               <span>{displayResults.length} tài liệu phù hợp</span>
             </div>
             <div className="search-heading-actions">
-              <button className="search-clear-button" onClick={handleClearSearch} type="button">
+              <button
+                className="ai-curate-button"
+                disabled={isBusy}
+                onClick={() => answerFromResults(searchedQuery, results)}
+                type="button"
+              >
+                {isAnswering ? <LoaderCircle className="spin" size={17} /> : <MessageSquareQuote size={17} />}
+                {isAnswering ? "Đang trả lời" : evidenceAnswer ? "Tạo lại câu trả lời" : "AI trả lời từ kết quả"}
+              </button>
+              <button className="search-clear-button" disabled={isBusy} onClick={handleClearSearch} type="button">
                 Xóa kết quả
               </button>
             </div>

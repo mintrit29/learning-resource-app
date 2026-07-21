@@ -109,20 +109,6 @@ export function extractKeywordTerms(query: string) {
   return [...new Set(extractKeywordGroups(query).flat())].slice(0, 20);
 }
 
-export type QueryIntent = "DISCOVERY" | "QUESTION";
-
-export function inferQueryIntent(query: string): QueryIntent {
-  const normalized = normalizeSearchText(query).trim();
-  if (query.trim().endsWith("?")) return "QUESTION";
-
-  const questionPatterns = [
-    /\b(gi|la gi|tai sao|vi sao|khi nao|o dau|bao nhieu)\b/,
-    /\b(nhu the nao|the nao|khac nhau|giai thich|cho biet)\b/,
-    /\b(what|why|when|where|who|how|explain|compare)\b/,
-  ];
-  return questionPatterns.some((pattern) => pattern.test(normalized)) ? "QUESTION" : "DISCOVERY";
-}
-
 export function inferSearchCriteria(query: string) {
   const normalized = ` ${normalizeSearchText(query)} `;
   const difficulty = normalized.match(/\b(nguoi moi|co ban|beginner|intro|nhap mon)\b/)
@@ -198,10 +184,10 @@ export function rankSearchCandidatesWithDiagnostics(
       const keywordRankSignal = candidate.keywordRank ? 1 / (1 + (candidate.keywordRank - 1) * 0.1) : 0;
       const hasBoth = semantic !== null && keyword !== null;
       const retrievalScore = hasBoth
-        ? 0.55 * (semantic ?? 0) + 0.25 * (keyword ?? 0) + 0.12 * vectorRankSignal + 0.08 * keywordRankSignal + 0.05
+        ? 0.68 * (semantic ?? 0) + 0.14 * (keyword ?? 0) + 0.13 * vectorRankSignal + 0.05 * keywordRankSignal + 0.04
         : semantic !== null
           ? 0.82 * semantic + 0.18 * vectorRankSignal
-          : 0.8 * (keyword ?? 0) + 0.2 * keywordRankSignal;
+          : 0.62 * (keyword ?? 0) + 0.18 * keywordRankSignal;
 
       const normalizedContent = normalizeSearchText(candidate.content);
       const normalizedTitle = normalizeSearchText(candidate.title);
@@ -223,9 +209,9 @@ export function rankSearchCandidatesWithDiagnostics(
         && satisfiesFileType
         && satisfiesDifficulty;
       const boilerplatePenalty = hasBoilerplate(normalizedContent, normalizedSourceLabel) && !queryRequestsBoilerplate ? 0.32 : 0;
-      const score = 0.68 * retrievalScore
-        + 0.2 * contentCoverage
-        + 0.08 * titleCoverage
+      const score = 0.78 * retrievalScore
+        + 0.12 * contentCoverage
+        + 0.06 * titleCoverage
         + 0.04 * topicCoverage
         + (matchesFileType ? 0.04 : 0)
         + (matchesDifficulty ? 0.04 : 0)
@@ -257,7 +243,10 @@ export function rankSearchCandidatesWithDiagnostics(
         passesRelevanceGate,
       };
     })
-    .sort((left, right) => right.score - left.score);
+    .sort((left, right) => {
+      const vectorBackedDelta = Number(right.semanticScore !== null) - Number(left.semanticScore !== null);
+      return vectorBackedDelta || right.score - left.score;
+    });
 
   const accepted = ranked.filter((result) => result.passesRelevanceGate);
   const bestScore = accepted[0]?.score ?? ranked[0]?.score ?? 0;

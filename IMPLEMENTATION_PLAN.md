@@ -1105,7 +1105,7 @@ Document.primaryTopic = "Văn học"
 - Trang `/settings/tags` thu gọn alias: mặc định hiện 6 alias đầu, alias còn lại hiển thị bằng nút `+n tên khác`.
 - Không triển khai runtime UI cho GPU/CPU batch trong đợt này; batch tiếp tục là cấu hình vận hành Docker/env.
 
-## Cập nhật 21/07/2026 - Search Relevance Gate và tách luồng tìm/hỏi
+## Cập nhật 21/07/2026 - Search Relevance Gate và luồng AI tùy chọn
 
 > **Quan hệ với bản cũ:** Đây là đợt hoàn thiện tiếp theo của Evidence Search ngày 16/07/2026. Không tạo module search mới và không thay đổi pipeline upload, extraction, chunking, BGE-M3 hoặc pgvector. Sau khi hoàn thành, phần này phải được gộp vào implementation plan chính của search để tài liệu chỉ mô tả một phiên bản cuối cùng.
 
@@ -1168,11 +1168,10 @@ Câu hỏi
 
 ### 5. Thiết kế UI/UX
 
-- Tạo hai chế độ rõ ràng trên cùng trang:
-  - `Tìm tài liệu`: dành cho từ khóa/chủ đề như `database`, trả danh sách tài liệu và đoạn liên quan; không tạo câu trả lời AI.
-  - `Hỏi tài liệu`: dành cho câu hỏi cụ thể; tự retrieval rồi tạo câu trả lời có citation nếu bằng chứng đạt ngưỡng.
-- Đổi CTA theo chế độ thành `Tìm tài liệu` hoặc `Hỏi tài liệu`; bỏ nút trung gian `Trả lời từ kết quả`.
-- Mỗi chế độ có placeholder và ví dụ riêng để người dùng hiểu cách nhập.
+- Chỉ có một ô nhập và một CTA `Tìm kiếm`; không có chế độ keyword/vector hoặc tìm/hỏi.
+- Mọi truy vấn luôn hiện danh sách tài liệu trước.
+- Có một hành động tùy chọn `AI trả lời từ kết quả`; chỉ hành động này mới gọi chat provider.
+- Giữ nguyên danh sách kết quả sau khi AI trả lời.
 - Empty state phải phân biệt:
   - thư viện chưa có tài liệu;
   - không có kết quả đủ liên quan;
@@ -1198,10 +1197,10 @@ Câu hỏi
 - Không dùng LLM để quyết định mọi kết quả search.
 - Không thay đổi embedding model hoặc re-embed toàn bộ tài liệu.
 - Không mở rộng app thành công cụ tìm khóa học hoặc tìm dữ liệu trên Internet.
-## Điều chỉnh sau kiểm thử UX: hợp nhất tìm kiếm - 21/07/2026
+## Quyết định cuối sau kiểm thử UX - 21/07/2026
 
 1. Bỏ hai tab tìm/hỏi khỏi giao diện.
-2. Giữ hybrid retrieval keyword + vector cho mọi truy vấn.
-3. Nhận diện câu hỏi ở server để chỉ gọi bước trả lời AI khi cần.
+2. Giữ hybrid retrieval cho mọi truy vấn, với vector là tín hiệu chính và keyword là tín hiệu hỗ trợ.
+3. Bỏ nhận diện ý định câu hỏi. Search luôn chỉ trả kết quả; AI chỉ chạy khi người dùng bấm nút.
 4. Giữ nguyên relevance gate, trích nguồn, lưu trạng thái và nút xóa kết quả.
 5. Chạy unit, integration, lint, build và kiểm thử lại trên trình duyệt.

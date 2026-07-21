@@ -17,8 +17,8 @@
    - PDF preview được trong app.
    - DOCX/PPTX/EPUB có nút tải file rõ ràng.
 5. Nếu tài liệu lỗi, bấm `Xử lý phần còn thiếu`.
-6. Vào `Hỏi tài liệu`, chọn `Tìm tài liệu`, nhập một từ khóa/chủ đề và kiểm tra kết quả không tự gọi AI.
-7. Chuyển sang `Hỏi tài liệu`, đặt câu hỏi cụ thể và kiểm tra câu trả lời có citation.
+6. Vào `Hỏi tài liệu`, nhập từ khóa hoặc câu hỏi và kiểm tra app chỉ hiện kết quả, không tự gọi AI.
+7. Bấm `AI trả lời từ kết quả` và kiểm tra câu trả lời có citation.
 8. Bấm kết quả search, app phải mở đúng matched chunk; quay lại vẫn giữ query, kết quả và câu trả lời.
 9. Bấm `Xóa kết quả`, app dọn kết quả/câu trả lời nhưng giữ nội dung ô nhập.
 
@@ -81,12 +81,12 @@ Các case bắt buộc:
 3. `Data inconsistency và data isolation là gì?` trả lời từ đúng chương Database, có citation hợp lệ và chỉ hiển thị tài liệu thực sự được trích dẫn.
 4. 10 negative/out-of-scope queries trong evaluation phải đạt rejection rate tối thiểu 90%; kết quả hiện tại là 100% trên demo fixture.
 5. 28 positive queries phải giữ Recall@5 = 1.00; kết quả hiện tại đạt MRR = 1.00.
-6. Search thuần không gọi chat provider; chế độ Hỏi mới gọi provider sau khi retrieval có bằng chứng đạt ngưỡng.
+6. Search không gọi chat provider; chỉ nút `AI trả lời từ kết quả` mới gọi provider sau khi retrieval có bằng chứng đạt ngưỡng.
 7. Kiểm tra desktop/mobile, mở đúng chunk, back navigation, session persistence, Clear và browser console.
 ## Tìm kiếm hợp nhất - 21/07/2026
 
 1. Nhập `database`: chỉ hiện danh sách tài liệu phù hợp, không gọi AI trả lời.
-2. Nhập `Data inconsistency và data isolation là gì?`: dùng cùng hybrid search rồi tự trả lời kèm nguồn.
+2. Nhập `Data inconsistency và data isolation là gì?`: chỉ hiện kết quả; sau đó bấm `AI trả lời từ kết quả` mới trả lời kèm nguồn.
 3. Không có tab hoặc lựa chọn giữa keyword và vector.
 4. Mở tài liệu rồi quay lại: truy vấn và kết quả vẫn còn.
 5. Bấm `Xóa kết quả`: chỉ xóa kết quả, giữ nội dung đang nhập.

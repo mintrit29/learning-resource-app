@@ -8,7 +8,7 @@ export default function SearchPage() {
           <p className="eyebrow">Tìm kiếm thông minh</p>
           <h1>Tìm kiếm tài liệu</h1>
           <p>
-            Keyword và vector được kết hợp trong cùng một lần tìm. Nếu bạn nhập câu hỏi, ScholarFlow sẽ trả lời kèm nguồn.
+            ScholarFlow tìm theo ý nghĩa và dùng từ khóa để xếp hạng chính xác hơn. Bạn có thể gọi AI trả lời từ kết quả khi cần.
           </p>
         </div>
       </header>

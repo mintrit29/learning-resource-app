@@ -525,11 +525,7 @@ Query người dùng
 
 ## Cập nhật 21/07/2026 - Search Relevance Gate và UX cuối
 
-Đây là bản hoàn thiện tiếp theo của Evidence Search, không phải chức năng độc lập. Quyết định UX `Trả lời từ kết quả` ở bản 16/07 được thay thế bằng hai chế độ rõ ràng trên cùng trang:
-
-- `Tìm tài liệu`: nhận từ khóa/chủ đề, trả danh sách tài liệu và đoạn phù hợp; không gọi chat provider.
-- `Hỏi tài liệu`: nhận câu hỏi cụ thể, tự retrieval rồi gọi AI trả lời có citation nếu có đủ bằng chứng.
-- Khi câu hỏi đã có citation, danh sách bên dưới chỉ hiển thị các tài liệu thực sự được AI dùng làm nguồn.
+Đây là bản hoàn thiện tiếp theo của Evidence Search, không phải chức năng độc lập. Luồng cuối giữ một trải nghiệm tìm kiếm duy nhất: luôn trả danh sách tài liệu trước; AI chỉ trả lời khi người dùng chủ động bấm `AI trả lời từ kết quả`.
 
 Retrieval cuối cùng sử dụng vector + keyword, mở rộng một số khái niệm Việt-Anh, rerank theo độ phủ nội dung/tiêu đề/chủ đề, áp dụng đúng tiêu chí độ khó/loại file được nói rõ trong query và phạt boilerplate như Copyright, Table of Contents, Preface, About the Book. Relevance gate tuyệt đối phải trả empty state khi không có ứng viên đạt yêu cầu thay vì luôn chọn kết quả tốt nhất trong thư viện.
 
@@ -542,12 +538,13 @@ Tiêu chí nghiệm thu cuối:
 - Query yêu cầu độ khó/định dạng cụ thể không trả tài liệu sai tiêu chí.
 - Query `database` không ưu tiên các chương bản quyền/mục lục nếu có chương nội dung phù hợp hơn.
 - Hỏi đáp trên dữ liệu thật trả citation hợp lệ, mở đúng chunk và giữ trạng thái khi quay lại.
-## Điều chỉnh UX tìm kiếm hợp nhất - 21/07/2026
+## UX tìm kiếm cuối cùng - 21/07/2026
 
 Quyết định này thay thế thiết kế hai tab `Tìm tài liệu` và `Hỏi tài liệu`:
 
 - Chỉ dùng một ô tìm kiếm và một nút `Tìm kiếm`.
-- Mọi truy vấn đều chạy keyword search và vector search cùng lúc, sau đó hợp nhất và xếp hạng.
-- Truy vấn dạng từ khóa/chủ đề trả danh sách tài liệu.
-- Truy vấn dạng câu hỏi vẫn dùng cùng kết quả hybrid, sau đó tự tạo câu trả lời có trích nguồn.
-- Người dùng không phải hiểu hoặc chọn kỹ thuật tìm kiếm trước khi nhập.
+- Vector search là tín hiệu chính; keyword search chỉ bổ sung ứng viên và hỗ trợ xếp hạng.
+- Mọi truy vấn, kể cả câu hỏi, trước tiên chỉ trả danh sách tài liệu và đoạn phù hợp.
+- AI không tự chạy. Người dùng bấm `AI trả lời từ kết quả` khi cần câu trả lời có trích nguồn.
+- Sau khi AI trả lời, danh sách kết quả gốc vẫn được giữ nguyên để người dùng tiếp tục xem tài liệu.
+- Người dùng không phải hiểu, chọn hoặc chuyển đổi giữa keyword và vector.

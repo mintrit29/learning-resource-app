@@ -316,7 +316,7 @@
 - [x] So sánh thời gian phản hồi và số token dùng cho answer.
 - [x] Ghi kết quả vào báo cáo và chuẩn bị một case demo end-to-end.
 
-## Cập nhật 21/07/2026 - Search Relevance Gate và tách luồng tìm/hỏi
+## Cập nhật 21/07/2026 - Search Relevance Gate và UX tìm kiếm cuối
 
 > **Cách theo dõi:** Đây là checklist nâng cấp Evidence Search hiện có, không phải chức năng độc lập. Các mục cũ đã hoàn thành giữ nguyên trạng thái. Khi đợt này hoàn tất, cần gộp kết quả vào phần Search/Evaluation chính và bỏ các mô tả phiên bản trung gian đã lỗi thời.
 
@@ -340,11 +340,11 @@
 
 ### UI/UX
 
-- [x] Tách rõ chế độ `Tìm tài liệu` và `Hỏi tài liệu` trên cùng trang.
-- [x] Thêm placeholder/ví dụ riêng cho từng chế độ.
-- [x] Chế độ tìm kiếm chỉ trả tài liệu; không hiện hành động tạo câu trả lời AI.
-- [x] Chế độ hỏi tự retrieval rồi trả lời có citation khi đủ bằng chứng.
-- [x] Bỏ nút trung gian `Trả lời từ kết quả`.
+- [x] Dùng một ô tìm kiếm duy nhất, không tách keyword/vector hoặc tìm/hỏi.
+- [x] Tìm kiếm lấy vector làm tín hiệu chính và keyword làm tín hiệu hỗ trợ.
+- [x] Mọi truy vấn chỉ trả danh sách tài liệu trước, không tự gọi AI.
+- [x] Giữ nút tùy chọn `AI trả lời từ kết quả` và citation khi đủ bằng chứng.
+- [x] Giữ nguyên danh sách kết quả sau khi AI trả lời.
 - [x] Thêm empty state riêng cho thư viện rỗng, không có kết quả, thiếu bằng chứng và thiếu AI provider.
 - [x] Giữ nguyên session persistence, `Xóa kết quả` và mở đúng chunk/trang.
 - [x] Kiểm tra responsive trên desktop và mobile.
@@ -361,13 +361,13 @@
 - [x] Chạy evaluation script và lưu báo cáo so sánh trước/sau.
 - [x] Chạy lint và production build.
 - [x] Build/restart Docker web và kiểm tra health các service.
-- [x] Test browser end-to-end cho cả hai chế độ, citation, back navigation và clear.
+- [x] Test browser end-to-end cho search, nút AI tùy chọn, citation, back navigation và clear.
 - [x] Kiểm tra browser console không có error/warning mới.
 - [x] Cập nhật PRD, implementation plan, checklist và test cases thành trạng thái cuối sau khi code hoàn tất.
 ## Điều chỉnh tìm kiếm hợp nhất - 21/07/2026
 
 - [x] Bỏ lựa chọn hai chế độ khỏi giao diện.
-- [x] Mọi truy vấn dùng keyword + vector đồng thời.
-- [x] Tự nhận diện câu hỏi để tạo câu trả lời kèm nguồn.
+- [x] Mọi truy vấn dùng vector chính + keyword hỗ trợ trong cùng pipeline.
+- [x] Bỏ tự nhận diện câu hỏi; chỉ tạo câu trả lời khi bấm nút AI.
 - [x] Chạy lại toàn bộ kiểm thử tự động.
 - [x] Kiểm thử trên dữ liệu thật trong trình duyệt.

@@ -2,7 +2,6 @@ import assert from "node:assert/strict";
 import {
   extractKeywordTerms,
   extractKeywordGroups,
-  inferQueryIntent,
   inferSearchCriteria,
   normalizeSearchText,
   rankSearchCandidates,
@@ -26,12 +25,6 @@ assert.deepEqual(inferSearchCriteria("Slide nhập môn SQL cho người mới")
     ["sql"],
   ],
 });
-assert.equal(inferQueryIntent("database"), "DISCOVERY");
-assert.equal(inferQueryIntent("AI machine learning"), "DISCOVERY");
-assert.equal(inferQueryIntent("tôi tìm khóa học trung cấp"), "DISCOVERY");
-assert.equal(inferQueryIntent("Data isolation là gì?"), "QUESTION");
-assert.equal(inferQueryIntent("Explain database rollback"), "QUESTION");
-
 const common = {
   documentId: "doc-1",
   title: "Database",
@@ -55,8 +48,8 @@ const ranked = rankSearchCandidates(
   inferSearchCriteria("transaction"),
 );
 
-assert.equal(ranked[0].chunkId, "both");
-assert.deepEqual(ranked[0].matchReasons, ["Khớp ngữ nghĩa", "Khớp từ khóa"]);
+assert.equal(ranked[0].chunkId, "semantic-only", "A clearly stronger vector match must stay first");
+assert.deepEqual(ranked.find((result) => result.chunkId === "both")?.matchReasons, ["Khớp ngữ nghĩa", "Khớp từ khóa"]);
 assert.ok(ranked.every((result) => result.score >= 0 && result.score <= 1));
 assert.equal(new Set(ranked.map((result) => result.chunkId)).size, ranked.length);
 
@@ -91,4 +84,4 @@ const databaseResults = rankSearchCandidates(
 );
 assert.equal(databaseResults[0]?.chunkId, "content", "Useful content must outrank boilerplate");
 
-console.log("PASS search ranking: query intent, bilingual concepts, relevance gate and boilerplate rerank");
+console.log("PASS search ranking: vector-first hybrid ranking, bilingual concepts, relevance gate and boilerplate rerank");
