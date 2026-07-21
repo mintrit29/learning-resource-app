@@ -1198,3 +1198,10 @@ Câu hỏi
 - Không dùng LLM để quyết định mọi kết quả search.
 - Không thay đổi embedding model hoặc re-embed toàn bộ tài liệu.
 - Không mở rộng app thành công cụ tìm khóa học hoặc tìm dữ liệu trên Internet.
+## Điều chỉnh sau kiểm thử UX: hợp nhất tìm kiếm - 21/07/2026
+
+1. Bỏ hai tab tìm/hỏi khỏi giao diện.
+2. Giữ hybrid retrieval keyword + vector cho mọi truy vấn.
+3. Nhận diện câu hỏi ở server để chỉ gọi bước trả lời AI khi cần.
+4. Giữ nguyên relevance gate, trích nguồn, lưu trạng thái và nút xóa kết quả.
+5. Chạy unit, integration, lint, build và kiểm thử lại trên trình duyệt.

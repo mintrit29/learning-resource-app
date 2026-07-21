@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import {
   extractKeywordTerms,
   extractKeywordGroups,
+  inferQueryIntent,
   inferSearchCriteria,
   normalizeSearchText,
   rankSearchCandidates,
@@ -25,6 +26,11 @@ assert.deepEqual(inferSearchCriteria("Slide nhập môn SQL cho người mới")
     ["sql"],
   ],
 });
+assert.equal(inferQueryIntent("database"), "DISCOVERY");
+assert.equal(inferQueryIntent("AI machine learning"), "DISCOVERY");
+assert.equal(inferQueryIntent("tôi tìm khóa học trung cấp"), "DISCOVERY");
+assert.equal(inferQueryIntent("Data isolation là gì?"), "QUESTION");
+assert.equal(inferQueryIntent("Explain database rollback"), "QUESTION");
 
 const common = {
   documentId: "doc-1",
@@ -85,4 +91,4 @@ const databaseResults = rankSearchCandidates(
 );
 assert.equal(databaseResults[0]?.chunkId, "content", "Useful content must outrank boilerplate");
 
-console.log("PASS search ranking: normalization, bilingual concepts, relevance gate and boilerplate rerank");
+console.log("PASS search ranking: query intent, bilingual concepts, relevance gate and boilerplate rerank");

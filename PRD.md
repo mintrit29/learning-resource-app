@@ -542,3 +542,12 @@ Tiêu chí nghiệm thu cuối:
 - Query yêu cầu độ khó/định dạng cụ thể không trả tài liệu sai tiêu chí.
 - Query `database` không ưu tiên các chương bản quyền/mục lục nếu có chương nội dung phù hợp hơn.
 - Hỏi đáp trên dữ liệu thật trả citation hợp lệ, mở đúng chunk và giữ trạng thái khi quay lại.
+## Điều chỉnh UX tìm kiếm hợp nhất - 21/07/2026
+
+Quyết định này thay thế thiết kế hai tab `Tìm tài liệu` và `Hỏi tài liệu`:
+
+- Chỉ dùng một ô tìm kiếm và một nút `Tìm kiếm`.
+- Mọi truy vấn đều chạy keyword search và vector search cùng lúc, sau đó hợp nhất và xếp hạng.
+- Truy vấn dạng từ khóa/chủ đề trả danh sách tài liệu.
+- Truy vấn dạng câu hỏi vẫn dùng cùng kết quả hybrid, sau đó tự tạo câu trả lời có trích nguồn.
+- Người dùng không phải hiểu hoặc chọn kỹ thuật tìm kiếm trước khi nhập.

@@ -195,14 +195,6 @@ svg { flex-shrink: 0; stroke-width: 1.8; }
 .upload-actions p { margin: 0; color: var(--muted); font-size: var(--text-sm); }
 .upload-error { margin: 12px 0 0; color: var(--danger); font-size: var(--text-md); }
 .foundation-note { margin: 15px 0 0; color: var(--muted); font-size: var(--text-sm); text-align: center; }
-.search-mode-switch { width: min(620px, 100%); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-bottom: 14px; }
-.search-mode-switch > button { min-height: 66px; display: grid; grid-template-columns: 30px minmax(0, 1fr); align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 8px; background: white; padding: 10px 13px; color: var(--muted); text-align: left; cursor: pointer; box-shadow: var(--shadow-tight); }
-.search-mode-switch > button:hover { border-color: #9fc8c0; background: #fbfefd; }
-.search-mode-switch > button.active { border-color: var(--teal); background: var(--mint); box-shadow: inset 0 -3px 0 var(--teal); color: var(--teal); }
-.search-mode-switch > button > svg { justify-self: center; }
-.search-mode-switch > button > span { min-width: 0; display: grid; gap: 3px; }
-.search-mode-switch strong { color: var(--ink); font-size: var(--text-sm); }
-.search-mode-switch small { overflow: hidden; color: var(--muted); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
 .search-bar { height: 58px; display: grid; grid-template-columns: 24px 1fr auto; align-items: center; gap: 10px; border: 1px solid var(--line); border-radius: 8px; background: white; padding: 0 9px 0 18px; margin-bottom: 20px; box-shadow: var(--shadow-tight); }
 .search-bar svg { width: var(--icon-sm); height: var(--icon-sm); color: var(--muted); }
 .search-bar input { height: 100%; border: 0; outline: 0; color: var(--ink); background: transparent; }
@@ -571,9 +563,6 @@ svg { flex-shrink: 0; stroke-width: 1.8; }
   .text-preview-heading .secondary-button, .original-file-actions, .original-file-actions .secondary-button { width: 100%; }
   .original-file-actions { justify-content: stretch; }
   .pdf-preview-frame { height: 520px; }
-  .search-mode-switch { width: 100%; }
-  .search-mode-switch > button { min-height: 58px; grid-template-columns: 22px minmax(0, 1fr); padding: 9px 10px; }
-  .search-mode-switch small { display: none; }
   .search-bar { height: auto; grid-template-columns: 22px 1fr; padding: 10px 12px; }
   .search-bar button { grid-column: 1 / -1; width: 100%; }
   .ai-curation-toolbar { align-items: stretch; flex-direction: column; }

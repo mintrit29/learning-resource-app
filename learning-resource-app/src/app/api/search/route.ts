@@ -3,11 +3,11 @@ import { z } from "zod";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { hybridSearch } from "@/lib/search/hybrid-search";
-import { inferSearchCriteria } from "@/lib/search/ranking";
+import { inferQueryIntent, inferSearchCriteria } from "@/lib/search/ranking";
 
 const searchSchema = z.object({
   query: z.string().trim().min(2).max(500),
-  mode: z.enum(["SEARCH", "ASK"]).default("SEARCH"),
+  mode: z.enum(["SEARCH", "ASK"]).optional(),
   chunksPerDocument: z.number().int().min(1).max(5).default(1),
   topic: z.string().trim().max(120).optional(),
   difficulty: z.enum(["BEGINNER", "INTERMEDIATE", "ADVANCED"]).optional(),
@@ -31,6 +31,7 @@ export async function POST(request: Request) {
 
   try {
     const resultLimit = 30;
+    const queryIntent = inferQueryIntent(parsed.data.query);
     const { candidates, diagnostics, retrievalMode } = await hybridSearch(session.user.id, parsed.data.query, parsed.data);
 
     const chunksByDocument = new Map<string, number>();
@@ -59,7 +60,7 @@ export async function POST(request: Request) {
           dateTo: parsed.data.dateTo || null,
           limit: resultLimit,
           chunksPerDocument: parsed.data.chunksPerDocument,
-          queryMode: parsed.data.mode,
+          queryIntent,
           retrievalMode,
           bestScore: diagnostics.bestScore,
           acceptanceThreshold: diagnostics.acceptanceThreshold,
@@ -72,6 +73,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       query: parsed.data.query,
       status,
+      queryIntent,
       interpretedQuery: inferSearchCriteria(parsed.data.query),
       retrievalMode,
       results,

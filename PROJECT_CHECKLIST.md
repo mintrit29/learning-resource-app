@@ -364,3 +364,10 @@
 - [x] Test browser end-to-end cho cả hai chế độ, citation, back navigation và clear.
 - [x] Kiểm tra browser console không có error/warning mới.
 - [x] Cập nhật PRD, implementation plan, checklist và test cases thành trạng thái cuối sau khi code hoàn tất.
+## Điều chỉnh tìm kiếm hợp nhất - 21/07/2026
+
+- [x] Bỏ lựa chọn hai chế độ khỏi giao diện.
+- [x] Mọi truy vấn dùng keyword + vector đồng thời.
+- [x] Tự nhận diện câu hỏi để tạo câu trả lời kèm nguồn.
+- [x] Chạy lại toàn bộ kiểm thử tự động.
+- [x] Kiểm thử trên dữ liệu thật trong trình duyệt.

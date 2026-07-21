@@ -83,3 +83,10 @@ Các case bắt buộc:
 5. 28 positive queries phải giữ Recall@5 = 1.00; kết quả hiện tại đạt MRR = 1.00.
 6. Search thuần không gọi chat provider; chế độ Hỏi mới gọi provider sau khi retrieval có bằng chứng đạt ngưỡng.
 7. Kiểm tra desktop/mobile, mở đúng chunk, back navigation, session persistence, Clear và browser console.
+## Tìm kiếm hợp nhất - 21/07/2026
+
+1. Nhập `database`: chỉ hiện danh sách tài liệu phù hợp, không gọi AI trả lời.
+2. Nhập `Data inconsistency và data isolation là gì?`: dùng cùng hybrid search rồi tự trả lời kèm nguồn.
+3. Không có tab hoặc lựa chọn giữa keyword và vector.
+4. Mở tài liệu rồi quay lại: truy vấn và kết quả vẫn còn.
+5. Bấm `Xóa kết quả`: chỉ xóa kết quả, giữ nội dung đang nhập.

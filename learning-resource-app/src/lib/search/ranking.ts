@@ -109,6 +109,20 @@ export function extractKeywordTerms(query: string) {
   return [...new Set(extractKeywordGroups(query).flat())].slice(0, 20);
 }
 
+export type QueryIntent = "DISCOVERY" | "QUESTION";
+
+export function inferQueryIntent(query: string): QueryIntent {
+  const normalized = normalizeSearchText(query).trim();
+  if (query.trim().endsWith("?")) return "QUESTION";
+
+  const questionPatterns = [
+    /\b(gi|la gi|tai sao|vi sao|khi nao|o dau|bao nhieu)\b/,
+    /\b(nhu the nao|the nao|khac nhau|giai thich|cho biet)\b/,
+    /\b(what|why|when|where|who|how|explain|compare)\b/,
+  ];
+  return questionPatterns.some((pattern) => pattern.test(normalized)) ? "QUESTION" : "DISCOVERY";
+}
+
 export function inferSearchCriteria(query: string) {
   const normalized = ` ${normalizeSearchText(query)} `;
   const difficulty = normalized.match(/\b(nguoi moi|co ban|beginner|intro|nhap mon)\b/)
