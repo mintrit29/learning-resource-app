@@ -465,3 +465,96 @@ Sau khi chốt lại UX, `subtopics` và `keywords` không còn thuộc schema/a
 - Search vẫn là semantic search theo chunk: query và từng đoạn tài liệu được embedding rồi so độ gần nhau bằng pgvector.
 - Trang `Chủ đề chuẩn & tên gọi khác` chỉ hiển thị một số alias đầu tiên; nếu alias nhiều, UI thu gọn bằng nút `+n tên khác` và cho phép bung/thu gọn.
 - Không đưa batch GPU/CPU vào UI người dùng ở giai đoạn này vì batch là cấu hình vận hành container, dễ gây lỗi RAM/VRAM nếu chỉnh sai.
+
+## Cập nhật 16/07/2026 - Evidence Search
+
+> **Quan hệ với MVP hiện tại:** Đây là bản nâng cấp trực tiếp của chức năng `Semantic search`. Không tạo chức năng tìm kiếm độc lập và không thay thế pipeline upload, chunking, embedding hoặc dữ liệu hiện có. Qua kiểm thử UX, `AI chọn giúp` bị loại khỏi giao diện vì lặp lại kết quả đã xếp hạng mà không tạo đủ giá trị. Khi triển khai xong, nội dung cập nhật này sẽ được gộp vào mục `6.6 Semantic search`, phần trả lời có dẫn chứng và phần `Evaluation` của PRD chính.
+
+### Mục tiêu
+
+Nâng cấp semantic search thành **Evidence Search**: hệ thống hiểu yêu cầu tìm kiếm, xếp hạng kết quả bằng nhiều tín hiệu và tạo câu trả lời ngắn có dẫn chứng từ đúng tài liệu/chunk. Hệ thống không gửi toàn bộ file cho LLM; chỉ gửi các chunk liên quan nhất sau bước retrieval.
+
+### Luồng xử lý chuẩn
+
+```text
+Query người dùng
+-> phân tích ý định và tiêu chí tìm kiếm
+-> tạo query embedding
+-> lấy candidate bằng hybrid search (vector + keyword)
+-> gộp/xếp hạng lại kết quả
+-> chọn top chunks có bằng chứng tốt
+-> LLM trả lời từ các chunks đó
+-> trả citation: tài liệu + vị trí + chunk
+```
+
+### Phạm vi chức năng
+
+- Chấp nhận câu hỏi tự nhiên bằng tiếng Việt hoặc tiếng Anh.
+- Tách các tiêu chí nếu có: chủ đề, độ khó, loại tài liệu, mục đích tìm kiếm.
+- Tự động suy ra tiêu chí tìm kiếm; không bắt người dùng chỉnh thông số retrieval trước khi xem kết quả.
+- Kết hợp semantic similarity và keyword matching.
+- Rerank candidate theo điểm semantic, keyword, topic, difficulty và độ đầy đủ bằng chứng.
+- Gom kết quả theo tài liệu nhưng vẫn hiển thị chunk/đoạn phù hợp nhất.
+- Trả lời ngắn gọn dựa trên top chunks, không dùng kiến thức ngoài context.
+- Mỗi ý chính trong câu trả lời phải liên kết tới tài liệu và vị trí nguồn.
+- Hiển thị trạng thái không đủ bằng chứng thay vì suy đoán.
+
+### Giới hạn kỹ thuật
+
+- Retrieval lấy tối đa 30 candidate chunks.
+- Sau rerank, LLM chỉ nhận tối đa 8 chunks; mỗi chunk bị giới hạn độ dài.
+- Không gửi nguyên văn toàn bộ tài liệu cho LLM.
+- Điểm similarity không được gọi là phần trăm chính xác; UI dùng nhãn như `Mức phù hợp`.
+
+### Tiêu chí chấp nhận
+
+- Query có từ khóa chính xác vẫn tìm thấy tài liệu phù hợp.
+- Query diễn đạt khác từ trong tài liệu vẫn tìm thấy bằng semantic search.
+- Kết quả đầu hiển thị rõ tài liệu, đoạn liên quan, chủ đề, độ khó và vị trí nguồn; không hiển thị điểm kỹ thuật khó diễn giải.
+- Câu trả lời chỉ sử dụng context được truy xuất và có citation hợp lệ.
+- Khi không có context đủ tốt, hệ thống nói rõ không tìm thấy bằng chứng.
+- Evaluation cho thấy Evidence Search tốt hơn hoặc không kém semantic search hiện tại trên dataset truy vấn mẫu.
+
+### Quyết định đơn giản hóa UX
+
+- Luồng chính chỉ gồm: nhập câu hỏi -> xem tài liệu phù hợp -> mở đúng đoạn nguồn.
+- Mỗi tài liệu chỉ hiển thị một card và đoạn phù hợp nhất; backend vẫn giữ tối đa hai đoạn/tài liệu để câu trả lời có đủ bằng chứng.
+- Chỉ giữ một hành động AI tùy chọn: `Trả lời từ kết quả` kèm citation.
+- Bỏ `AI chọn giúp`, chuyển đổi theo đoạn/theo tài liệu, chọn số đoạn, nhãn cách app hiểu query và điểm xếp hạng khỏi UI chính.
+- Query, kết quả và câu trả lời được giữ trong phiên khi người dùng mở tài liệu rồi quay lại. `Xóa kết quả` dọn danh sách và câu trả lời nhưng giữ nội dung ô hỏi để người dùng sửa hoặc tìm lại.
+
+## Cập nhật 21/07/2026 - Search Relevance Gate và UX cuối
+
+Đây là bản hoàn thiện tiếp theo của Evidence Search, không phải chức năng độc lập. Luồng cuối giữ một trải nghiệm tìm kiếm duy nhất: luôn trả danh sách tài liệu trước; AI chỉ trả lời khi người dùng chủ động bấm `AI trả lời từ kết quả`.
+
+Retrieval cuối cùng sử dụng vector + keyword, mở rộng một số khái niệm Việt-Anh, rerank theo độ phủ nội dung/tiêu đề/chủ đề, áp dụng đúng tiêu chí độ khó/loại file được nói rõ trong query và phạt boilerplate như Copyright, Table of Contents, Preface, About the Book. Relevance gate tuyệt đối phải trả empty state khi không có ứng viên đạt yêu cầu thay vì luôn chọn kết quả tốt nhất trong thư viện.
+
+API search trả một trong ba trạng thái: `OK`, `NO_RELEVANT_RESULTS`, `EMPTY_LIBRARY`. LLM không được gọi nếu retrieval không có bằng chứng đạt ngưỡng; `notEnoughEvidence` ở answer API tiếp tục là hàng rào thứ hai.
+
+Tiêu chí nghiệm thu cuối:
+
+- 28 positive demo queries giữ Recall@5 = 1.00 và đạt MRR = 1.00.
+- Ít nhất 10 negative/out-of-scope queries đạt rejection rate từ 90%; kết quả hiện tại đạt 100% trên demo fixture.
+- Query yêu cầu độ khó/định dạng cụ thể không trả tài liệu sai tiêu chí.
+- Query `database` không ưu tiên các chương bản quyền/mục lục nếu có chương nội dung phù hợp hơn.
+- Hỏi đáp trên dữ liệu thật trả citation hợp lệ, mở đúng chunk và giữ trạng thái khi quay lại.
+## UX tìm kiếm cuối cùng - 21/07/2026
+
+Quyết định này thay thế thiết kế hai tab `Tìm tài liệu` và `Hỏi tài liệu`:
+
+- Chỉ dùng một ô tìm kiếm và một nút `Tìm kiếm`.
+- Vector search là tín hiệu chính; keyword search chỉ bổ sung ứng viên và hỗ trợ xếp hạng.
+- Mọi truy vấn, kể cả câu hỏi, trước tiên chỉ trả danh sách tài liệu và đoạn phù hợp.
+- AI không tự chạy. Người dùng bấm `AI trả lời từ kết quả` khi cần câu trả lời có trích nguồn.
+- Sau khi AI trả lời, danh sách kết quả gốc vẫn được giữ nguyên để người dùng tiếp tục xem tài liệu.
+- Người dùng không phải hiểu, chọn hoặc chuyển đổi giữa keyword và vector.
+
+## Cập nhật 22/07/2026 - Tìm nguồn tham khảo
+
+Quyết định này thay thế các mô tả Evidence Search/hỏi đáp ở trên. ScholarFlow phục vụ đề tài **tự động phân loại và quản lý học liệu thông minh**, nên search chỉ giúp sinh viên chọn nguồn phù hợp cho Research Project.
+
+- AI chỉ dùng lúc upload để phân loại chủ đề, độ khó, tags và tóm tắt; không có chatbot hoặc AI answer trong search.
+- Người dùng mô tả nhu cầu bằng câu tự nhiên và có thể lọc theo chủ đề, độ khó, loại file.
+- Vector search xử lý ý nghĩa của toàn bộ câu; keyword hỗ trợ truy xuất/rerank; không hiển thị score kỹ thuật.
+- Mỗi kết quả cho một tài liệu hiển thị đoạn phù hợp nhất, metadata và `Vì sao phù hợp` dựa trên retrieval/filter.
+- Không tạo hoặc lưu Research Project riêng; không thay đổi schema hay pipeline embedding.

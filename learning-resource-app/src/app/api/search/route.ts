@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
-import { embedTexts, toPgVector } from "@/lib/embedding/client";
+import { hybridSearch } from "@/lib/search/hybrid-search";
+import { inferSearchCriteria } from "@/lib/search/ranking";
 
 const searchSchema = z.object({
   query: z.string().trim().min(2).max(500),
@@ -14,19 +15,6 @@ const searchSchema = z.object({
   dateFrom: z.string().trim().optional(),
   dateTo: z.string().trim().optional(),
 });
-
-type SearchRow = {
-  chunkId: string;
-  documentId: string;
-  title: string;
-  fileType: string;
-  primaryTopic: string | null;
-  difficulty: string | null;
-  content: string;
-  pageNumber: number | null;
-  sourceLabel: string | null;
-  score: number;
-};
 
 export async function POST(request: Request) {
   const session = await auth();
@@ -41,52 +29,21 @@ export async function POST(request: Request) {
   }
 
   try {
-    const embedded = await embedTexts([parsed.data.query]);
-    const vector = toPgVector(embedded.embeddings[0]);
-    const resultLimit = 40;
-    const candidateLimit = resultLimit * parsed.data.chunksPerDocument * 5;
-    const rows = await db.$queryRawUnsafe<SearchRow[]>(
-    `SELECT
-      c."id" AS "chunkId",
-      d."id" AS "documentId",
-      d."title",
-      d."fileType"::text AS "fileType",
-      d."primaryTopic",
-      d."difficulty"::text AS "difficulty",
-      c."content",
-      c."pageNumber",
-      c."sourceLabel",
-      (1 - (c."embedding" <=> $1::vector))::float8 AS "score"
-    FROM "DocumentChunk" c
-    JOIN "Document" d ON d."id" = c."documentId"
-    WHERE d."userId" = $2
-      AND c."embedding" IS NOT NULL
-      AND ($3::text IS NULL OR d."primaryTopic" = $3::text)
-      AND ($4::text IS NULL OR d."difficulty"::text = $4::text)
-      AND ($5::text IS NULL OR d."fileType"::text = $5::text)
-      AND ($6::text IS NULL OR d."id" = $6::text)
-      AND ($7::timestamptz IS NULL OR d."createdAt" >= $7::timestamptz)
-      AND ($8::timestamptz IS NULL OR d."createdAt" < ($8::timestamptz + interval '1 day'))
-    ORDER BY c."embedding" <=> $1::vector
-    LIMIT $9`,
-      vector,
-      session.user.id,
-      parsed.data.topic || null,
-      parsed.data.difficulty || null,
-      parsed.data.fileType || null,
-      parsed.data.documentId || null,
-      parsed.data.dateFrom || null,
-      parsed.data.dateTo || null,
-      candidateLimit,
-    );
+    const resultLimit = 30;
+    const { candidates, diagnostics, retrievalMode } = await hybridSearch(session.user.id, parsed.data.query, parsed.data);
 
     const chunksByDocument = new Map<string, number>();
-    const results = rows.filter((row) => {
+    const results = candidates.filter((row) => {
       const currentCount = chunksByDocument.get(row.documentId) ?? 0;
       if (currentCount >= parsed.data.chunksPerDocument) return false;
       chunksByDocument.set(row.documentId, currentCount + 1);
       return true;
     }).slice(0, resultLimit);
+    const status = results.length
+      ? "OK"
+      : await db.document.count({ where: { userId: session.user.id } }) === 0
+        ? "EMPTY_LIBRARY"
+        : "NO_RELEVANT_RESULTS";
 
     await db.searchLog.create({
       data: {
@@ -101,12 +58,22 @@ export async function POST(request: Request) {
           dateTo: parsed.data.dateTo || null,
           limit: resultLimit,
           chunksPerDocument: parsed.data.chunksPerDocument,
+          retrievalMode,
+          bestScore: diagnostics.bestScore,
+          acceptanceThreshold: diagnostics.acceptanceThreshold,
+          rejectionReason: diagnostics.rejectionReason,
         },
         resultDocumentIds: [...new Set(results.map((result) => result.documentId))],
       },
     }).catch(() => null);
 
-    return NextResponse.json({ query: parsed.data.query, results });
+    return NextResponse.json({
+      query: parsed.data.query,
+      status,
+      interpretedQuery: inferSearchCriteria(parsed.data.query),
+      retrievalMode,
+      results,
+    });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Semantic search thất bại";
     return NextResponse.json({ message }, { status: 503 });

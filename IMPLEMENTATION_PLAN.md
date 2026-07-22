@@ -964,6 +964,73 @@ Dự án nâng cấp được xem là hoàn thành khi:
 - HTTP `localhost:3000` trả 200.
 - Embedding health ready với `BAAI/bge-m3`, CPU, batch 4, 1024 dimensions.
 - Browser check pass cho dashboard, search filters và responsive mobile DOM.
+
+## Cập nhật 16/07/2026 - Implementation plan cho Evidence Search
+
+> **Trạng thái tài liệu:** Đây là change plan cho bản nâng cấp trên search MVP hiện tại, không phải plan cho module độc lập. Các API, component và schema hiện có phải được ưu tiên tái sử dụng. Sau khi hoàn thành và kiểm thử, phần này sẽ được hợp nhất vào các mục pipeline search, UI search, test plan và Definition of Done chính.
+
+### 1. Nguyên tắc triển khai
+
+Giữ nguyên pipeline upload, chunking, BGE-M3 và pgvector. Chỉ nâng cấp lớp search/retrieval và thêm bước trả lời có dẫn chứng. Không gửi toàn bộ tài liệu vào LLM.
+
+### 2. Pipeline mới
+
+```text
+POST /api/search
+-> parse query
+-> query understanding (optional metadata extraction)
+-> vector candidates từ pgvector
+-> keyword candidates từ PostgreSQL full-text search
+-> merge bằng Reciprocal Rank Fusion hoặc weighted score
+-> deduplicate và group theo document
+-> rerank top 20
+-> trả top 40 result chunks cho UI
+
+POST /api/search/answer
+-> nhận query và top results đã kiểm chứng
+-> chọn tối đa 8 chunks làm context
+-> gọi active chat provider
+-> parse JSON answer + citations
+-> validate citation chỉ trỏ tới chunk đã gửi
+```
+
+### 3. Backend modules
+
+- Tạo hàm `searchByVector` chứa truy vấn pgvector hiện tại.
+- Tạo hàm `searchByKeyword` dùng PostgreSQL `tsvector`/`tsquery` hoặc cơ chế full-text tương đương.
+- Tạo hàm `mergeSearchCandidates` để hợp nhất hai danh sách và loại trùng chunk.
+- Tạo hàm `rankSearchResults` với điểm thành phần rõ ràng; không coi điểm là accuracy.
+- Tạo schema request/response cho `/api/search/answer`.
+- Tạo prompt bắt buộc LLM chỉ dùng context, trả `answer`, `citations`, `confidence`, `notEnoughEvidence`.
+- Validate mọi citation bằng `chunkId` trong tập context đã gửi.
+- Giữ `SearchLog`, bổ sung mode, candidate count và answer generation status nếu cần.
+
+### 4. UI/UX
+
+- Giữ ô hỏi tự nhiên hiện tại.
+- Hiển thị các tiêu chí query được suy ra dưới dạng chip chỉnh được; nếu chưa làm query understanding tự động thì để sau rerank.
+- Đổi cách hiển thị `87%` thành `Mức phù hợp` hoặc thanh điểm không gây hiểu nhầm là độ chính xác.
+- Thêm nút `Trả lời có dẫn chứng` sau khi có kết quả.
+- Hiển thị answer ở đầu, citation bên dưới mỗi ý và link mở đúng chunk/trang.
+- Có trạng thái `Không đủ bằng chứng trong thư viện`.
+- Cho phép chuyển giữa `Kết quả theo đoạn` và `Kết quả theo tài liệu`.
+
+### 5. Thứ tự làm để giảm rủi ro
+
+1. Sửa nhãn score và kiểm tra retrieval hiện tại.
+2. Thêm keyword search và merge với vector search.
+3. Thêm rerank/group theo document.
+4. Thêm answer API có citation.
+5. Tích hợp UI, loading, lỗi provider và empty state.
+6. Chạy evaluation so sánh search cũ và mới.
+
+### 6. Không làm trong đợt này
+
+- Không đưa nguyên tài liệu vào prompt.
+- Không làm GraphRAG/knowledge graph.
+- Không fine-tune hoặc train model.
+- Không xây chatbot hội thoại dài hạn.
+- Không thêm recommendation/project workspace riêng.
 # UX Simplification - Cải tiến giao diện dễ dùng
 
 Mục tiêu của đợt cải tiến này là đổi app từ giao diện thiên về kỹ thuật sang luồng thao tác dễ hiểu cho người không rành AI/NLP.
@@ -1037,3 +1104,111 @@ Document.primaryTopic = "Văn học"
 - `SearchLog.filters` lưu `chunksPerDocument` và giới hạn nội bộ để phục vụ evaluation/debug.
 - Trang `/settings/tags` thu gọn alias: mặc định hiện 6 alias đầu, alias còn lại hiển thị bằng nút `+n tên khác`.
 - Không triển khai runtime UI cho GPU/CPU batch trong đợt này; batch tiếp tục là cấu hình vận hành Docker/env.
+
+## Cập nhật 21/07/2026 - Search Relevance Gate và luồng AI tùy chọn
+
+> **Quan hệ với bản cũ:** Đây là đợt hoàn thiện tiếp theo của Evidence Search ngày 16/07/2026. Không tạo module search mới và không thay đổi pipeline upload, extraction, chunking, BGE-M3 hoặc pgvector. Sau khi hoàn thành, phần này phải được gộp vào implementation plan chính của search để tài liệu chỉ mô tả một phiên bản cuối cùng.
+
+### 1. Vấn đề cần sửa
+
+- Retrieval hiện tại luôn giữ lại ứng viên tốt nhất trong thư viện, kể cả khi ứng viên đó có độ liên quan tuyệt đối thấp. Vì vậy truy vấn ngoài phạm vi như `tôi tìm khóa học trung cấp` vẫn có thể trả về một tài liệu Database không liên quan.
+- Ngưỡng hiện tại phụ thuộc vào điểm cao nhất của chính lần tìm (`bestScore - 0.25`) và có sàn khá rộng, nên chỉ loại kết quả yếu hơn tương đối chứ chưa trả lời được câu hỏi quan trọng: kết quả tốt nhất có thực sự phù hợp hay không.
+- Các đoạn bản quyền, mục lục, giới thiệu hoặc thông tin xuất bản có thể được đẩy lên do chứa tên/chủ đề tài liệu nhưng không cung cấp nội dung học thuật hữu ích.
+- UI hiện gộp hai nhu cầu `tìm tài liệu` và `hỏi để lấy câu trả lời`, khiến nút `Trả lời từ kết quả` xuất hiện cả khi người dùng chỉ nhập một từ khóa chung.
+
+### 2. Mục tiêu
+
+- Giữ hybrid retrieval hiện có: vector search + keyword search.
+- Thêm relevance gate tuyệt đối để kết quả yếu được trả về dưới dạng `không tìm thấy tài liệu phù hợp`.
+- Rerank ứng viên bằng tín hiệu dễ giải thích và không phụ thuộc LLM: semantic score, keyword coverage, phrase match, metadata match và content quality.
+- Phạt hoặc loại boilerplate như copyright, license, table of contents, about the book và publisher information khi có đoạn nội dung tốt hơn.
+- Tách rõ hai trải nghiệm: `Tìm tài liệu` và `Hỏi tài liệu`.
+- Không làm tăng đáng kể latency, chi phí AI hoặc VRAM của thao tác tìm kiếm.
+
+### 3. Luồng retrieval mục tiêu
+
+```text
+Query
+-> lấy tối đa 30 vector candidates và 30 keyword candidates
+-> merge + deduplicate theo chunkId
+-> tính semantic, keyword coverage, phrase và metadata signals
+-> tính content-quality penalty cho boilerplate
+-> rerank top candidates
+-> relevance gate tuyệt đối
+-> không đạt: trả empty result + reason code
+-> đạt: group theo document và trả các tài liệu phù hợp
+```
+
+Luồng hỏi đáp dùng chung retrieval ở trên:
+
+```text
+Câu hỏi
+-> retrieval + relevance gate
+-> không có bằng chứng đạt ngưỡng: không gọi LLM
+-> có bằng chứng: chọn tối đa 8 chunks
+-> LLM trả lời chỉ từ context
+-> validate citations
+```
+
+### 4. Thiết kế backend
+
+1. Ghi lại baseline của 28 positive queries hiện có trước khi đổi thuật toán.
+2. Bổ sung negative/out-of-scope queries, ví dụ tìm khóa học, thời tiết hoặc nội dung không tồn tại trong thư viện.
+3. Tách scoring thành các hàm có thể unit test:
+   - semantic relevance;
+   - keyword/phrase coverage;
+   - topic, difficulty và file type match;
+   - boilerplate/content-quality penalty;
+   - final acceptance decision.
+4. Chỉ coi keyword là bằng chứng mạnh khi từ khóa khớp nội dung/chủ đề có ý nghĩa; không để việc lặp tên tài liệu trong boilerplate chi phối toàn bộ điểm.
+5. Đặt ngưỡng tuyệt đối bằng kết quả evaluation, không chọn ngưỡng chỉ từ một ảnh hoặc một truy vấn đơn lẻ.
+6. `/api/search` trả thêm trạng thái máy đọc được như `OK` hoặc `NO_RELEVANT_RESULTS`; không trả kết quả yếu chỉ để danh sách không bị rỗng.
+7. `/api/search/answer` chỉ được gọi với các chunk đã vượt relevance gate; tiếp tục giữ cơ chế `notEnoughEvidence` ở lớp LLM như hàng rào thứ hai.
+8. Giữ SearchLog và bổ sung thông tin cần cho debug/evaluation: query mode, best score, acceptance threshold và rejection reason. Không hiển thị các giá trị kỹ thuật này trên UI chính.
+
+### 5. Thiết kế UI/UX
+
+- Chỉ có một ô nhập và một CTA `Tìm kiếm`; không có chế độ keyword/vector hoặc tìm/hỏi.
+- Mọi truy vấn luôn hiện danh sách tài liệu trước.
+- Có một hành động tùy chọn `AI trả lời từ kết quả`; chỉ hành động này mới gọi chat provider.
+- Giữ nguyên danh sách kết quả sau khi AI trả lời.
+- Empty state phải phân biệt:
+  - thư viện chưa có tài liệu;
+  - không có kết quả đủ liên quan;
+  - có tài liệu nhưng chưa đủ bằng chứng để trả lời;
+  - AI provider chưa sẵn sàng.
+- Giữ session persistence, mở đúng chunk/trang và nút `Xóa kết quả` đã có.
+
+### 6. Evaluation và tiêu chí nghiệm thu
+
+- Bộ positive queries hiện tại vẫn đạt Recall@5 bằng hoặc tốt hơn baseline đã lưu.
+- Thêm tối thiểu 10 negative/out-of-scope queries; tỷ lệ từ chối đúng mục tiêu tối thiểu 90%.
+- Query `tôi tìm khóa học trung cấp` không được trả tài liệu Database nếu thư viện không có tài liệu phù hợp.
+- Query từ khóa như `database` được phép trả tài liệu để đọc nhưng không tự tạo câu trả lời AI.
+- Câu hỏi cụ thể như `Database transaction rollback hoạt động thế nào?` phải tìm đúng đoạn trước khi gọi LLM.
+- Boilerplate không đứng đầu nếu có chunk nội dung liên quan tốt hơn trong cùng tài liệu.
+- Search thuần không gọi chat provider và không tăng đáng kể thời gian phản hồi so với hybrid search hiện tại.
+- Unit test, integration/smoke test, lint, build Docker và browser test đều pass trước khi bàn giao.
+
+### 7. Không làm trong đợt này
+
+- Không thêm agent, HyDE, multi-query hoặc knowledge graph.
+- Không thêm cross-encoder/model reranker riêng trong lần đầu vì máy hiện tại chạy embedding chủ yếu bằng CPU và cần giữ tài nguyên nhẹ.
+- Không dùng LLM để quyết định mọi kết quả search.
+- Không thay đổi embedding model hoặc re-embed toàn bộ tài liệu.
+- Không mở rộng app thành công cụ tìm khóa học hoặc tìm dữ liệu trên Internet.
+## Quyết định cuối sau kiểm thử UX - 21/07/2026
+
+1. Bỏ hai tab tìm/hỏi khỏi giao diện.
+2. Giữ hybrid retrieval cho mọi truy vấn, với vector là tín hiệu chính và keyword là tín hiệu hỗ trợ.
+3. Bỏ nhận diện ý định câu hỏi. Search luôn chỉ trả kết quả; AI chỉ chạy khi người dùng bấm nút.
+4. Giữ nguyên relevance gate, trích nguồn, lưu trạng thái và nút xóa kết quả.
+5. Chạy unit, integration, lint, build và kiểm thử lại trên trình duyệt.
+
+## Cập nhật 22/07/2026 - Luồng tìm nguồn tham khảo
+
+1. Xóa API/UI AI answer và AI curate khỏi search.
+2. Đổi `/search` thành `Tìm tài liệu`: một câu truy vấn tự nhiên, ba filter luôn hiện và hybrid retrieval vector-first.
+3. Dùng `primaryTopic`, `difficulty`, `fileType`, đoạn khớp và `matchReasons` để hiển thị lý do phù hợp theo rule, không phát sinh LLM call.
+4. Giữ trạng thái query/filter/kết quả trong session; clear chỉ dọn danh sách.
+5. Không thêm Project entity, migration hay re-embedding.

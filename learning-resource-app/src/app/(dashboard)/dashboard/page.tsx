@@ -4,7 +4,7 @@ import {
   BookOpen,
   CheckCircle2,
   FileStack,
-  MessageCircleQuestion,
+  Search,
   ServerCog,
   Sparkles,
   Upload,
@@ -170,9 +170,9 @@ export default async function DashboardPage() {
         }
       : {
           href: "/search",
-          label: "Hỏi tài liệu",
-          helper: "Thử hỏi: “tài liệu nào giải thích SQL cho người mới?”",
-          icon: MessageCircleQuestion,
+          label: "Tìm tài liệu",
+          helper: "Mô tả nhu cầu, ví dụ: “tài liệu nền tảng về SQL cho người mới”.",
+          icon: Search,
         };
 
   const NextIcon = nextAction.icon;
@@ -206,7 +206,7 @@ export default async function DashboardPage() {
           <h1>Hôm nay bạn muốn làm gì với tài liệu?</h1>
           <p>
             ScholarFlow giúp bạn thêm tài liệu, tự phân tích nội dung và tìm lại kiến thức
-            bằng câu hỏi tự nhiên.
+            bằng nhu cầu học tập hoặc Research Project của bạn.
           </p>
         </div>
         <Link className="primary-button compact" href={nextAction.href}>
@@ -241,10 +241,10 @@ export default async function DashboardPage() {
           <li className={documentCount > 0 ? "current" : ""}>
             <span>3</span>
             <div>
-              <strong>Hỏi tài liệu</strong>
-              <small>Tìm đoạn liên quan bằng câu hỏi tự nhiên.</small>
+              <strong>Tìm tài liệu</strong>
+              <small>Tìm nguồn theo chủ đề, độ khó và nhu cầu nghiên cứu.</small>
             </div>
-            {documentCount > 0 ? <Link href="/search">Bắt đầu hỏi</Link> : null}
+            {documentCount > 0 ? <Link href="/search">Bắt đầu tìm</Link> : null}
           </li>
         </ol>
       </section>
@@ -308,11 +308,11 @@ export default async function DashboardPage() {
           <ol>
             <li>
               <span>
-                <MessageCircleQuestion size={16} />
+                <Search size={16} />
               </span>
               <p>
-                <strong>Hỏi như đang hỏi bạn học</strong>
-                <small>Ví dụ: “phần nào giải thích transaction trong database?”</small>
+                <strong>Mô tả nguồn bạn cần</strong>
+                <small>Ví dụ: “tài liệu giải thích transaction trong database cho người mới”.</small>
               </p>
             </li>
             <li>
@@ -329,8 +329,8 @@ export default async function DashboardPage() {
                 <Sparkles size={16} />
               </span>
               <p>
-                <strong>Dùng AI chọn giúp</strong>
-                <small>Sau khi tìm kiếm, bấm AI gợi ý để biết kết quả nào nên đọc trước.</small>
+                <strong>Chọn tài liệu để đọc</strong>
+                <small>Xem chủ đề, độ khó, đoạn khớp và lý do phù hợp trước khi mở tài liệu.</small>
               </p>
             </li>
           </ol>

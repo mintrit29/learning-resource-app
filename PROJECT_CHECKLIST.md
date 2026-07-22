@@ -270,3 +270,114 @@
 - [x] Lưu `chunksPerDocument` vào SearchLog để phục vụ evaluation/debug.
 - [x] Thu gọn alias trong trang Chủ đề chuẩn & tên gọi khác khi alias quá nhiều.
 - [x] Chốt chưa đưa GPU/CPU batch vào UI người dùng; giữ batch ở cấu hình Docker/env.
+
+## Cập nhật 16/07/2026 - Evidence Search
+
+> **Cách theo dõi:** Các mục dưới đây là phần việc bổ sung cho semantic search MVP đã hoàn thành. Không đánh dấu lại các mục cũ là chưa hoàn thành. Khi toàn bộ mục bổ sung được hoàn tất, cần gộp chúng vào các mục Semantic Search, AI chọn giúp, Evaluation và Tiến độ hiện tại để checklist chỉ còn phản ánh một hệ thống duy nhất.
+
+### PRD và thiết kế
+
+- [x] Chốt contract của Evidence Search và citation schema.
+- [x] Chốt giới hạn context: tối đa 30 candidate chunks, 8 chunks gửi cho LLM.
+- [x] Chốt cách tính điểm hybrid và cách đặt tên score trên UI.
+
+### Retrieval backend
+
+- [x] Tách vector retrieval thành module riêng.
+- [x] Thêm PostgreSQL keyword/full-text search.
+- [x] Merge vector + keyword candidates.
+- [x] Loại chunk trùng và group kết quả theo document.
+- [x] Thêm rerank với các tín hiệu semantic, keyword, topic và difficulty.
+- [x] Bổ sung test cho query tiếng Việt có dấu/không dấu và query diễn đạt khác từ tài liệu.
+
+### Evidence answer
+
+- [x] Tạo `/api/search/answer`.
+- [x] Chỉ gửi top chunks đã retrieval vào context của LLM.
+- [x] Parse `answer`, `citations`, `confidence`, `notEnoughEvidence`.
+- [x] Validate citation chỉ trỏ tới chunk hợp lệ.
+- [x] Xử lý trường hợp không đủ bằng chứng và provider lỗi.
+
+### UI
+
+- [x] Bỏ điểm kỹ thuật, thông tin debug và tùy chỉnh retrieval khỏi UI chính.
+- [x] Bỏ `AI chọn giúp` vì trùng giá trị với kết quả đã xếp hạng.
+- [x] Gom kết quả thành một card/tài liệu và hiển thị đoạn phù hợp nhất.
+- [x] Thêm nút `Trả lời từ kết quả` và citation có link tới đúng chunk/trang.
+- [x] Giữ query, kết quả và câu trả lời khi mở tài liệu rồi quay lại; có nút `Xóa kết quả`.
+- [x] Kiểm tra responsive và loading state.
+
+### Evaluation
+
+- [x] Chuẩn bị 28 query mẫu trên 6 tài liệu đa dạng có expected relevant documents/chunks.
+- [x] Chạy baseline semantic search hiện tại.
+- [x] Chạy hybrid + rerank.
+- [x] Tính Precision@5, Recall@5 và MRR.
+- [x] So sánh thời gian phản hồi và số token dùng cho answer.
+- [x] Ghi kết quả vào báo cáo và chuẩn bị một case demo end-to-end.
+
+## Cập nhật 21/07/2026 - Search Relevance Gate và UX tìm kiếm cuối
+
+> **Cách theo dõi:** Đây là checklist nâng cấp Evidence Search hiện có, không phải chức năng độc lập. Các mục cũ đã hoàn thành giữ nguyên trạng thái. Khi đợt này hoàn tất, cần gộp kết quả vào phần Search/Evaluation chính và bỏ các mô tả phiên bản trung gian đã lỗi thời.
+
+### Baseline và test data
+
+- [x] Lưu kết quả benchmark của 28 positive queries hiện tại trước khi sửa scoring.
+- [x] Thêm tối thiểu 10 negative/out-of-scope queries có expected result là không tìm thấy.
+- [x] Thêm case từ khóa ngắn, câu hỏi cụ thể, tiếng Việt không dấu và truy vấn Việt-Anh.
+- [x] Thêm case boilerplate: copyright, license, mục lục, giới thiệu và thông tin xuất bản.
+
+### Retrieval và relevance gate
+
+- [x] Tách semantic, keyword coverage, metadata match và content-quality penalty thành các hàm có unit test.
+- [x] Thêm phrase/term coverage để phân biệt khớp nội dung thật với khớp tên tài liệu chung chung.
+- [x] Thêm penalty cho boilerplate và kiểm tra không loại nhầm nội dung học thuật hợp lệ.
+- [x] Rerank candidate sau bước merge vector + keyword.
+- [x] Hiệu chỉnh ngưỡng relevance tuyệt đối bằng positive và negative evaluation set.
+- [x] Trả `NO_RELEVANT_RESULTS` khi ứng viên tốt nhất vẫn không đạt ngưỡng.
+- [x] Đảm bảo không gọi LLM khi retrieval không có bằng chứng đạt ngưỡng.
+- [x] Bổ sung SearchLog cho query mode, best score, threshold và rejection reason.
+
+### UI/UX
+
+- [x] Dùng một ô tìm kiếm duy nhất, không tách keyword/vector hoặc tìm/hỏi.
+- [x] Tìm kiếm lấy vector làm tín hiệu chính và keyword làm tín hiệu hỗ trợ.
+- [x] Mọi truy vấn chỉ trả danh sách tài liệu trước, không tự gọi AI.
+- [x] Giữ nút tùy chọn `AI trả lời từ kết quả` và citation khi đủ bằng chứng.
+- [x] Giữ nguyên danh sách kết quả sau khi AI trả lời.
+- [x] Thêm empty state riêng cho thư viện rỗng, không có kết quả, thiếu bằng chứng và thiếu AI provider.
+- [x] Giữ nguyên session persistence, `Xóa kết quả` và mở đúng chunk/trang.
+- [x] Kiểm tra responsive trên desktop và mobile.
+
+### Evaluation và nghiệm thu
+
+- [x] Positive Recall@5 không thấp hơn baseline hiện tại.
+- [x] Negative query rejection rate đạt tối thiểu 90%.
+- [x] Case `tôi tìm khóa học trung cấp` không trả tài liệu Database khi không có dữ liệu phù hợp.
+- [x] Case `database` trả tài liệu phù hợp nhưng không tự tạo câu trả lời.
+- [x] Câu hỏi Database cụ thể tìm đúng chunk nội dung thay vì copyright/about-the-book.
+- [x] Boilerplate không đứng đầu khi cùng tài liệu có đoạn nội dung phù hợp hơn.
+- [x] Chạy unit tests và hybrid search smoke tests.
+- [x] Chạy evaluation script và lưu báo cáo so sánh trước/sau.
+- [x] Chạy lint và production build.
+- [x] Build/restart Docker web và kiểm tra health các service.
+- [x] Test browser end-to-end cho search, nút AI tùy chọn, citation, back navigation và clear.
+- [x] Kiểm tra browser console không có error/warning mới.
+- [x] Cập nhật PRD, implementation plan, checklist và test cases thành trạng thái cuối sau khi code hoàn tất.
+## Điều chỉnh tìm kiếm hợp nhất - 21/07/2026
+
+- [x] Bỏ lựa chọn hai chế độ khỏi giao diện.
+- [x] Mọi truy vấn dùng vector chính + keyword hỗ trợ trong cùng pipeline.
+- [x] Bỏ tự nhận diện câu hỏi; chỉ tạo câu trả lời khi bấm nút AI.
+- [x] Chạy lại toàn bộ kiểm thử tự động.
+- [x] Kiểm thử trên dữ liệu thật trong trình duyệt.
+
+## Chuyển trọng tâm sang tìm nguồn tham khảo - 22/07/2026
+
+- [x] Bỏ hoàn toàn AI answer/curate khỏi route và giao diện search.
+- [x] Đổi navigation, dashboard và search wording thành `Tìm tài liệu`.
+- [x] Thêm filter luôn hiện: chủ đề, độ khó, loại file.
+- [x] Hiển thị `Vì sao phù hợp` trên mỗi card bằng retrieval reasons và filter đã chọn.
+- [x] Session giữ query/filter/kết quả; clear giữ query/filter.
+- [x] Không thay đổi schema, embedding pipeline hoặc phân tích AI khi upload.
+- [x] Chạy lại test tự động, Docker và browser test trên dữ liệu thật trước bàn giao.
