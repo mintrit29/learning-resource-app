@@ -1,5 +1,7 @@
 # Checklist Tiến Độ Đồ Án
 
+> **Bản hiện hành — 22/07/2026:** Checklist hiệu lực nằm ở mục **“Chuyển trọng tâm sang tìm nguồn tham khảo”**. Những checkbox AI Answer/RAG phía dưới là lịch sử đã bị thay thế.
+
 **Đề tài:** Hệ thống quản lý học liệu thông minh sử dụng NLP và Semantic Search
 **Nhóm:** 2 thành viên
 **Deadline:** 20/09/2026

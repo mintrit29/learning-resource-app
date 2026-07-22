@@ -1,5 +1,7 @@
 # ScholarFlow Test Cases
 
+> **Bản hiện hành — 22/07/2026:** Dùng mục **“Tìm nguồn tham khảo - cập nhật 22/07/2026”** để kiểm thử. Các case AI Answer/RAG cũ chỉ được lưu lại để đối chiếu lịch sử.
+
 ## Tài khoản demo
 
 - Email: `demo@scholarflow.local`

@@ -1,6 +1,8 @@
 # ScholarFlow
 
-ScholarFlow là app quản lý và hỏi đáp tài liệu học tập. Bạn có thể tải PDF, DOCX, PPTX hoặc EPUB lên app, để hệ thống tự trích xuất nội dung, phân tích bằng AI, tạo embedding local và tìm đúng đoạn liên quan khi cần hỏi lại.
+> Bản hiện hành (22/07/2026): ScholarFlow tập trung vào tự động phân loại và tìm nguồn tham khảo phù hợp. Các ghi chú lịch sử về hỏi–đáp/AI Answer trong tài liệu cũ không còn áp dụng cho luồng tìm kiếm hiện tại.
+
+ScholarFlow là app quản lý và tìm nguồn tham khảo từ tài liệu học tập. Bạn có thể tải PDF, DOCX, PPTX hoặc EPUB lên app để hệ thống tự trích xuất nội dung, dùng AI phân loại chủ đề/độ khó, tạo embedding local, rồi tìm đúng tài liệu và đoạn liên quan cho nhu cầu Research Project.
 
 ## Cần cài trước
 
@@ -113,6 +115,8 @@ http://172.x.x.1:11434
 3. Chờ app trích xuất nội dung, chia chunk, tạo embedding và phân tích AI.
 4. Vào `Tìm tài liệu`, mô tả nhu cầu bằng ngôn ngữ tự nhiên và chọn bộ lọc nếu cần.
 5. Xem chủ đề, độ khó, đoạn khớp và lý do phù hợp trước khi mở đúng đoạn hoặc trang trong file gốc.
+
+> Lưu ý: tìm kiếm không gọi AI chat. Vector của câu truy vấn kết hợp với keyword để tìm và xếp hạng tài liệu; AI chỉ được dùng ở bước upload/phân tích tài liệu.
 
 Nếu tài liệu bị lỗi hoặc thiếu bước xử lý, mở chi tiết tài liệu rồi bấm `Xử lý phần còn thiếu`. Nếu chỉ muốn chạy lại phần AI, bấm `Phân tích AI lại`.
 

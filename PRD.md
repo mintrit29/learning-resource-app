@@ -1,5 +1,7 @@
 # PRD - Hệ Thống Quản Lý Học Liệu Thông Minh
 
+> **Bản hiện hành — 22/07/2026:** Phần mô tả hiệu lực là mục **“Cập nhật 22/07/2026 - Tìm nguồn tham khảo”**. Các mục Evidence Search/hỏi–đáp cũ bên dưới chỉ là lịch sử phát triển, không mô tả chức năng đang chạy.
+
 ## 1. Tổng Quan Sản Phẩm
 
 **Tên đề tài:** Hệ thống quản lý học liệu thông minh sử dụng NLP và Semantic Search  

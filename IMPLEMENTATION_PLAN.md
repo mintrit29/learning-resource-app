@@ -1,5 +1,7 @@
 # Implementation Plan - Nâng Cấp Smart Learning Resources Management System
 
+> **Bản hiện hành — 22/07/2026:** Thực hiện theo mục **“Cập nhật 22/07/2026 - Luồng tìm nguồn tham khảo”**. Các plan cũ về AI Answer/RAG được giữ lại để truy vết, không còn là scope triển khai.
+
 ## 1. Định Hướng Triển Khai
 
 Dự án được rewrite thành web app mới bằng `Next.js + PostgreSQL + Prisma + Auth.js + pgvector`. Demo Streamlit và SQLite cũ đã được loại bỏ sau khi app mới ổn định.
