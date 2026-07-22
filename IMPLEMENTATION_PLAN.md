@@ -1204,3 +1204,11 @@ Câu hỏi
 3. Bỏ nhận diện ý định câu hỏi. Search luôn chỉ trả kết quả; AI chỉ chạy khi người dùng bấm nút.
 4. Giữ nguyên relevance gate, trích nguồn, lưu trạng thái và nút xóa kết quả.
 5. Chạy unit, integration, lint, build và kiểm thử lại trên trình duyệt.
+
+## Cập nhật 22/07/2026 - Luồng tìm nguồn tham khảo
+
+1. Xóa API/UI AI answer và AI curate khỏi search.
+2. Đổi `/search` thành `Tìm tài liệu`: một câu truy vấn tự nhiên, ba filter luôn hiện và hybrid retrieval vector-first.
+3. Dùng `primaryTopic`, `difficulty`, `fileType`, đoạn khớp và `matchReasons` để hiển thị lý do phù hợp theo rule, không phát sinh LLM call.
+4. Giữ trạng thái query/filter/kết quả trong session; clear chỉ dọn danh sách.
+5. Không thêm Project entity, migration hay re-embedding.

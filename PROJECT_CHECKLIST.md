@@ -371,3 +371,13 @@
 - [x] Bỏ tự nhận diện câu hỏi; chỉ tạo câu trả lời khi bấm nút AI.
 - [x] Chạy lại toàn bộ kiểm thử tự động.
 - [x] Kiểm thử trên dữ liệu thật trong trình duyệt.
+
+## Chuyển trọng tâm sang tìm nguồn tham khảo - 22/07/2026
+
+- [x] Bỏ hoàn toàn AI answer/curate khỏi route và giao diện search.
+- [x] Đổi navigation, dashboard và search wording thành `Tìm tài liệu`.
+- [x] Thêm filter luôn hiện: chủ đề, độ khó, loại file.
+- [x] Hiển thị `Vì sao phù hợp` trên mỗi card bằng retrieval reasons và filter đã chọn.
+- [x] Session giữ query/filter/kết quả; clear giữ query/filter.
+- [x] Không thay đổi schema, embedding pipeline hoặc phân tích AI khi upload.
+- [x] Chạy lại test tự động, Docker và browser test trên dữ liệu thật trước bàn giao.

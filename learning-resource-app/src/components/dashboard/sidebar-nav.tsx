@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   BookOpen,
   LayoutDashboard,
-  MessageCircleQuestion,
+  Search,
   Settings,
   Upload,
 } from "lucide-react";
@@ -14,7 +14,7 @@ const navigation = [
   { href: "/dashboard", label: "Tổng quan", icon: LayoutDashboard },
   { href: "/documents", label: "Tài liệu", icon: BookOpen },
   { href: "/upload", label: "Thêm tài liệu", icon: Upload },
-  { href: "/search", label: "Hỏi tài liệu", icon: MessageCircleQuestion },
+  { href: "/search", label: "Tìm tài liệu", icon: Search },
 ];
 
 export function SidebarNav() {

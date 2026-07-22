@@ -1,18 +1,29 @@
-import { SemanticSearch } from "@/components/search/semantic-search";
+import { auth } from "@/auth";
+import { ResourceSearch } from "@/components/search/semantic-search";
+import { db } from "@/lib/db";
 
-export default function SearchPage() {
+export default async function SearchPage() {
+  const session = await auth();
+  const topicRows = await db.document.findMany({
+    where: { userId: session!.user.id, primaryTopic: { not: null } },
+    distinct: ["primaryTopic"],
+    orderBy: { primaryTopic: "asc" },
+    select: { primaryTopic: true },
+  });
+  const topics = topicRows.flatMap((row) => row.primaryTopic ? [row.primaryTopic] : []);
+
   return (
     <div className="page-wrap">
       <header className="page-header">
         <div>
-          <p className="eyebrow">Tìm kiếm thông minh</p>
-          <h1>Tìm kiếm tài liệu</h1>
+          <p className="eyebrow">Nguồn tham khảo</p>
+          <h1>Tìm tài liệu phù hợp</h1>
           <p>
-            ScholarFlow tìm theo ý nghĩa và dùng từ khóa để xếp hạng chính xác hơn. Bạn có thể gọi AI trả lời từ kết quả khi cần.
+            Mô tả nhu cầu cho Research Project. ScholarFlow tìm theo ý nghĩa, kết hợp từ khóa và dữ liệu phân loại để chọn tài liệu phù hợp.
           </p>
         </div>
       </header>
-      <SemanticSearch />
+      <ResourceSearch topics={topics} />
     </div>
   );
 }

@@ -17,10 +17,11 @@
    - PDF preview được trong app.
    - DOCX/PPTX/EPUB có nút tải file rõ ràng.
 5. Nếu tài liệu lỗi, bấm `Xử lý phần còn thiếu`.
-6. Vào `Hỏi tài liệu`, nhập từ khóa hoặc câu hỏi và kiểm tra app chỉ hiện kết quả, không tự gọi AI.
-7. Bấm `AI trả lời từ kết quả` và kiểm tra câu trả lời có citation.
-8. Bấm kết quả search, app phải mở đúng matched chunk; quay lại vẫn giữ query, kết quả và câu trả lời.
-9. Bấm `Xóa kết quả`, app dọn kết quả/câu trả lời nhưng giữ nội dung ô nhập.
+6. Vào `Tìm tài liệu`, mô tả nhu cầu bằng câu tự nhiên và kiểm tra app chỉ trả danh sách nguồn phù hợp, không gọi chat provider.
+7. Chọn lần lượt chủ đề, độ khó và loại file; kiểm tra mỗi filter chỉ trả tài liệu đúng điều kiện.
+8. Mỗi card phải có chủ đề, độ khó, đoạn khớp và `Vì sao phù hợp`.
+9. Bấm kết quả search, app phải mở đúng matched chunk; quay lại vẫn giữ query, filter và kết quả.
+10. Bấm `Xóa kết quả`, app dọn danh sách nhưng giữ nội dung ô nhập và filter.
 
 ## Kiểm tra kỹ thuật
 
@@ -90,3 +91,11 @@ Các case bắt buộc:
 3. Không có tab hoặc lựa chọn giữa keyword và vector.
 4. Mở tài liệu rồi quay lại: truy vấn và kết quả vẫn còn.
 5. Bấm `Xóa kết quả`: chỉ xóa kết quả, giữ nội dung đang nhập.
+
+## Tìm nguồn tham khảo - cập nhật 22/07/2026
+
+1. Search `database` trả tài liệu Database, ưu tiên đoạn nội dung thay vì copyright/mục lục; không có nút AI answer và không gọi chat provider.
+2. Search `tài liệu nền tảng về database cho người mới` vẫn tìm được tài liệu phù hợp dù câu không trùng nguyên văn tài liệu.
+3. Chọn từng filter chủ đề, độ khó, loại file; mọi card còn lại phải khớp điều kiện.
+4. Card kết quả có đoạn nguồn, topic, difficulty, file type và `Vì sao phù hợp`; không hiển thị score kỹ thuật.
+5. Mở card rồi quay lại giữ query/filter/kết quả; Clear chỉ dọn danh sách nhưng giữ query/filter.

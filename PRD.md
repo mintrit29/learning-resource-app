@@ -548,3 +548,13 @@ Quyết định này thay thế thiết kế hai tab `Tìm tài liệu` và `H�
 - AI không tự chạy. Người dùng bấm `AI trả lời từ kết quả` khi cần câu trả lời có trích nguồn.
 - Sau khi AI trả lời, danh sách kết quả gốc vẫn được giữ nguyên để người dùng tiếp tục xem tài liệu.
 - Người dùng không phải hiểu, chọn hoặc chuyển đổi giữa keyword và vector.
+
+## Cập nhật 22/07/2026 - Tìm nguồn tham khảo
+
+Quyết định này thay thế các mô tả Evidence Search/hỏi đáp ở trên. ScholarFlow phục vụ đề tài **tự động phân loại và quản lý học liệu thông minh**, nên search chỉ giúp sinh viên chọn nguồn phù hợp cho Research Project.
+
+- AI chỉ dùng lúc upload để phân loại chủ đề, độ khó, tags và tóm tắt; không có chatbot hoặc AI answer trong search.
+- Người dùng mô tả nhu cầu bằng câu tự nhiên và có thể lọc theo chủ đề, độ khó, loại file.
+- Vector search xử lý ý nghĩa của toàn bộ câu; keyword hỗ trợ truy xuất/rerank; không hiển thị score kỹ thuật.
+- Mỗi kết quả cho một tài liệu hiển thị đoạn phù hợp nhất, metadata và `Vì sao phù hợp` dựa trên retrieval/filter.
+- Không tạo hoặc lưu Research Project riêng; không thay đổi schema hay pipeline embedding.

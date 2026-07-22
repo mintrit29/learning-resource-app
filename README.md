@@ -111,8 +111,8 @@ http://172.x.x.1:11434
 1. Mở app và đăng ký/đăng nhập.
 2. Vào `Thêm tài liệu` để tải file lên.
 3. Chờ app trích xuất nội dung, chia chunk, tạo embedding và phân tích AI.
-4. Vào `Hỏi tài liệu` để hỏi bằng ngôn ngữ tự nhiên.
-5. Bấm kết quả để mở đúng đoạn hoặc đúng trang trong file gốc.
+4. Vào `Tìm tài liệu`, mô tả nhu cầu bằng ngôn ngữ tự nhiên và chọn bộ lọc nếu cần.
+5. Xem chủ đề, độ khó, đoạn khớp và lý do phù hợp trước khi mở đúng đoạn hoặc trang trong file gốc.
 
 Nếu tài liệu bị lỗi hoặc thiếu bước xử lý, mở chi tiết tài liệu rồi bấm `Xử lý phần còn thiếu`. Nếu chỉ muốn chạy lại phần AI, bấm `Phân tích AI lại`.
 

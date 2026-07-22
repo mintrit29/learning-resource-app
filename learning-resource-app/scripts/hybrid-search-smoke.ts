@@ -17,6 +17,7 @@ try {
       fileType: "PDF",
       filePath: "smoke/database.pdf",
       fileSize: 1024,
+      primaryTopic: "Cơ sở dữ liệu",
       difficulty: "BEGINNER",
       status: "READY",
       chunks: {
@@ -50,6 +51,10 @@ try {
 
   const filteredResults = await searchByKeyword(owner.id, "transaction", { fileType: "PPTX" }, 10);
   assert.equal(filteredResults.length, 0, "File type filter must be applied");
+  const difficultyFilteredResults = await searchByKeyword(owner.id, "transaction", { difficulty: "ADVANCED" }, 10);
+  assert.equal(difficultyFilteredResults.length, 0, "Difficulty filter must be applied");
+  const topicFilteredResults = await searchByKeyword(owner.id, "transaction", { topic: "Cơ sở dữ liệu" }, 10);
+  assert.equal(topicFilteredResults.length, 1, "Topic filter must be applied");
 
   const vectorResults = await searchByVector(owner.id, "transaction co so du lieu cho nguoi moi", {}, 10);
   assert.ok(vectorResults.length > 0, "Vector retrieval must find the embedded chunk");
@@ -59,7 +64,7 @@ try {
   assert.ok(hybridResults.candidates[0]?.matchReasons.includes("Khớp ngữ nghĩa"));
   assert.ok(hybridResults.candidates[0]?.matchReasons.includes("Khớp từ khóa"));
 
-  console.log("PASS hybrid search: accent-insensitive keyword, semantic merge, ownership and filters");
+  console.log("PASS hybrid search: accent-insensitive keyword, semantic merge, ownership and topic/difficulty/file filters");
 } finally {
   await db.user.deleteMany({ where: { id: { in: [owner.id, otherOwner.id] } } });
   await db.$disconnect();
