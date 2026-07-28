@@ -33,18 +33,27 @@
 - [ ] Kiểm thử isolation theo local account/library.
 - [ ] Thêm export/backup database + uploads và hướng dẫn restore.
 
-## D. Local AI bằng Ollama
+## D. Embedding BGE-M3 local độc lập
 
-- [ ] Thêm kiểm tra Ollama tại `127.0.0.1:11434`.
-- [ ] Kiểm tra model `bge-m3`; hướng dẫn `ollama pull bge-m3` nếu thiếu.
-- [ ] Chuyển embedding client desktop sang Ollama `/api/embed`.
-- [ ] Kiểm tra dimension `bge-m3` là 1024 và cập nhật schema/index tương ứng.
-- [ ] Thêm lựa chọn model Ollama local dùng để phân loại tài liệu.
+- [ ] Đóng gói Python runtime + embedding worker BGE-M3 thành Electron sidecar.
+- [ ] Electron main khởi động, health-check và dừng embedding worker đúng lifecycle.
+- [ ] Tạo model cache BGE-M3 local tách khỏi Ollama model store.
+- [ ] Có màn hình đồng ý tải model và progress ở lần đầu.
+- [ ] Giữ embedding client tương thích FastAPI service hiện tại.
+- [ ] Kiểm tra dimension BGE-M3 là 1024 và cập nhật schema/index tương ứng.
+- [ ] CPU là default; CUDA chỉ là tùy chọn theo máy.
 - [ ] Hiển thị tiến độ/queue khi upload nhiều file.
-- [ ] Xử lý lỗi Ollama tắt, model thiếu, hết RAM/VRAM.
+- [ ] Xử lý worker lỗi, model thiếu, hết RAM/VRAM.
 - [ ] Chạy re-embed cho thư viện test và kiểm tra chất lượng search không regression.
 
-## E. Supabase Auth và Admin web
+## E. AI phân loại qua Ollama (tùy chọn)
+
+- [ ] Thêm kiểm tra Ollama tại `127.0.0.1:11434` và refresh model list.
+- [ ] Cho user chọn model Ollama local để phân loại tài liệu.
+- [ ] Khi Ollama/model thiếu: vẫn extract/chunk/embed/search; chỉ đánh dấu AI analysis `Cần cấu hình`.
+- [ ] Tắt Ollama không được làm lỗi search hoặc thư viện đã xử lý.
+
+## F. Supabase Auth và Admin web
 
 - [ ] Thiết kế bảng `profiles` và role `user`/`admin`.
 - [ ] Bật RLS và policies cho profile.
@@ -56,15 +65,16 @@
 - [ ] Admin API chạy server-side; service-role key chỉ ở environment server.
 - [ ] Xác nhận Supabase không có file, document, chunk hoặc embedding user.
 
-## F. Kiểm thử và bàn giao
+## G. Kiểm thử và bàn giao
 
 - [ ] Test installer Windows sạch: không Docker/Postgres/Python.
-- [ ] Test onboarding khi Ollama/model chưa có.
-- [ ] Test offline sau khi đã đăng nhập và cài model.
+- [ ] Test onboarding khi BGE-M3 chưa tải hoặc embedding worker chưa chạy.
+- [ ] Test Ollama tắt nhưng search vẫn hoạt động.
+- [ ] Test offline sau khi đã đăng nhập và BGE-M3 đã cache.
 - [ ] Test upload PDF/PPTX/DOCX/EPUB, classify, filter, search, mở chunk.
 - [ ] Test 28 positive queries + 10 negative queries sau khi chuyển data layer.
 - [ ] Test user thường không vào được admin; admin không xem được tài liệu local.
 - [ ] Test session hết hạn, Supabase tạm unavailable và backup/restore.
 - [ ] Chạy unit, integration, lint, build, package smoke test.
-- [ ] Cập nhật README: cài Electron app, Ollama, `bge-m3`, backup và privacy.
+- [ ] Cập nhật README: cài Electron app, tải BGE-M3 worker/model cache, Ollama tùy chọn, backup và privacy.
 - [ ] Viết test report trước khi phát hành installer MVP.

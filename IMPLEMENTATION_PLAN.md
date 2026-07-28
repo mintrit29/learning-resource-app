@@ -11,14 +11,14 @@
 | Ứng dụng người dùng | Electron + giao diện Next.js hiện có chạy local. |
 | Hệ điều hành MVP | Windows 10/11. |
 | File, chunk, embedding, search | Lưu và xử lý local trên máy người dùng; không đồng bộ lên cloud. |
-| Embedding | Ollama local với `bge-m3`; app kiểm tra Ollama và hướng dẫn `ollama pull bge-m3` khi cần. |
-| Phân loại tài liệu | Ollama local với model người dùng đã cài/cấu hình. Không bắt buộc AI cloud. |
+| Embedding | Giữ embedding service BGE-M3 local độc lập; Electron khởi động worker nội bộ, model được tải/cache trên máy khi cần. Không phụ thuộc Ollama. |
+| Phân loại tài liệu | Ollama local với model người dùng đã cài/cấu hình. Không bắt buộc AI cloud và không ảnh hưởng search nếu Ollama tắt. |
 | Database desktop | SQLite file trong thư mục app data; vector search dùng `sqlite-vec`. |
 | Auth + web admin | Supabase Free. Chỉ lưu identity/profile/role/trạng thái user, không lưu tài liệu. |
 | Admin | Next.js web riêng, chỉ quản lý tài khoản. |
 | Docker | Giữ nguyên cho dev, test và demo nội bộ; không bắt user cuối cài Docker. |
 
-`bge-m3` có thể chạy local qua Ollama và trả embedding 1024 chiều, nên không cần đóng gói Python/FastAPI/BGE-M3 Docker vào installer. Người dùng phải tải model khoảng 1.2 GB ở lần đầu.
+Embedding là nền tảng của search nên được tách riêng khỏi LLM. Electron sẽ khởi động embedding worker BGE-M3 local tương thích service hiện tại; model được tải/cache trên máy ở lần đầu. Ollama chỉ là provider tùy chọn để phân tích metadata tài liệu.
 
 ## 2. Kiến trúc đích
 
@@ -28,7 +28,8 @@ Electron desktop (Windows)
   -> Next UI/API: chỉ bind 127.0.0.1
   -> SQLite + sqlite-vec: userData/ScholarFlow/<user-id>/library.db
   -> uploads local: userData/ScholarFlow/<user-id>/uploads
-  -> Ollama local: localhost:11434, bge-m3 + model phân loại
+  -> embedding worker BGE-M3 local + model cache riêng
+  -> Ollama local (tùy chọn): chỉ model phân loại
 
 Admin web (Next.js deploy)
   -> Supabase Auth + profiles/roles
@@ -58,18 +59,27 @@ Admin web (Next.js deploy)
 
 **Nghiệm thu:** upload, xử lý, search và mở chunk chạy khi Docker đã tắt.
 
-### Giai đoạn C — AI local qua Ollama
+### Giai đoạn C — Embedding BGE-M3 local độc lập
 
-1. Thêm `Local AI readiness` ở onboarding/settings: phát hiện Ollama tại `http://127.0.0.1:11434`.
-2. Kiểm tra model embedding `bge-m3`; nếu thiếu, hiển thị đúng lệnh cài thay vì tự tải ngầm.
-3. Đổi embedding client desktop từ FastAPI service sang Ollama `/api/embed`; xác nhận kích thước vector tương thích là 1024.
-4. Tạo preset `Local-only`: embedding dùng `bge-m3`; phân tích tài liệu dùng model Ollama người dùng chọn.
-5. Hiển thị trạng thái rõ khi thiếu Ollama/model và có nút refresh; không gửi nội dung tài liệu ra cloud.
-6. Chạy lại re-embed cho thư viện desktop nếu model embedding bị đổi.
+1. Đóng gói Python runtime/embedding worker thành Electron sidecar; không yêu cầu user cài Docker hay Python.
+2. Electron main khởi động/health-check worker loopback trước khi mở tính năng upload/search và dừng worker lúc thoát app.
+3. Khi chưa có model, tải BGE-M3 vào model cache local với màn hình đồng ý tải và progress rõ ràng; không dùng Ollama model store.
+4. Giữ embedding client/API hiện tại tương thích FastAPI; xác nhận vector BGE-M3 là 1024 chiều.
+5. Cho CPU là mặc định, CUDA là tùy chọn nếu máy hỗ trợ; không chạy nhiều embedding job song song khi thiếu tài nguyên.
+6. Chạy lại re-embed cho thư viện desktop khi model embedding hoặc version embedding worker thay đổi.
 
-**Nghiệm thu:** app hoạt động offline sau khi Ollama/model đã cài; không còn phụ thuộc embedding Docker service.
+**Nghiệm thu:** app upload/search offline sau khi BGE-M3 đã cache, kể cả khi Ollama tắt hoặc chưa cài; không còn phụ thuộc embedding Docker service.
 
-### Giai đoạn D — Supabase Auth và Web Admin
+### Giai đoạn D — AI phân loại tài liệu qua Ollama (tùy chọn)
+
+1. Thêm `AI analysis readiness` ở settings: phát hiện Ollama tại `http://127.0.0.1:11434` và refresh model list.
+2. User chọn model Ollama local cho phân tích topic, difficulty, tag và summary.
+3. Nếu Ollama/model không có, document vẫn extract/chunk/embed/search được; trạng thái AI là `Cần cấu hình` và user có thể thêm metadata thủ công hoặc phân tích lại sau.
+4. Hiển thị lỗi Ollama/model tắt rõ ràng, không làm hỏng data hay search pipeline.
+
+**Nghiệm thu:** tắt Ollama vẫn tìm kiếm được thư viện đã upload; bật lại Ollama thì có thể phân tích/re-analyze metadata.
+
+### Giai đoạn E — Supabase Auth và Web Admin
 
 1. Tạo Supabase project Free; tạo `profiles` gồm `id`, `email`, `role`, `status`, `created_at`, `last_seen_at`.
 2. Dùng Supabase Auth cho desktop đăng ký/đăng nhập; thay Auth.js local session trong desktop.
@@ -80,14 +90,14 @@ Admin web (Next.js deploy)
 
 **Nghiệm thu:** một account đăng nhập được cả desktop và web admin; admin không thể xem tài liệu local của user.
 
-### Giai đoạn E — Đóng gói, kiểm thử và bàn giao
+### Giai đoạn F — Đóng gói, kiểm thử và bàn giao
 
 1. Tạo installer Windows, versioning, icon, auto-update **chưa làm** ở MVP.
 2. Test máy không có Docker/Postgres/Python, có và không có Ollama/model.
 3. Test quyền account thường/admin, session expired, mạng mất, Supabase unavailable.
 4. Test upload 4 định dạng, AI classify, hybrid search, filter, mở chunk và backup/export.
 5. Chạy unit, integration, lint, production build, package smoke test và manual test bản cài đặt.
-6. Viết hướng dẫn cài Ollama, tải `bge-m3`, backup/xóa dữ liệu local và chính sách riêng tư.
+6. Viết hướng dẫn tải BGE-M3 worker/model cache, cài Ollama tùy chọn cho AI classify, backup/xóa dữ liệu local và chính sách riêng tư.
 
 ## 4. Không làm trong đợt desktop đầu
 
@@ -101,8 +111,9 @@ Admin web (Next.js deploy)
 
 | Rủi ro | Cách xử lý |
 |---|---|
-| User chưa cài Ollama/model | Onboarding kiểm tra và hướng dẫn cài; không che giấu lỗi. |
-| Model tốn ~1.2 GB và dùng CPU/RAM | Báo trước khi cài; xử lý tuần tự và có tiến độ. |
+| BGE-M3 chưa tải hoặc worker lỗi | Onboarding kiểm tra/tải model riêng và báo rõ embedding chưa sẵn sàng. |
+| Ollama/model phân loại không có | Chỉ mất AI classify; upload/search vẫn dùng BGE-M3 worker bình thường. |
+| Model BGE-M3 tốn dung lượng và dùng CPU/RAM | Báo trước khi tải; xử lý tuần tự và có tiến độ. |
 | Native SQLite extension khó package | Chỉ target Windows trước, test installer trên máy sạch ngay ở Giai đoạn B. |
 | Supabase Free bị pause khi không dùng | Desktop vẫn xem/tìm tài liệu local; chỉ login/admin tạm không dùng được cho đến khi project hoạt động lại. |
 | Mất máy/mất file local | Có export/backup rõ ràng; không hứa hẹn cloud recovery. |
