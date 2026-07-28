@@ -1,562 +1,106 @@
-# PRD - Hệ Thống Quản Lý Học Liệu Thông Minh
+# PRD — ScholarFlow: Hệ thống quản lý học liệu thông minh
 
-> **Bản hiện hành — 22/07/2026:** Phần mô tả hiệu lực là mục **“Cập nhật 22/07/2026 - Tìm nguồn tham khảo”**. Các mục Evidence Search/hỏi–đáp cũ bên dưới chỉ là lịch sử phát triển, không mô tả chức năng đang chạy.
+**Phiên bản:** 1.0 (bản hiện tại)
+**Cập nhật:** 28/07/2026
+**Tên đề tài:** Hệ thống tự động phân loại và quản lý học liệu thông minh (Smart Learning Resources Management)
 
-## 1. Tổng Quan Sản Phẩm
+## 1. Mục đích
 
-**Tên đề tài:** Hệ thống quản lý học liệu thông minh sử dụng NLP và Semantic Search  
-**Tên tiếng Anh gợi ý:** Smart Learning Resources Management System using NLP and Semantic Search
+ScholarFlow giúp sinh viên quản lý eBooks, slides và tài liệu nghiên cứu; tự động phân loại chúng bằng NLP; rồi tìm nguồn tham khảo phù hợp cho một nhu cầu Research Project.
 
-**Mô tả ngắn:**  
-Hệ thống giúp sinh viên quản lý, phân loại, tìm kiếm và gợi ý tài liệu học tập/nghiên cứu. Người dùng có thể upload eBooks, slides và tài liệu nghiên cứu; hệ thống sẽ trích xuất nội dung, dùng AI/NLP để phân tích chủ đề, độ khó, từ khóa, tóm tắt và hỗ trợ tìm kiếm theo ngữ nghĩa.
+Sản phẩm không phải chatbot hỏi–đáp. Giá trị chính là giúp người dùng chọn **đúng tài liệu để đọc**, có đoạn nguồn và lý do phù hợp rõ ràng.
 
-**Bối cảnh hiện tại:**
+## 2. Người dùng và vấn đề
 
-- Frontend/backend: `Next.js + TypeScript`.
-- Database: `PostgreSQL`.
-- ORM: `Prisma`.
-- Auth: `Auth.js`.
-- Semantic search: `pgvector`.
-- AI providers hiện tại: `OpenRouter`, `Ollama`, `Custom API`.
+Sinh viên thường có nhiều PDF, PPTX, DOCX và EPUB nhưng khó biết:
 
-## 2. Vấn Đề Cần Giải Quyết
+- Tài liệu thuộc chủ đề nào và phù hợp với trình độ nào.
+- Tài liệu nào nên dùng làm nguồn cho nhu cầu nghiên cứu đang có.
+- Đoạn nào trong tài liệu thực sự liên quan thay vì chỉ khớp từ khóa trong mục lục hoặc copyright.
 
-Sinh viên thường có nhiều tài liệu học tập và nghiên cứu nằm rải rác ở các định dạng khác nhau như PDF, PPTX, DOCX, EPUB. Khi học hoặc làm bài nghiên cứu/dự án, sinh viên gặp các vấn đề:
+## 3. Phạm vi sản phẩm hiện tại
 
-- Khó biết tài liệu nào phù hợp với câu hỏi hoặc mục tiêu học hiện tại.
-- Khó phân biệt tài liệu thuộc chủ đề nào.
-- Khó đánh giá tài liệu đó phù hợp với người mới học hay người đã có nền tảng.
-- Tìm kiếm keyword thường không đủ tốt, vì có trường hợp người dùng hỏi theo ý nghĩa thay vì dùng đúng từ khóa trong tài liệu.
-- Không có dashboard tổng hợp tài liệu theo chủ đề, độ khó và loại file.
+### 3.1 Chức năng có
 
-Hệ thống cần giải quyết các vấn đề trên bằng một pipeline rõ ràng: upload tài liệu, trích xuất nội dung, phân tích AI, tạo vector embedding, semantic search và AI chọn giúp các kết quả nên đọc.
+1. Đăng ký, đăng nhập và thư viện riêng theo từng tài khoản.
+2. Upload PDF, PPTX, DOCX, EPUB; trích xuất nội dung và lưu vị trí nguồn (trang, slide, chương hoặc heading).
+3. Chia nội dung thành chunks và tạo embedding BGE-M3 local.
+4. Phân tích AI khi upload: chủ đề chính, tags, độ khó, tóm tắt và keywords.
+5. Quản lý thư viện, xem chi tiết tài liệu và chỉnh lại metadata khi cần.
+6. Tìm tài liệu bằng câu tự nhiên, kết hợp vector search và keyword search.
+7. Lọc luôn hiển thị theo chủ đề, độ khó và loại file.
+8. Mỗi kết quả hiển thị một tài liệu, đoạn liên quan nhất, metadata và `Vì sao phù hợp`; mở đúng vị trí đoạn nguồn.
+9. Lưu query/filter/kết quả trong phiên; `Xóa kết quả` chỉ xóa danh sách để người dùng chỉnh query và tìm lại.
+10. Cấu hình AI provider để phân tích tài liệu (Ollama, OpenRouter hoặc Custom API).
 
-## 3. Mục Tiêu Sản Phẩm
+### 3.2 Không có trong bản hiện tại
 
-### 3.1. Mục tiêu chính
+- Chatbot/RAG trả lời kiến thức từ kết quả tìm kiếm.
+- AI Answer hoặc AI Curate trong trang search.
+- Đồng bộ tài liệu giữa các máy.
+- Web admin quản lý user.
+- Desktop installer cho người dùng cuối.
+- Chia sẻ thư viện, collaboration hoặc Knowledge Graph.
 
-Xây dựng một web app giúp sinh viên:
-
-- Upload và quản lý tài liệu học tập/nghiên cứu.
-- Tự động phân loại tài liệu theo chủ đề.
-- Tự động đánh giá độ khó: `Beginner`, `Intermediate`, `Advanced`.
-- Tự động tạo tóm tắt và keywords.
-- Tìm kiếm tài liệu bằng keyword và semantic search.
-- Cấu hình nhiều AI provider tùy theo nhu cầu: Local model, OpenRouter hoặc custom API.
-
-### 3.2. Mục tiêu đồ án
-
-Sản phẩm cần đủ rõ để trình bày như một đề án cuối khóa:
-
-- Có kiến trúc hệ thống đầy đủ.
-- Có pipeline NLP/LLM giải thích được.
-- Có database schema rõ ràng.
-- Có dashboard và UI quản lý tài liệu.
-- Có đánh giá kết quả bằng dataset nhỏ.
-- Có demo end-to-end chạy được.
-
-## 4. Đối Tượng Người Dùng
-
-### 4.1. Sinh viên
-
-Người dùng chính của hệ thống. Sinh viên cần upload tài liệu, hỏi/tìm trong thư viện tài liệu, xem tóm tắt, lọc theo độ khó và chọn tài liệu phù hợp để học hoặc nghiên cứu.
-
-### 4.2. Nhóm học tập/nghiên cứu
-
-Nhóm sinh viên cần gom tài liệu tham khảo, phân loại theo chủ đề, tìm đúng đoạn liên quan và dùng AI để biết tài liệu/đoạn nào nên đọc trước.
-
-### 4.3. Giảng viên hoặc người quản lý tài liệu
-
-Có thể dùng hệ thống để quản lý tập tài liệu học tập, kiểm tra phân loại AI và xem thống kê theo chủ đề/độ khó.
-
-## 5. Phạm Vi MVP
-
-### 5.1. Trong phạm vi
-
-MVP cần có các chức năng sau:
-
-- Đăng ký, đăng nhập.
-- Dashboard tổng quan.
-- Upload tài liệu với 4 định dạng: `PDF`, `PPTX`, `DOCX`, `EPUB`.
-- Trích xuất text từ tài liệu.
-- Chia text thành chunks.
-- Giữ metadata vị trí nguồn cho từng chunk: trang PDF, slide PPTX, chương EPUB hoặc heading DOCX.
-- Tạo embeddings cho chunks bằng `BGE-M3` làm model mặc định.
-- Lưu vectors bằng `pgvector`.
-- LLM phân tích tài liệu:
-  - Primary topic.
-  - Subtopics/tags.
-  - Difficulty.
-  - Summary.
-  - Keywords.
-- Quản lý danh sách tài liệu.
-- Xem chi tiết tài liệu.
-- Lọc theo primary topic, difficulty, file type.
-- Semantic search.
-- Màn hình cấu hình AI providers.
-- Cho phép người dùng sửa lại primary topic/difficulty nếu AI phân loại sai.
-- Quản lý tags ở mức cơ bản để gộp các subtopics/tags bị trùng nghĩa.
-
-### 5.2. Ngoài phạm vi MVP
-
-Các chức năng sau không làm trong MVP, chỉ ghi là hướng phát triển:
-
-- Knowledge Graph đầy đủ.
-- GraphRAG kết hợp Knowledge Graph và vector retrieval.
-- Chatbot RAG phức tạp trên toàn bộ thư viện tài liệu.
-- Mobile app.
-- Realtime collaboration.
-- Train model NLP riêng từ đầu.
-
-Không đưa vào roadmap hiện tại: quota/usage provider, admin/storage dashboard, import/export dữ liệu, multi-user/phân quyền/chia sẻ nâng cao.
-
-## 6. Chức Năng Chi Tiết
-
-### 6.1. Authentication
-
-Người dùng có thể:
-
-- Đăng ký tài khoản bằng email/password.
-- Đăng nhập/đăng xuất.
-- Truy cập dashboard riêng của mình.
-- Chỉ xem và quản lý tài liệu do mình upload.
-
-### 6.2. Dashboard
-
-Dashboard hiển thị:
-
-- Tổng số tài liệu.
-- Số tài liệu theo primary topic.
-- Số tài liệu theo difficulty.
-- Số tài liệu theo file type.
-- Tài liệu mới upload gần đây.
-- Số tài liệu đã phân tích thành công/thất bại.
-- Trạng thái AI provider đang active.
-
-### 6.3. Upload tài liệu
-
-Người dùng có thể upload:
-
-- PDF.
-- PPTX.
-- DOCX.
-- EPUB.
-
-Giới hạn upload MVP: tối đa 25 MB cho mỗi file. Giới hạn này giúp tránh trường hợp OCR/embedding chạy quá lâu trên môi trường Docker/local. File lớn hơn nên được chia nhỏ hoặc tối ưu trước khi upload; sau MVP có thể cân nhắc tăng lên 50 MB nếu background jobs ổn định hơn.
-
-Sau khi upload, hệ thống lưu file, tạo record document và bắt đầu pipeline xử lý.
-
-### 6.4. Extract text
-
-Hệ thống trích xuất text từ tài liệu:
-
-- PDF: dùng `unpdf` để đọc text layer; nếu trang gần như không có text thì fallback OCR bằng Poppler + Tesseract.
-- PPTX: đọc text từ slide XML bằng `jszip` + `cheerio`.
-- DOCX: dùng `mammoth` để đọc nội dung Word.
-- EPUB: đọc cấu trúc EPUB/XHTML bằng `jszip` + `cheerio`.
-
-Ngoài toàn bộ text, extractor cần trả về các section có vị trí:
-
-- PDF: số trang.
-- PPTX: số slide.
-- EPUB: tên chương và đường dẫn section trong ebook.
-- DOCX: heading/phần gần nhất; nếu không có heading thì dùng `Nội dung tài liệu`.
-
-Nếu file không trích xuất được text, hệ thống hiển thị trạng thái lỗi và thông báo rõ lý do.
-
-Với PDF scan/ảnh không có text layer, hệ thống có OCR bằng Poppler + Tesseract trong Docker web container. Text layer vẫn được ưu tiên; OCR chỉ chạy cho toàn bộ file hoặc từng trang có text quá ít. Parser hiện tại được chốt cho MVP; chỉ đổi thư viện nếu test thực tế cho thấy một định dạng bị miss nội dung nhiều.
-
-### 6.5. AI analysis
-
-Hệ thống dùng LLM để tạo metadata cấp document:
-
-- `primaryTopic`: một trong danh sách topic chính cố định.
-- `subtopics`: các chủ đề con do AI đề xuất.
-- `difficulty`: `Beginner`, `Intermediate`, `Advanced`.
-- `summary`: tóm tắt bằng tiếng Việt.
-- `keywords`: danh sách từ khóa liên quan.
-- `language`: ngôn ngữ chính của tài liệu.
-- `reason`: lý do ngắn gọn vì sao AI chọn primary topic/difficulty.
-
-Trang chi tiết tài liệu phải có nút `Xử lý phần còn thiếu` khi extraction, chunking, embedding hoặc AI analysis chưa hoàn tất. Retry tiếp tục từ bước đầu tiên còn thiếu/lỗi, không xóa hay chạy lại chunk/embedding đã thành công chỉ vì AI analysis lỗi. Tài liệu cũ phải backfill được bằng nút này mà không cần upload lại. Mỗi tài liệu chỉ có một pipeline hoạt động tại một thời điểm.
-
-### 6.5.1. Chiến lược topic/taxonomy
-
-Hệ thống không để AI tự do tạo topic chính hoàn toàn, vì dễ sinh ra nhiều tên khác nhau cho cùng một chủ đề và làm dashboard/filter/evaluation bị rối. Hệ thống cũng không cố định quá cứng toàn bộ nội dung, vì tài liệu thực tế có nhiều chủ đề con chi tiết.
-
-Chiến lược được chọn là **hybrid taxonomy**:
+## 4. Luồng nghiệp vụ
 
 ```text
-Primary topic: cố định trong lĩnh vực Computer Science / Information Technology
-Subtopics/tags: AI tự sinh, sau đó hệ thống chuẩn hóa
-Keywords: AI tự sinh
-Difficulty: cố định
+Thêm tài liệu
+-> trích xuất text + chia chunk
+-> embedding BGE-M3 local
+-> AI phân loại chủ đề, tag, độ khó, tóm tắt
+-> lưu thư viện
+
+Tìm tài liệu
+-> toàn bộ câu query thành vector
+-> lấy 30 vector candidates + 30 keyword candidates
+-> hybrid rerank + loại boilerplate/đoạn yếu
+-> tối đa một chunk tốt nhất cho mỗi tài liệu
+-> hiển thị tài liệu, đoạn nguồn và lý do phù hợp
 ```
 
-Primary topic được dùng cho:
+Keyword chỉ bổ sung truy xuất/xếp hạng; vector luôn dùng toàn bộ câu người dùng nhập và được ưu tiên hơn keyword-only result. Search không gọi LLM.
 
-- Filter.
-- Dashboard.
-- Thống kê.
-- Evaluation accuracy.
-- Báo cáo đồ án.
+## 5. Yêu cầu chức năng
 
-Subtopics/tags được dùng cho:
+| Mã | Yêu cầu | Tiêu chí chấp nhận |
+|---|---|---|
+| FR-01 | Quản lý tài liệu | User chỉ thấy và thao tác tài liệu của mình. |
+| FR-02 | Phân loại tự động | Tài liệu sau xử lý có primary topic, difficulty, tags và summary. |
+| FR-03 | Tìm theo ngữ nghĩa | Câu diễn đạt tự nhiên vẫn tìm được tài liệu liên quan dù không trùng nguyên văn. |
+| FR-04 | Hybrid retrieval | Vector và keyword chạy song song; vector-backed result đứng trước keyword-only result. |
+| FR-05 | Lọc nguồn | Filter topic, difficulty, file type chỉ trả tài liệu đúng điều kiện. |
+| FR-06 | Lý do phù hợp | Mỗi card giải thích bằng rule: khớp ngữ nghĩa, từ khóa, filter và metadata; không lộ score kỹ thuật. |
+| FR-07 | Truy vết nguồn | Mở card đi đến đúng tài liệu/chunk và quay lại vẫn giữ kết quả. |
 
-- Mô tả tài liệu chi tiết hơn.
-- Semantic search.
-- Liên kết các tài liệu cùng chủ đề con.
+## 6. Yêu cầu phi chức năng
 
-### 6.5.2. Danh sách primary topics mặc định
+- Giao diện tiếng Việt, dễ dùng trên desktop và mobile browser.
+- Dữ liệu file và embedding hiện nằm local trong Docker volumes.
+- BGE-M3 chạy local; GPU là tùy chọn, CPU là mặc định.
+- Search một query không gửi toàn bộ tài liệu qua LLM.
+- Kết quả không được ưu tiên boilerplate như copyright/mục lục nếu có chunk nội dung phù hợp hơn.
 
-MVP tập trung vào tài liệu thuộc lĩnh vực Computer Science / Information Technology, không mở rộng sang mọi lĩnh vực tổng quát. Danh sách primary topics mặc định:
-
-- Artificial Intelligence.
-- Machine Learning.
-- Natural Language Processing.
-- Computer Vision.
-- Database.
-- Cybersecurity.
-- Web Development.
-- Mobile Development.
-- Software Engineering.
-- Computer Networks.
-- Operating Systems.
-- Cloud Computing.
-- Mathematics for Computing.
-- Data Science.
-- Other.
-
-`Other` dùng cho tài liệu nằm ngoài phạm vi CNTT hoặc tài liệu không đủ thông tin để phân loại chắc chắn.
-
-### 6.5.3. Chuẩn hóa subtopics/tags
-
-Vì AI có thể sinh ra nhiều tên khác nhau cho cùng một khái niệm, hệ thống cần cơ chế canonical tag.
-
-Ví dụ AI có thể sinh:
+## 7. Kiến trúc hiện tại
 
 ```text
-RAG
-Retrieval Augmented Generation
-retrieval-augmented generation
-retrieval augmented generation systems
+Next.js + TypeScript + Auth.js + Prisma
+            |
+PostgreSQL + pgvector (Docker)
+            |
+FastAPI embedding service + BGE-M3 (Docker/local)
+            |
+Ollama / OpenRouter / Custom API (phân tích lúc upload)
 ```
 
-Các tag trên cần được gom về một tag chuẩn:
+Docker là môi trường phát triển và demo hiện tại. Đây chưa phải bản desktop hay bản cloud production.
 
-```text
-Canonical tag: Retrieval Augmented Generation
-Aliases: RAG, retrieval-augmented generation, retrieval augmented generation systems
-```
+## 8. Đánh giá hiện có
 
-Quy tắc xử lý tag:
+- Hybrid search smoke test, unit test, integration test, lint, production build và Docker smoke test đã pass.
+- Bộ đánh giá 28 truy vấn demo: Recall@5 = 1.00, MRR = 1.00.
+- 10 truy vấn ngoài phạm vi đạt rejection rate 100% trên demo fixture.
 
-- Normalize bằng code: lowercase, bỏ dấu, bỏ ký tự đặc biệt, bỏ khoảng trắng thừa.
-- Check alias dictionary trong database.
-- Dùng embedding similarity với pgvector để phát hiện tag gần nghĩa.
-- Nếu độ tương đồng rất cao, hệ thống có thể gợi ý dùng tag cũ.
-- Nếu độ tương đồng lưng chừng, đưa vào danh sách cần người dùng/admin review.
-- Không auto-merge quá mạnh để tránh gộp nhầm các khái niệm liên quan nhưng không giống nhau, ví dụ `Machine Learning` và `Deep Learning`.
+## 9. Hướng phát triển đã chốt nhưng chưa thuộc PRD hiện tại
 
-### 6.6. Semantic search
-
-Người dùng có thể nhập truy vấn tự nhiên, ví dụ:
-
-- "tài liệu dễ hiểu về SQL cho người mới"
-- "research paper về deep learning"
-- "slides về computer networks"
-- "tài liệu về bảo mật ứng dụng web"
-
-Hệ thống sẽ:
-
-- Tạo embedding cho query.
-- Tìm các document chunks gần nghĩa nhất bằng pgvector.
-- Trang Hỏi tài liệu mặc định không hiển thị bộ lọc nâng cao; người dùng chỉ cần nhập câu hỏi tự nhiên, hệ thống tự tìm các đoạn phù hợp nhất.
-- Trả về danh sách tài liệu phù hợp, có score và đoạn nội dung liên quan.
-- Mỗi kết quả phải hiển thị vị trí của chunk trong tài liệu, ví dụ `Trang 18`, `Slide 7` hoặc `Chương 3: Neural Networks`.
-- Khi người dùng mở kết quả, trang chi tiết phải hiển thị và làm nổi bật đúng chunk đã khớp.
-- Với PDF, cung cấp liên kết mở file gốc tại đúng trang khi trình duyệt hỗ trợ `#page=N`.
-- Người dùng có thể bấm AI gợi ý sau khi semantic search trả kết quả để chia các đoạn thành `nên đọc trước`, `đọc thêm nếu cần` và `có thể bỏ qua`. Chức năng này dùng chung AI provider đang active và không thay thế semantic search gốc.
-
-Quyết định embedding cho MVP:
-
-- Model mặc định: `BAAI/bge-m3`, chạy local qua một embedding service Python.
-- Trên máy phát triển có CUDA, ưu tiên Quadro T2000 với batch size `2`; CPU batch size `4` là fallback.
-- Benchmark 525 chunks cho thấy GPU batch 2 mất `490,629` giây, nhanh hơn CPU batch 2 khoảng `43,1%` và dùng khoảng `2,27 GiB` VRAM.
-- `BGE-M3` chỉ dùng để tạo vector; LLM dùng cho phân loại, tóm tắt và giải thích kết quả là một thành phần riêng.
-- MVP khóa embedding model là `BAAI/bge-m3` với vector 1024 chiều. CPU và GPU chỉ là hai thiết bị chạy cùng model, có thể chuyển đổi mà không cần migrate hoặc re-embed.
-
-MVP sử dụng Vector RAG: truy vấn được chuyển thành vector, tìm các chunks gần nghĩa bằng pgvector rồi cung cấp ngữ cảnh cho LLM khi cần. Knowledge Graph không phải thành phần bắt buộc của RAG và chưa cần thiết cho mục tiêu tìm kiếm/gợi ý tài liệu của phiên bản này.
-
-### 6.7. AI chọn giúp kết quả tìm kiếm
-
-Trang Hỏi tài liệu là luồng chính để tìm học liệu. Sau khi semantic search trả về các đoạn phù hợp, người dùng có thể bấm `AI chọn giúp` để AI đọc nhanh các kết quả top đầu và phân nhóm:
-
-- Nên đọc trước.
-- Đọc thêm nếu cần.
-- Có thể bỏ qua.
-
-Tính năng Project/Đề tài đã được loại khỏi MVP vì trùng mục tiêu với Hỏi tài liệu và làm UI rối hơn.
-
-### 6.8. AI Provider Settings
-
-Người dùng có thể cấu hình ba loại provider: OpenRouter, Ollama và Custom API.
-
-#### OpenRouter
-
-Người dùng nhập:
-
-- Display name.
-- API key.
-- Default model.
-- Optional base URL nếu cần.
-
-#### Ollama
-
-Người dùng nhập:
-
-- Display name.
-- Base URL, mặc định `http://localhost:11434`.
-- Default model.
-
-API key không bắt buộc.
-
-#### Custom API
-
-Dùng cho endpoint và provider tùy biến.
-
-Người dùng nhập:
-
-- Display name.
-- API key.
-- Base URL.
-- Default chat model.
-- Default embedding model nếu có.
-
-## 7. Yêu Cầu Phi Chức Năng
-
-### 7.1. Bảo mật
-
-- Mật khẩu phải hash, không lưu plain text.
-- API key của provider phải được mã hóa hoặc tối thiểu không hiển thị plain text sau khi lưu.
-- Mỗi user chỉ truy cập dữ liệu của mình.
-- Upload file cần giới hạn dung lượng và định dạng.
-
-### 7.2. Hiệu năng
-
-- Xử lý file lớn bằng background job hoặc async job.
-- Không gọi LLM lại nếu nội dung file không đổi.
-- Chunks và embeddings cần cache trong database.
-- Search cần trả kết quả nhanh với index pgvector.
-- Việc tạo embedding được chạy khi tài liệu được upload hoặc thay đổi; truy vấn tìm kiếm chỉ cần tạo một embedding cho câu hỏi.
-
-### 7.3. Khả năng mở rộng
-
-- Provider AI cần được thiết kế theo interface chung.
-- Có thể thêm provider mới sau này.
-- Có thể thay pgvector bằng vector database khác nếu cần.
-- Có thể bổ sung Knowledge Graph/GraphRAG sau MVP để xử lý các câu hỏi cần suy luận quan hệ giữa chủ đề, tác giả, phương pháp và tài liệu.
-
-### 7.4. Khả năng giải thích trong báo cáo
-
-Hệ thống cần có các phần có thể giải thích rõ:
-
-- Tại sao cần chunking.
-- Embedding là gì.
-- Semantic search khác keyword search thế nào.
-- LLM được dùng cho phần nào.
-- Vì sao không train model từ đầu.
-- Cách đánh giá primary topic/difficulty/search/tag normalization.
-
-### 7.5. Khả năng cài đặt và chạy lại
-
-- Cung cấp Docker Compose ở thư mục gốc cho web app, PostgreSQL/pgvector và embedding service.
-- Luồng chuẩn cho người dùng thử/demo là một lệnh `docker compose up --build`.
-- Tự khởi tạo database schema khi container chạy lần đầu.
-- Cache model BGE-M3 bằng Docker volume để không tải lại ở mỗi lần chạy.
-- Mặc định chạy CPU để tương thích rộng; NVIDIA CUDA là profile tùy chọn cho máy hỗ trợ GPU Docker.
-- Chỉ yêu cầu cấu hình secret/API key khi người dùng thực sự dùng provider tương ứng.
-
-## 8. Evaluation
-
-Cần tạo dataset nhỏ để đánh giá:
-
-- 40-60 tài liệu test.
-- Mỗi tài liệu có nhãn thủ công:
-  - File type.
-  - Primary topic đúng.
-  - Difficulty đúng.
-
-Chỉ số cần đo:
-
-- Primary topic classification accuracy.
-- Difficulty classification accuracy.
-- Search quality trên 10 truy vấn mẫu.
-- Tag normalization quality trên một số cặp tag/alias mẫu.
-
-Ví dụ:
-
-- 50 tài liệu test.
-- AI phân loại đúng primary topic 41 tài liệu: accuracy 82%.
-- AI đánh giá đúng difficulty 38 tài liệu: accuracy 76%.
-- 8/10 search queries trả về tài liệu phù hợp trong top 5.
-- 15/18 tag variants được gom đúng về canonical tags.
-
-## 9. Tiêu Chí Chấp Nhận MVP
-
-MVP được xem là thành công khi:
-
-- User đăng ký/đăng nhập được.
-- User upload được PDF, PPTX, DOCX, EPUB.
-- Hệ thống trích xuất text và lưu document.
-- Hệ thống tạo summary, keywords, primary topic, subtopics/tags, difficulty bằng LLM.
-- Hệ thống tạo embeddings và semantic search được.
-- Kết quả semantic search chỉ rõ vị trí nguồn và điều hướng đến đúng chunk; PDF mở được đúng trang.
-- BGE-M3 chạy local và tạo vector ổn định trên máy phát triển; ưu tiên CUDA batch 2 và tự fallback sang CPU batch 4 mà không cần re-embed.
-- Dashboard hiển thị thống kê cơ bản.
-- User hỏi/tìm tài liệu bằng ngôn ngữ tự nhiên và dùng AI chọn giúp để biết kết quả nên đọc.
-- Hệ thống chuẩn hóa được tags cơ bản bằng normalize, alias và embedding similarity.
-- User cấu hình được ít nhất OpenRouter, Ollama và Custom API.
-- Toàn bộ hệ thống có thể khởi động bằng Docker Compose với hướng dẫn ngắn gọn.
-- Có evaluation dataset và bảng kết quả đánh giá trong báo cáo.
-
-# Cập nhật UX/UI - Luồng dễ dùng cho người mới
-
-Sau khi review giao diện thực tế, MVP cần ưu tiên trải nghiệm theo hướng người dùng phổ thông có thể mở app và biết ngay phải làm gì. App không chỉ là công cụ kỹ thuật cho semantic search, mà cần hoạt động như một trợ lý quản lý và hỏi tài liệu.
-
-Yêu cầu UX bổ sung:
-
-- Dashboard phải dẫn người dùng theo 3 bước rõ ràng: kết nối AI, thêm tài liệu, hỏi/tìm trong tài liệu.
-- Menu dùng ngôn ngữ đời thường: `Thêm tài liệu`, `Hỏi tài liệu`, `Kết nối AI`; tránh đặt các thuật ngữ kỹ thuật ở UI chính.
-- Các trạng thái rỗng phải giải thích bước tiếp theo và có nút hành động chính.
-- Trang Hỏi tài liệu ưu tiên ô hỏi tự nhiên, ví dụ mẫu và nút `AI chọn giúp`; không hiển thị bộ lọc nâng cao để tránh rối cho người dùng phổ thông.
-- Các nhãn độ khó trên UI dùng tiếng Việt thống nhất: `Cơ bản`, `Trung cấp`, `Nâng cao`; enum kỹ thuật như `BEGINNER`, `INTERMEDIATE`, `ADVANCED` chỉ nằm trong code/API.
-- Trang provider cần giải thích rõ từng loại provider, có nút tải model, test kết nối và đặt mặc định.
-- Trang tài liệu phải là trung tâm quản lý: thêm tài liệu, xem trạng thái, mở chi tiết, chạy lại phân tích khi cần.
-- Các thuật ngữ như semantic retrieval, document intake, canonical tags, pipeline, embedding chỉ dùng ở phần chi tiết/kỹ thuật, không đặt nổi bật trước người dùng mới.
-
-## Cập nhật 10/07/2026 - Chủ đề mở và alias
-
-App không còn giới hạn `primaryTopic` trong danh sách Computer Science/IT cố định. Chủ đề chính chuyển sang cơ chế mở để hỗ trợ mọi loại tài liệu học tập như văn học, ngữ văn, kinh tế, luật, y tế, giáo dục, ngoại ngữ hoặc tài liệu kỹ thuật.
-
-Luồng xử lý mới:
-
-- AI phân tích tài liệu và đề xuất `topic` ngắn gọn, dễ hiểu.
-- AI trả thêm `topicAliases`, tức các tên tương đương hoặc cách gọi khác của chủ đề đó.
-- App dùng script normalize để viết thường, bỏ dấu, dọn ký tự đặc biệt và so với các alias đã biết.
-- Nếu topic/alias trùng chủ đề đã có, app lưu lại theo tên chuẩn cũ.
-- Nếu chưa có chủ đề tương đương, app tạo chủ đề mới và lưu alias để lần sau gom đúng hơn.
-- Nếu AI hoặc app phân loại sai, người dùng có thể sửa topic thủ công; tên đã sửa trở thành tên chuẩn mới cho thư viện của user.
-
-Ví dụ:
-
-```text
-File A -> AI đề xuất: Văn học, alias: Ngữ văn, Literature, Môn Văn
-File B -> AI đề xuất: Ngữ văn
-App nhận ra alias đã có -> lưu chung primaryTopic là Văn học
-```
-
-Sau khi chốt lại UX, `subtopics` và `keywords` không còn thuộc schema/app chính. App chỉ dùng `primaryTopic` làm chủ đề hiển thị và `TagAlias` làm danh sách tên tương đương nội bộ để gom chủ đề.
-
-## Cập nhật 12/07/2026 - Tùy chỉnh kết quả tìm kiếm và hiển thị alias
-
-- Trang `Hỏi tài liệu` chỉ cho người dùng chỉnh số đoạn tối đa hiển thị cho mỗi tài liệu.
-- Không hiển thị tùy chọn tổng số đoạn vì người dùng thường chỉ quan tâm mỗi tài liệu hiện bao nhiêu đoạn; backend giữ giới hạn an toàn nội bộ để tránh query quá nặng.
-- Giới hạn nội bộ hiện tại là 40 chunk cho mỗi lần tìm. Nếu kết quả vượt giới hạn này, app giữ các chunk/tài liệu có điểm phù hợp cao hơn và loại bớt kết quả điểm thấp.
-- Mặc định vẫn ưu tiên danh sách gọn để người mới dễ đọc; khi cần xem nhiều ý trong cùng một file, người dùng tăng số đoạn mỗi tài liệu.
-- Search vẫn là semantic search theo chunk: query và từng đoạn tài liệu được embedding rồi so độ gần nhau bằng pgvector.
-- Trang `Chủ đề chuẩn & tên gọi khác` chỉ hiển thị một số alias đầu tiên; nếu alias nhiều, UI thu gọn bằng nút `+n tên khác` và cho phép bung/thu gọn.
-- Không đưa batch GPU/CPU vào UI người dùng ở giai đoạn này vì batch là cấu hình vận hành container, dễ gây lỗi RAM/VRAM nếu chỉnh sai.
-
-## Cập nhật 16/07/2026 - Evidence Search
-
-> **Quan hệ với MVP hiện tại:** Đây là bản nâng cấp trực tiếp của chức năng `Semantic search`. Không tạo chức năng tìm kiếm độc lập và không thay thế pipeline upload, chunking, embedding hoặc dữ liệu hiện có. Qua kiểm thử UX, `AI chọn giúp` bị loại khỏi giao diện vì lặp lại kết quả đã xếp hạng mà không tạo đủ giá trị. Khi triển khai xong, nội dung cập nhật này sẽ được gộp vào mục `6.6 Semantic search`, phần trả lời có dẫn chứng và phần `Evaluation` của PRD chính.
-
-### Mục tiêu
-
-Nâng cấp semantic search thành **Evidence Search**: hệ thống hiểu yêu cầu tìm kiếm, xếp hạng kết quả bằng nhiều tín hiệu và tạo câu trả lời ngắn có dẫn chứng từ đúng tài liệu/chunk. Hệ thống không gửi toàn bộ file cho LLM; chỉ gửi các chunk liên quan nhất sau bước retrieval.
-
-### Luồng xử lý chuẩn
-
-```text
-Query người dùng
--> phân tích ý định và tiêu chí tìm kiếm
--> tạo query embedding
--> lấy candidate bằng hybrid search (vector + keyword)
--> gộp/xếp hạng lại kết quả
--> chọn top chunks có bằng chứng tốt
--> LLM trả lời từ các chunks đó
--> trả citation: tài liệu + vị trí + chunk
-```
-
-### Phạm vi chức năng
-
-- Chấp nhận câu hỏi tự nhiên bằng tiếng Việt hoặc tiếng Anh.
-- Tách các tiêu chí nếu có: chủ đề, độ khó, loại tài liệu, mục đích tìm kiếm.
-- Tự động suy ra tiêu chí tìm kiếm; không bắt người dùng chỉnh thông số retrieval trước khi xem kết quả.
-- Kết hợp semantic similarity và keyword matching.
-- Rerank candidate theo điểm semantic, keyword, topic, difficulty và độ đầy đủ bằng chứng.
-- Gom kết quả theo tài liệu nhưng vẫn hiển thị chunk/đoạn phù hợp nhất.
-- Trả lời ngắn gọn dựa trên top chunks, không dùng kiến thức ngoài context.
-- Mỗi ý chính trong câu trả lời phải liên kết tới tài liệu và vị trí nguồn.
-- Hiển thị trạng thái không đủ bằng chứng thay vì suy đoán.
-
-### Giới hạn kỹ thuật
-
-- Retrieval lấy tối đa 30 candidate chunks.
-- Sau rerank, LLM chỉ nhận tối đa 8 chunks; mỗi chunk bị giới hạn độ dài.
-- Không gửi nguyên văn toàn bộ tài liệu cho LLM.
-- Điểm similarity không được gọi là phần trăm chính xác; UI dùng nhãn như `Mức phù hợp`.
-
-### Tiêu chí chấp nhận
-
-- Query có từ khóa chính xác vẫn tìm thấy tài liệu phù hợp.
-- Query diễn đạt khác từ trong tài liệu vẫn tìm thấy bằng semantic search.
-- Kết quả đầu hiển thị rõ tài liệu, đoạn liên quan, chủ đề, độ khó và vị trí nguồn; không hiển thị điểm kỹ thuật khó diễn giải.
-- Câu trả lời chỉ sử dụng context được truy xuất và có citation hợp lệ.
-- Khi không có context đủ tốt, hệ thống nói rõ không tìm thấy bằng chứng.
-- Evaluation cho thấy Evidence Search tốt hơn hoặc không kém semantic search hiện tại trên dataset truy vấn mẫu.
-
-### Quyết định đơn giản hóa UX
-
-- Luồng chính chỉ gồm: nhập câu hỏi -> xem tài liệu phù hợp -> mở đúng đoạn nguồn.
-- Mỗi tài liệu chỉ hiển thị một card và đoạn phù hợp nhất; backend vẫn giữ tối đa hai đoạn/tài liệu để câu trả lời có đủ bằng chứng.
-- Chỉ giữ một hành động AI tùy chọn: `Trả lời từ kết quả` kèm citation.
-- Bỏ `AI chọn giúp`, chuyển đổi theo đoạn/theo tài liệu, chọn số đoạn, nhãn cách app hiểu query và điểm xếp hạng khỏi UI chính.
-- Query, kết quả và câu trả lời được giữ trong phiên khi người dùng mở tài liệu rồi quay lại. `Xóa kết quả` dọn danh sách và câu trả lời nhưng giữ nội dung ô hỏi để người dùng sửa hoặc tìm lại.
-
-## Cập nhật 21/07/2026 - Search Relevance Gate và UX cuối
-
-Đây là bản hoàn thiện tiếp theo của Evidence Search, không phải chức năng độc lập. Luồng cuối giữ một trải nghiệm tìm kiếm duy nhất: luôn trả danh sách tài liệu trước; AI chỉ trả lời khi người dùng chủ động bấm `AI trả lời từ kết quả`.
-
-Retrieval cuối cùng sử dụng vector + keyword, mở rộng một số khái niệm Việt-Anh, rerank theo độ phủ nội dung/tiêu đề/chủ đề, áp dụng đúng tiêu chí độ khó/loại file được nói rõ trong query và phạt boilerplate như Copyright, Table of Contents, Preface, About the Book. Relevance gate tuyệt đối phải trả empty state khi không có ứng viên đạt yêu cầu thay vì luôn chọn kết quả tốt nhất trong thư viện.
-
-API search trả một trong ba trạng thái: `OK`, `NO_RELEVANT_RESULTS`, `EMPTY_LIBRARY`. LLM không được gọi nếu retrieval không có bằng chứng đạt ngưỡng; `notEnoughEvidence` ở answer API tiếp tục là hàng rào thứ hai.
-
-Tiêu chí nghiệm thu cuối:
-
-- 28 positive demo queries giữ Recall@5 = 1.00 và đạt MRR = 1.00.
-- Ít nhất 10 negative/out-of-scope queries đạt rejection rate từ 90%; kết quả hiện tại đạt 100% trên demo fixture.
-- Query yêu cầu độ khó/định dạng cụ thể không trả tài liệu sai tiêu chí.
-- Query `database` không ưu tiên các chương bản quyền/mục lục nếu có chương nội dung phù hợp hơn.
-- Hỏi đáp trên dữ liệu thật trả citation hợp lệ, mở đúng chunk và giữ trạng thái khi quay lại.
-## UX tìm kiếm cuối cùng - 21/07/2026
-
-Quyết định này thay thế thiết kế hai tab `Tìm tài liệu` và `Hỏi tài liệu`:
-
-- Chỉ dùng một ô tìm kiếm và một nút `Tìm kiếm`.
-- Vector search là tín hiệu chính; keyword search chỉ bổ sung ứng viên và hỗ trợ xếp hạng.
-- Mọi truy vấn, kể cả câu hỏi, trước tiên chỉ trả danh sách tài liệu và đoạn phù hợp.
-- AI không tự chạy. Người dùng bấm `AI trả lời từ kết quả` khi cần câu trả lời có trích nguồn.
-- Sau khi AI trả lời, danh sách kết quả gốc vẫn được giữ nguyên để người dùng tiếp tục xem tài liệu.
-- Người dùng không phải hiểu, chọn hoặc chuyển đổi giữa keyword và vector.
-
-## Cập nhật 22/07/2026 - Tìm nguồn tham khảo
-
-Quyết định này thay thế các mô tả Evidence Search/hỏi đáp ở trên. ScholarFlow phục vụ đề tài **tự động phân loại và quản lý học liệu thông minh**, nên search chỉ giúp sinh viên chọn nguồn phù hợp cho Research Project.
-
-- AI chỉ dùng lúc upload để phân loại chủ đề, độ khó, tags và tóm tắt; không có chatbot hoặc AI answer trong search.
-- Người dùng mô tả nhu cầu bằng câu tự nhiên và có thể lọc theo chủ đề, độ khó, loại file.
-- Vector search xử lý ý nghĩa của toàn bộ câu; keyword hỗ trợ truy xuất/rerank; không hiển thị score kỹ thuật.
-- Mỗi kết quả cho một tài liệu hiển thị đoạn phù hợp nhất, metadata và `Vì sao phù hợp` dựa trên retrieval/filter.
-- Không tạo hoặc lưu Research Project riêng; không thay đổi schema hay pipeline embedding.
+Phiên bản kế tiếp sẽ là Electron local-first cho Windows: tài liệu, BGE-M3, vector và search vẫn ở máy người dùng; Supabase Free chỉ xử lý đăng nhập và web admin quản lý tài khoản. Chi tiết triển khai nằm trong `IMPLEMENTATION_PLAN.md` và `PROJECT_CHECKLIST.md`.
