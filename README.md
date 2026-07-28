@@ -146,4 +146,3 @@ Next.js, TypeScript, Auth.js, PostgreSQL, Prisma, pgvector, FastAPI, BGE-M3, Ope
 - [PRD.md](PRD.md)
 - [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md)
 - [PROJECT_CHECKLIST.md](PROJECT_CHECKLIST.md)
-- [ERROR_REPORT.md](ERROR_REPORT.md)
