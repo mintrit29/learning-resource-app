@@ -104,12 +104,12 @@ Không tạo một web admin riêng. Nếu sau này cần quản lý tài khoả
 - [x] Test SQLite migration và sqlite-vec.
 - [x] Test đường dẫn dữ liệu local.
 - [x] ESLint đạt.
-- [ ] Production build đạt trên phiên bản đã hợp nhất cuối cùng.
-- [ ] Desktop standalone smoke test đạt.
-- [ ] Packaged desktop smoke test đạt.
-- [ ] Tạo lại `ScholarFlow-Setup-0.1.0.exe` từ source đã hợp nhất.
+- [x] Production build đạt trên phiên bản đã hợp nhất cuối cùng.
+- [x] Desktop standalone smoke test đạt.
+- [x] Packaged desktop smoke test đạt.
+- [x] Tạo lại `ScholarFlow-Setup-0.1.0.exe` từ source đã hợp nhất.
 - [x] Tạo nhánh lưu trữ bản web/Docker: `archive/web-docker-before-desktop-2026-08-08`.
-- [ ] Chia thay đổi thành các commit desktop, cleanup và docs.
+- [x] Chia thay đổi thành các commit desktop, cleanup và docs.
 - [ ] Đẩy nhánh `desktop-app` lên GitHub.
 - [ ] Tạo Pull Request để nhóm xem trước khi gộp vào `main`.
 - [ ] Đưa bộ cài vào GitHub Releases, không commit file `.exe`.
