@@ -15,7 +15,7 @@ import {
 import { resolveStoredUploadPath } from "@/lib/storage/local-storage";
 import { getSqliteVectorStore } from "@/lib/vector/sqlite-vector-store";
 
-type PipelineInput = {
+export type PipelineInput = {
   documentId: string;
   extractionJobId: string;
   chunkJobId: string;
@@ -69,7 +69,7 @@ export async function processDocumentPipeline(input: PipelineInput) {
     if (result.text.length < 20) {
       if (document.fileType === FileType.PDF && (result.pageCount ?? 0) > 0) {
         throw new Error(
-          "Tài liệu có vẻ là PDF scan/ảnh và không có text layer. File này cần OCR trước khi phân tích.",
+          "Tài liệu có vẻ là PDF scan/ảnh nhưng OCR không đọc được đủ nội dung. Hãy thử bản scan rõ hơn.",
         );
       }
       throw new Error("Không tìm thấy đủ nội dung dạng text trong tài liệu");

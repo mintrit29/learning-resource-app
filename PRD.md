@@ -45,6 +45,7 @@ Dashboard quản trị phải nằm trong ứng dụng desktop nếu được tr
 ### 4.2 Quản lý tài liệu
 
 - Nhận file PDF, DOCX, PPTX và EPUB.
+- Nhận nhiều file hoặc một thư mục trong cùng lượt; bỏ qua file sai định dạng và báo trạng thái riêng từng file.
 - Kiểm tra loại file, kích thước và tên file trước khi lưu.
 - Hiển thị thư viện, chi tiết, trạng thái và tiến trình xử lý.
 - Xem/tải file gốc và xem nội dung đã trích xuất.
@@ -63,6 +64,8 @@ Thêm file
 ```
 
 Mỗi bước có trạng thái `PENDING`, `PROCESSING`, `COMPLETED` hoặc `FAILED`. Lỗi phải được rút gọn thành thông báo dễ hiểu, không đưa stack trace, HTML hoặc mã nguồn lên giao diện.
+
+Khi có nhiều tài liệu, toàn bộ pipeline chạy tuần tự theo hàng đợi cục bộ. PDF có text layer dùng bộ trích xuất native; PDF scan/ảnh mới dùng Docling OCR để giảm thời gian và mức dùng CPU không cần thiết.
 
 ### 4.4 AI phân tích tài liệu
 
@@ -138,7 +141,6 @@ Tìm kiếm hiện tại là tìm nguồn tham khảo, không phải chatbot sin
 - Triển khai ứng dụng như website công khai.
 - Docker, PostgreSQL, pgvector hoặc Python embedding service.
 - Đồng bộ tài liệu và vector giữa nhiều thiết bị.
-- OCR tích hợp cho PDF scan.
 - Chatbot tạo câu trả lời dài từ nhiều tài liệu.
 - Dashboard quản trị và phân quyền hoàn chỉnh; đây là hạng mục ưu tiên của giai đoạn tiếp theo.
 
@@ -157,6 +159,6 @@ Tìm kiếm hiện tại là tìm nguồn tham khảo, không phải chatbot sin
 
 - BGE-M3 chạy CPU có thể chậm với tài liệu rất lớn.
 - Lần đầu cần tải model khoảng 2,1 GB và phụ thuộc tốc độ mạng.
-- File scan không có text layer sẽ cho kết quả trích xuất kém nếu chưa OCR.
+- OCR tiếng Việt/Anh trên bản scan mờ, công thức viết tay hoặc biểu đồ phức tạp có thể chưa chính xác hoàn toàn.
 - OpenRouter và Custom API có thể phát sinh chi phí hoặc giới hạn theo nhà cung cấp.
 - Quản lý nhiều người dùng trên nhiều máy cần một kiến trúc đồng bộ khác và chưa thuộc phạm vi desktop local hiện tại.

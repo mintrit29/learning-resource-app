@@ -32,6 +32,12 @@ extraResources:
     to: embedding-runtime/node_modules
     filter:
       - "**/*"
+  - from: .docling-runtime
+    to: document-runtime
+    filter:
+      - "models/**/*"
+      - "pdfium/**/*"
+      - "MODEL_LICENSES.md"
 
 win:
   target:

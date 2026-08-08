@@ -37,7 +37,14 @@ await cp(
   { recursive: true, force: true },
 );
 
-for (const dependency of ["sqlite-vec", "sqlite-vec-windows-x64"]) {
+for (const dependency of [
+  "sqlite-vec",
+  "sqlite-vec-windows-x64",
+  "@firecrawl/pdf-inspector",
+  "@firecrawl/pdf-inspector-win32-x64-msvc",
+  "docling.rs",
+  "docling.rs-win32-x64-msvc",
+]) {
   const dependencyRoot = path.join(projectRoot, "node_modules", dependency);
   await requireDirectory(dependencyRoot, dependency);
   await cp(

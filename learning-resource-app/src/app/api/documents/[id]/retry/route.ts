@@ -3,7 +3,7 @@ import { auth } from "@/auth";
 import { JobStatus, JobType } from "@/generated/prisma/enums";
 import { analyzeDocument } from "@/lib/ai/analyze-document";
 import { db } from "@/lib/db";
-import { processDocumentPipeline } from "@/lib/documents/process-document";
+import { enqueueDocumentPipeline } from "@/lib/documents/document-processing-queue";
 import { resetDocumentJob } from "@/lib/documents/processing-jobs";
 import { embedDocumentChunks } from "@/lib/embedding/embed-document";
 
@@ -41,7 +41,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
       resetDocumentJob(id, JobType.EMBED_DOCUMENT),
       resetDocumentJob(id, JobType.ANALYZE_DOCUMENT),
     ]);
-    after(() => processDocumentPipeline({
+    after(() => enqueueDocumentPipeline({
       documentId: id,
       extractionJobId: jobs[0].id,
       chunkJobId: jobs[1].id,

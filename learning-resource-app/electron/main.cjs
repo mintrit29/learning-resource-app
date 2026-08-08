@@ -81,6 +81,14 @@ function sanitizedChildEnvironment() {
     "EMBEDDING_HOST",
     "EMBEDDING_PORT",
     "SCHOLARFLOW_MODEL_CACHE",
+    "DOCLING_RS_HOME",
+    "PDFIUM_DYNAMIC_LIB_PATH",
+    "DOCLING_LAYOUT_ONNX",
+    "DOCLING_OCR_REC_ONNX",
+    "DOCLING_OCR_DICT",
+    "DOCLING_TABLEFORMER_ENCODER",
+    "DOCLING_TABLEFORMER_DECODER",
+    "DOCLING_TABLEFORMER_BBOX",
   ].forEach((key) => delete environment[key]);
   return environment;
 }
@@ -92,6 +100,16 @@ function getDesktopDataEnvironment(resolvedEmbeddingUrl) {
   const serverRoot = app.isPackaged
     ? path.join(process.resourcesPath, "app")
     : path.resolve(__dirname, "..");
+  const documentRuntimeRoot = app.isPackaged
+    ? path.join(process.resourcesPath, "document-runtime")
+    : path.resolve(__dirname, "..", ".docling-runtime");
+  const documentRuntimeEnvironment = existsSync(documentRuntimeRoot)
+    ? {
+        DOCLING_RS_HOME: documentRuntimeRoot,
+        PDFIUM_DYNAMIC_LIB_PATH: path.join(documentRuntimeRoot, "pdfium", "lib"),
+      }
+    : {};
+
   return {
     SCHOLARFLOW_DATA_ROOT: dataRoot,
     DATABASE_URL: `file:${databasePath}`,
@@ -104,6 +122,7 @@ function getDesktopDataEnvironment(resolvedEmbeddingUrl) {
       "sqlite-vec-windows-x64",
       "vec0.dll",
     ),
+    ...documentRuntimeEnvironment,
   };
 }
 

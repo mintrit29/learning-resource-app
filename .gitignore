@@ -4,6 +4,7 @@
 !.env.example
 
 **/models-cache/
+**/.docling-runtime/
 
 # Node / Next.js
 **/node_modules/

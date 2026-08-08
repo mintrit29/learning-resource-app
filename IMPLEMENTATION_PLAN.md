@@ -109,10 +109,10 @@ Giới hạn: dashboard này chỉ quản lý tài khoản trong cùng bản cà
 
 ## 6. Giai đoạn 4 — Cải thiện sau MVP
 
-- Tối ưu embedding CPU: batch động, pause/resume và queue nhiều tài liệu.
+- [Đã triển khai] Chọn nhiều file/thư mục và queue tuần tự toàn bộ pipeline tài liệu.
 - Hiển thị tiến độ tải model lần đầu.
 - Backup/restore database và uploads trong giao diện.
-- OCR cho PDF scan.
+- [Đã triển khai] Phân loại PDF bằng pdf-inspector và OCR fallback bằng Docling; giữ Tesseract/Poppler làm fallback môi trường cũ.
 - Đo chất lượng tìm kiếm trên bộ dữ liệu đồ án cố định.
 - Ký số bộ cài và tự động hóa release khi có chứng chỉ phù hợp.
 

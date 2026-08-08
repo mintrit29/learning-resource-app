@@ -5,13 +5,13 @@ import { after, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { DocumentStatus, FileType, JobType } from "@/generated/prisma/enums";
 import { db } from "@/lib/db";
+import { enqueueDocumentPipeline } from "@/lib/documents/document-processing-queue";
 import type { SupportedExtension } from "@/lib/documents/extract-text";
 import {
   MAX_UPLOAD_FILE_SIZE_BYTES,
   MAX_UPLOAD_FILE_SIZE_MB,
   SUPPORTED_UPLOAD_LABEL,
 } from "@/lib/documents/upload-policy";
-import { processDocumentPipeline } from "@/lib/documents/process-document";
 import { createUploadStorageLocation } from "@/lib/storage/local-storage";
 
 export const runtime = "nodejs";
@@ -107,7 +107,7 @@ export async function POST(request: Request) {
   }
 
   after(() =>
-    processDocumentPipeline({
+    enqueueDocumentPipeline({
       documentId: document.id,
       extractionJobId,
       chunkJobId,

@@ -7,8 +7,10 @@ ScholarFlow là ứng dụng desktop Windows giúp sinh viên lưu trữ, phân 
 ## Chức năng chính
 
 - Đăng ký, đăng nhập và quản lý thư viện cục bộ.
-- Thêm tài liệu PDF, DOCX, PPTX và EPUB.
-- Trích xuất văn bản và giữ vị trí nguồn như trang, slide hoặc mục.
+- Thêm một hoặc nhiều tài liệu PDF, DOCX, PPTX và EPUB; có thể chọn cả thư mục.
+- Xử lý nhiều tài liệu theo hàng đợi tuần tự để không làm quá tải máy.
+- Trích xuất Markdown có cấu trúc, bảng và vị trí nguồn như trang, slide hoặc mục.
+- Tự nhận diện PDF scan/ảnh và dùng Docling OCR tiếng Việt/Anh khi cần.
 - Chia nội dung thành các đoạn và tạo vector BGE-M3 1.024 chiều trên máy.
 - Phân tích chủ đề, độ khó, ngôn ngữ và tóm tắt bằng OpenRouter, Ollama hoặc Custom API.
 - Tìm kiếm kết hợp ngữ nghĩa, từ khóa và bộ lọc metadata.
@@ -23,6 +25,7 @@ Electron Desktop
   ├─ Next.js chạy nội bộ trên 127.0.0.1
   ├─ SQLite + sqlite-vec
   ├─ BGE-M3 qua Transformers.js/ONNX Runtime
+  ├─ pdf-inspector + Docling OCR cho tài liệu
   └─ OpenRouter / Ollama / Custom API (tùy chọn cho phân tích AI)
 ```
 
@@ -54,6 +57,14 @@ npm run dev
 
 Lệnh `npm run dev` mở cửa sổ Electron, không mở một sản phẩm web độc lập.
 
+PDF có sẵn text layer hoạt động ngay. Để kiểm thử PDF scan trong môi trường phát triển, tải bộ model Docling một lần:
+
+```powershell
+npm run docling:prepare
+```
+
+Bộ model nằm trong `.docling-runtime` và không được commit. Các lệnh đóng gói tự chạy bước chuẩn bị này và đưa runtime vào bộ cài.
+
 ## Kiểm thử
 
 ```powershell
@@ -81,7 +92,7 @@ Bộ cài được tạo trong `learning-resource-app\dist-electron`. Thư mục
 ## Giới hạn hiện tại
 
 - Tài liệu lớn có thể tạo embedding chậm khi chỉ dùng CPU.
-- PDF scan chưa có lớp văn bản cần OCR trước khi thêm.
+- OCR tài liệu scan chạy trên CPU nên chậm hơn PDF có text; chất lượng công thức và biểu đồ phụ thuộc độ nét của bản scan.
 - Phân tích metadata cần một kết nối AI hợp lệ; thư viện và tìm kiếm vẫn dùng dữ liệu đã xử lý cục bộ.
 - Chưa có đồng bộ dữ liệu giữa nhiều máy.
 - Dashboard quản trị tài khoản trong desktop là hạng mục ưu tiên tiếp theo và chưa nằm trong bản MVP hiện tại.
