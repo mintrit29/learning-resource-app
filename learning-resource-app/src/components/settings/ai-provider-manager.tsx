@@ -40,7 +40,7 @@ const choices = {
   OLLAMA: {
     label: "Ollama",
     description: "Dùng model Ollama đang chạy trên máy của bạn.",
-    hint: "Docker Desktop trên Windows thường dùng host.docker.internal. Nếu dùng Podman/WSL/Linux, nên chạy Ollama trong cùng môi trường Linux/WSL.",
+    hint: "Hãy mở Ollama trên máy, sau đó dùng địa chỉ mặc định http://localhost:11434 và chọn model đã tải.",
     icon: Cpu,
     baseUrl: "http://localhost:11434",
     model: "qwen3:latest",
@@ -67,12 +67,28 @@ function connectionLabel(status: string) {
   return "Chưa kiểm tra";
 }
 
+async function readApiResponse<T extends object>(response: Response): Promise<Partial<T>> {
+  try {
+    const data = await response.json() as unknown;
+    return data && typeof data === "object" ? data as Partial<T> : {};
+  } catch {
+    return {};
+  }
+}
+
+function responseMessage(value: unknown, fallback: string) {
+  if (typeof value !== "string") return fallback;
+  const normalized = value.replace(/\s+/g, " ").trim();
+  return normalized && normalized.length <= 180 ? normalized : fallback;
+}
+
 export function AiProviderManager({ initialProviders }: { initialProviders: Provider[] }) {
   const [providers, setProviders] = useState(initialProviders);
   const [isOpen, setIsOpen] = useState(false);
   const [type, setType] = useState<ProviderType>("OPENROUTER");
   const [busyId, setBusyId] = useState("");
   const [editing, setEditing] = useState<Provider | null>(null);
+  const [displayName, setDisplayName] = useState<string>(choices.OPENROUTER.label);
   const [baseUrl, setBaseUrl] = useState<string>(choices.OPENROUTER.baseUrl);
   const [apiKey, setApiKey] = useState<string>("");
   const [chatModel, setChatModel] = useState<string>(choices.OPENROUTER.model);
@@ -82,6 +98,7 @@ export function AiProviderManager({ initialProviders }: { initialProviders: Prov
   function openCreate() {
     setEditing(null);
     setType("OPENROUTER");
+    setDisplayName(choices.OPENROUTER.label);
     setBaseUrl(choices.OPENROUTER.baseUrl);
     setApiKey("");
     setChatModel(choices.OPENROUTER.model);
@@ -93,6 +110,7 @@ export function AiProviderManager({ initialProviders }: { initialProviders: Prov
   function openEdit(provider: Provider) {
     setEditing(provider);
     setType(provider.type as ProviderType);
+    setDisplayName(provider.displayName);
     setBaseUrl(provider.baseUrl ?? "");
     setApiKey("");
     setChatModel(provider.defaultChatModel ?? "");
@@ -102,7 +120,10 @@ export function AiProviderManager({ initialProviders }: { initialProviders: Prov
   }
 
   function chooseType(nextType: ProviderType) {
-    if (editing) return;
+    if (nextType === type) return;
+    setDisplayName((current) =>
+      current.trim() === choices[type].label ? choices[nextType].label : current,
+    );
     setType(nextType);
     setBaseUrl(choices[nextType].baseUrl);
     setApiKey("");
@@ -113,86 +134,101 @@ export function AiProviderManager({ initialProviders }: { initialProviders: Prov
   async function saveProvider(formData: FormData) {
     setBusyId(editing ? `edit:${editing.id}` : "create");
     setNotice(null);
-    const response = await fetch(editing ? `/api/ai-providers/${editing.id}` : "/api/ai-providers", {
-      method: editing ? "PATCH" : "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        type,
-        displayName: formData.get("displayName"),
-        baseUrl,
-        apiKey,
-        defaultChatModel: chatModel,
-        isActive: !editing && providers.length === 0,
-      }),
-    });
-    const data = (await response.json()) as { provider?: Provider; message?: string };
-    setBusyId("");
-    if (!response.ok || !data.provider) {
-      setNotice({ kind: "error", text: data.message ?? "Không thể lưu provider." });
-      return;
+    try {
+      const response = await fetch(editing ? `/api/ai-providers/${editing.id}` : "/api/ai-providers", {
+        method: editing ? "PATCH" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type,
+          displayName: formData.get("displayName"),
+          baseUrl,
+          apiKey,
+          defaultChatModel: chatModel,
+          isActive: !editing && providers.length === 0,
+        }),
+      });
+      const data = await readApiResponse<{ provider: Provider; message: string }>(response);
+      if (!response.ok || !data.provider) {
+        setNotice({ kind: "error", text: responseMessage(data.message, "Không thể lưu kết nối.") });
+        return;
+      }
+      if (editing) {
+        setProviders((current) =>
+          current.map((item) =>
+            item.id === editing.id ? { ...item, ...data.provider! } : item,
+          ),
+        );
+      } else {
+        setProviders((current) => [data.provider!, ...current.map((item) => ({ ...item, isActive: false }))]);
+      }
+      setNotice({
+        kind: "ok",
+        text: editing
+          ? "Đã cập nhật kết nối. Hãy kiểm tra lại."
+          : "Đã lưu kết nối. Hãy kiểm tra trước khi dùng.",
+      });
+      setIsOpen(false);
+      setEditing(null);
+    } catch {
+      setNotice({ kind: "error", text: "Ứng dụng không phản hồi. Hãy thử lại." });
+    } finally {
+      setBusyId("");
     }
-    if (editing) {
-      setProviders((current) =>
-        current.map((item) =>
-          item.id === editing.id ? { ...item, ...data.provider!, type: item.type, isActive: item.isActive } : item,
-        ),
-      );
-    } else {
-      setProviders((current) => [data.provider!, ...current.map((item) => ({ ...item, isActive: false }))]);
-    }
-    setNotice({
-      kind: "ok",
-      text: editing
-        ? "Đã cập nhật provider. Hãy bấm kiểm tra kết nối lại."
-        : "Đã lưu provider. Hãy kiểm tra kết nối trước khi dùng.",
-    });
-    setIsOpen(false);
-    setEditing(null);
   }
 
   async function loadModels() {
     setBusyId("models");
     setNotice(null);
-    const response = await fetch("/api/ai-providers/models", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ providerId: editing?.id, type, baseUrl, apiKey }),
-    });
-    const data = (await response.json()) as { models?: string[]; message?: string };
-    setBusyId("");
-    if (!response.ok || !data.models) {
-      setNotice({ kind: "error", text: data.message ?? "Không thể tải danh sách model." });
-      return;
+    try {
+      const response = await fetch("/api/ai-providers/models", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ providerId: editing?.id, type, baseUrl, apiKey }),
+      });
+      const data = await readApiResponse<{ models: string[]; message: string }>(response);
+      if (!response.ok || !data.models) {
+        setNotice({ kind: "error", text: responseMessage(data.message, "Không thể tải danh sách model.") });
+        return;
+      }
+      setAvailableModels(data.models);
+      if (data.models.length && !data.models.includes(chatModel)) setChatModel(data.models[0]);
+      setNotice({ kind: "ok", text: `Đã tải ${data.models.length} model.` });
+    } catch {
+      setNotice({ kind: "error", text: "Ứng dụng không phản hồi. Hãy thử lại." });
+    } finally {
+      setBusyId("");
     }
-    setAvailableModels(data.models);
-    if (data.models.length && !data.models.includes(chatModel)) setChatModel(data.models[0]);
-    setNotice({ kind: "ok", text: `Đã tải ${data.models.length} model.` });
   }
 
   async function runAction(id: string, action: "test" | "activate" | "delete") {
     setBusyId(`${action}:${id}`);
     setNotice(null);
-    const response = await fetch(action === "test" ? `/api/ai-providers/${id}/test` : `/api/ai-providers/${id}`, {
-      method: action === "delete" ? "DELETE" : action === "activate" ? "PATCH" : "POST",
-      ...(action === "activate"
-        ? { headers: { "Content-Type": "application/json" }, body: JSON.stringify({ isActive: true }) }
-        : {}),
-    });
-    const data = (await response.json()) as { message?: string };
-    setBusyId("");
-    if (!response.ok) {
-      if (action === "test") {
-        setProviders((items) => items.map((item) => (item.id === id ? { ...item, authStatus: "ERROR" } : item)));
+    try {
+      const response = await fetch(action === "test" ? `/api/ai-providers/${id}/test` : `/api/ai-providers/${id}`, {
+        method: action === "delete" ? "DELETE" : action === "activate" ? "PATCH" : "POST",
+        ...(action === "activate"
+          ? { headers: { "Content-Type": "application/json" }, body: JSON.stringify({ isActive: true }) }
+          : {}),
+      });
+      const data = await readApiResponse<{ message: string }>(response);
+      if (!response.ok) {
+        if (action === "test") {
+          setProviders((items) => items.map((item) => (item.id === id ? { ...item, authStatus: "ERROR" } : item)));
+        }
+        setNotice({ kind: "error", text: responseMessage(data.message, "Thao tác không thành công.") });
+        return;
       }
-      setNotice({ kind: "error", text: data.message ?? "Thao tác thất bại." });
-      return;
+      if (action === "delete") setProviders((items) => items.filter((item) => item.id !== id));
+      if (action === "activate") setProviders((items) => items.map((item) => ({ ...item, isActive: item.id === id })));
+      if (action === "test") {
+        setProviders((items) => items.map((item) => (item.id === id ? { ...item, authStatus: "CONNECTED" } : item)));
+      }
+      setNotice({ kind: "ok", text: responseMessage(data.message, "Thao tác thành công.") });
+    } catch {
+      setNotice({ kind: "error", text: "Ứng dụng không phản hồi. Hãy thử lại." });
+    } finally {
+      setBusyId("");
     }
-    if (action === "delete") setProviders((items) => items.filter((item) => item.id !== id));
-    if (action === "activate") setProviders((items) => items.map((item) => ({ ...item, isActive: item.id === id })));
-    if (action === "test") {
-      setProviders((items) => items.map((item) => (item.id === id ? { ...item, authStatus: "CONNECTED" } : item)));
-    }
-    setNotice({ kind: "ok", text: data.message ?? "Thao tác thành công." });
   }
 
   const saving = busyId === "create" || busyId.startsWith("edit:");
@@ -323,7 +359,7 @@ export function AiProviderManager({ initialProviders }: { initialProviders: Prov
                 return (
                   <button
                     className={type === item ? "selected" : ""}
-                    disabled={Boolean(editing)}
+                    disabled={saving}
                     key={item}
                     onClick={() => chooseType(item)}
                     type="button"
@@ -346,7 +382,12 @@ export function AiProviderManager({ initialProviders }: { initialProviders: Prov
             <form action={saveProvider} className="provider-form" key={`${type}:${editing?.id ?? "new"}`}>
               <label>
                 Tên hiển thị
-                <input defaultValue={editing?.displayName ?? currentChoice.label} name="displayName" required />
+                <input
+                  name="displayName"
+                  onChange={(event) => setDisplayName(event.target.value)}
+                  required
+                  value={displayName}
+                />
               </label>
               <label>
                 Base URL

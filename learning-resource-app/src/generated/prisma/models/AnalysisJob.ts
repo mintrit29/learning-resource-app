@@ -552,7 +552,6 @@ export type AnalysisJobCreateOrConnectWithoutDocumentInput = {
 
 export type AnalysisJobCreateManyDocumentInputEnvelope = {
   data: Prisma.AnalysisJobCreateManyDocumentInput | Prisma.AnalysisJobCreateManyDocumentInput[]
-  skipDuplicates?: boolean
 }
 
 export type AnalysisJobUpsertWithWhereUniqueWithoutDocumentInput = {
@@ -1387,7 +1386,6 @@ export type AnalysisJobCreateManyArgs<ExtArgs extends runtime.Types.Extensions.I
    * The data used to create many AnalysisJobs.
    */
   data: Prisma.AnalysisJobCreateManyInput | Prisma.AnalysisJobCreateManyInput[]
-  skipDuplicates?: boolean
 }
 
 /**
@@ -1406,7 +1404,6 @@ export type AnalysisJobCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Ext
    * The data used to create many AnalysisJobs.
    */
   data: Prisma.AnalysisJobCreateManyInput | Prisma.AnalysisJobCreateManyInput[]
-  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

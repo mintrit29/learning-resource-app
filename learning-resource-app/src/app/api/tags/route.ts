@@ -2,9 +2,10 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
-import { embedTexts, toPgVector } from "@/lib/embedding/client";
+import { embedTexts } from "@/lib/embedding/client";
 import { findExactTagOrAlias } from "@/lib/taxonomy/canonical-tags";
 import { normalizeTagName } from "@/lib/taxonomy/normalize-tag";
+import { toSqliteVectorBlob } from "@/lib/vector/sqlite-vector-store";
 
 const tagSchema = z.object({ name: z.string().trim().min(2).max(100), description: z.string().trim().max(500).optional().default("") });
 
@@ -25,10 +26,14 @@ export async function POST(request: Request) {
   try {
     const text = parsed.data.description ? `${parsed.data.name}: ${parsed.data.description}` : parsed.data.name;
     const embedded = await embedTexts([text]);
-    const tag = await db.$transaction(async (tx) => {
-      const created = await tx.tag.create({ data: { name: parsed.data.name, normalizedName: normalizeTagName(parsed.data.name), description: parsed.data.description || null, createdByUserId: session.user.id } });
-      await tx.$executeRawUnsafe('UPDATE "Tag" SET "embedding" = $1::vector WHERE "id" = $2', toPgVector(embedded.embeddings[0]), created.id);
-      return created;
+    const tag = await db.tag.create({
+      data: {
+        name: parsed.data.name,
+        normalizedName: normalizeTagName(parsed.data.name),
+        description: parsed.data.description || null,
+        createdByUserId: session.user.id,
+        embedding: toSqliteVectorBlob(embedded.embeddings[0]),
+      },
     });
     return NextResponse.json({ tag }, { status: 201 });
   } catch (error) {

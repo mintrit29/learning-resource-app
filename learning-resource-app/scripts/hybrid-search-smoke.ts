@@ -1,8 +1,12 @@
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { db } from "../src/lib/db";
-import { embedTexts, toPgVector } from "../src/lib/embedding/client";
+import { embedTexts } from "../src/lib/embedding/client";
 import { hybridSearch, searchByKeyword, searchByVector } from "../src/lib/search/hybrid-search";
+import {
+  getSqliteVectorStore,
+  toSqliteVectorBlob,
+} from "../src/lib/vector/sqlite-vector-store";
 
 const suffix = randomUUID();
 const owner = await db.user.create({ data: { email: `hybrid-owner-${suffix}@example.test` } });
@@ -39,11 +43,11 @@ try {
   });
   const ownedChunk = await db.documentChunk.findFirstOrThrow({ where: { documentId: ownedDocument.id } });
   const [chunkEmbedding] = (await embedTexts([ownedChunk.content])).embeddings;
-  await db.$executeRawUnsafe(
-    'UPDATE "DocumentChunk" SET "embedding" = $1::vector WHERE "id" = $2',
-    toPgVector(chunkEmbedding),
-    ownedChunk.id,
-  );
+  getSqliteVectorStore().upsertChunkEmbedding(ownedChunk.id, chunkEmbedding);
+  await db.documentChunk.update({
+    where: { id: ownedChunk.id },
+    data: { embedding: toSqliteVectorBlob(chunkEmbedding) },
+  });
 
   const accentlessResults = await searchByKeyword(owner.id, "co so du lieu transaction", {}, 10);
   assert.ok(accentlessResults.length > 0, "Accentless Vietnamese query must find accented content");

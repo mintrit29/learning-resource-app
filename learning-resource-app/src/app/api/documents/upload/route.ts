@@ -12,6 +12,7 @@ import {
   SUPPORTED_UPLOAD_LABEL,
 } from "@/lib/documents/upload-policy";
 import { processDocumentPipeline } from "@/lib/documents/process-document";
+import { createUploadStorageLocation } from "@/lib/storage/local-storage";
 
 export const runtime = "nodejs";
 
@@ -67,18 +68,10 @@ export async function POST(request: Request) {
     );
   }
 
-  const storageDirectory = path.join(
-    process.cwd(),
-    "storage",
-    "uploads",
-    session.user.id,
-  );
-  await mkdir(storageDirectory, { recursive: true });
-
   const storedName = `${randomUUID()}.${extension}`;
-  const absolutePath = path.join(storageDirectory, storedName);
-  const relativePath = path.relative(process.cwd(), absolutePath).replaceAll("\\", "/");
-  await writeFile(absolutePath, buffer, { flag: "wx" });
+  const storageLocation = createUploadStorageLocation(session.user.id, storedName);
+  await mkdir(storageLocation.directory, { recursive: true });
+  await writeFile(storageLocation.absolutePath, buffer, { flag: "wx" });
 
   const title = path.basename(file.name, path.extname(file.name)).trim() || file.name;
   const document = await db.document.create({
@@ -87,7 +80,7 @@ export async function POST(request: Request) {
       title,
       originalFileName: file.name,
       fileType: FILE_TYPES[extension],
-      filePath: relativePath,
+      filePath: storageLocation.storedPath,
       fileSize: file.size,
       status: DocumentStatus.UPLOADED,
       jobs: {

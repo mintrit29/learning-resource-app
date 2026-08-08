@@ -1,16 +1,12 @@
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { db } from "../src/lib/db";
-import { embedTexts, toPgVector } from "../src/lib/embedding/client";
-
-type Result = {
-  chunkId: string;
-  documentId: string;
-  title: string;
-  pageNumber: number | null;
-  sourceLabel: string | null;
-  score: number;
-};
+import { embedTexts } from "../src/lib/embedding/client";
+import { searchByVector } from "../src/lib/search/hybrid-search";
+import {
+  getSqliteVectorStore,
+  toSqliteVectorBlob,
+} from "../src/lib/vector/sqlite-vector-store";
 
 const query = "tai lieu giai thich decision tree cho nguoi moi";
 const seedText = "Decision tree is a beginner friendly machine learning model that splits data by questions until it reaches a prediction.";
@@ -43,25 +39,13 @@ try {
     },
   });
 
-  const [chunkEmbedding, queryEmbedding] = (await embedTexts([seedText, query])).embeddings;
-  await db.$executeRawUnsafe('UPDATE "DocumentChunk" SET "embedding" = $1::vector WHERE "id" = $2', toPgVector(chunkEmbedding), chunk.id);
-  const vector = toPgVector(queryEmbedding);
-  const [result] = await db.$queryRawUnsafe<Result[]>(
-    `SELECT
-      c."id" AS "chunkId",
-      d."id" AS "documentId",
-      d."title",
-      c."pageNumber",
-      c."sourceLabel",
-      (1 - (c."embedding" <=> $1::vector))::float8 AS "score"
-    FROM "DocumentChunk" c
-    JOIN "Document" d ON d."id" = c."documentId"
-    WHERE d."userId" = $2 AND c."embedding" IS NOT NULL
-    ORDER BY c."embedding" <=> $1::vector
-    LIMIT 1`,
-    vector,
-    owner.id,
-  );
+  const [chunkEmbedding] = (await embedTexts([seedText])).embeddings;
+  getSqliteVectorStore().upsertChunkEmbedding(chunk.id, chunkEmbedding);
+  await db.documentChunk.update({
+    where: { id: chunk.id },
+    data: { embedding: toSqliteVectorBlob(chunkEmbedding) },
+  });
+  const [result] = await searchByVector(owner.id, query, {}, 1);
 
   assert.ok(result, "Semantic search must return a result");
   assert.ok(result.chunkId, "Result must identify the matched chunk");

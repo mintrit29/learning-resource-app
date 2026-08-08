@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { listProviderModels } from "@/lib/ai/chat-provider";
 import { encryptApiKey, normalizeBaseUrl, providerTypes } from "@/lib/ai/provider-config";
+import { safeAiErrorMessage } from "@/lib/ai/provider-errors";
 
 type DiscoveryBody = {
   providerId?: string;
@@ -21,10 +22,22 @@ export async function POST(request: Request) {
     if (body?.providerId) {
       const saved = await db.aiProvider.findFirst({ where: { id: body.providerId, userId: session.user.id } });
       if (!saved) return NextResponse.json({ message: "Không tìm thấy provider" }, { status: 404 });
+      const requestedType = body.type ?? saved.type;
+      if (!providerTypes.includes(requestedType as (typeof providerTypes)[number])) {
+        return NextResponse.json({ message: "Loại provider không hợp lệ" }, { status: 400 });
+      }
+      if (requestedType !== "OLLAMA" && !body.apiKey && !saved.apiKeyEncrypted) {
+        return NextResponse.json({ message: "Hãy nhập API key trước khi tải danh sách model" }, { status: 400 });
+      }
       config = {
         ...saved,
+        type: requestedType,
         baseUrl: body.baseUrl ? normalizeBaseUrl(new URL(body.baseUrl).toString()) : saved.baseUrl,
-        apiKeyEncrypted: body.apiKey ? encryptApiKey(body.apiKey) : saved.apiKeyEncrypted,
+        apiKeyEncrypted: requestedType === "OLLAMA"
+          ? null
+          : body.apiKey
+            ? encryptApiKey(body.apiKey)
+            : saved.apiKeyEncrypted,
       };
     } else {
       if (!body?.type || !providerTypes.includes(body.type as (typeof providerTypes)[number])) {
@@ -45,7 +58,7 @@ export async function POST(request: Request) {
     const models = await listProviderModels(config);
     return NextResponse.json({ models: [...new Set(models)].sort() });
   } catch (error) {
-    const message = error instanceof Error && error.name !== "AbortError" ? error.message : "Kết nối quá thời gian";
+    const message = safeAiErrorMessage(error, "Không thể tải danh sách model.");
     return NextResponse.json({ message }, { status: 502 });
   }
 }

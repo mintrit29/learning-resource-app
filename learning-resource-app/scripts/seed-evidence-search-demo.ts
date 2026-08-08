@@ -1,5 +1,9 @@
 import { db } from "../src/lib/db";
-import { embedTexts, toPgVector } from "../src/lib/embedding/client";
+import { embedTexts } from "../src/lib/embedding/client";
+import {
+  getSqliteVectorStore,
+  toSqliteVectorBlob,
+} from "../src/lib/vector/sqlite-vector-store";
 
 const email = "demo@scholarflow.local";
 const user = await db.user.findUniqueOrThrow({ where: { email } });
@@ -115,11 +119,11 @@ for (const fixture of fixtures) {
   });
   const embeddings = (await embedTexts(document.chunks.map((chunk) => chunk.content))).embeddings;
   for (const [index, chunk] of document.chunks.entries()) {
-    await db.$executeRawUnsafe(
-      'UPDATE "DocumentChunk" SET "embedding" = $1::vector WHERE "id" = $2',
-      toPgVector(embeddings[index]),
-      chunk.id,
-    );
+    getSqliteVectorStore().upsertChunkEmbedding(chunk.id, embeddings[index]);
+    await db.documentChunk.update({
+      where: { id: chunk.id },
+      data: { embedding: toSqliteVectorBlob(embeddings[index]) },
+    });
   }
 }
 

@@ -1,7 +1,8 @@
 import { db } from "@/lib/db";
-import { embedTexts, toPgVector } from "@/lib/embedding/client";
+import { embedTexts } from "@/lib/embedding/client";
 import { findExactTagOrAlias } from "@/lib/taxonomy/canonical-tags";
 import { normalizeTagName } from "@/lib/taxonomy/normalize-tag";
+import { toSqliteVectorBlob } from "@/lib/vector/sqlite-vector-store";
 
 function uniqueClean(values: string[]) {
   const seen = new Set<string>();
@@ -82,9 +83,10 @@ export async function canonicalizePrimaryTopic(userId: string, suggestedTopic: s
   });
 
   const embedded = await embedTexts([fallbackTopic]);
-  const vector = toPgVector(embedded.embeddings[0]);
-
-  await db.$executeRawUnsafe('UPDATE "Tag" SET "embedding" = $1::vector WHERE "id" = $2', vector, tag.id);
+  await db.tag.update({
+    where: { id: tag.id },
+    data: { embedding: toSqliteVectorBlob(embedded.embeddings[0]) },
+  });
   await syncAliases(tag.id, tag.name, candidates);
 
   return tag.name;

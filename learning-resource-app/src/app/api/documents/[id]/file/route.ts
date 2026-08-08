@@ -1,8 +1,8 @@
 import { readFile } from "node:fs/promises";
-import path from "node:path";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
+import { resolveStoredUploadPath } from "@/lib/storage/local-storage";
 
 const contentTypes: Record<string, string> = {
   PDF: "application/pdf",
@@ -29,16 +29,8 @@ export async function GET(
     return NextResponse.json({ message: "Không tìm thấy tài liệu" }, { status: 404 });
   }
 
-  const storageRoot = path.resolve(
-    /* turbopackIgnore: true */ process.cwd(),
-    "storage",
-    "uploads",
-  );
-  const absolutePath = path.resolve(
-    /* turbopackIgnore: true */ process.cwd(),
-    document.filePath,
-  );
-  if (!absolutePath.startsWith(`${storageRoot}${path.sep}`)) {
+  const absolutePath = resolveStoredUploadPath(document.filePath, session.user.id);
+  if (!absolutePath) {
     return NextResponse.json({ message: "Đường dẫn file không hợp lệ" }, { status: 400 });
   }
 

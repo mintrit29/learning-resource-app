@@ -58,11 +58,6 @@ export type TagAlias = Prisma.TagAliasModel
  */
 export type DocumentTag = Prisma.DocumentTagModel
 /**
- * Model TagMergeReview
- * 
- */
-export type TagMergeReview = Prisma.TagMergeReviewModel
-/**
  * Model AnalysisJob
  * 
  */

@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { embedTexts, toPgVector } from "@/lib/embedding/client";
+import { embedTexts } from "@/lib/embedding/client";
 import {
   extractKeywordTerms,
   inferSearchCriteria,
@@ -7,6 +7,7 @@ import {
   rankSearchCandidatesWithDiagnostics,
   type SearchCandidate,
 } from "@/lib/search/ranking";
+import { getSqliteVectorStore } from "@/lib/vector/sqlite-vector-store";
 
 export type SearchFilters = {
   topic?: string;
@@ -20,99 +21,165 @@ export type SearchFilters = {
 type VectorRow = Omit<SearchCandidate, "semanticScore"> & { semanticScore: number };
 type KeywordRow = Omit<SearchCandidate, "keywordScore"> & { keywordScore: number };
 
-const DIACRITIC_GROUPS: Record<string, string> = {
-  a: "àáạảãâầấậẩẫăằắặẳẵ",
-  e: "èéẹẻẽêềếệểễ",
-  i: "ìíịỉĩ",
-  o: "òóọỏõôồốộổỗơờớợởỡ",
-  u: "ùúụủũưừứựửữ",
-  y: "ỳýỵỷỹ",
-  d: "đ",
+type SearchChunk = {
+  id: string;
+  content: string;
+  pageNumber: number | null;
+  sourceLabel: string | null;
+  document: {
+    id: string;
+    title: string;
+    fileType: string;
+    primaryTopic: string | null;
+    difficulty: string | null;
+  };
 };
-const DIACRITIC_FROM = Object.values(DIACRITIC_GROUPS).join("");
-const DIACRITIC_TO = Object.entries(DIACRITIC_GROUPS)
-  .map(([plain, variants]) => plain.repeat([...variants].length))
-  .join("");
 
-function normalizedSql(expression: string) {
-  return `translate(lower(${expression}), '${DIACRITIC_FROM}', '${DIACRITIC_TO}')`;
+function startOfDay(value?: string) {
+  return value ? new Date(`${value}T00:00:00.000Z`) : undefined;
 }
 
-function termMatchSql(expression: string, placeholder: string) {
-  return `${expression} ~ ('(^|[^a-z0-9])' || ${placeholder} || '([^a-z0-9]|$)')`;
+function endOfDay(value?: string) {
+  const date = startOfDay(value);
+  if (!date) return undefined;
+  date.setUTCDate(date.getUTCDate() + 1);
+  return date;
 }
 
-function filterSql() {
-  return `d."userId" = $2
-    AND ($3::text IS NULL OR d."primaryTopic" = $3::text)
-    AND ($4::text IS NULL OR d."difficulty"::text = $4::text)
-    AND ($5::text IS NULL OR d."fileType"::text = $5::text)
-    AND ($6::text IS NULL OR d."id" = $6::text)
-    AND ($7::timestamptz IS NULL OR d."createdAt" >= $7::timestamptz)
-    AND ($8::timestamptz IS NULL OR d."createdAt" < ($8::timestamptz + interval '1 day'))`;
-}
+function documentFilter(userId: string, filters: SearchFilters) {
+  const dateFrom = startOfDay(filters.dateFrom);
+  const dateTo = endOfDay(filters.dateTo);
 
-function filterParams(userId: string, filters: SearchFilters) {
-  return [
+  return {
     userId,
-    filters.topic || null,
-    filters.difficulty || null,
-    filters.fileType || null,
-    filters.documentId || null,
-    filters.dateFrom || null,
-    filters.dateTo || null,
-  ];
+    primaryTopic: filters.topic || undefined,
+    difficulty: filters.difficulty,
+    fileType: filters.fileType,
+    id: filters.documentId || undefined,
+    createdAt: dateFrom || dateTo ? { gte: dateFrom, lt: dateTo } : undefined,
+  };
 }
 
-export async function searchByVector(userId: string, query: string, filters: SearchFilters, limit: number) {
-  const embedded = await embedTexts([query]);
-  const vector = toPgVector(embedded.embeddings[0]);
-  return db.$queryRawUnsafe<VectorRow[]>(
-    `SELECT c."id" AS "chunkId", d."id" AS "documentId", d."title",
-      d."fileType"::text AS "fileType", d."primaryTopic", d."difficulty"::text AS "difficulty",
-      c."content", c."pageNumber", c."sourceLabel",
-      (1 - (c."embedding" <=> $1::vector))::float8 AS "semanticScore"
-    FROM "DocumentChunk" c
-    JOIN "Document" d ON d."id" = c."documentId"
-    WHERE ${filterSql()} AND c."embedding" IS NOT NULL
-    ORDER BY c."embedding" <=> $1::vector
-    LIMIT $9`,
-    vector,
-    ...filterParams(userId, filters),
+function toSearchCandidate(chunk: SearchChunk): SearchCandidate {
+  return {
+    chunkId: chunk.id,
+    documentId: chunk.document.id,
+    title: chunk.document.title,
+    fileType: chunk.document.fileType,
+    primaryTopic: chunk.document.primaryTopic,
+    difficulty: chunk.document.difficulty,
+    content: chunk.content,
+    pageNumber: chunk.pageNumber,
+    sourceLabel: chunk.sourceLabel,
+  };
+}
+
+export async function searchByVector(
+  userId: string,
+  query: string,
+  filters: SearchFilters,
+  limit: number,
+) {
+  const [embedded, chunks] = await Promise.all([
+    embedTexts([query]),
+    db.documentChunk.findMany({
+      where: {
+        embedding: { not: null },
+        document: documentFilter(userId, filters),
+      },
+      select: {
+        id: true,
+        content: true,
+        pageNumber: true,
+        sourceLabel: true,
+        document: {
+          select: {
+            id: true,
+            title: true,
+            fileType: true,
+            primaryTopic: true,
+            difficulty: true,
+          },
+        },
+      },
+    }),
+  ]);
+  const chunkById = new Map(chunks.map((chunk) => [chunk.id, chunk]));
+  const matches = getSqliteVectorStore().searchChunkEmbeddings(
+    embedded.embeddings[0],
     limit,
+    chunks.map((chunk) => chunk.id),
   );
+
+  return matches.flatMap((match): VectorRow[] => {
+    const chunk = chunkById.get(match.chunkId);
+    return chunk
+      ? [{ ...toSearchCandidate(chunk), semanticScore: match.semanticScore }]
+      : [];
+  });
 }
 
-export async function searchByKeyword(userId: string, query: string, filters: SearchFilters, limit: number) {
+export async function searchByKeyword(
+  userId: string,
+  query: string,
+  filters: SearchFilters,
+  limit: number,
+) {
   const terms = extractKeywordTerms(query);
   if (!terms.length) return [];
 
-  const titleExpression = normalizedSql(`coalesce(d."title", '')`);
-  const contentExpression = normalizedSql(`coalesce(c."content", '')`);
-  const termPlaceholders = terms.map((_, index) => `$${9 + index}::text`);
-  const scoreSql = termPlaceholders
-    .map((placeholder) => `(CASE WHEN ${termMatchSql(titleExpression, placeholder)} THEN 2 ELSE 0 END + CASE WHEN ${termMatchSql(contentExpression, placeholder)} THEN 1 ELSE 0 END)`)
-    .join(" + ");
-  const phraseBonusSql = `(CASE WHEN ${titleExpression} LIKE $1::text THEN 3 WHEN ${contentExpression} LIKE $1::text THEN 1.5 ELSE 0 END)`;
-  const matchSql = termPlaceholders
-    .map((placeholder) => `(${termMatchSql(titleExpression, placeholder)} OR ${termMatchSql(contentExpression, placeholder)})`)
-    .join(" OR ");
-  const limitPlaceholder = `$${9 + terms.length}`;
+  const normalizedPhrase = normalizeSearchText(query);
+  const normalizedTerms = terms.map((term) => normalizeSearchText(term));
+  const chunks = await db.documentChunk.findMany({
+    where: { document: documentFilter(userId, filters) },
+    select: {
+      id: true,
+      content: true,
+      pageNumber: true,
+      sourceLabel: true,
+      chunkIndex: true,
+      document: {
+        select: {
+          id: true,
+          title: true,
+          fileType: true,
+          primaryTopic: true,
+          difficulty: true,
+        },
+      },
+    },
+  });
 
-  return db.$queryRawUnsafe<KeywordRow[]>(
-    `SELECT c."id" AS "chunkId", d."id" AS "documentId", d."title",
-      d."fileType"::text AS "fileType", d."primaryTopic", d."difficulty"::text AS "difficulty",
-      c."content", c."pageNumber", c."sourceLabel", (${scoreSql} + ${phraseBonusSql})::float8 AS "keywordScore"
-    FROM "DocumentChunk" c
-    JOIN "Document" d ON d."id" = c."documentId"
-    WHERE ${filterSql()} AND (${matchSql})
-    ORDER BY "keywordScore" DESC, c."chunkIndex" ASC
-    LIMIT ${limitPlaceholder}`,
-    `%${normalizeSearchText(query)}%`,
-    ...filterParams(userId, filters),
-    ...terms.map((term) => normalizeSearchText(term)),
-    limit,
-  );
+  return chunks
+    .map((chunk): (KeywordRow & { chunkIndex: number }) | null => {
+      const normalizedTitle = normalizeSearchText(chunk.document.title);
+      const normalizedContent = normalizeSearchText(chunk.content);
+      const paddedTitle = ` ${normalizedTitle} `;
+      const paddedContent = ` ${normalizedContent} `;
+      const termScore = normalizedTerms.reduce(
+        (score, term) => score
+          + (paddedTitle.includes(` ${term} `) ? 2 : 0)
+          + (paddedContent.includes(` ${term} `) ? 1 : 0),
+        0,
+      );
+      const phraseBonus = normalizedTitle.includes(normalizedPhrase)
+        ? 3
+        : normalizedContent.includes(normalizedPhrase)
+          ? 1.5
+          : 0;
+      const keywordScore = termScore + phraseBonus;
+
+      return keywordScore > 0
+        ? { ...toSearchCandidate(chunk), keywordScore, chunkIndex: chunk.chunkIndex }
+        : null;
+    })
+    .filter((candidate): candidate is KeywordRow & { chunkIndex: number } => Boolean(candidate))
+    .sort((left, right) => right.keywordScore - left.keywordScore || left.chunkIndex - right.chunkIndex)
+    .slice(0, limit)
+    .map(({ chunkIndex, ...candidate }) => {
+      void chunkIndex;
+      return candidate;
+    });
 }
 
 export async function hybridSearch(userId: string, query: string, filters: SearchFilters) {

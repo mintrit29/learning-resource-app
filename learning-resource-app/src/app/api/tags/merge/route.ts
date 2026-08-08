@@ -28,7 +28,7 @@ export async function POST(request: Request) {
   const [sourceTag, targetTag] = await Promise.all([
     db.tag.findFirst({
       where: { id: sourceTagId, createdByUserId: session.user.id },
-      include: { aliases: true },
+      include: { aliases: true, documents: true },
     }),
     db.tag.findFirst({
       where: { id: targetTagId, createdByUserId: session.user.id },
@@ -73,16 +73,34 @@ export async function POST(request: Request) {
       });
     }
 
-    await tx.$executeRaw`
-      INSERT INTO "DocumentTag" ("documentId", "tagId", "confidence", "source", "createdAt")
-      SELECT "documentId", ${targetTagId}, "confidence", ${DocumentTagSource.MERGED}::"DocumentTagSource", now()
-      FROM "DocumentTag"
-      WHERE "tagId" = ${sourceTagId}
-      ON CONFLICT ("documentId", "tagId")
-      DO UPDATE SET
-        "confidence" = GREATEST("DocumentTag"."confidence", EXCLUDED."confidence"),
-        "source" = ${DocumentTagSource.MERGED}::"DocumentTagSource"
-    `;
+    for (const sourceDocument of sourceTag.documents) {
+      const existing = await tx.documentTag.findUnique({
+        where: {
+          documentId_tagId: {
+            documentId: sourceDocument.documentId,
+            tagId: targetTagId,
+          },
+        },
+      });
+      await tx.documentTag.upsert({
+        where: {
+          documentId_tagId: {
+            documentId: sourceDocument.documentId,
+            tagId: targetTagId,
+          },
+        },
+        create: {
+          documentId: sourceDocument.documentId,
+          tagId: targetTagId,
+          confidence: sourceDocument.confidence,
+          source: DocumentTagSource.MERGED,
+        },
+        update: {
+          confidence: Math.max(existing?.confidence ?? 0, sourceDocument.confidence),
+          source: DocumentTagSource.MERGED,
+        },
+      });
+    }
 
     await tx.tag.delete({ where: { id: sourceTagId } });
   });

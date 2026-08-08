@@ -1,5 +1,10 @@
 import { db } from "@/lib/db";
-import { embedTexts, toPgVector } from "@/lib/embedding/client";
+import { embedTexts } from "@/lib/embedding/client";
+import {
+  cosineSimilarity,
+  fromSqliteVectorBlob,
+  toSqliteVectorBlob,
+} from "@/lib/vector/sqlite-vector-store";
 
 type SimilarTag = {
   id: string;
@@ -23,12 +28,10 @@ export async function embedCanonicalTags(userId: string, tagIds?: string[]) {
     tag.description ? `${tag.name}: ${tag.description}` : tag.name
   ));
   await db.$transaction(result.embeddings.map((vector, index) =>
-    db.$executeRawUnsafe(
-      'UPDATE "Tag" SET "embedding" = $1::vector WHERE "id" = $2 AND "createdByUserId" = $3',
-      toPgVector(vector),
-      tags[index].id,
-      userId,
-    ),
+    db.tag.update({
+      where: { id: tags[index].id },
+      data: { embedding: toSqliteVectorBlob(vector) },
+    }),
   ));
   return tags.length;
 }
@@ -38,17 +41,21 @@ export async function findSimilarCanonicalTags(userId: string, name: string, lim
   if (!query) return [];
   const safeLimit = Math.max(1, Math.min(20, Math.trunc(limit)));
   const embedded = await embedTexts([query]);
-  const vector = toPgVector(embedded.embeddings[0]);
+  const tags = await db.tag.findMany({
+    where: { createdByUserId: userId, embedding: { not: null } },
+    select: { id: true, name: true, normalizedName: true, embedding: true },
+  });
 
-  return db.$queryRawUnsafe<SimilarTag[]>(
-    `SELECT "id", "name", "normalizedName",
-      (1 - ("embedding" <=> $1::vector))::float8 AS "score"
-     FROM "Tag"
-     WHERE "createdByUserId" = $2 AND "embedding" IS NOT NULL
-     ORDER BY "embedding" <=> $1::vector
-     LIMIT $3`,
-    vector,
-    userId,
-    safeLimit,
-  );
+  return tags
+    .map((tag): SimilarTag => ({
+      id: tag.id,
+      name: tag.name,
+      normalizedName: tag.normalizedName,
+      score: cosineSimilarity(
+        embedded.embeddings[0],
+        fromSqliteVectorBlob(tag.embedding as Uint8Array),
+      ),
+    }))
+    .sort((left, right) => right.score - left.score)
+    .slice(0, safeLimit);
 }

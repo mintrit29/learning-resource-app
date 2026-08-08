@@ -150,7 +150,7 @@ export type SearchLogGroupByOutputType = {
   userId: string
   query: string
   filters: runtime.JsonValue | null
-  resultDocumentIds: string[]
+  resultDocumentIds: runtime.JsonValue
   createdAt: Date
   _count: SearchLogCountAggregateOutputType | null
   _min: SearchLogMinAggregateOutputType | null
@@ -180,7 +180,7 @@ export type SearchLogWhereInput = {
   userId?: Prisma.StringFilter<"SearchLog"> | string
   query?: Prisma.StringFilter<"SearchLog"> | string
   filters?: Prisma.JsonNullableFilter<"SearchLog">
-  resultDocumentIds?: Prisma.StringNullableListFilter<"SearchLog">
+  resultDocumentIds?: Prisma.JsonFilter<"SearchLog">
   createdAt?: Prisma.DateTimeFilter<"SearchLog"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
@@ -203,7 +203,7 @@ export type SearchLogWhereUniqueInput = Prisma.AtLeast<{
   userId?: Prisma.StringFilter<"SearchLog"> | string
   query?: Prisma.StringFilter<"SearchLog"> | string
   filters?: Prisma.JsonNullableFilter<"SearchLog">
-  resultDocumentIds?: Prisma.StringNullableListFilter<"SearchLog">
+  resultDocumentIds?: Prisma.JsonFilter<"SearchLog">
   createdAt?: Prisma.DateTimeFilter<"SearchLog"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }, "id">
@@ -228,7 +228,7 @@ export type SearchLogScalarWhereWithAggregatesInput = {
   userId?: Prisma.StringWithAggregatesFilter<"SearchLog"> | string
   query?: Prisma.StringWithAggregatesFilter<"SearchLog"> | string
   filters?: Prisma.JsonNullableWithAggregatesFilter<"SearchLog">
-  resultDocumentIds?: Prisma.StringNullableListFilter<"SearchLog">
+  resultDocumentIds?: Prisma.JsonWithAggregatesFilter<"SearchLog">
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"SearchLog"> | Date | string
 }
 
@@ -236,7 +236,7 @@ export type SearchLogCreateInput = {
   id?: string
   query: string
   filters?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  resultDocumentIds?: Prisma.SearchLogCreateresultDocumentIdsInput | string[]
+  resultDocumentIds?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutSearchLogsInput
 }
@@ -246,7 +246,7 @@ export type SearchLogUncheckedCreateInput = {
   userId: string
   query: string
   filters?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  resultDocumentIds?: Prisma.SearchLogCreateresultDocumentIdsInput | string[]
+  resultDocumentIds?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
 
@@ -254,7 +254,7 @@ export type SearchLogUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   query?: Prisma.StringFieldUpdateOperationsInput | string
   filters?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  resultDocumentIds?: Prisma.SearchLogUpdateresultDocumentIdsInput | string[]
+  resultDocumentIds?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutSearchLogsNestedInput
 }
@@ -264,7 +264,7 @@ export type SearchLogUncheckedUpdateInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   query?: Prisma.StringFieldUpdateOperationsInput | string
   filters?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  resultDocumentIds?: Prisma.SearchLogUpdateresultDocumentIdsInput | string[]
+  resultDocumentIds?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -273,7 +273,7 @@ export type SearchLogCreateManyInput = {
   userId: string
   query: string
   filters?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  resultDocumentIds?: Prisma.SearchLogCreateresultDocumentIdsInput | string[]
+  resultDocumentIds?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
 
@@ -281,7 +281,7 @@ export type SearchLogUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   query?: Prisma.StringFieldUpdateOperationsInput | string
   filters?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  resultDocumentIds?: Prisma.SearchLogUpdateresultDocumentIdsInput | string[]
+  resultDocumentIds?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -290,7 +290,7 @@ export type SearchLogUncheckedUpdateManyInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   query?: Prisma.StringFieldUpdateOperationsInput | string
   filters?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  resultDocumentIds?: Prisma.SearchLogUpdateresultDocumentIdsInput | string[]
+  resultDocumentIds?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -302,14 +302,6 @@ export type SearchLogListRelationFilter = {
 
 export type SearchLogOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
-}
-
-export type StringNullableListFilter<$PrismaModel = never> = {
-  equals?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel> | null
-  has?: string | Prisma.StringFieldRefInput<$PrismaModel> | null
-  hasEvery?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
-  hasSome?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
-  isEmpty?: boolean
 }
 
 export type SearchLogCountOrderByAggregateInput = {
@@ -377,20 +369,11 @@ export type SearchLogUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.SearchLogScalarWhereInput | Prisma.SearchLogScalarWhereInput[]
 }
 
-export type SearchLogCreateresultDocumentIdsInput = {
-  set: string[]
-}
-
-export type SearchLogUpdateresultDocumentIdsInput = {
-  set?: string[]
-  push?: string | string[]
-}
-
 export type SearchLogCreateWithoutUserInput = {
   id?: string
   query: string
   filters?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  resultDocumentIds?: Prisma.SearchLogCreateresultDocumentIdsInput | string[]
+  resultDocumentIds?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
 
@@ -398,7 +381,7 @@ export type SearchLogUncheckedCreateWithoutUserInput = {
   id?: string
   query: string
   filters?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  resultDocumentIds?: Prisma.SearchLogCreateresultDocumentIdsInput | string[]
+  resultDocumentIds?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
 
@@ -409,7 +392,6 @@ export type SearchLogCreateOrConnectWithoutUserInput = {
 
 export type SearchLogCreateManyUserInputEnvelope = {
   data: Prisma.SearchLogCreateManyUserInput | Prisma.SearchLogCreateManyUserInput[]
-  skipDuplicates?: boolean
 }
 
 export type SearchLogUpsertWithWhereUniqueWithoutUserInput = {
@@ -436,7 +418,7 @@ export type SearchLogScalarWhereInput = {
   userId?: Prisma.StringFilter<"SearchLog"> | string
   query?: Prisma.StringFilter<"SearchLog"> | string
   filters?: Prisma.JsonNullableFilter<"SearchLog">
-  resultDocumentIds?: Prisma.StringNullableListFilter<"SearchLog">
+  resultDocumentIds?: Prisma.JsonFilter<"SearchLog">
   createdAt?: Prisma.DateTimeFilter<"SearchLog"> | Date | string
 }
 
@@ -444,7 +426,7 @@ export type SearchLogCreateManyUserInput = {
   id?: string
   query: string
   filters?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  resultDocumentIds?: Prisma.SearchLogCreateresultDocumentIdsInput | string[]
+  resultDocumentIds?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
 
@@ -452,7 +434,7 @@ export type SearchLogUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   query?: Prisma.StringFieldUpdateOperationsInput | string
   filters?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  resultDocumentIds?: Prisma.SearchLogUpdateresultDocumentIdsInput | string[]
+  resultDocumentIds?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -460,7 +442,7 @@ export type SearchLogUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   query?: Prisma.StringFieldUpdateOperationsInput | string
   filters?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  resultDocumentIds?: Prisma.SearchLogUpdateresultDocumentIdsInput | string[]
+  resultDocumentIds?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -468,7 +450,7 @@ export type SearchLogUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   query?: Prisma.StringFieldUpdateOperationsInput | string
   filters?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  resultDocumentIds?: Prisma.SearchLogUpdateresultDocumentIdsInput | string[]
+  resultDocumentIds?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -534,7 +516,7 @@ export type $SearchLogPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     userId: string
     query: string
     filters: runtime.JsonValue | null
-    resultDocumentIds: string[]
+    resultDocumentIds: runtime.JsonValue
     createdAt: Date
   }, ExtArgs["result"]["searchLog"]>
   composites: {}
@@ -964,7 +946,7 @@ export interface SearchLogFieldRefs {
   readonly userId: Prisma.FieldRef<"SearchLog", 'String'>
   readonly query: Prisma.FieldRef<"SearchLog", 'String'>
   readonly filters: Prisma.FieldRef<"SearchLog", 'Json'>
-  readonly resultDocumentIds: Prisma.FieldRef<"SearchLog", 'String[]'>
+  readonly resultDocumentIds: Prisma.FieldRef<"SearchLog", 'Json'>
   readonly createdAt: Prisma.FieldRef<"SearchLog", 'DateTime'>
 }
     
@@ -1200,7 +1182,6 @@ export type SearchLogCreateManyArgs<ExtArgs extends runtime.Types.Extensions.Int
    * The data used to create many SearchLogs.
    */
   data: Prisma.SearchLogCreateManyInput | Prisma.SearchLogCreateManyInput[]
-  skipDuplicates?: boolean
 }
 
 /**
@@ -1219,7 +1200,6 @@ export type SearchLogCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Exten
    * The data used to create many SearchLogs.
    */
   data: Prisma.SearchLogCreateManyInput | Prisma.SearchLogCreateManyInput[]
-  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

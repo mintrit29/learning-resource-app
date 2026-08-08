@@ -1,5 +1,4 @@
 import { readFile } from "node:fs/promises";
-import path from "node:path";
 import {
   DocumentStatus,
   FileType,
@@ -13,6 +12,8 @@ import {
   extractDocumentText,
   type SupportedExtension,
 } from "@/lib/documents/extract-text";
+import { resolveStoredUploadPath } from "@/lib/storage/local-storage";
+import { getSqliteVectorStore } from "@/lib/vector/sqlite-vector-store";
 
 type PipelineInput = {
   documentId: string;
@@ -47,7 +48,7 @@ export async function processDocumentPipeline(input: PipelineInput) {
   try {
     const document = await db.document.findUniqueOrThrow({
       where: { id: input.documentId },
-      select: { id: true, filePath: true, fileType: true },
+      select: { id: true, userId: true, filePath: true, fileType: true },
     });
 
     await Promise.all([
@@ -61,10 +62,8 @@ export async function processDocumentPipeline(input: PipelineInput) {
       }),
     ]);
 
-    const absolutePath = path.resolve(
-      /* turbopackIgnore: true */ process.cwd(),
-      document.filePath,
-    );
+    const absolutePath = resolveStoredUploadPath(document.filePath, document.userId);
+    if (!absolutePath) throw new Error("Invalid document file path");
     const buffer = await readFile(absolutePath);
     const result = await extractDocumentText(buffer, extensions[document.fileType]);
     if (result.text.length < 20) {
@@ -95,6 +94,10 @@ export async function processDocumentPipeline(input: PipelineInput) {
     });
 
     const chunks = chunkDocumentSections(result.sections);
+    const previousChunks = await db.documentChunk.findMany({
+      where: { documentId: document.id },
+      select: { id: true },
+    });
     if (chunks.length === 0) throw new Error("Không thể chia nội dung thành chunks");
 
     await db.$transaction(async (transaction) => {
@@ -117,6 +120,7 @@ export async function processDocumentPipeline(input: PipelineInput) {
       });
     });
 
+    getSqliteVectorStore().deleteChunkEmbeddings(previousChunks.map((chunk) => chunk.id));
     const embedded = await embedDocumentChunks(document.id, input.embeddingJobId);
     if (embedded && input.analysisJobId) {
       await analyzeDocument(document.id, input.analysisJobId);

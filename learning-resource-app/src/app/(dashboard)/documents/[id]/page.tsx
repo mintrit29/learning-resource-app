@@ -4,11 +4,13 @@ import { ArrowLeft, Download, ExternalLink, FileText, LocateFixed } from "lucide
 import { auth } from "@/auth";
 import { DeleteDocumentButton } from "@/components/documents/delete-document-button";
 import { EditAnalysisButton } from "@/components/documents/edit-analysis-button";
+import { ProcessingEstimate } from "@/components/documents/processing-estimate";
 import { ProcessingRefresh } from "@/components/documents/processing-refresh";
 import { ReanalyzeButton } from "@/components/documents/reanalyze-button";
 import { RetryJobButton } from "@/components/documents/retry-job-button";
 import { db } from "@/lib/db";
 import { getDocumentDisplayStatus } from "@/lib/documents/display-status";
+import { estimateProcessingRemaining } from "@/lib/documents/processing-estimate";
 import { formatDifficulty } from "@/lib/labels";
 
 const jobLabels: Record<string, string> = {
@@ -38,21 +40,6 @@ function formatBytes(bytes: number) {
     : `${(bytes / 1024 / 1024).toFixed(2)} MB`;
 }
 
-function estimateEmbeddingSeconds(chunks: number, device: string) {
-  if (chunks <= 0) return null;
-  const secondsPerChunk = device === "cuda" ? 0.95 : 1.6;
-  return Math.max(10, Math.round(chunks * secondsPerChunk));
-}
-
-function formatDuration(seconds: number) {
-  if (seconds < 60) return `khoảng ${seconds} giây`;
-  const minutes = Math.round(seconds / 60);
-  if (minutes < 60) return `khoảng ${minutes} phút`;
-  const hours = Math.floor(minutes / 60);
-  const remainingMinutes = minutes % 60;
-  return remainingMinutes ? `khoảng ${hours} giờ ${remainingMinutes} phút` : `khoảng ${hours} giờ`;
-}
-
 export default async function DocumentDetailPage({
   params,
   searchParams,
@@ -76,10 +63,9 @@ export default async function DocumentDetailPage({
   });
   if (!document) notFound();
 
-  const [{ missing: missingEmbeddings }] = await db.$queryRawUnsafe<Array<{ missing: bigint }>>(
-    `SELECT COUNT(*) AS "missing" FROM "DocumentChunk" WHERE "documentId" = $1 AND "embedding" IS NULL`,
-    document.id,
-  );
+  const missingEmbeddings = await db.documentChunk.count({
+    where: { documentId: document.id, embedding: null },
+  });
 
   const textContent = document.textContent ?? "";
   const previewLimit = 15000;
@@ -91,7 +77,7 @@ export default async function DocumentDetailPage({
   );
   const analysisComplete = Boolean(document.primaryTopic && document.difficulty && document.summary);
   const needsProcessing = !document.textContent || document._count.chunks === 0 ||
-    Number(missingEmbeddings) > 0 || !analysisComplete;
+    missingEmbeddings > 0 || !analysisComplete;
   const originalFileHref = `/api/documents/${document.id}/file`;
   const originalFileDownloadHref = `${originalFileHref}?download=1`;
   const extractedTextDownloadHref = `/api/documents/${document.id}/text`;
@@ -104,10 +90,17 @@ export default async function DocumentDetailPage({
   const originalFilePreviewHref = matchedPdfPage ? `${originalFileHref}#page=${matchedPdfPage}` : originalFileHref;
   const originalFileActionLabel = canPreviewOriginalFile ? "Mở file gốc" : "Tải file gốc";
   const embeddingDevice = (process.env.EMBEDDING_DEVICE ?? "cpu").toLowerCase();
-  const embeddingBatchSize = process.env.EMBEDDING_BATCH_SIZE ?? (embeddingDevice === "cuda" ? "2" : "4");
-  const embeddingEstimate = estimateEmbeddingSeconds(document._count.chunks, embeddingDevice);
   const latestJobsByType = new Map<string, (typeof document.jobs)[number]>();
   for (const job of document.jobs) latestJobsByType.set(job.type, job);
+  const embeddingJob = latestJobsByType.get("EMBED_DOCUMENT");
+  const completedEmbeddings = Math.max(0, document._count.chunks - missingEmbeddings);
+  const embeddingEstimate = embeddingJob?.status === "PROCESSING"
+    ? estimateProcessingRemaining({
+        totalItems: document._count.chunks,
+        completedItems: completedEmbeddings,
+        startedAt: embeddingJob.startedAt,
+      })
+    : null;
   const displayStatus = getDocumentDisplayStatus(document, document.jobs);
 
   return (
@@ -147,10 +140,16 @@ export default async function DocumentDetailPage({
         <div className="processing-heading">
           <div><h2>Tiến trình xử lý</h2><p>{document._count.chunks.toLocaleString("vi-VN")} đoạn đã được tạo.</p></div>
           <div className="processing-side">
-            {embeddingEstimate ? (
-              <span className="processing-estimate">
-                Tạo vector {embeddingDevice === "cuda" ? "GPU" : "CPU"} · lô {embeddingBatchSize} · {formatDuration(embeddingEstimate)}
-              </span>
+            {embeddingJob?.status === "PROCESSING" ? (
+              <ProcessingEstimate
+                completedItems={completedEmbeddings}
+                device={embeddingDevice}
+                initialItemsPerMinute={embeddingEstimate?.itemsPerMinute ?? null}
+                jobId={embeddingJob.id}
+                progress={embeddingJob.progress}
+                totalItems={document._count.chunks}
+                updatedAt={embeddingJob.updatedAt.toISOString()}
+              />
             ) : null}
             {isProcessing ? <span className="processing-live"><i />Đang chạy</span> : null}
           </div>

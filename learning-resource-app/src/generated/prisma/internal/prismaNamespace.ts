@@ -80,12 +80,12 @@ export type PrismaVersion = {
 }
 
 /**
- * Prisma Client JS version: 7.8.0
- * Query Engine version: 3c6e192761c0362d496ed980de936e2f3cebcd3a
+ * Prisma Client JS version: 7.9.1
+ * Query Engine version: e922089b7d7502aff4249d5da3420f6fa55fc6ad
  */
 export const prismaVersion: PrismaVersion = {
-  client: "7.8.0",
-  engine: "3c6e192761c0362d496ed980de936e2f3cebcd3a"
+  client: "7.9.1",
+  engine: "e922089b7d7502aff4249d5da3420f6fa55fc6ad"
 }
 
 /**
@@ -156,6 +156,19 @@ export type Subset<T, U> = {
 };
 
 /**
+ * Resolved type of the argument passed to the `PrismaClient` constructor.
+ *
+ * When called without a narrower options type (the common case), this resolves
+ * to `PrismaClientOptions` directly, which produces a clear TypeScript error
+ * message (`not assignable to parameter of type 'PrismaClientOptions'`) when
+ * the argument is missing or incomplete. When the user supplies a narrower
+ * options type (e.g. via a literal), it falls back to `Subset` to keep
+ * filtering out unknown properties.
+ */
+export type PrismaClientConstructorArgs<Options extends PrismaClientOptions> =
+  [PrismaClientOptions] extends [Options] ? PrismaClientOptions : Subset<Options, PrismaClientOptions>;
+
+/**
  * SelectSubset
  * @desc From `T` pick properties that exist in `U`. Simple version of Intersection.
  * Additionally, it validates, if both select and include are present. If the case, it errors.
@@ -187,7 +200,7 @@ type Without<T, U> = { [P in Exclude<keyof T, keyof U>]?: never };
 export type XOR<T, U> =
   T extends object ?
   U extends object ?
-    (Without<T, U> & U) | (Without<U, T> & T)
+    ((Without<T, U> & U) | (Without<U, T> & T)) & object
   : U : T
 
 
@@ -392,7 +405,6 @@ export const ModelName = {
   Tag: 'Tag',
   TagAlias: 'TagAlias',
   DocumentTag: 'DocumentTag',
-  TagMergeReview: 'TagMergeReview',
   AnalysisJob: 'AnalysisJob',
   DocumentChunk: 'DocumentChunk',
   AiProvider: 'AiProvider',
@@ -412,7 +424,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "account" | "session" | "verificationToken" | "document" | "tag" | "tagAlias" | "documentTag" | "tagMergeReview" | "analysisJob" | "documentChunk" | "aiProvider" | "searchLog"
+    modelProps: "user" | "account" | "session" | "verificationToken" | "document" | "tag" | "tagAlias" | "documentTag" | "analysisJob" | "documentChunk" | "aiProvider" | "searchLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1008,80 +1020,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    TagMergeReview: {
-      payload: Prisma.$TagMergeReviewPayload<ExtArgs>
-      fields: Prisma.TagMergeReviewFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.TagMergeReviewFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagMergeReviewPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.TagMergeReviewFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagMergeReviewPayload>
-        }
-        findFirst: {
-          args: Prisma.TagMergeReviewFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagMergeReviewPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.TagMergeReviewFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagMergeReviewPayload>
-        }
-        findMany: {
-          args: Prisma.TagMergeReviewFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagMergeReviewPayload>[]
-        }
-        create: {
-          args: Prisma.TagMergeReviewCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagMergeReviewPayload>
-        }
-        createMany: {
-          args: Prisma.TagMergeReviewCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.TagMergeReviewCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagMergeReviewPayload>[]
-        }
-        delete: {
-          args: Prisma.TagMergeReviewDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagMergeReviewPayload>
-        }
-        update: {
-          args: Prisma.TagMergeReviewUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagMergeReviewPayload>
-        }
-        deleteMany: {
-          args: Prisma.TagMergeReviewDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.TagMergeReviewUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.TagMergeReviewUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagMergeReviewPayload>[]
-        }
-        upsert: {
-          args: Prisma.TagMergeReviewUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagMergeReviewPayload>
-        }
-        aggregate: {
-          args: Prisma.TagMergeReviewAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateTagMergeReview>
-        }
-        groupBy: {
-          args: Prisma.TagMergeReviewGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.TagMergeReviewGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.TagMergeReviewCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.TagMergeReviewCountAggregateOutputType> | number
-        }
-      }
-    }
     AnalysisJob: {
       payload: Prisma.$AnalysisJobPayload<ExtArgs>
       fields: Prisma.AnalysisJobFieldRefs
@@ -1408,9 +1346,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
  */
 
 export const TransactionIsolationLevel = runtime.makeStrictEnum({
-  ReadUncommitted: 'ReadUncommitted',
-  ReadCommitted: 'ReadCommitted',
-  RepeatableRead: 'RepeatableRead',
   Serializable: 'Serializable'
 } as const)
 
@@ -1493,6 +1428,7 @@ export const TagScalarFieldEnum = {
   name: 'name',
   normalizedName: 'normalizedName',
   description: 'description',
+  embedding: 'embedding',
   createdByUserId: 'createdByUserId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -1523,22 +1459,6 @@ export const DocumentTagScalarFieldEnum = {
 export type DocumentTagScalarFieldEnum = (typeof DocumentTagScalarFieldEnum)[keyof typeof DocumentTagScalarFieldEnum]
 
 
-export const TagMergeReviewScalarFieldEnum = {
-  id: 'id',
-  userId: 'userId',
-  documentId: 'documentId',
-  candidateTagName: 'candidateTagName',
-  candidateNormalizedName: 'candidateNormalizedName',
-  suggestedTagId: 'suggestedTagId',
-  similarity: 'similarity',
-  status: 'status',
-  createdAt: 'createdAt',
-  resolvedAt: 'resolvedAt'
-} as const
-
-export type TagMergeReviewScalarFieldEnum = (typeof TagMergeReviewScalarFieldEnum)[keyof typeof TagMergeReviewScalarFieldEnum]
-
-
 export const AnalysisJobScalarFieldEnum = {
   id: 'id',
   documentId: 'documentId',
@@ -1563,6 +1483,7 @@ export const DocumentChunkScalarFieldEnum = {
   tokenCount: 'tokenCount',
   pageNumber: 'pageNumber',
   sourceLabel: 'sourceLabel',
+  embedding: 'embedding',
   createdAt: 'createdAt'
 } as const
 
@@ -1615,12 +1536,11 @@ export const NullableJsonNullValueInput = {
 export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
-export const QueryMode = {
-  default: 'default',
-  insensitive: 'insensitive'
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
 } as const
 
-export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const NullsOrder = {
@@ -1640,6 +1560,14 @@ export const JsonNullValueFilter = {
 export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 
 
+export const QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
+} as const
+
+export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
 
 /**
  * Field references
@@ -1654,23 +1582,9 @@ export type StringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 
 
 
 /**
- * Reference to a field of type 'String[]'
- */
-export type ListStringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String[]'>
-    
-
-
-/**
  * Reference to a field of type 'DateTime'
  */
 export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
-    
-
-
-/**
- * Reference to a field of type 'DateTime[]'
- */
-export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
     
 
 
@@ -1682,23 +1596,9 @@ export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'In
 
 
 /**
- * Reference to a field of type 'Int[]'
- */
-export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
-    
-
-
-/**
  * Reference to a field of type 'FileType'
  */
 export type EnumFileTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FileType'>
-    
-
-
-/**
- * Reference to a field of type 'FileType[]'
- */
-export type ListEnumFileTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FileType[]'>
     
 
 
@@ -1710,13 +1610,6 @@ export type EnumDifficultyFieldRefInput<$PrismaModel> = FieldRefInputType<$Prism
 
 
 /**
- * Reference to a field of type 'Difficulty[]'
- */
-export type ListEnumDifficultyFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Difficulty[]'>
-    
-
-
-/**
  * Reference to a field of type 'DocumentStatus'
  */
 export type EnumDocumentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DocumentStatus'>
@@ -1724,9 +1617,9 @@ export type EnumDocumentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$P
 
 
 /**
- * Reference to a field of type 'DocumentStatus[]'
+ * Reference to a field of type 'Bytes'
  */
-export type ListEnumDocumentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DocumentStatus[]'>
+export type BytesFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Bytes'>
     
 
 
@@ -1738,37 +1631,9 @@ export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, '
 
 
 /**
- * Reference to a field of type 'Float[]'
- */
-export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
-    
-
-
-/**
  * Reference to a field of type 'DocumentTagSource'
  */
 export type EnumDocumentTagSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DocumentTagSource'>
-    
-
-
-/**
- * Reference to a field of type 'DocumentTagSource[]'
- */
-export type ListEnumDocumentTagSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DocumentTagSource[]'>
-    
-
-
-/**
- * Reference to a field of type 'TagMergeReviewStatus'
- */
-export type EnumTagMergeReviewStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TagMergeReviewStatus'>
-    
-
-
-/**
- * Reference to a field of type 'TagMergeReviewStatus[]'
- */
-export type ListEnumTagMergeReviewStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TagMergeReviewStatus[]'>
     
 
 
@@ -1780,23 +1645,9 @@ export type EnumJobTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaMo
 
 
 /**
- * Reference to a field of type 'JobType[]'
- */
-export type ListEnumJobTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'JobType[]'>
-    
-
-
-/**
  * Reference to a field of type 'JobStatus'
  */
 export type EnumJobStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'JobStatus'>
-    
-
-
-/**
- * Reference to a field of type 'JobStatus[]'
- */
-export type ListEnumJobStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'JobStatus[]'>
     
 
 
@@ -1830,19 +1681,10 @@ export type BatchPayload = {
 export const defineExtension = runtime.Extensions.defineExtension as unknown as runtime.Types.Extensions.ExtendsHook<"define", TypeMapCb, runtime.Types.Extensions.DefaultArgs>
 export type DefaultPrismaClient = PrismaClient
 export type ErrorFormat = 'pretty' | 'colorless' | 'minimal'
-export type PrismaClientOptions = ({
-  /**
-   * Instance of a Driver Adapter, e.g., like one provided by `@prisma/adapter-pg`.
-   */
-  adapter: runtime.SqlDriverAdapterFactory
-  accelerateUrl?: never
-} | {
-  /**
-   * Prisma Accelerate URL allowing the client to connect through Accelerate instead of a direct database.
-   */
-  accelerateUrl: string
-  adapter?: never
-}) & {
+/**
+ * Options common to all variants of `PrismaClientOptions`, regardless of whether you connect to your database through a driver adapter or through Prisma Accelerate.
+ */
+export interface PrismaClientBaseOptions {
   /**
    * @default "colorless"
    */
@@ -1929,6 +1771,56 @@ export type PrismaClientOptions = ({
    */
   queryPlanCacheMaxSize?: number
 }
+
+/**
+ * `PrismaClient` options for connecting to your database through Prisma Accelerate instead of a driver adapter.
+ *
+ * Learn more: https://pris.ly/d/accelerate
+ */
+export interface PrismaClientOptionsWithAccelerateUrl extends PrismaClientBaseOptions {
+  /**
+   * The Prisma Accelerate connection URL. Use this option to connect to your database through Prisma Accelerate instead of using a driver adapter to connect directly.
+   *
+   * Learn more: https://pris.ly/d/accelerate
+   */
+  accelerateUrl: string
+  adapter?: never
+}
+
+/**
+ * `PrismaClient` options for connecting to your database through a driver adapter. This is the common case in Prisma 7.
+ *
+ * Learn more: https://pris.ly/d/driver-adapters
+ */
+export interface PrismaClientOptionsWithAdapter extends PrismaClientBaseOptions {
+  /**
+   * A driver adapter that PrismaClient uses to connect to your database, such as the ones provided by `@prisma/adapter-pg`, `@prisma/adapter-libsql`, `@prisma/adapter-planetscale`, etc.
+   *
+   * A driver adapter is **required** unless you connect to your database through Prisma Accelerate (in which case use `accelerateUrl` instead).
+   *
+   * Learn more: https://pris.ly/d/driver-adapters
+   *
+   * @example
+   * ```ts
+   * import { PrismaPg } from '@prisma/adapter-pg'
+   * import { PrismaClient } from './generated/prisma/client'
+   *
+   * const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL })
+   * const prisma = new PrismaClient({ adapter })
+   * ```
+   */
+  adapter: runtime.SqlDriverAdapterFactory
+  accelerateUrl?: never
+}
+
+/**
+ * Options passed to the `PrismaClient` constructor.
+ *
+ * A driver adapter (or, alternatively, a Prisma Accelerate URL) is **required**. See {@link PrismaClientOptionsWithAdapter} and {@link PrismaClientOptionsWithAccelerateUrl} for the two variants. All other properties live in {@link PrismaClientBaseOptions} and are optional.
+ *
+ * Learn more about driver adapters: https://pris.ly/d/driver-adapters
+ */
+export type PrismaClientOptions = PrismaClientOptionsWithAccelerateUrl | PrismaClientOptionsWithAdapter
 export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
   account?: Prisma.AccountOmit
@@ -1938,7 +1830,6 @@ export type GlobalOmitConfig = {
   tag?: Prisma.TagOmit
   tagAlias?: Prisma.TagAliasOmit
   documentTag?: Prisma.DocumentTagOmit
-  tagMergeReview?: Prisma.TagMergeReviewOmit
   analysisJob?: Prisma.AnalysisJobOmit
   documentChunk?: Prisma.DocumentChunkOmit
   aiProvider?: Prisma.AiProviderOmit
@@ -2005,4 +1896,3 @@ export type PrismaAction =
  * `PrismaClient` proxy available in interactive transactions.
  */
 export type TransactionClient = Omit<DefaultPrismaClient, runtime.ITXClientDenyList>
-

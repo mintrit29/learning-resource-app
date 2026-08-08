@@ -59,7 +59,6 @@ export const ModelName = {
   Tag: 'Tag',
   TagAlias: 'TagAlias',
   DocumentTag: 'DocumentTag',
-  TagMergeReview: 'TagMergeReview',
   AnalysisJob: 'AnalysisJob',
   DocumentChunk: 'DocumentChunk',
   AiProvider: 'AiProvider',
@@ -73,9 +72,6 @@ export type ModelName = (typeof ModelName)[keyof typeof ModelName]
  */
 
 export const TransactionIsolationLevel = runtime.makeStrictEnum({
-  ReadUncommitted: 'ReadUncommitted',
-  ReadCommitted: 'ReadCommitted',
-  RepeatableRead: 'RepeatableRead',
   Serializable: 'Serializable'
 } as const)
 
@@ -158,6 +154,7 @@ export const TagScalarFieldEnum = {
   name: 'name',
   normalizedName: 'normalizedName',
   description: 'description',
+  embedding: 'embedding',
   createdByUserId: 'createdByUserId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -188,22 +185,6 @@ export const DocumentTagScalarFieldEnum = {
 export type DocumentTagScalarFieldEnum = (typeof DocumentTagScalarFieldEnum)[keyof typeof DocumentTagScalarFieldEnum]
 
 
-export const TagMergeReviewScalarFieldEnum = {
-  id: 'id',
-  userId: 'userId',
-  documentId: 'documentId',
-  candidateTagName: 'candidateTagName',
-  candidateNormalizedName: 'candidateNormalizedName',
-  suggestedTagId: 'suggestedTagId',
-  similarity: 'similarity',
-  status: 'status',
-  createdAt: 'createdAt',
-  resolvedAt: 'resolvedAt'
-} as const
-
-export type TagMergeReviewScalarFieldEnum = (typeof TagMergeReviewScalarFieldEnum)[keyof typeof TagMergeReviewScalarFieldEnum]
-
-
 export const AnalysisJobScalarFieldEnum = {
   id: 'id',
   documentId: 'documentId',
@@ -228,6 +209,7 @@ export const DocumentChunkScalarFieldEnum = {
   tokenCount: 'tokenCount',
   pageNumber: 'pageNumber',
   sourceLabel: 'sourceLabel',
+  embedding: 'embedding',
   createdAt: 'createdAt'
 } as const
 
@@ -280,12 +262,11 @@ export const NullableJsonNullValueInput = {
 export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
-export const QueryMode = {
-  default: 'default',
-  insensitive: 'insensitive'
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
 } as const
 
-export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const NullsOrder = {
@@ -303,4 +284,12 @@ export const JsonNullValueFilter = {
 } as const
 
 export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
+
+
+export const QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
+} as const
+
+export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
 

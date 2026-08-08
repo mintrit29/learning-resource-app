@@ -1,0 +1,9 @@
+{
+  "name": "scholarflow-desktop-shell",
+  "version": "0.1.0",
+  "private": true,
+  "productName": "ScholarFlow",
+  "description": "Secure Electron shell for ScholarFlow",
+  "author": "ScholarFlow Team",
+  "main": "main.cjs"
+}

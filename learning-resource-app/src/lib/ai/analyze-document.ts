@@ -1,6 +1,7 @@
 import { Difficulty, DocumentStatus, JobStatus } from "@/generated/prisma/enums";
 import { documentAnalysisSchema } from "@/lib/ai/analysis-schema";
 import { completeChat } from "@/lib/ai/chat-provider";
+import { AiProviderError, safeAiErrorMessage } from "@/lib/ai/provider-errors";
 import { db } from "@/lib/db";
 import { canonicalizePrimaryTopic, getExistingTopicContext } from "@/lib/taxonomy/canonical-topic";
 import { syncDocumentTags } from "@/lib/taxonomy/sync-document-tags";
@@ -18,13 +19,13 @@ export async function analyzeDocument(documentId: string, jobId: string) {
       where: { id: documentId },
       select: { id: true, userId: true, originalFileName: true, textContent: true },
     });
-    if (!document.textContent) throw new Error("Tài liệu chưa có nội dung để phân tích");
+    if (!document.textContent) throw new AiProviderError("Tài liệu chưa có nội dung để phân tích.");
 
     const provider = await db.aiProvider.findFirst({
       where: { userId: document.userId, isActive: true },
       orderBy: { updatedAt: "desc" },
     });
-    if (!provider) throw new Error("Chưa có AI provider đang hoạt động");
+    if (!provider) throw new AiProviderError("Chưa có kết nối AI đang hoạt động.");
 
     await Promise.all([
       db.analysisJob.update({
@@ -81,7 +82,7 @@ ${content}`,
     ]);
     return true;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Phân tích AI thất bại";
+    const message = safeAiErrorMessage(error, "AI không thể phân tích tài liệu.");
     await Promise.all([
       db.analysisJob.update({
         where: { id: jobId },

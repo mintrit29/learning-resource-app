@@ -486,7 +486,6 @@ export type DocumentTagCreateOrConnectWithoutDocumentInput = {
 
 export type DocumentTagCreateManyDocumentInputEnvelope = {
   data: Prisma.DocumentTagCreateManyDocumentInput | Prisma.DocumentTagCreateManyDocumentInput[]
-  skipDuplicates?: boolean
 }
 
 export type DocumentTagUpsertWithWhereUniqueWithoutDocumentInput = {
@@ -537,7 +536,6 @@ export type DocumentTagCreateOrConnectWithoutTagInput = {
 
 export type DocumentTagCreateManyTagInputEnvelope = {
   data: Prisma.DocumentTagCreateManyTagInput | Prisma.DocumentTagCreateManyTagInput[]
-  skipDuplicates?: boolean
 }
 
 export type DocumentTagUpsertWithWhereUniqueWithoutTagInput = {
@@ -1342,7 +1340,6 @@ export type DocumentTagCreateManyArgs<ExtArgs extends runtime.Types.Extensions.I
    * The data used to create many DocumentTags.
    */
   data: Prisma.DocumentTagCreateManyInput | Prisma.DocumentTagCreateManyInput[]
-  skipDuplicates?: boolean
 }
 
 /**
@@ -1361,7 +1358,6 @@ export type DocumentTagCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Ext
    * The data used to create many DocumentTags.
    */
   data: Prisma.DocumentTagCreateManyInput | Prisma.DocumentTagCreateManyInput[]
-  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

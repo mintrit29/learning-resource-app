@@ -552,7 +552,6 @@ export type AiProviderCreateOrConnectWithoutUserInput = {
 
 export type AiProviderCreateManyUserInputEnvelope = {
   data: Prisma.AiProviderCreateManyUserInput | Prisma.AiProviderCreateManyUserInput[]
-  skipDuplicates?: boolean
 }
 
 export type AiProviderUpsertWithWhereUniqueWithoutUserInput = {
@@ -1409,7 +1408,6 @@ export type AiProviderCreateManyArgs<ExtArgs extends runtime.Types.Extensions.In
    * The data used to create many AiProviders.
    */
   data: Prisma.AiProviderCreateManyInput | Prisma.AiProviderCreateManyInput[]
-  skipDuplicates?: boolean
 }
 
 /**
@@ -1428,7 +1426,6 @@ export type AiProviderCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Exte
    * The data used to create many AiProviders.
    */
   data: Prisma.AiProviderCreateManyInput | Prisma.AiProviderCreateManyInput[]
-  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

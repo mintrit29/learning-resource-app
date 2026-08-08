@@ -4,7 +4,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
 }
 
 enum DocumentStatus {
@@ -49,12 +49,6 @@ enum DocumentTagSource {
   MERGED
 }
 
-enum TagMergeReviewStatus {
-  PENDING
-  APPROVED
-  REJECTED
-}
-
 model User {
   id              String           @id @default(cuid())
   name            String?
@@ -68,7 +62,6 @@ model User {
   aiProviders     AiProvider[]
   searchLogs      SearchLog[]
   createdTags     Tag[]            @relation("TagCreator")
-  tagMergeReviews TagMergeReview[]
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
 }
@@ -124,7 +117,6 @@ model Document {
   chunks           DocumentChunk[]
   jobs             AnalysisJob[]
   tags             DocumentTag[]
-  tagMergeReviews  TagMergeReview[]
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
 
@@ -134,18 +126,17 @@ model Document {
 }
 
 model Tag {
-  id              String                       @id @default(cuid())
+  id              String           @id @default(cuid())
   name            String
   normalizedName  String
   description     String?
-  embedding       Unsupported("vector(1024)")?
+  embedding       Bytes?
   createdByUserId String
-  createdByUser   User                         @relation("TagCreator", fields: [createdByUserId], references: [id], onDelete: Cascade)
+  createdByUser   User             @relation("TagCreator", fields: [createdByUserId], references: [id], onDelete: Cascade)
   aliases         TagAlias[]
   documents       DocumentTag[]
-  mergeReviews    TagMergeReview[]             @relation("SuggestedTag")
-  createdAt       DateTime                     @default(now())
-  updatedAt       DateTime                     @updatedAt
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
 
   @@unique([createdByUserId, normalizedName])
   @@index([createdByUserId, name])
@@ -176,27 +167,6 @@ model DocumentTag {
   @@index([tagId])
 }
 
-model TagMergeReview {
-  id                      String                       @id @default(cuid())
-  userId                  String
-  documentId              String?
-  candidateTagName        String
-  candidateNormalizedName String
-  candidateEmbedding      Unsupported("vector(1024)")?
-  suggestedTagId          String
-  similarity              Float
-  status                  TagMergeReviewStatus         @default(PENDING)
-  user                    User                         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  document                Document?                    @relation(fields: [documentId], references: [id], onDelete: Cascade)
-  suggestedTag            Tag                          @relation("SuggestedTag", fields: [suggestedTagId], references: [id], onDelete: Cascade)
-  createdAt               DateTime                     @default(now())
-  resolvedAt              DateTime?
-
-  @@index([userId, status, createdAt])
-  @@index([suggestedTagId, status])
-  @@index([documentId])
-}
-
 model AnalysisJob {
   id           String    @id @default(cuid())
   documentId   String
@@ -215,16 +185,16 @@ model AnalysisJob {
 }
 
 model DocumentChunk {
-  id          String                       @id @default(cuid())
+  id          String   @id @default(cuid())
   documentId  String
   chunkIndex  Int
   content     String
   tokenCount  Int?
   pageNumber  Int?
   sourceLabel String?
-  embedding   Unsupported("vector(1024)")?
-  document    Document                     @relation(fields: [documentId], references: [id], onDelete: Cascade)
-  createdAt   DateTime                     @default(now())
+  embedding   Bytes?
+  document    Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
 
   @@unique([documentId, chunkIndex])
   @@index([documentId])
@@ -253,7 +223,7 @@ model SearchLog {
   userId            String
   query             String
   filters           Json?
-  resultDocumentIds String[] @default([])
+  resultDocumentIds Json     @default("[]")
   user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt         DateTime @default(now())
 

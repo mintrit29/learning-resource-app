@@ -1,12 +1,13 @@
 import { unlink } from "node:fs/promises";
-import path from "node:path";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { Difficulty } from "@/generated/prisma/enums";
 import { documentAnalysisSchema } from "@/lib/ai/analysis-schema";
 import { db } from "@/lib/db";
+import { resolveStoredUploadPath } from "@/lib/storage/local-storage";
 import { canonicalizePrimaryTopic } from "@/lib/taxonomy/canonical-topic";
 import { syncDocumentTags } from "@/lib/taxonomy/sync-document-tags";
+import { getSqliteVectorStore } from "@/lib/vector/sqlite-vector-store";
 
 export async function PATCH(
   request: Request,
@@ -55,25 +56,15 @@ export async function DELETE(
   const { id } = await params;
   const document = await db.document.findFirst({
     where: { id, userId: session.user.id },
-    select: { id: true, filePath: true },
+    select: { id: true, filePath: true, chunks: { select: { id: true } } },
   });
 
   if (!document) {
     return NextResponse.json({ message: "Không tìm thấy tài liệu" }, { status: 404 });
   }
 
-  const storageRoot = path.resolve(
-    /* turbopackIgnore: true */ process.cwd(),
-    "storage",
-    "uploads",
-  );
-  const absoluteFilePath = path.resolve(
-    /* turbopackIgnore: true */ process.cwd(),
-    document.filePath,
-  );
-  const isInsideStorage = absoluteFilePath.startsWith(`${storageRoot}${path.sep}`);
-
-  if (!isInsideStorage) {
+  const absoluteFilePath = resolveStoredUploadPath(document.filePath, session.user.id);
+  if (!absoluteFilePath) {
     return NextResponse.json(
       { message: "Đường dẫn file không hợp lệ" },
       { status: 400 },
@@ -84,6 +75,7 @@ export async function DELETE(
     if (error.code !== "ENOENT") throw error;
   });
   await db.document.delete({ where: { id: document.id } });
+  getSqliteVectorStore().deleteChunkEmbeddings(document.chunks.map((chunk) => chunk.id));
 
   return NextResponse.json({ message: "Đã xóa tài liệu" });
 }

@@ -1,0 +1,9 @@
+{
+  "name": "scholarflow-embedding-runtime",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@huggingface/transformers": "4.2.0"
+  }
+}

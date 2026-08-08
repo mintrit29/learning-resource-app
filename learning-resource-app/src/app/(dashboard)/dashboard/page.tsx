@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { auth } from "@/auth";
 import { ProcessingRefresh } from "@/components/documents/processing-refresh";
-import { JobStatus } from "@/generated/prisma/enums";
+import { DocumentStatus, JobStatus } from "@/generated/prisma/enums";
 import { db } from "@/lib/db";
 import { getDocumentDisplayStatus } from "@/lib/documents/display-status";
 import { formatDifficulty } from "@/lib/labels";
@@ -66,7 +66,7 @@ export default async function DashboardPage() {
   const userId = session!.user.id;
   const [
     documentCount,
-    readyRows,
+    readyCount,
     recentDocuments,
     topicRows,
     difficultyRows,
@@ -75,27 +75,17 @@ export default async function DashboardPage() {
     activeProcessingJobs,
   ] = await Promise.all([
     db.document.count({ where: { userId } }),
-    db.$queryRawUnsafe<Array<{ count: bigint }>>(
-      `SELECT COUNT(*) AS "count"
-       FROM "Document" d
-       WHERE d."userId" = $1
-         AND d."status" <> 'FAILED'
-         AND d."primaryTopic" IS NOT NULL
-         AND d."difficulty" IS NOT NULL
-         AND d."summary" IS NOT NULL
-         AND EXISTS (
-           SELECT 1 FROM "DocumentChunk" c WHERE c."documentId" = d."id"
-         )
-         AND NOT EXISTS (
-           SELECT 1 FROM "DocumentChunk" c
-           WHERE c."documentId" = d."id" AND c."embedding" IS NULL
-         )
-         AND NOT EXISTS (
-           SELECT 1 FROM "AnalysisJob" j
-           WHERE j."documentId" = d."id" AND j."status" IN ('PENDING', 'PROCESSING')
-         )`,
-      userId,
-    ),
+    db.document.count({
+      where: {
+        userId,
+        status: { not: DocumentStatus.FAILED },
+        primaryTopic: { not: null },
+        difficulty: { not: null },
+        summary: { not: null },
+        chunks: { some: {}, none: { embedding: null } },
+        jobs: { none: { status: { in: [JobStatus.PENDING, JobStatus.PROCESSING] } } },
+      },
+    }),
     db.document.findMany({
       where: { userId },
       orderBy: { createdAt: "desc" },
@@ -147,7 +137,6 @@ export default async function DashboardPage() {
 
   const maxTopicCount = Math.max(1, ...topicRows.map((row) => row._count._all));
   const maxDifficultyCount = Math.max(1, ...difficultyRows.map((row) => row._count._all));
-  const readyCount = Number(readyRows[0]?.count ?? 0);
   const readyRate = documentCount ? Math.round((readyCount / documentCount) * 100) : 0;
   const visibleStatusRows = statusRows.filter((row) => row.status === "FAILED");
   const providerStatus = getProviderStatus(activeProvider);

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { testProviderConnection } from "@/lib/ai/chat-provider";
+import { safeAiErrorMessage } from "@/lib/ai/provider-errors";
 
 export async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
@@ -15,7 +16,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     return NextResponse.json({ message });
   } catch (error) {
     await db.aiProvider.update({ where: { id }, data: { authStatus: "ERROR" } });
-    const message = error instanceof Error && error.name !== "AbortError" ? error.message : "Kết nối quá thời gian";
+    const message = safeAiErrorMessage(error, "Không thể kiểm tra kết nối AI.");
     return NextResponse.json({ message }, { status: 502 });
   }
 }

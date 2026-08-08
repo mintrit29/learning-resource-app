@@ -386,7 +386,6 @@ export type TagAliasCreateOrConnectWithoutTagInput = {
 
 export type TagAliasCreateManyTagInputEnvelope = {
   data: Prisma.TagAliasCreateManyTagInput | Prisma.TagAliasCreateManyTagInput[]
-  skipDuplicates?: boolean
 }
 
 export type TagAliasUpsertWithWhereUniqueWithoutTagInput = {
@@ -1166,7 +1165,6 @@ export type TagAliasCreateManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * The data used to create many TagAliases.
    */
   data: Prisma.TagAliasCreateManyInput | Prisma.TagAliasCreateManyInput[]
-  skipDuplicates?: boolean
 }
 
 /**
@@ -1185,7 +1183,6 @@ export type TagAliasCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extens
    * The data used to create many TagAliases.
    */
   data: Prisma.TagAliasCreateManyInput | Prisma.TagAliasCreateManyInput[]
-  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

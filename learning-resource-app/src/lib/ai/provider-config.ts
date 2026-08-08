@@ -18,6 +18,7 @@ export const providerSchema = z.object({
 });
 
 export const providerUpdateSchema = z.object({
+  type: z.enum(providerTypes),
   displayName: z.string().trim().min(2).max(80),
   baseUrl: z.url().trim(),
   apiKey: z.string().trim().max(500).optional().default(""),

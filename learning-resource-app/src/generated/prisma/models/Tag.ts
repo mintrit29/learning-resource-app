@@ -29,6 +29,7 @@ export type TagMinAggregateOutputType = {
   name: string | null
   normalizedName: string | null
   description: string | null
+  embedding: runtime.Bytes | null
   createdByUserId: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -39,6 +40,7 @@ export type TagMaxAggregateOutputType = {
   name: string | null
   normalizedName: string | null
   description: string | null
+  embedding: runtime.Bytes | null
   createdByUserId: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -49,6 +51,7 @@ export type TagCountAggregateOutputType = {
   name: number
   normalizedName: number
   description: number
+  embedding: number
   createdByUserId: number
   createdAt: number
   updatedAt: number
@@ -61,6 +64,7 @@ export type TagMinAggregateInputType = {
   name?: true
   normalizedName?: true
   description?: true
+  embedding?: true
   createdByUserId?: true
   createdAt?: true
   updatedAt?: true
@@ -71,6 +75,7 @@ export type TagMaxAggregateInputType = {
   name?: true
   normalizedName?: true
   description?: true
+  embedding?: true
   createdByUserId?: true
   createdAt?: true
   updatedAt?: true
@@ -81,6 +86,7 @@ export type TagCountAggregateInputType = {
   name?: true
   normalizedName?: true
   description?: true
+  embedding?: true
   createdByUserId?: true
   createdAt?: true
   updatedAt?: true
@@ -164,6 +170,7 @@ export type TagGroupByOutputType = {
   name: string
   normalizedName: string
   description: string | null
+  embedding: runtime.Bytes | null
   createdByUserId: string
   createdAt: Date
   updatedAt: Date
@@ -195,13 +202,13 @@ export type TagWhereInput = {
   name?: Prisma.StringFilter<"Tag"> | string
   normalizedName?: Prisma.StringFilter<"Tag"> | string
   description?: Prisma.StringNullableFilter<"Tag"> | string | null
+  embedding?: Prisma.BytesNullableFilter<"Tag"> | runtime.Bytes | null
   createdByUserId?: Prisma.StringFilter<"Tag"> | string
   createdAt?: Prisma.DateTimeFilter<"Tag"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Tag"> | Date | string
   createdByUser?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   aliases?: Prisma.TagAliasListRelationFilter
   documents?: Prisma.DocumentTagListRelationFilter
-  mergeReviews?: Prisma.TagMergeReviewListRelationFilter
 }
 
 export type TagOrderByWithRelationInput = {
@@ -209,13 +216,13 @@ export type TagOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   normalizedName?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  embedding?: Prisma.SortOrderInput | Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   createdByUser?: Prisma.UserOrderByWithRelationInput
   aliases?: Prisma.TagAliasOrderByRelationAggregateInput
   documents?: Prisma.DocumentTagOrderByRelationAggregateInput
-  mergeReviews?: Prisma.TagMergeReviewOrderByRelationAggregateInput
 }
 
 export type TagWhereUniqueInput = Prisma.AtLeast<{
@@ -227,13 +234,13 @@ export type TagWhereUniqueInput = Prisma.AtLeast<{
   name?: Prisma.StringFilter<"Tag"> | string
   normalizedName?: Prisma.StringFilter<"Tag"> | string
   description?: Prisma.StringNullableFilter<"Tag"> | string | null
+  embedding?: Prisma.BytesNullableFilter<"Tag"> | runtime.Bytes | null
   createdByUserId?: Prisma.StringFilter<"Tag"> | string
   createdAt?: Prisma.DateTimeFilter<"Tag"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Tag"> | Date | string
   createdByUser?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   aliases?: Prisma.TagAliasListRelationFilter
   documents?: Prisma.DocumentTagListRelationFilter
-  mergeReviews?: Prisma.TagMergeReviewListRelationFilter
 }, "id" | "createdByUserId_normalizedName">
 
 export type TagOrderByWithAggregationInput = {
@@ -241,6 +248,7 @@ export type TagOrderByWithAggregationInput = {
   name?: Prisma.SortOrder
   normalizedName?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  embedding?: Prisma.SortOrderInput | Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -257,6 +265,7 @@ export type TagScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"Tag"> | string
   normalizedName?: Prisma.StringWithAggregatesFilter<"Tag"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"Tag"> | string | null
+  embedding?: Prisma.BytesNullableWithAggregatesFilter<"Tag"> | runtime.Bytes | null
   createdByUserId?: Prisma.StringWithAggregatesFilter<"Tag"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Tag"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Tag"> | Date | string
@@ -267,12 +276,12 @@ export type TagCreateInput = {
   name: string
   normalizedName: string
   description?: string | null
+  embedding?: runtime.Bytes | null
   createdAt?: Date | string
   updatedAt?: Date | string
   createdByUser: Prisma.UserCreateNestedOneWithoutCreatedTagsInput
   aliases?: Prisma.TagAliasCreateNestedManyWithoutTagInput
   documents?: Prisma.DocumentTagCreateNestedManyWithoutTagInput
-  mergeReviews?: Prisma.TagMergeReviewCreateNestedManyWithoutSuggestedTagInput
 }
 
 export type TagUncheckedCreateInput = {
@@ -280,12 +289,12 @@ export type TagUncheckedCreateInput = {
   name: string
   normalizedName: string
   description?: string | null
+  embedding?: runtime.Bytes | null
   createdByUserId: string
   createdAt?: Date | string
   updatedAt?: Date | string
   aliases?: Prisma.TagAliasUncheckedCreateNestedManyWithoutTagInput
   documents?: Prisma.DocumentTagUncheckedCreateNestedManyWithoutTagInput
-  mergeReviews?: Prisma.TagMergeReviewUncheckedCreateNestedManyWithoutSuggestedTagInput
 }
 
 export type TagUpdateInput = {
@@ -293,12 +302,12 @@ export type TagUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   normalizedName?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embedding?: Prisma.NullableBytesFieldUpdateOperationsInput | runtime.Bytes | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdByUser?: Prisma.UserUpdateOneRequiredWithoutCreatedTagsNestedInput
   aliases?: Prisma.TagAliasUpdateManyWithoutTagNestedInput
   documents?: Prisma.DocumentTagUpdateManyWithoutTagNestedInput
-  mergeReviews?: Prisma.TagMergeReviewUpdateManyWithoutSuggestedTagNestedInput
 }
 
 export type TagUncheckedUpdateInput = {
@@ -306,12 +315,12 @@ export type TagUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   normalizedName?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embedding?: Prisma.NullableBytesFieldUpdateOperationsInput | runtime.Bytes | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   aliases?: Prisma.TagAliasUncheckedUpdateManyWithoutTagNestedInput
   documents?: Prisma.DocumentTagUncheckedUpdateManyWithoutTagNestedInput
-  mergeReviews?: Prisma.TagMergeReviewUncheckedUpdateManyWithoutSuggestedTagNestedInput
 }
 
 export type TagCreateManyInput = {
@@ -319,6 +328,7 @@ export type TagCreateManyInput = {
   name: string
   normalizedName: string
   description?: string | null
+  embedding?: runtime.Bytes | null
   createdByUserId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -329,6 +339,7 @@ export type TagUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   normalizedName?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embedding?: Prisma.NullableBytesFieldUpdateOperationsInput | runtime.Bytes | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -338,6 +349,7 @@ export type TagUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   normalizedName?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embedding?: Prisma.NullableBytesFieldUpdateOperationsInput | runtime.Bytes | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -363,6 +375,7 @@ export type TagCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   normalizedName?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  embedding?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -373,6 +386,7 @@ export type TagMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   normalizedName?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  embedding?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -383,6 +397,7 @@ export type TagMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   normalizedName?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  embedding?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -435,6 +450,10 @@ export type TagUncheckedUpdateManyWithoutCreatedByUserNestedInput = {
   deleteMany?: Prisma.TagScalarWhereInput | Prisma.TagScalarWhereInput[]
 }
 
+export type NullableBytesFieldUpdateOperationsInput = {
+  set?: runtime.Bytes | null
+}
+
 export type TagCreateNestedOneWithoutAliasesInput = {
   create?: Prisma.XOR<Prisma.TagCreateWithoutAliasesInput, Prisma.TagUncheckedCreateWithoutAliasesInput>
   connectOrCreate?: Prisma.TagCreateOrConnectWithoutAliasesInput
@@ -463,30 +482,16 @@ export type TagUpdateOneRequiredWithoutDocumentsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.TagUpdateToOneWithWhereWithoutDocumentsInput, Prisma.TagUpdateWithoutDocumentsInput>, Prisma.TagUncheckedUpdateWithoutDocumentsInput>
 }
 
-export type TagCreateNestedOneWithoutMergeReviewsInput = {
-  create?: Prisma.XOR<Prisma.TagCreateWithoutMergeReviewsInput, Prisma.TagUncheckedCreateWithoutMergeReviewsInput>
-  connectOrCreate?: Prisma.TagCreateOrConnectWithoutMergeReviewsInput
-  connect?: Prisma.TagWhereUniqueInput
-}
-
-export type TagUpdateOneRequiredWithoutMergeReviewsNestedInput = {
-  create?: Prisma.XOR<Prisma.TagCreateWithoutMergeReviewsInput, Prisma.TagUncheckedCreateWithoutMergeReviewsInput>
-  connectOrCreate?: Prisma.TagCreateOrConnectWithoutMergeReviewsInput
-  upsert?: Prisma.TagUpsertWithoutMergeReviewsInput
-  connect?: Prisma.TagWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.TagUpdateToOneWithWhereWithoutMergeReviewsInput, Prisma.TagUpdateWithoutMergeReviewsInput>, Prisma.TagUncheckedUpdateWithoutMergeReviewsInput>
-}
-
 export type TagCreateWithoutCreatedByUserInput = {
   id?: string
   name: string
   normalizedName: string
   description?: string | null
+  embedding?: runtime.Bytes | null
   createdAt?: Date | string
   updatedAt?: Date | string
   aliases?: Prisma.TagAliasCreateNestedManyWithoutTagInput
   documents?: Prisma.DocumentTagCreateNestedManyWithoutTagInput
-  mergeReviews?: Prisma.TagMergeReviewCreateNestedManyWithoutSuggestedTagInput
 }
 
 export type TagUncheckedCreateWithoutCreatedByUserInput = {
@@ -494,11 +499,11 @@ export type TagUncheckedCreateWithoutCreatedByUserInput = {
   name: string
   normalizedName: string
   description?: string | null
+  embedding?: runtime.Bytes | null
   createdAt?: Date | string
   updatedAt?: Date | string
   aliases?: Prisma.TagAliasUncheckedCreateNestedManyWithoutTagInput
   documents?: Prisma.DocumentTagUncheckedCreateNestedManyWithoutTagInput
-  mergeReviews?: Prisma.TagMergeReviewUncheckedCreateNestedManyWithoutSuggestedTagInput
 }
 
 export type TagCreateOrConnectWithoutCreatedByUserInput = {
@@ -508,7 +513,6 @@ export type TagCreateOrConnectWithoutCreatedByUserInput = {
 
 export type TagCreateManyCreatedByUserInputEnvelope = {
   data: Prisma.TagCreateManyCreatedByUserInput | Prisma.TagCreateManyCreatedByUserInput[]
-  skipDuplicates?: boolean
 }
 
 export type TagUpsertWithWhereUniqueWithoutCreatedByUserInput = {
@@ -535,6 +539,7 @@ export type TagScalarWhereInput = {
   name?: Prisma.StringFilter<"Tag"> | string
   normalizedName?: Prisma.StringFilter<"Tag"> | string
   description?: Prisma.StringNullableFilter<"Tag"> | string | null
+  embedding?: Prisma.BytesNullableFilter<"Tag"> | runtime.Bytes | null
   createdByUserId?: Prisma.StringFilter<"Tag"> | string
   createdAt?: Prisma.DateTimeFilter<"Tag"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Tag"> | Date | string
@@ -545,11 +550,11 @@ export type TagCreateWithoutAliasesInput = {
   name: string
   normalizedName: string
   description?: string | null
+  embedding?: runtime.Bytes | null
   createdAt?: Date | string
   updatedAt?: Date | string
   createdByUser: Prisma.UserCreateNestedOneWithoutCreatedTagsInput
   documents?: Prisma.DocumentTagCreateNestedManyWithoutTagInput
-  mergeReviews?: Prisma.TagMergeReviewCreateNestedManyWithoutSuggestedTagInput
 }
 
 export type TagUncheckedCreateWithoutAliasesInput = {
@@ -557,11 +562,11 @@ export type TagUncheckedCreateWithoutAliasesInput = {
   name: string
   normalizedName: string
   description?: string | null
+  embedding?: runtime.Bytes | null
   createdByUserId: string
   createdAt?: Date | string
   updatedAt?: Date | string
   documents?: Prisma.DocumentTagUncheckedCreateNestedManyWithoutTagInput
-  mergeReviews?: Prisma.TagMergeReviewUncheckedCreateNestedManyWithoutSuggestedTagInput
 }
 
 export type TagCreateOrConnectWithoutAliasesInput = {
@@ -585,11 +590,11 @@ export type TagUpdateWithoutAliasesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   normalizedName?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embedding?: Prisma.NullableBytesFieldUpdateOperationsInput | runtime.Bytes | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdByUser?: Prisma.UserUpdateOneRequiredWithoutCreatedTagsNestedInput
   documents?: Prisma.DocumentTagUpdateManyWithoutTagNestedInput
-  mergeReviews?: Prisma.TagMergeReviewUpdateManyWithoutSuggestedTagNestedInput
 }
 
 export type TagUncheckedUpdateWithoutAliasesInput = {
@@ -597,11 +602,11 @@ export type TagUncheckedUpdateWithoutAliasesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   normalizedName?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embedding?: Prisma.NullableBytesFieldUpdateOperationsInput | runtime.Bytes | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   documents?: Prisma.DocumentTagUncheckedUpdateManyWithoutTagNestedInput
-  mergeReviews?: Prisma.TagMergeReviewUncheckedUpdateManyWithoutSuggestedTagNestedInput
 }
 
 export type TagCreateWithoutDocumentsInput = {
@@ -609,11 +614,11 @@ export type TagCreateWithoutDocumentsInput = {
   name: string
   normalizedName: string
   description?: string | null
+  embedding?: runtime.Bytes | null
   createdAt?: Date | string
   updatedAt?: Date | string
   createdByUser: Prisma.UserCreateNestedOneWithoutCreatedTagsInput
   aliases?: Prisma.TagAliasCreateNestedManyWithoutTagInput
-  mergeReviews?: Prisma.TagMergeReviewCreateNestedManyWithoutSuggestedTagInput
 }
 
 export type TagUncheckedCreateWithoutDocumentsInput = {
@@ -621,11 +626,11 @@ export type TagUncheckedCreateWithoutDocumentsInput = {
   name: string
   normalizedName: string
   description?: string | null
+  embedding?: runtime.Bytes | null
   createdByUserId: string
   createdAt?: Date | string
   updatedAt?: Date | string
   aliases?: Prisma.TagAliasUncheckedCreateNestedManyWithoutTagInput
-  mergeReviews?: Prisma.TagMergeReviewUncheckedCreateNestedManyWithoutSuggestedTagInput
 }
 
 export type TagCreateOrConnectWithoutDocumentsInput = {
@@ -649,11 +654,11 @@ export type TagUpdateWithoutDocumentsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   normalizedName?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embedding?: Prisma.NullableBytesFieldUpdateOperationsInput | runtime.Bytes | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdByUser?: Prisma.UserUpdateOneRequiredWithoutCreatedTagsNestedInput
   aliases?: Prisma.TagAliasUpdateManyWithoutTagNestedInput
-  mergeReviews?: Prisma.TagMergeReviewUpdateManyWithoutSuggestedTagNestedInput
 }
 
 export type TagUncheckedUpdateWithoutDocumentsInput = {
@@ -661,75 +666,11 @@ export type TagUncheckedUpdateWithoutDocumentsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   normalizedName?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embedding?: Prisma.NullableBytesFieldUpdateOperationsInput | runtime.Bytes | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   aliases?: Prisma.TagAliasUncheckedUpdateManyWithoutTagNestedInput
-  mergeReviews?: Prisma.TagMergeReviewUncheckedUpdateManyWithoutSuggestedTagNestedInput
-}
-
-export type TagCreateWithoutMergeReviewsInput = {
-  id?: string
-  name: string
-  normalizedName: string
-  description?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  createdByUser: Prisma.UserCreateNestedOneWithoutCreatedTagsInput
-  aliases?: Prisma.TagAliasCreateNestedManyWithoutTagInput
-  documents?: Prisma.DocumentTagCreateNestedManyWithoutTagInput
-}
-
-export type TagUncheckedCreateWithoutMergeReviewsInput = {
-  id?: string
-  name: string
-  normalizedName: string
-  description?: string | null
-  createdByUserId: string
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  aliases?: Prisma.TagAliasUncheckedCreateNestedManyWithoutTagInput
-  documents?: Prisma.DocumentTagUncheckedCreateNestedManyWithoutTagInput
-}
-
-export type TagCreateOrConnectWithoutMergeReviewsInput = {
-  where: Prisma.TagWhereUniqueInput
-  create: Prisma.XOR<Prisma.TagCreateWithoutMergeReviewsInput, Prisma.TagUncheckedCreateWithoutMergeReviewsInput>
-}
-
-export type TagUpsertWithoutMergeReviewsInput = {
-  update: Prisma.XOR<Prisma.TagUpdateWithoutMergeReviewsInput, Prisma.TagUncheckedUpdateWithoutMergeReviewsInput>
-  create: Prisma.XOR<Prisma.TagCreateWithoutMergeReviewsInput, Prisma.TagUncheckedCreateWithoutMergeReviewsInput>
-  where?: Prisma.TagWhereInput
-}
-
-export type TagUpdateToOneWithWhereWithoutMergeReviewsInput = {
-  where?: Prisma.TagWhereInput
-  data: Prisma.XOR<Prisma.TagUpdateWithoutMergeReviewsInput, Prisma.TagUncheckedUpdateWithoutMergeReviewsInput>
-}
-
-export type TagUpdateWithoutMergeReviewsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  normalizedName?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  createdByUser?: Prisma.UserUpdateOneRequiredWithoutCreatedTagsNestedInput
-  aliases?: Prisma.TagAliasUpdateManyWithoutTagNestedInput
-  documents?: Prisma.DocumentTagUpdateManyWithoutTagNestedInput
-}
-
-export type TagUncheckedUpdateWithoutMergeReviewsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  normalizedName?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  aliases?: Prisma.TagAliasUncheckedUpdateManyWithoutTagNestedInput
-  documents?: Prisma.DocumentTagUncheckedUpdateManyWithoutTagNestedInput
 }
 
 export type TagCreateManyCreatedByUserInput = {
@@ -737,6 +678,7 @@ export type TagCreateManyCreatedByUserInput = {
   name: string
   normalizedName: string
   description?: string | null
+  embedding?: runtime.Bytes | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -746,11 +688,11 @@ export type TagUpdateWithoutCreatedByUserInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   normalizedName?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embedding?: Prisma.NullableBytesFieldUpdateOperationsInput | runtime.Bytes | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   aliases?: Prisma.TagAliasUpdateManyWithoutTagNestedInput
   documents?: Prisma.DocumentTagUpdateManyWithoutTagNestedInput
-  mergeReviews?: Prisma.TagMergeReviewUpdateManyWithoutSuggestedTagNestedInput
 }
 
 export type TagUncheckedUpdateWithoutCreatedByUserInput = {
@@ -758,11 +700,11 @@ export type TagUncheckedUpdateWithoutCreatedByUserInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   normalizedName?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embedding?: Prisma.NullableBytesFieldUpdateOperationsInput | runtime.Bytes | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   aliases?: Prisma.TagAliasUncheckedUpdateManyWithoutTagNestedInput
   documents?: Prisma.DocumentTagUncheckedUpdateManyWithoutTagNestedInput
-  mergeReviews?: Prisma.TagMergeReviewUncheckedUpdateManyWithoutSuggestedTagNestedInput
 }
 
 export type TagUncheckedUpdateManyWithoutCreatedByUserInput = {
@@ -770,6 +712,7 @@ export type TagUncheckedUpdateManyWithoutCreatedByUserInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   normalizedName?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embedding?: Prisma.NullableBytesFieldUpdateOperationsInput | runtime.Bytes | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -782,13 +725,11 @@ export type TagUncheckedUpdateManyWithoutCreatedByUserInput = {
 export type TagCountOutputType = {
   aliases: number
   documents: number
-  mergeReviews: number
 }
 
 export type TagCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   aliases?: boolean | TagCountOutputTypeCountAliasesArgs
   documents?: boolean | TagCountOutputTypeCountDocumentsArgs
-  mergeReviews?: boolean | TagCountOutputTypeCountMergeReviewsArgs
 }
 
 /**
@@ -815,26 +756,19 @@ export type TagCountOutputTypeCountDocumentsArgs<ExtArgs extends runtime.Types.E
   where?: Prisma.DocumentTagWhereInput
 }
 
-/**
- * TagCountOutputType without action
- */
-export type TagCountOutputTypeCountMergeReviewsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.TagMergeReviewWhereInput
-}
-
 
 export type TagSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
   normalizedName?: boolean
   description?: boolean
+  embedding?: boolean
   createdByUserId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   createdByUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   aliases?: boolean | Prisma.Tag$aliasesArgs<ExtArgs>
   documents?: boolean | Prisma.Tag$documentsArgs<ExtArgs>
-  mergeReviews?: boolean | Prisma.Tag$mergeReviewsArgs<ExtArgs>
   _count?: boolean | Prisma.TagCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["tag"]>
 
@@ -843,6 +777,7 @@ export type TagSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extension
   name?: boolean
   normalizedName?: boolean
   description?: boolean
+  embedding?: boolean
   createdByUserId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -854,6 +789,7 @@ export type TagSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extension
   name?: boolean
   normalizedName?: boolean
   description?: boolean
+  embedding?: boolean
   createdByUserId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -865,17 +801,17 @@ export type TagSelectScalar = {
   name?: boolean
   normalizedName?: boolean
   description?: boolean
+  embedding?: boolean
   createdByUserId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type TagOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "normalizedName" | "description" | "createdByUserId" | "createdAt" | "updatedAt", ExtArgs["result"]["tag"]>
+export type TagOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "normalizedName" | "description" | "embedding" | "createdByUserId" | "createdAt" | "updatedAt", ExtArgs["result"]["tag"]>
 export type TagInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   createdByUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   aliases?: boolean | Prisma.Tag$aliasesArgs<ExtArgs>
   documents?: boolean | Prisma.Tag$documentsArgs<ExtArgs>
-  mergeReviews?: boolean | Prisma.Tag$mergeReviewsArgs<ExtArgs>
   _count?: boolean | Prisma.TagCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type TagIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -891,13 +827,13 @@ export type $TagPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
     createdByUser: Prisma.$UserPayload<ExtArgs>
     aliases: Prisma.$TagAliasPayload<ExtArgs>[]
     documents: Prisma.$DocumentTagPayload<ExtArgs>[]
-    mergeReviews: Prisma.$TagMergeReviewPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     name: string
     normalizedName: string
     description: string | null
+    embedding: runtime.Bytes | null
     createdByUserId: string
     createdAt: Date
     updatedAt: Date
@@ -1298,7 +1234,6 @@ export interface Prisma__TagClient<T, Null = never, ExtArgs extends runtime.Type
   createdByUser<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   aliases<T extends Prisma.Tag$aliasesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tag$aliasesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TagAliasPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   documents<T extends Prisma.Tag$documentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tag$documentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DocumentTagPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  mergeReviews<T extends Prisma.Tag$mergeReviewsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tag$mergeReviewsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TagMergeReviewPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1332,6 +1267,7 @@ export interface TagFieldRefs {
   readonly name: Prisma.FieldRef<"Tag", 'String'>
   readonly normalizedName: Prisma.FieldRef<"Tag", 'String'>
   readonly description: Prisma.FieldRef<"Tag", 'String'>
+  readonly embedding: Prisma.FieldRef<"Tag", 'Bytes'>
   readonly createdByUserId: Prisma.FieldRef<"Tag", 'String'>
   readonly createdAt: Prisma.FieldRef<"Tag", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Tag", 'DateTime'>
@@ -1569,7 +1505,6 @@ export type TagCreateManyArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    * The data used to create many Tags.
    */
   data: Prisma.TagCreateManyInput | Prisma.TagCreateManyInput[]
-  skipDuplicates?: boolean
 }
 
 /**
@@ -1588,7 +1523,6 @@ export type TagCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions.
    * The data used to create many Tags.
    */
   data: Prisma.TagCreateManyInput | Prisma.TagCreateManyInput[]
-  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */
@@ -1781,30 +1715,6 @@ export type Tag$documentsArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   take?: number
   skip?: number
   distinct?: Prisma.DocumentTagScalarFieldEnum | Prisma.DocumentTagScalarFieldEnum[]
-}
-
-/**
- * Tag.mergeReviews
- */
-export type Tag$mergeReviewsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the TagMergeReview
-   */
-  select?: Prisma.TagMergeReviewSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the TagMergeReview
-   */
-  omit?: Prisma.TagMergeReviewOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.TagMergeReviewInclude<ExtArgs> | null
-  where?: Prisma.TagMergeReviewWhereInput
-  orderBy?: Prisma.TagMergeReviewOrderByWithRelationInput | Prisma.TagMergeReviewOrderByWithRelationInput[]
-  cursor?: Prisma.TagMergeReviewWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.TagMergeReviewScalarFieldEnum | Prisma.TagMergeReviewScalarFieldEnum[]
 }
 
 /**

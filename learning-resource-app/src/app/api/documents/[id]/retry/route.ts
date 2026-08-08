@@ -51,12 +51,11 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     return NextResponse.json({ message: "Đã chạy lại từ bước xử lý đầu tiên còn thiếu" }, { status: 202 });
   }
 
-  const [{ missing }] = await db.$queryRawUnsafe<Array<{ missing: bigint }>>(
-    `SELECT COUNT(*) AS "missing" FROM "DocumentChunk" WHERE "documentId" = $1 AND "embedding" IS NULL`,
-    id,
-  );
+  const missing = await db.documentChunk.count({
+    where: { documentId: id, embedding: null },
+  });
 
-  if (Number(missing) > 0) {
+  if (missing > 0) {
     const embeddingJob = await resetDocumentJob(id, JobType.EMBED_DOCUMENT);
     const analysisJob = analysisComplete ? null : await resetDocumentJob(id, JobType.ANALYZE_DOCUMENT);
     after(async () => {

@@ -1,6 +1,5 @@
 import { auth } from "@/auth";
 import { TagManager } from "@/components/settings/tag-manager";
-import { TagMergeReviewList } from "@/components/settings/tag-merge-review-list";
 import { db } from "@/lib/db";
 
 export default async function TopicsPage() {
@@ -21,18 +20,6 @@ export default async function TopicsPage() {
     },
     orderBy: { name: "asc" },
   });
-  const reviews = await db.tagMergeReview.findMany({
-    where: { userId, status: "PENDING" },
-    select: {
-      id: true,
-      candidateTagName: true,
-      similarity: true,
-      suggestedTag: { select: { name: true } },
-      document: { select: { title: true } },
-    },
-    orderBy: { createdAt: "asc" },
-  });
-
   return (
     <div className="page-wrap">
       <header className="page-header">
@@ -45,7 +32,6 @@ export default async function TopicsPage() {
       <section className="content-section tag-section">
         <TagManager initialTags={tags} />
       </section>
-      <TagMergeReviewList reviews={reviews} />
     </div>
   );
 }
