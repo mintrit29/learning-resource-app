@@ -3,19 +3,14 @@
 .env.*
 !.env.example
 
-# Python
-**/.venv/
-**/__pycache__/
-**/.pytest_cache/
 **/models-cache/
-**/.gpu-packages/
-*.py[cod]
 
 # Node / Next.js
 **/node_modules/
 **/.next/
 **/out/
 **/build/
+**/dist-electron/
 **/coverage/
 **/.pnp
 **/.pnp.*
@@ -34,9 +29,6 @@
 .tmp/
 *.log
 *.db
-
-# Local benchmark smoke-test outputs
-embedding-service/benchmark-smoke/
 
 # Local evaluation labels generated from the developer database
 learning-resource-app/evaluation/labels.json
