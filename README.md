@@ -44,7 +44,7 @@ API key và dữ liệu cá nhân không được commit vào Git. Lần tạo e
 Yêu cầu phát triển:
 
 - Windows 10/11 x64.
-- Node.js 22 và npm.
+- Node.js 24 và npm 11 (chỉ cần khi phát triển hoặc đóng gói; người dùng bộ cài không cần Node.js).
 
 ```powershell
 cd learning-resource-app
