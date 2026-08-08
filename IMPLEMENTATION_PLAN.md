@@ -1,119 +1,167 @@
-# Implementation Plan — Electron local-first và Web Admin
+# Implementation Plan — ScholarFlow Desktop
 
-**Cập nhật:** 28/07/2026
-**Trạng thái:** Chưa bắt đầu triển khai desktop
-**Mục tiêu:** Đưa ScholarFlow thành app desktop Windows không cần Docker cho người dùng; không có chi phí AI/cloud thường xuyên.
+**Cập nhật:** 08/08/2026
+**Quyết định kiến trúc:** chỉ phát triển và phát hành ứng dụng desktop Windows.
 
-## 1. Quyết định kiến trúc đã chốt
-
-| Hạng mục | Quyết định |
-|---|---|
-| Ứng dụng người dùng | Electron + giao diện Next.js hiện có chạy local. |
-| Hệ điều hành MVP | Windows 10/11. |
-| File, chunk, embedding, search | Lưu và xử lý local trên máy người dùng; không đồng bộ lên cloud. |
-| Embedding | Giữ embedding service BGE-M3 local độc lập; Electron khởi động worker nội bộ, model được tải/cache trên máy khi cần. Không phụ thuộc Ollama. |
-| Phân loại tài liệu | Ollama local với model người dùng đã cài/cấu hình. Không bắt buộc AI cloud và không ảnh hưởng search nếu Ollama tắt. |
-| Database desktop | SQLite file trong thư mục app data; vector search dùng `sqlite-vec`. |
-| Auth + web admin | Supabase Free. Chỉ lưu identity/profile/role/trạng thái user, không lưu tài liệu. |
-| Admin | Next.js web riêng, chỉ quản lý tài khoản. |
-| Docker | Giữ nguyên cho dev, test và demo nội bộ; không bắt user cuối cài Docker. |
-
-Embedding là nền tảng của search nên được tách riêng khỏi LLM. Electron sẽ khởi động embedding worker BGE-M3 local tương thích service hiện tại; model được tải/cache trên máy ở lần đầu. Ollama chỉ là provider tùy chọn để phân tích metadata tài liệu.
-
-## 2. Kiến trúc đích
+## 1. Kiến trúc đích
 
 ```text
-Electron desktop (Windows)
-  -> Electron main: khởi động Next standalone local + quản lý lifecycle
-  -> Next UI/API: chỉ bind 127.0.0.1
-  -> SQLite + sqlite-vec: userData/ScholarFlow/<user-id>/library.db
-  -> uploads local: userData/ScholarFlow/<user-id>/uploads
-  -> embedding worker BGE-M3 local + model cache riêng
-  -> Ollama local (tùy chọn): chỉ model phân loại
-
-Admin web (Next.js deploy)
-  -> Supabase Auth + profiles/roles
-  -> chỉ xem/quản lý tài khoản, không đọc file hay embedding user
+ScholarFlow.exe
+  ├─ Electron main process
+  │   ├─ quản lý cửa sổ và chính sách bảo mật
+  │   ├─ chọn cổng loopback ngẫu nhiên
+  │   ├─ khởi động/dừng Next.js standalone
+  │   └─ khởi động/dừng embedding runtime
+  ├─ Next.js application server — chỉ 127.0.0.1
+  ├─ SQLite database
+  ├─ sqlite-vec index — 1024 dimensions
+  ├─ BGE-M3 — Transformers.js + ONNX Runtime
+  └─ thư mục dữ liệu trong %APPDATA%\ScholarFlow
 ```
 
-## 3. Các giai đoạn triển khai
+Đây là kiến trúc desktop đóng gói. Next.js được dùng làm lớp giao diện/API nội bộ, không được triển khai thành một sản phẩm web riêng.
 
-### Giai đoạn A — Chuẩn bị và proof of architecture
+## 2. Nguyên tắc kỹ thuật
 
-1. Tạo nhánh `codex/desktop-local-first`.
-2. Thêm Electron Forge hoặc electron-builder; target đầu tiên là installer Windows NSIS.
-3. Build Next theo chế độ standalone; Electron main khởi động server local, chờ health check rồi mới mở `BrowserWindow`.
-4. Cấu hình security: `contextIsolation: true`, `nodeIntegration: false`, preload chỉ expose API desktop tối thiểu.
-5. Kiểm tra đóng/mở app không để process Next còn treo.
+- Một source of truth nằm trong thư mục `learning-resource-app`.
+- Không duy trì Dockerfile, Docker Compose hoặc container service.
+- Không dùng PostgreSQL, pgvector hoặc Python embedding service.
+- Dữ liệu tài liệu, vector, cấu hình AI và log nằm trên máy người dùng.
+- BGE-M3 local chịu trách nhiệm embedding; Ollama chỉ là một tùy chọn phân tích AI.
+- Mỗi thay đổi lớn phải có test và một commit riêng dễ review/revert.
+- File cài đặt phát hành qua GitHub Releases, không commit vào source.
 
-**Nghiệm thu:** cài installer trên Windows sạch, mở được UI hiện có mà không cần Docker.
+## 3. Giai đoạn 1 — Hợp nhất desktop MVP
 
-### Giai đoạn B — Chuyển data layer sang local không Docker
+**Trạng thái:** đã triển khai, đang kiểm thử cuối.
 
-1. Tách schema/domain khỏi Postgres-specific code.
-2. Chuyển Prisma datasource desktop sang SQLite; mỗi Supabase user có database tại `app.getPath('userData')/ScholarFlow/<user-id>/library.db`.
-3. Chuyển uploads sang thư mục user data theo `<user-id>`, không dùng Docker volume.
-4. Thay query `pgvector` bằng `sqlite-vec`; giữ hybrid vector + keyword + rerank hiện có.
-5. Viết migration/công cụ import một thư viện local từ bản Docker cho developer; không cần migrate dữ liệu người dùng cuối ở MVP.
-6. Đặt backup/export manual: zip database + uploads.
+### Electron shell
 
-**Nghiệm thu:** upload, xử lý, search và mở chunk chạy khi Docker đã tắt.
+- Dùng single-instance lock.
+- Bật sandbox, context isolation và chặn điều hướng ngoài.
+- Chờ health check trước khi mở cửa sổ.
+- Dừng toàn bộ process tree khi thoát ứng dụng.
+- Ghi log chẩn đoán vào `%APPDATA%\ScholarFlow\logs`.
 
-### Giai đoạn C — Embedding BGE-M3 local độc lập
+### Local data layer
 
-1. Đóng gói Python runtime/embedding worker thành Electron sidecar; không yêu cầu user cài Docker hay Python.
-2. Electron main khởi động/health-check worker loopback trước khi mở tính năng upload/search và dừng worker lúc thoát app.
-3. Khi chưa có model, tải BGE-M3 vào model cache local với màn hình đồng ý tải và progress rõ ràng; không dùng Ollama model store.
-4. Giữ embedding client/API hiện tại tương thích FastAPI; xác nhận vector BGE-M3 là 1024 chiều.
-5. Cho CPU là mặc định, CUDA là tùy chọn nếu máy hỗ trợ; không chạy nhiều embedding job song song khi thiếu tài nguyên.
-6. Chạy lại re-embed cho thư viện desktop khi model embedding hoặc version embedding worker thay đổi.
+- Prisma dùng SQLite.
+- Migration được áp dụng tự động và idempotent.
+- sqlite-vec lưu index vector tách khỏi metadata Prisma.
+- Uploads, database và vector thuộc cùng thư mục dữ liệu người dùng.
+- Không chuyển dữ liệu từ database Docker cũ theo quyết định của nhóm.
 
-**Nghiệm thu:** app upload/search offline sau khi BGE-M3 đã cache, kể cả khi Ollama tắt hoặc chưa cài; không còn phụ thuộc embedding Docker service.
+### Local embedding
 
-### Giai đoạn D — AI phân loại tài liệu qua Ollama (tùy chọn)
+- Runtime Node riêng sử dụng `@huggingface/transformers`.
+- Model cố định `BAAI/bge-m3`, vector 1.024 chiều.
+- Electron cấp URL embedding động cho Next.js nội bộ.
+- Model cache được dùng lại giữa các lần mở.
+- Embedding chạy CPU mặc định để tương thích nhiều máy Windows.
 
-1. Thêm `AI analysis readiness` ở settings: phát hiện Ollama tại `http://127.0.0.1:11434` và refresh model list.
-2. User chọn model Ollama local cho phân tích topic, difficulty, tag và summary.
-3. Nếu Ollama/model không có, document vẫn extract/chunk/embed/search được; trạng thái AI là `Cần cấu hình` và user có thể thêm metadata thủ công hoặc phân tích lại sau.
-4. Hiển thị lỗi Ollama/model tắt rõ ràng, không làm hỏng data hay search pipeline.
+### AI providers
 
-**Nghiệm thu:** tắt Ollama vẫn tìm kiếm được thư viện đã upload; bật lại Ollama thì có thể phân tích/re-analyze metadata.
+- Chuẩn hóa cấu hình OpenRouter, Ollama và Custom API.
+- API key được mã hóa trước khi lưu.
+- Có test kết nối/model và xử lý lỗi an toàn.
+- Không trả raw provider body, HTML hoặc stack trace lên giao diện.
 
-### Giai đoạn E — Supabase Auth và Web Admin
+### Search
 
-1. Tạo Supabase project Free; tạo `profiles` gồm `id`, `email`, `role`, `status`, `created_at`, `last_seen_at`.
-2. Dùng Supabase Auth cho desktop đăng ký/đăng nhập; thay Auth.js local session trong desktop.
-3. Bật RLS cho mọi bảng cloud; user chỉ đọc/sửa profile của mình.
-4. Tạo role `admin` bằng server-side process; tuyệt đối không để service-role key trong Electron renderer hoặc browser client.
-5. Tạo admin web tối giản: đăng nhập admin, danh sách user, xem trạng thái, khóa/mở tài khoản và đổi role.
-6. Khi desktop login/logout/cập nhật hoạt động, chỉ đồng bộ profile/status lên Supabase; tuyệt đối không sync document metadata, file, chunk hay embedding.
+- Semantic retrieval từ sqlite-vec.
+- Keyword retrieval không phân biệt dấu cho truy vấn tiếng Việt.
+- Rerank theo vector, từ khóa, metadata và tiêu chí suy ra từ câu hỏi.
+- Relevance gate loại kết quả yếu.
+- Kết quả giữ `pageNumber`/`sourceLabel` để quay lại nguồn.
 
-**Nghiệm thu:** một account đăng nhập được cả desktop và web admin; admin không thể xem tài liệu local của user.
+## 4. Giai đoạn 2 — Dọn repo và phát hành thống nhất
 
-### Giai đoạn F — Đóng gói, kiểm thử và bàn giao
+**Trạng thái:** đang thực hiện trên nhánh `desktop-app`.
 
-1. Tạo installer Windows, versioning, icon, auto-update **chưa làm** ở MVP.
-2. Test máy không có Docker/Postgres/Python, có và không có Ollama/model.
-3. Test quyền account thường/admin, session expired, mạng mất, Supabase unavailable.
-4. Test upload 4 định dạng, AI classify, hybrid search, filter, mở chunk và backup/export.
-5. Chạy unit, integration, lint, production build, package smoke test và manual test bản cài đặt.
-6. Viết hướng dẫn tải BGE-M3 worker/model cache, cài Ollama tùy chọn cho AI classify, backup/xóa dữ liệu local và chính sách riêng tư.
+1. Lưu bản cũ tại `archive/web-docker-before-desktop-2026-08-08`.
+2. Đồng bộ với `origin/main` mới nhất.
+3. Xóa Docker, Python service và PostgreSQL scripts.
+4. Chuyển các smoke/report script còn hữu ích sang SQLite.
+5. Xóa feature “đề xuất gộp chủ đề” khỏi UI, API và schema mới.
+6. Cập nhật CI cho môi trường Windows desktop.
+7. Chạy unit test, lint, production build và packaged smoke test.
+8. Chia commit theo nhóm chức năng.
+9. Đẩy nhánh và tạo Pull Request.
+10. Tạo GitHub Release kèm bộ cài Windows.
 
-## 4. Không làm trong đợt desktop đầu
+## 5. Giai đoạn 3 — Dashboard quản trị desktop
 
-- Đồng bộ hoặc chia sẻ tài liệu giữa thiết bị.
-- AI cloud mặc định hoặc server chạy BGE-M3 trả phí.
-- macOS/Linux installer.
-- Auto-update, thanh toán/quota, collaboration hoặc mobile app.
-- Gửi document content lên Supabase/Admin web.
+**Mức ưu tiên:** cao theo yêu cầu nhóm trưởng.
+**Trạng thái:** chưa triển khai.
 
-## 5. Rủi ro cần kiểm soát
+Phạm vi đề xuất:
 
-| Rủi ro | Cách xử lý |
-|---|---|
-| BGE-M3 chưa tải hoặc worker lỗi | Onboarding kiểm tra/tải model riêng và báo rõ embedding chưa sẵn sàng. |
-| Ollama/model phân loại không có | Chỉ mất AI classify; upload/search vẫn dùng BGE-M3 worker bình thường. |
-| Model BGE-M3 tốn dung lượng và dùng CPU/RAM | Báo trước khi tải; xử lý tuần tự và có tiến độ. |
-| Native SQLite extension khó package | Chỉ target Windows trước, test installer trên máy sạch ngay ở Giai đoạn B. |
-| Supabase Free bị pause khi không dùng | Desktop vẫn xem/tìm tài liệu local; chỉ login/admin tạm không dùng được cho đến khi project hoạt động lại. |
-| Mất máy/mất file local | Có export/backup rõ ràng; không hứa hẹn cloud recovery. |
+- Thêm role `USER` và `ADMIN` trong SQLite.
+- Tài khoản đầu tiên hoặc tài khoản seed được gán admin theo quy tắc rõ ràng.
+- Middleware/API kiểm tra role ở server nội bộ, không chỉ ẩn nút trên UI.
+- Dashboard hiển thị tổng số tài khoản và trạng thái.
+- Tìm kiếm, xem, thêm, sửa, khóa/mở và xóa tài khoản cục bộ.
+- Không cho admin xóa chính mình hoặc xóa admin cuối cùng.
+- Ghi audit log cho thao tác quản trị.
+- Test quyền truy cập cho user thường và admin.
+
+Giới hạn: dashboard này chỉ quản lý tài khoản trong cùng bản cài/database. Quản lý xuyên nhiều thiết bị cần backend trung tâm và là một quyết định kiến trúc khác.
+
+## 6. Giai đoạn 4 — Cải thiện sau MVP
+
+- Tối ưu embedding CPU: batch động, pause/resume và queue nhiều tài liệu.
+- Hiển thị tiến độ tải model lần đầu.
+- Backup/restore database và uploads trong giao diện.
+- OCR cho PDF scan.
+- Đo chất lượng tìm kiếm trên bộ dữ liệu đồ án cố định.
+- Ký số bộ cài và tự động hóa release khi có chứng chỉ phù hợp.
+
+## 7. Chiến lược kiểm thử
+
+### Mỗi commit
+
+- ESLint.
+- Unit test liên quan.
+- Kiểm tra không còn secret hoặc file build bị stage.
+
+### Trước Pull Request
+
+- Toàn bộ `test:unit`.
+- Production build.
+- Desktop standalone runtime test.
+- Kiểm tra các đường dẫn API và schema SQLite.
+
+### Trước Release
+
+- Tạo bản unpacked và chạy packaged smoke test.
+- Cài bằng NSIS trên Windows.
+- Mở app khi các dịch vụ Docker cũ đã dừng/gỡ bỏ.
+- Thêm tài liệu, xử lý, tìm kiếm, mở nguồn và khởi động lại app.
+- Kiểm tra OpenRouter/Ollama/Custom API với cả trường hợp thành công và lỗi.
+- Xác nhận file `.exe`, database, uploads và model cache không nằm trong commit.
+
+## 8. Chiến lược Git
+
+- `main`: phiên bản đã được nhóm duyệt.
+- `archive/web-docker-before-desktop-2026-08-08`: ảnh chụp bản web/Docker cũ.
+- `desktop-app`: nhánh hợp nhất desktop để review.
+
+Nhóm commit đề xuất:
+
+1. `feat(desktop): add standalone Electron and local embedding runtime`
+2. `refactor(storage): migrate application data and vectors to SQLite`
+3. `fix(app): improve AI connections, processing feedback and tag management`
+4. `chore: remove Docker, PostgreSQL and obsolete web artifacts`
+5. `docs: align project documents with desktop-only scope`
+
+Pull Request phải mô tả thay đổi kiến trúc, cách kiểm thử, giới hạn CPU/model download và vị trí GitHub Release.
+
+## 9. Điều kiện hoàn thành
+
+Phiên bản desktop được coi là sẵn sàng để gộp khi:
+
+- Không còn code hoặc workflow yêu cầu Docker/PostgreSQL/Python.
+- Tất cả tài liệu mô tả cùng một phạm vi desktop-only.
+- Unit test, lint, build và packaged smoke test đạt.
+- Có nhánh lưu trữ bản cũ và Pull Request để nhóm review.
+- Bộ cài chạy độc lập và được phát hành ngoài source tree.

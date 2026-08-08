@@ -1,148 +1,89 @@
-# ScholarFlow
+# ScholarFlow Desktop
 
-> Bản hiện hành (22/07/2026): ScholarFlow tập trung vào tự động phân loại và tìm nguồn tham khảo phù hợp. Các ghi chú lịch sử về hỏi–đáp/AI Answer trong tài liệu cũ không còn áp dụng cho luồng tìm kiếm hiện tại.
+ScholarFlow là ứng dụng desktop Windows giúp sinh viên lưu trữ, phân loại và tìm lại học liệu bằng tìm kiếm ngữ nghĩa. Ứng dụng hỗ trợ PDF, DOCX, PPTX và EPUB; tự trích xuất nội dung, chia đoạn, tạo vector BGE-M3 và cho phép tìm nguồn phù hợp bằng câu hỏi tự nhiên.
 
-ScholarFlow là app quản lý và tìm nguồn tham khảo từ tài liệu học tập. Bạn có thể tải PDF, DOCX, PPTX hoặc EPUB lên app để hệ thống tự trích xuất nội dung, dùng AI phân loại chủ đề/độ khó, tạo embedding local, rồi tìm đúng tài liệu và đoạn liên quan cho nhu cầu Research Project.
+> Phiên bản chính thức của dự án là ứng dụng desktop. Repo không còn sử dụng Docker, PostgreSQL, Python embedding service hoặc một bản web triển khai riêng.
 
-## Cần cài trước
+## Chức năng chính
 
-- Docker Desktop
-- Nếu muốn chạy GPU: máy cần NVIDIA GPU và Docker đã hỗ trợ GPU/WSL2
+- Đăng ký, đăng nhập và quản lý thư viện cục bộ.
+- Thêm tài liệu PDF, DOCX, PPTX và EPUB.
+- Trích xuất văn bản và giữ vị trí nguồn như trang, slide hoặc mục.
+- Chia nội dung thành các đoạn và tạo vector BGE-M3 1.024 chiều trên máy.
+- Phân tích chủ đề, độ khó, ngôn ngữ và tóm tắt bằng OpenRouter, Ollama hoặc Custom API.
+- Tìm kiếm kết hợp ngữ nghĩa, từ khóa và bộ lọc metadata.
+- Hiển thị đoạn phù hợp nhất, lý do phù hợp và vị trí để mở lại nguồn.
+- Quản lý chủ đề, tên gọi khác và gộp thủ công các chủ đề trùng nhau.
+- Theo dõi tiến trình xử lý, thử lại bước lỗi và phân tích lại bằng AI.
 
-## Mở app
-
-Cách dễ nhất trên Windows là double-click file ở thư mục này:
-
-- `start-cpu.bat`: chạy app bình thường, dùng được cho hầu hết máy.
-- `start-gpu.bat`: chạy app với GPU/CUDA để embedding nhanh hơn.
-- `stop.bat`: tắt app.
-
-Sau khi mở thành công, vào:
-
-```text
-http://localhost:3000
-```
-
-Nếu muốn tự gõ lệnh:
-
-```powershell
-docker compose up --build -d web
-```
-
-Nếu dùng Podman/Arch Linux thay cho Docker Desktop, nên chạy toàn bộ service:
-
-```powershell
-docker compose up --build -d
-```
-
-Không nên chỉ chạy riêng `web` trên Podman, vì Podman Compose có thể không tự tạo đủ service phụ thuộc như `postgres` và `embedding`.
-
-Chạy bằng GPU:
-
-```powershell
-docker compose -f docker-compose.yml -f docker-compose.cuda.yml up --build -d web
-```
-
-Tắt app:
-
-```powershell
-docker compose down
-```
-
-Lần đầu chạy có thể lâu vì app cần tải model embedding `BAAI/bge-m3`.
-
-## Dùng Ollama với Docker
-
-Nếu app chạy bằng Docker Desktop trên Windows và Ollama cũng chạy trên Windows, mở Ollama bằng PowerShell:
-
-```powershell
-$env:OLLAMA_HOST="0.0.0.0:11434"
-ollama serve
-```
-
-Trong app chọn `Ollama` và dùng Base URL:
+## Kiến trúc hiện tại
 
 ```text
-http://host.docker.internal:11434
+Electron Desktop
+  ├─ Next.js chạy nội bộ trên 127.0.0.1
+  ├─ SQLite + sqlite-vec
+  ├─ BGE-M3 qua Transformers.js/ONNX Runtime
+  └─ OpenRouter / Ollama / Custom API (tùy chọn cho phân tích AI)
 ```
 
-Nếu app chạy bằng Docker/Podman trong Linux hoặc WSL, cách ổn định nhất là chạy Ollama trong cùng môi trường Linux/WSL đó:
+Next.js chỉ là dịch vụ giao diện chạy bên trong Electron và không phải một phiên bản web dành cho người dùng. Electron tự khởi động, kiểm tra và dừng các tiến trình nội bộ theo vòng đời ứng dụng.
 
-```bash
-OLLAMA_HOST=0.0.0.0:11434 ollama serve
-```
+## Dữ liệu cục bộ
 
-Kiểm tra Ollama từ Linux/WSL:
+Theo mặc định, ScholarFlow lưu dữ liệu trong `%APPDATA%\ScholarFlow`:
 
-```bash
-curl http://localhost:11434
-```
+- `data\scholarflow.db`: cơ sở dữ liệu SQLite.
+- `data\uploads`: tài liệu đã thêm.
+- `models`: bộ nhớ đệm mô hình BGE-M3.
+- `logs\desktop.log`: nhật ký chẩn đoán.
 
-Nếu thấy `Ollama is running`, vào app chọn `Ollama` và để Base URL:
+API key và dữ liệu cá nhân không được commit vào Git. Lần tạo embedding đầu tiên cần Internet để tải BGE-M3, dung lượng bộ nhớ đệm hiện khoảng 2,1 GB. Sau khi đã tải, tạo embedding và tìm kiếm có thể chạy cục bộ.
 
-```text
-http://localhost:11434
-```
+## Chạy mã nguồn
 
-Nếu bắt buộc chạy Ollama bên Windows nhưng app/container chạy trong WSL/Podman, đây là setup nâng cao vì `localhost` của container không phải Windows. Trong WSL lấy IP gateway:
+Yêu cầu phát triển:
 
-```bash
-ip route | grep default
-```
-
-Lấy IP sau chữ `via`, ví dụ `172.x.x.1`, rồi thử:
-
-```bash
-curl http://172.x.x.1:11434
-```
-
-Nếu Windows chặn kết nối, mở PowerShell bằng quyền admin và cho phép port Ollama:
-
-```powershell
-New-NetFirewallRule -DisplayName "Ollama 11434 for WSL" -Direction Inbound -Action Allow -Protocol TCP -LocalPort 11434
-```
-
-Khi `curl` từ WSL trả về `Ollama is running`, nhập Base URL trong app theo IP đó, ví dụ:
-
-```text
-http://172.x.x.1:11434
-```
-
-## Cách dùng
-
-1. Mở app và đăng ký/đăng nhập.
-2. Vào `Thêm tài liệu` để tải file lên.
-3. Chờ app trích xuất nội dung, chia chunk, tạo embedding và phân tích AI.
-4. Vào `Tìm tài liệu`, mô tả nhu cầu bằng ngôn ngữ tự nhiên và chọn bộ lọc nếu cần.
-5. Xem chủ đề, độ khó, đoạn khớp và lý do phù hợp trước khi mở đúng đoạn hoặc trang trong file gốc.
-
-> Lưu ý: tìm kiếm không gọi AI chat. Vector của câu truy vấn kết hợp với keyword để tìm và xếp hạng tài liệu; AI chỉ được dùng ở bước upload/phân tích tài liệu.
-
-Nếu tài liệu bị lỗi hoặc thiếu bước xử lý, mở chi tiết tài liệu rồi bấm `Xử lý phần còn thiếu`. Nếu chỉ muốn chạy lại phần AI, bấm `Phân tích AI lại`.
-
-## Ghi chú nhanh
-
-- Embedding dùng BGE-M3 local.
-- CPU là chế độ mặc định.
-- GPU chỉ dùng khi chạy bằng `start-gpu.bat` hoặc lệnh GPU ở trên.
-- Image CPU nhẹ hơn; image GPU sẽ nặng hơn vì cần thêm thư viện CUDA.
-- App có OCR cho PDF scan/tài liệu không copy được chữ.
-- Dữ liệu được lưu trong Docker volumes gồm database, uploads và cache model.
-
-## Kiểm tra code khi cần
+- Windows 10/11 x64.
+- Node.js 22 và npm.
 
 ```powershell
 cd learning-resource-app
-npm run lint
-npm run build
+npm ci
+npm run dev
 ```
 
-## Công nghệ chính
+Lệnh `npm run dev` mở cửa sổ Electron, không mở một sản phẩm web độc lập.
 
-Next.js, TypeScript, Auth.js, PostgreSQL, Prisma, pgvector, FastAPI, BGE-M3, OpenRouter, Ollama và Custom API.
+## Kiểm thử
 
-## Tài liệu dự án
+```powershell
+npm run lint
+npm run test:unit
+npm run build
+npm run test:desktop-runtime
+```
 
-- [PRD.md](PRD.md)
-- [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md)
-- [PROJECT_CHECKLIST.md](PROJECT_CHECKLIST.md)
+Kiểm tra bản đã đóng gói:
+
+```powershell
+npm run desktop:package:dir
+npm run test:desktop-packaged
+```
+
+## Đóng gói bộ cài Windows
+
+```powershell
+npm run desktop:package
+```
+
+Bộ cài được tạo trong `learning-resource-app\dist-electron`. Thư mục build và file cài đặt không được commit vào repo; bản phát hành được tải lên GitHub Releases.
+
+## Giới hạn hiện tại
+
+- Tài liệu lớn có thể tạo embedding chậm khi chỉ dùng CPU.
+- PDF scan chưa có lớp văn bản cần OCR trước khi thêm.
+- Phân tích metadata cần một kết nối AI hợp lệ; thư viện và tìm kiếm vẫn dùng dữ liệu đã xử lý cục bộ.
+- Chưa có đồng bộ dữ liệu giữa nhiều máy.
+- Dashboard quản trị tài khoản trong desktop là hạng mục ưu tiên tiếp theo và chưa nằm trong bản MVP hiện tại.
+
+Chi tiết phạm vi sản phẩm nằm trong [PRD.md](PRD.md), tiến độ trong [PROJECT_CHECKLIST.md](PROJECT_CHECKLIST.md) và kế hoạch kỹ thuật trong [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md).

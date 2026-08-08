@@ -1,106 +1,162 @@
-# PRD — ScholarFlow: Hệ thống quản lý học liệu thông minh
+# PRD — ScholarFlow Desktop
 
-**Phiên bản:** 1.0 (bản hiện tại)
-**Cập nhật:** 28/07/2026
-**Tên đề tài:** Hệ thống tự động phân loại và quản lý học liệu thông minh (Smart Learning Resources Management)
+**Phiên bản:** 1.0
+**Cập nhật:** 08/08/2026
+**Trạng thái:** MVP desktop đang hoàn thiện để báo cáo đồ án
 
-## 1. Mục đích
+## 1. Tổng quan
 
-ScholarFlow giúp sinh viên quản lý eBooks, slides và tài liệu nghiên cứu; tự động phân loại chúng bằng NLP; rồi tìm nguồn tham khảo phù hợp cho một nhu cầu Research Project.
+ScholarFlow là ứng dụng desktop quản lý học liệu thông minh dành cho sinh viên. Sản phẩm giải quyết vấn đề tài liệu học tập nằm rải rác, khó phân loại và khó tìm lại đúng đoạn cần dùng. ScholarFlow biến tài liệu thành một thư viện cục bộ có thể tìm kiếm bằng ngôn ngữ tự nhiên và luôn hiển thị nguồn để người dùng kiểm chứng.
 
-Sản phẩm không phải chatbot hỏi–đáp. Giá trị chính là giúp người dùng chọn **đúng tài liệu để đọc**, có đoạn nguồn và lý do phù hợp rõ ràng.
+Phiên bản thống nhất của dự án là ứng dụng Windows desktop. Không duy trì bản chạy web riêng và không phụ thuộc Docker, PostgreSQL hay Python ở máy người dùng.
 
-## 2. Người dùng và vấn đề
+## 2. Mục tiêu
 
-Sinh viên thường có nhiều PDF, PPTX, DOCX và EPUB nhưng khó biết:
+- Tập trung học liệu PDF, DOCX, PPTX và EPUB vào một thư viện.
+- Tự động trích xuất, chia đoạn và lập chỉ mục nội dung.
+- Hỗ trợ tìm nguồn theo ý nghĩa, không chỉ theo từ khóa chính xác.
+- Tự động gợi ý metadata để giảm thao tác phân loại thủ công.
+- Giữ tài liệu, vector và lịch sử tìm kiếm trên máy người dùng.
+- Đóng gói thành bộ cài Windows có thể sử dụng mà không cần môi trường lập trình.
 
-- Tài liệu thuộc chủ đề nào và phù hợp với trình độ nào.
-- Tài liệu nào nên dùng làm nguồn cho nhu cầu nghiên cứu đang có.
-- Đoạn nào trong tài liệu thực sự liên quan thay vì chỉ khớp từ khóa trong mục lục hoặc copyright.
+## 3. Người dùng mục tiêu
 
-## 3. Phạm vi sản phẩm hiện tại
+### Sinh viên
 
-### 3.1 Chức năng có
+- Lưu tài liệu môn học và tài liệu tham khảo.
+- Tìm nhanh đoạn phù hợp cho bài tập, báo cáo hoặc ôn tập.
+- Lọc tài liệu theo chủ đề, độ khó và định dạng.
 
-1. Đăng ký, đăng nhập và thư viện riêng theo từng tài khoản.
-2. Upload PDF, PPTX, DOCX, EPUB; trích xuất nội dung và lưu vị trí nguồn (trang, slide, chương hoặc heading).
-3. Chia nội dung thành chunks và tạo embedding BGE-M3 local.
-4. Phân tích AI khi upload: chủ đề chính, tags, độ khó, tóm tắt và keywords.
-5. Quản lý thư viện, xem chi tiết tài liệu và chỉnh lại metadata khi cần.
-6. Tìm tài liệu bằng câu tự nhiên, kết hợp vector search và keyword search.
-7. Lọc luôn hiển thị theo chủ đề, độ khó và loại file.
-8. Mỗi kết quả hiển thị một tài liệu, đoạn liên quan nhất, metadata và `Vì sao phù hợp`; mở đúng vị trí đoạn nguồn.
-9. Lưu query/filter/kết quả trong phiên; `Xóa kết quả` chỉ xóa danh sách để người dùng chỉnh query và tìm lại.
-10. Cấu hình AI provider để phân tích tài liệu (Ollama, OpenRouter hoặc Custom API).
+### Quản trị viên cục bộ — giai đoạn tiếp theo
 
-### 3.2 Không có trong bản hiện tại
+- Quản lý tài khoản được tạo trên cùng thiết bị.
+- Xem số lượng và trạng thái tài khoản.
+- Thêm, sửa, khóa hoặc xóa tài khoản theo phân quyền.
 
-- Chatbot/RAG trả lời kiến thức từ kết quả tìm kiếm.
-- AI Answer hoặc AI Curate trong trang search.
-- Đồng bộ tài liệu giữa các máy.
-- Web admin quản lý user.
-- Desktop installer cho người dùng cuối.
-- Chia sẻ thư viện, collaboration hoặc Knowledge Graph.
+Dashboard quản trị phải nằm trong ứng dụng desktop nếu được triển khai; không tạo thêm một sản phẩm web admin riêng.
 
-## 4. Luồng nghiệp vụ
+## 4. Phạm vi MVP hiện tại
 
-```text
-Thêm tài liệu
--> trích xuất text + chia chunk
--> embedding BGE-M3 local
--> AI phân loại chủ đề, tag, độ khó, tóm tắt
--> lưu thư viện
+### 4.1 Tài khoản
 
-Tìm tài liệu
--> toàn bộ câu query thành vector
--> lấy 30 vector candidates + 30 keyword candidates
--> hybrid rerank + loại boilerplate/đoạn yếu
--> tối đa một chunk tốt nhất cho mỗi tài liệu
--> hiển thị tài liệu, đoạn nguồn và lý do phù hợp
-```
+- Đăng ký, đăng nhập và đăng xuất.
+- Cô lập tài liệu, chủ đề, cấu hình AI và lịch sử tìm kiếm theo tài khoản cục bộ.
 
-Keyword chỉ bổ sung truy xuất/xếp hạng; vector luôn dùng toàn bộ câu người dùng nhập và được ưu tiên hơn keyword-only result. Search không gọi LLM.
+### 4.2 Quản lý tài liệu
 
-## 5. Yêu cầu chức năng
+- Nhận file PDF, DOCX, PPTX và EPUB.
+- Kiểm tra loại file, kích thước và tên file trước khi lưu.
+- Hiển thị thư viện, chi tiết, trạng thái và tiến trình xử lý.
+- Xem/tải file gốc và xem nội dung đã trích xuất.
+- Xóa tài liệu cùng chunk và vector liên quan.
+- Thử lại bước còn thiếu hoặc phân tích AI lại.
 
-| Mã | Yêu cầu | Tiêu chí chấp nhận |
-|---|---|---|
-| FR-01 | Quản lý tài liệu | User chỉ thấy và thao tác tài liệu của mình. |
-| FR-02 | Phân loại tự động | Tài liệu sau xử lý có primary topic, difficulty, tags và summary. |
-| FR-03 | Tìm theo ngữ nghĩa | Câu diễn đạt tự nhiên vẫn tìm được tài liệu liên quan dù không trùng nguyên văn. |
-| FR-04 | Hybrid retrieval | Vector và keyword chạy song song; vector-backed result đứng trước keyword-only result. |
-| FR-05 | Lọc nguồn | Filter topic, difficulty, file type chỉ trả tài liệu đúng điều kiện. |
-| FR-06 | Lý do phù hợp | Mỗi card giải thích bằng rule: khớp ngữ nghĩa, từ khóa, filter và metadata; không lộ score kỹ thuật. |
-| FR-07 | Truy vết nguồn | Mở card đi đến đúng tài liệu/chunk và quay lại vẫn giữ kết quả. |
-
-## 6. Yêu cầu phi chức năng
-
-- Giao diện tiếng Việt, dễ dùng trên desktop và mobile browser.
-- Dữ liệu file và embedding hiện nằm local trong Docker volumes.
-- BGE-M3 chạy local; GPU là tùy chọn, CPU là mặc định.
-- Search một query không gửi toàn bộ tài liệu qua LLM.
-- Kết quả không được ưu tiên boilerplate như copyright/mục lục nếu có chunk nội dung phù hợp hơn.
-
-## 7. Kiến trúc hiện tại
+### 4.3 Pipeline xử lý
 
 ```text
-Next.js + TypeScript + Auth.js + Prisma
-            |
-PostgreSQL + pgvector (Docker)
-            |
-FastAPI embedding service + BGE-M3 (Docker/local)
-            |
-Ollama / OpenRouter / Custom API (phân tích lúc upload)
+Thêm file
+  → Trích xuất nội dung
+  → Chia thành đoạn có vị trí nguồn
+  → Tạo vector BGE-M3 local
+  → Phân tích metadata bằng AI nếu đã cấu hình
+  → Đưa vào thư viện và tìm kiếm
 ```
 
-Docker là môi trường phát triển và demo hiện tại. Đây chưa phải bản desktop hay bản cloud production.
+Mỗi bước có trạng thái `PENDING`, `PROCESSING`, `COMPLETED` hoặc `FAILED`. Lỗi phải được rút gọn thành thông báo dễ hiểu, không đưa stack trace, HTML hoặc mã nguồn lên giao diện.
 
-## 8. Đánh giá hiện có
+### 4.4 AI phân tích tài liệu
 
-- Hybrid search smoke test, unit test, integration test, lint, production build và Docker smoke test đã pass.
-- Bộ đánh giá 28 truy vấn demo: Recall@5 = 1.00, MRR = 1.00.
-- 10 truy vấn ngoài phạm vi đạt rejection rate 100% trên demo fixture.
+- Hỗ trợ OpenRouter, Ollama chạy trên máy và Custom API tương thích chat completions.
+- Cho phép thêm, sửa, kiểm tra, đặt mặc định và xóa kết nối.
+- Phân tích chủ đề chính, độ khó, ngôn ngữ, tóm tắt và tên chủ đề liên quan.
+- API key được mã hóa trước khi lưu.
+- Lỗi phổ biến cần được nhận diện: URL/model sai, API key sai, không đủ quyền, hết hạn mức, quá tải, timeout và mất kết nối.
 
-## 9. Hướng phát triển đã chốt nhưng chưa thuộc PRD hiện tại
+AI phân tích metadata là tùy chọn. Embedding tìm kiếm luôn dùng BGE-M3 local và không phụ thuộc Ollama.
 
-Phiên bản kế tiếp sẽ là Electron local-first cho Windows: tài liệu, BGE-M3, vector và search vẫn ở máy người dùng; Supabase Free chỉ xử lý đăng nhập và web admin quản lý tài khoản. Chi tiết triển khai nằm trong `IMPLEMENTATION_PLAN.md` và `PROJECT_CHECKLIST.md`.
+### 4.5 Tìm kiếm học liệu
+
+- Nhận câu truy vấn tự nhiên bằng tiếng Việt hoặc tiếng Anh.
+- Kết hợp vector BGE-M3, từ khóa và metadata.
+- Cho phép lọc theo chủ đề, độ khó, loại file và thời gian.
+- Chỉ hiển thị kết quả đủ liên quan.
+- Mỗi tài liệu lấy đoạn phù hợp nhất để tránh lặp kết quả.
+- Hiển thị tiêu đề, đoạn trích, lý do phù hợp, trang/slide/mục và liên kết mở nguồn.
+
+Tìm kiếm hiện tại là tìm nguồn tham khảo, không phải chatbot sinh câu trả lời thay cho tài liệu.
+
+### 4.6 Chủ đề
+
+- Tạo tên chủ đề chuẩn và các tên gọi khác.
+- Chuẩn hóa tên để hạn chế trùng lặp.
+- Gắn chủ đề vào tài liệu từ kết quả AI hoặc thao tác người dùng.
+- Cho phép đổi tên, thêm alias, xóa và gộp thủ công.
+- Không có tính năng “đề xuất gộp chủ đề” chờ duyệt.
+
+### 4.7 Dashboard
+
+- Thống kê số tài liệu, tài liệu sẵn sàng và chủ đề.
+- Hiển thị tài liệu mới thêm và thao tác nhanh.
+- Phản ánh đúng trạng thái xử lý của thư viện cục bộ.
+
+## 5. Yêu cầu phi chức năng
+
+### Hiệu năng
+
+- Giao diện không bị khóa trong lúc xử lý tài liệu.
+- Có tiến độ, tốc độ và thời gian ước tính khi tạo embedding.
+- Tái sử dụng model cache giữa các lần mở ứng dụng.
+
+### Bảo mật và riêng tư
+
+- Dịch vụ nội bộ chỉ lắng nghe trên `127.0.0.1`.
+- Electron bật context isolation, sandbox và tắt node integration trong renderer.
+- Không commit `.env`, API key, database, file người dùng, model cache hoặc file cài đặt.
+- Chỉ mở URL ngoài bằng HTTPS qua trình duyệt hệ thống.
+
+### Độ tin cậy
+
+- Electron tự khởi động và tự dừng Next.js nội bộ cùng embedding runtime.
+- SQLite migration chạy lặp lại an toàn.
+- Có thể thử lại bước xử lý bị lỗi mà không cần thêm lại tài liệu.
+
+### Khả năng triển khai
+
+- Hỗ trợ Windows 10/11 x64 trong MVP.
+- Phát hành bằng bộ cài NSIS trên GitHub Releases.
+- Người dùng cuối không cần Node.js, Docker, PostgreSQL hoặc Python.
+
+## 6. Kiến trúc dữ liệu
+
+- SQLite lưu tài khoản cục bộ, metadata, nội dung trích xuất, chunks, jobs, tags và cấu hình AI.
+- sqlite-vec lập chỉ mục vector 1.024 chiều.
+- File tải lên, database, model cache và log nằm dưới `%APPDATA%\ScholarFlow`.
+- BGE-M3 chạy qua Transformers.js và ONNX Runtime trong tiến trình con do Electron quản lý.
+
+## 7. Ngoài phạm vi MVP
+
+- Triển khai ứng dụng như website công khai.
+- Docker, PostgreSQL, pgvector hoặc Python embedding service.
+- Đồng bộ tài liệu và vector giữa nhiều thiết bị.
+- OCR tích hợp cho PDF scan.
+- Chatbot tạo câu trả lời dài từ nhiều tài liệu.
+- Dashboard quản trị và phân quyền hoàn chỉnh; đây là hạng mục ưu tiên của giai đoạn tiếp theo.
+
+## 8. Tiêu chí nghiệm thu MVP
+
+- Cài và mở ScholarFlow trên Windows mà không cài thêm dịch vụ nền.
+- Thêm và xử lý được ít nhất một file thuộc mỗi định dạng hỗ trợ.
+- Tạo được vector BGE-M3 1.024 chiều khi các dịch vụ cũ đã dừng/gỡ bỏ.
+- Tìm được tài liệu liên quan bằng truy vấn tự nhiên và mở đúng vị trí nguồn.
+- Kết nối, sửa và kiểm tra được ít nhất một nhà cung cấp AI.
+- Thông báo lỗi AI ngắn gọn và không làm lộ chi tiết kỹ thuật.
+- Dữ liệu được giữ sau khi đóng và mở lại ứng dụng.
+- Unit test, lint, production build và packaged smoke test đều đạt trước khi phát hành.
+
+## 9. Rủi ro và giới hạn
+
+- BGE-M3 chạy CPU có thể chậm với tài liệu rất lớn.
+- Lần đầu cần tải model khoảng 2,1 GB và phụ thuộc tốc độ mạng.
+- File scan không có text layer sẽ cho kết quả trích xuất kém nếu chưa OCR.
+- OpenRouter và Custom API có thể phát sinh chi phí hoặc giới hạn theo nhà cung cấp.
+- Quản lý nhiều người dùng trên nhiều máy cần một kiến trúc đồng bộ khác và chưa thuộc phạm vi desktop local hiện tại.
