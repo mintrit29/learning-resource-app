@@ -67,10 +67,15 @@ function stopApplication() {
   } else {
     child.kill("SIGTERM");
   }
+  child.stdout?.destroy();
+  child.stderr?.destroy();
+  child.unref();
 }
 
 try {
-  child = spawn(executable, [], {
+  // The isolated Windows test account cannot load Chromium's GPU child DLLs.
+  // Keep this workaround test-only so the released app retains process isolation.
+  child = spawn(executable, ["--in-process-gpu"], {
     env: childEnvironment,
     stdio: ["ignore", "pipe", "pipe"],
     windowsHide: true,
@@ -102,5 +107,15 @@ try {
   console.log("PASS packaged desktop: app window runtime, fresh local database and registration");
 } finally {
   stopApplication();
-  await rm(userDataRoot, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
+  // Windows may keep Chromium cache files locked briefly after taskkill returns.
+  await new Promise((resolve) => setTimeout(resolve, 1_000));
+  await rm(userDataRoot, { recursive: true, force: true, maxRetries: 5, retryDelay: 250 }).catch((error) => {
+    if (error?.code === "EBUSY" || error?.code === "EPERM") {
+      console.warn(`WARN packaged desktop: Windows kept temporary cache locked at ${userDataRoot}`);
+      return;
+    }
+    throw error;
+  });
 }
+
+process.exit(0);
