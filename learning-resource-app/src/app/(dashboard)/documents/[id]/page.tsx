@@ -92,10 +92,12 @@ export default async function DocumentDetailPage({
   if (matchedChunkId) textViewParams.set("chunk", matchedChunkId);
   if (!shouldShowFullText) textViewParams.set("fullText", "1");
   const textViewHref = `/documents/${document.id}${textViewParams.size ? `?${textViewParams.toString()}` : ""}#extracted-text`;
-  const canPreviewOriginalFile = document.fileType === "PDF";
-  const matchedPdfPage = canPreviewOriginalFile && matchedChunk?.pageNumber ? matchedChunk.pageNumber : null;
-  const originalFilePreviewHref = matchedPdfPage ? `${originalFileHref}#page=${matchedPdfPage}` : originalFileHref;
-  const originalFileActionLabel = canPreviewOriginalFile ? "Mở file gốc" : "Tải file gốc";
+  const isPdf = document.fileType === "PDF";
+  const matchedPdfPage = isPdf && matchedChunk?.pageNumber ? matchedChunk.pageNumber : null;
+  const originalFilePreviewHref = isPdf
+    ? matchedPdfPage ? `${originalFileHref}#page=${matchedPdfPage}` : originalFileHref
+    : `/api/documents/${document.id}/preview`;
+  const originalFileActionLabel = "Mở bản xem";
   const embeddingDevice = (process.env.EMBEDDING_DEVICE ?? "cpu").toLowerCase();
   const latestJobsByType = new Map<string, (typeof document.jobs)[number]>();
   for (const job of document.jobs) latestJobsByType.set(job.type, job);
@@ -193,37 +195,26 @@ export default async function DocumentDetailPage({
             <p>
               {matchedPdfPage
                 ? `PDF đang mở sẵn trang ${matchedPdfPage}, trùng với đoạn khớp phía trên.`
-                : canPreviewOriginalFile
+                : isPdf
                 ? "PDF có thể xem trực tiếp trong app. Nếu muốn kiểm tra bằng tab riêng, bấm mở file gốc."
-                : "Trình duyệt thường không xem trực tiếp DOCX/PPTX/EPUB, nên app sẽ tải file gốc để bạn mở bằng phần mềm phù hợp."}
+                : `${document.fileType} được chuyển thành bản xem nhanh và hiển thị ngay trong app. Bố cục phức tạp có thể khác nhẹ so với phần mềm gốc.`}
             </p>
           </div>
           <div className="original-file-actions">
-            {canPreviewOriginalFile ? (
-              <a className="secondary-button compact" href={originalFilePreviewHref} target="_blank" rel="noreferrer">
-                {matchedPdfPage ? `Mở trang ${matchedPdfPage}` : "Mở tab riêng"} <ExternalLink size={15} />
-              </a>
-            ) : null}
+            <a className="secondary-button compact" href={originalFilePreviewHref} target="_blank" rel="noreferrer">
+              {matchedPdfPage ? `Mở trang ${matchedPdfPage}` : "Mở bản xem riêng"} <ExternalLink size={15} />
+            </a>
             <a className="secondary-button compact" href={originalFileDownloadHref}>
               Tải file <Download size={15} />
             </a>
           </div>
         </div>
-        {canPreviewOriginalFile ? (
-          <iframe
-            className="pdf-preview-frame"
-            src={originalFilePreviewHref}
-            title={`File gốc: ${document.originalFileName}`}
-          />
-        ) : (
-          <div className="file-download-card">
-            <FileText size={28} />
-            <div>
-              <strong>{document.originalFileName}</strong>
-              <p>{document.fileType} · {formatBytes(document.fileSize)}</p>
-            </div>
-          </div>
-        )}
+        <iframe
+          className={`document-preview-frame ${document.fileType.toLowerCase()}`}
+          sandbox={isPdf ? undefined : ""}
+          src={originalFilePreviewHref}
+          title={`Bản xem: ${document.originalFileName}`}
+        />
       </section>
 
       {document.status === "FAILED" ? (
@@ -235,11 +226,11 @@ export default async function DocumentDetailPage({
             </div>
             <a
               className="secondary-button compact"
-              href={canPreviewOriginalFile ? originalFileHref : originalFileDownloadHref}
-              target={canPreviewOriginalFile ? "_blank" : undefined}
-              rel={canPreviewOriginalFile ? "noreferrer" : undefined}
+              href={originalFilePreviewHref}
+              target="_blank"
+              rel="noreferrer"
             >
-              {originalFileActionLabel} {canPreviewOriginalFile ? <ExternalLink size={15} /> : <Download size={15} />}
+              {originalFileActionLabel} <ExternalLink size={15} />
             </a>
           </div>
         </section>

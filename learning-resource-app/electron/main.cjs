@@ -13,6 +13,8 @@ const HEALTH_PATH = "/api/health";
 const EMBEDDING_HEALTH_PATH = "/health";
 const STARTUP_TIMEOUT_MS = 120_000;
 const EMBEDDING_LISTEN_TIMEOUT_MS = 30_000;
+const EMBEDDING_RESTART_BASE_DELAY_MS = 1_000;
+const EMBEDDING_RESTART_MAX_DELAY_MS = 15_000;
 const SHUTDOWN_TIMEOUT_MS = 5_000;
 
 let mainWindow = null;
@@ -22,6 +24,9 @@ let serverUrl = null;
 let embeddingProcess = null;
 let embeddingStartupError = null;
 let embeddingUrl = null;
+let embeddingPort = null;
+let embeddingRestartAttempts = 0;
+let embeddingRestartTimer = null;
 let isQuitting = false;
 let allowQuit = false;
 let logStream = null;
@@ -81,6 +86,7 @@ function sanitizedChildEnvironment() {
     "EMBEDDING_HOST",
     "EMBEDDING_PORT",
     "SCHOLARFLOW_MODEL_CACHE",
+    "SCHOLARFLOW_EMBEDDING_MOCK",
     "DOCLING_RS_HOME",
     "PDFIUM_DYNAMIC_LIB_PATH",
     "DOCLING_LAYOUT_ONNX",
@@ -159,14 +165,40 @@ function forwardEmbeddingLogs(child) {
   child.stderr?.on("data", (chunk) => writeLog(`[embedding:error] ${String(chunk).trimEnd()}`));
   child.on("exit", (code, signal) => {
     writeLog(`Local embedding runtime đã dừng (code=${code ?? "null"}, signal=${signal ?? "null"})`);
+    if (embeddingProcess === child) embeddingProcess = null;
+    if (!isQuitting && embeddingPort) scheduleEmbeddingRestart();
   });
+}
+
+function scheduleEmbeddingRestart() {
+  if (isQuitting || !embeddingPort || embeddingRestartTimer) return;
+  embeddingRestartAttempts += 1;
+  const delay = Math.min(
+    EMBEDDING_RESTART_BASE_DELAY_MS * embeddingRestartAttempts,
+    EMBEDDING_RESTART_MAX_DELAY_MS,
+  );
+  writeLog(`Embedding runtime sẽ tự khởi động lại sau ${delay} ms.`);
+  embeddingRestartTimer = setTimeout(async () => {
+    embeddingRestartTimer = null;
+    try {
+      startEmbeddingService(embeddingPort);
+      await waitForEmbeddingServer(embeddingUrl);
+      embeddingRestartAttempts = 0;
+      writeLog("Embedding runtime đã tự khôi phục.");
+    } catch (error) {
+      writeLog(`Không thể tự khôi phục embedding runtime: ${error instanceof Error ? error.message : String(error)}`);
+      scheduleEmbeddingRestart();
+    }
+  }, delay);
 }
 
 function startEmbeddingService(port) {
   const { runtimeRoot, serviceEntry } = getEmbeddingRuntimePaths();
   const modelCache = path.join(app.getPath("userData"), "models");
   mkdirSync(modelCache, { recursive: true });
+  embeddingPort = port;
   embeddingUrl = `http://${HOST}:${port}`;
+  embeddingStartupError = null;
 
   const environment = {
     ...sanitizedChildEnvironment(),
@@ -177,6 +209,9 @@ function startEmbeddingService(port) {
     EMBEDDING_MAX_BATCH_TEXTS: "32",
     SCHOLARFLOW_MODEL_CACHE: modelCache,
     NODE_ENV: app.isPackaged ? "production" : "development",
+    ...(process.env.SCHOLARFLOW_EMBEDDING_MOCK === "1"
+      ? { SCHOLARFLOW_EMBEDDING_MOCK: "1" }
+      : {}),
   };
   const runtimeBinary = app.isPackaged
     ? process.execPath
@@ -360,6 +395,38 @@ async function waitForServer(url, healthToken) {
   throw new Error("ScholarFlow khởi động quá thời gian cho phép");
 }
 
+async function requestProcessingRecovery(url, healthToken) {
+  return new Promise((resolve) => {
+    const request = http.request(
+      `${url}/api/desktop/recover-processing`,
+      {
+        method: "POST",
+        timeout: 10_000,
+        headers: { "x-scholarflow-health-token": healthToken },
+      },
+      (response) => {
+        let body = "";
+        response.setEncoding("utf8");
+        response.on("data", (chunk) => {
+          body += chunk;
+          if (body.length > 10_000) response.destroy();
+        });
+        response.on("end", () => {
+          try {
+            const result = JSON.parse(body);
+            resolve(response.statusCode === 200 ? result : null);
+          } catch {
+            resolve(null);
+          }
+        });
+      },
+    );
+    request.once("timeout", () => request.destroy());
+    request.once("error", () => resolve(null));
+    request.end();
+  });
+}
+
 function isAllowedAppUrl(targetUrl) {
   if (!serverUrl) return false;
   try {
@@ -384,8 +451,8 @@ function createMainWindow() {
   mainWindow = new BrowserWindow({
     width: 1280,
     height: 820,
-    minWidth: 960,
-    minHeight: 640,
+    minWidth: 720,
+    minHeight: 540,
     show: false,
     backgroundColor: "#f6f7fb",
     title: "ScholarFlow",
@@ -454,6 +521,10 @@ async function stopServer() {
 }
 
 async function stopEmbeddingService() {
+  if (embeddingRestartTimer) {
+    clearTimeout(embeddingRestartTimer);
+    embeddingRestartTimer = null;
+  }
   const child = embeddingProcess;
   if (!child) return;
   embeddingProcess = null;
@@ -475,7 +546,7 @@ async function stopEmbeddingService() {
 
 async function bootstrap() {
   initializeLogging();
-  const embeddingPort = await findFreePort();
+  embeddingPort = await findFreePort();
   startEmbeddingService(embeddingPort);
   await waitForEmbeddingServer(embeddingUrl);
 
@@ -485,6 +556,10 @@ async function bootstrap() {
   writeLog(`Khởi động ScholarFlow tại ${serverUrl}`);
   startNextServer(port, healthToken, embeddingUrl);
   await waitForServer(serverUrl, healthToken);
+  const recovery = await requestProcessingRecovery(serverUrl, healthToken);
+  if (recovery?.scheduled) {
+    writeLog(`Đã xếp lại ${recovery.scheduled} tài liệu bị gián đoạn.`);
+  }
   writeLog("Dịch vụ local đã sẵn sàng; đang mở cửa sổ ứng dụng.");
   createMainWindow();
 }

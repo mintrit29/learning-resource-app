@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import {
   ArrowUpRight,
   BookOpen,
@@ -64,11 +65,12 @@ function getProviderStatus(provider: { displayName: string; type: string; authSt
 
 export default async function DashboardPage() {
   const session = await auth();
-  const userId = session!.user.id;
+  if (!session?.user?.id) redirect("/login");
+  const userId = session.user.id;
   await ensureCurriculumTopics(userId);
   const [
     documentCount,
-    readyCount,
+    processedCount,
     recentDocuments,
     topicRows,
     difficultyRows,
@@ -80,11 +82,7 @@ export default async function DashboardPage() {
     db.document.count({
       where: {
         userId,
-        status: { not: DocumentStatus.FAILED },
-        primaryTopic: { not: null },
-        difficulty: { not: null },
-        summary: { not: null },
-        chunks: { some: {}, none: { embedding: null } },
+        status: DocumentStatus.READY,
         jobs: { none: { status: { in: [JobStatus.PENDING, JobStatus.PROCESSING] } } },
       },
     }),
@@ -139,7 +137,7 @@ export default async function DashboardPage() {
 
   const maxTopicCount = Math.max(1, ...topicRows.map((row) => row._count._all));
   const maxDifficultyCount = Math.max(1, ...difficultyRows.map((row) => row._count._all));
-  const readyRate = documentCount ? Math.round((readyCount / documentCount) * 100) : 0;
+  const processedRate = documentCount ? Math.round((processedCount / documentCount) * 100) : 0;
   const visibleStatusRows = statusRows.filter((row) => row.status === "FAILED");
   const providerStatus = getProviderStatus(activeProvider);
 
@@ -176,8 +174,8 @@ export default async function DashboardPage() {
     },
     {
       label: "Đã xử lý xong",
-      value: `${readyRate}%`,
-      detail: `${readyCount}/${documentCount} tài liệu đã đọc + phân tích`,
+      value: `${processedRate}%`,
+      detail: `${processedCount}/${documentCount} tài liệu đã hoàn tất xử lý`,
       icon: Sparkles,
     },
     {

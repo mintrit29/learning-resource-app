@@ -1,11 +1,13 @@
 import { after, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { JobStatus, JobType } from "@/generated/prisma/enums";
-import { analyzeDocument } from "@/lib/ai/analyze-document";
 import { db } from "@/lib/db";
-import { enqueueDocumentPipeline } from "@/lib/documents/document-processing-queue";
+import {
+  enqueueDocumentAnalysis,
+  enqueueDocumentEmbedding,
+  enqueueDocumentPipeline,
+} from "@/lib/documents/document-processing-queue";
 import { resetDocumentJob } from "@/lib/documents/processing-jobs";
-import { embedDocumentChunks } from "@/lib/embedding/embed-document";
 
 export const runtime = "nodejs";
 
@@ -41,13 +43,14 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
       resetDocumentJob(id, JobType.EMBED_DOCUMENT),
       resetDocumentJob(id, JobType.ANALYZE_DOCUMENT),
     ]);
-    after(() => enqueueDocumentPipeline({
+    const processing = enqueueDocumentPipeline({
       documentId: id,
       extractionJobId: jobs[0].id,
       chunkJobId: jobs[1].id,
       embeddingJobId: jobs[2].id,
       analysisJobId: jobs[3].id,
-    }));
+    });
+    after(() => processing);
     return NextResponse.json({ message: "Đã chạy lại từ bước xử lý đầu tiên còn thiếu" }, { status: 202 });
   }
 
@@ -58,26 +61,19 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
   if (missing > 0) {
     const embeddingJob = await resetDocumentJob(id, JobType.EMBED_DOCUMENT);
     const analysisJob = analysisComplete ? null : await resetDocumentJob(id, JobType.ANALYZE_DOCUMENT);
-    after(async () => {
-      const embedded = await embedDocumentChunks(id, embeddingJob.id);
-      if (embedded && analysisJob) await analyzeDocument(id, analysisJob.id);
-      if (!embedded && analysisJob) {
-        await db.analysisJob.update({
-          where: { id: analysisJob.id },
-          data: {
-            status: JobStatus.FAILED,
-            errorMessage: "Không thể phân tích vì bước embedding thất bại",
-            finishedAt: new Date(),
-          },
-        });
-      }
+    const processing = enqueueDocumentEmbedding({
+      documentId: id,
+      embeddingJobId: embeddingJob.id,
+      analysisJobId: analysisJob?.id,
     });
+    after(() => processing);
     return NextResponse.json({ message: "Đã tiếp tục embedding và các bước còn thiếu" }, { status: 202 });
   }
 
   if (!analysisComplete) {
     const job = await resetDocumentJob(id, JobType.ANALYZE_DOCUMENT);
-    after(() => analyzeDocument(id, job.id));
+    const processing = enqueueDocumentAnalysis({ documentId: id, analysisJobId: job.id });
+    after(() => processing);
     return NextResponse.json({ message: "Embedding được giữ nguyên; chỉ chạy lại phân tích AI" }, { status: 202 });
   }
 

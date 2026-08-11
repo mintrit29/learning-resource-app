@@ -106,15 +106,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: "Không thể tạo processing jobs" }, { status: 500 });
   }
 
-  after(() =>
-    enqueueDocumentPipeline({
-      documentId: document.id,
-      extractionJobId,
-      chunkJobId,
-      embeddingJobId,
-      analysisJobId,
-    }),
-  );
+  const processing = enqueueDocumentPipeline({
+    documentId: document.id,
+    extractionJobId,
+    chunkJobId,
+    embeddingJobId,
+    analysisJobId,
+  });
+  after(() => processing);
 
   return NextResponse.json(
     { documentId: document.id, status: DocumentStatus.UPLOADED },

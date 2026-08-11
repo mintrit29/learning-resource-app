@@ -1,4 +1,5 @@
-const serviceUrl = (process.env.EMBEDDING_SERVICE_URL ?? "http://127.0.0.1:8001").replace(/\/+$/, "");
+import { connect } from "node:net";
+
 const SERVICE_CONNECT_TIMEOUT_MS = 30_000;
 const MODEL_READY_TIMEOUT_MS = 60 * 60 * 1000;
 
@@ -16,7 +17,37 @@ type EmbedResponse = {
 
 let embeddingReadyPromise: Promise<void> | null = null;
 
+function getEmbeddingServiceUrl() {
+  return (process.env.EMBEDDING_SERVICE_URL ?? "http://127.0.0.1:8001").replace(/\/+$/, "");
+}
+
+async function canConnectToEmbeddingPort() {
+  let target: URL;
+  try {
+    target = new URL(getEmbeddingServiceUrl());
+  } catch {
+    return false;
+  }
+
+  const port = Number(target.port || (target.protocol === "https:" ? 443 : 80));
+  return new Promise<boolean>((resolve) => {
+    let settled = false;
+    const socket = connect({ host: target.hostname, port });
+    const finish = (connected: boolean) => {
+      if (settled) return;
+      settled = true;
+      socket.destroy();
+      resolve(connected);
+    };
+    socket.setTimeout(1_000);
+    socket.once("connect", () => finish(true));
+    socket.once("timeout", () => finish(false));
+    socket.once("error", () => finish(false));
+  });
+}
+
 async function readEmbeddingHealth(): Promise<EmbeddingHealth | null> {
+  const serviceUrl = getEmbeddingServiceUrl();
   return fetch(`${serviceUrl}/health`, {
     signal: AbortSignal.timeout(5_000),
     cache: "no-store",
@@ -39,8 +70,11 @@ async function waitForEmbeddingService() {
       if (health.status === "error") {
         throw new Error(`Không thể nạp model BGE-M3 local: ${health.error ?? "unknown error"}`);
       }
-    } else if (!hasConnected && Date.now() >= connectDeadline) {
-      throw new Error("Không thể khởi động embedding runtime local của ScholarFlow");
+    } else if (!hasConnected) {
+      hasConnected = await canConnectToEmbeddingPort();
+      if (!hasConnected && Date.now() >= connectDeadline) {
+        throw new Error("Không thể khởi động embedding runtime local của ScholarFlow");
+      }
     }
     await new Promise((resolve) => setTimeout(resolve, 1_000));
   }
@@ -59,6 +93,7 @@ function ensureEmbeddingServiceReady() {
 }
 
 async function requestEmbeddings(texts: string[]) {
+  const serviceUrl = getEmbeddingServiceUrl();
   return fetch(`${serviceUrl}/embed`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -69,11 +104,14 @@ async function requestEmbeddings(texts: string[]) {
 
 export async function embedTexts(texts: string[]): Promise<EmbedResponse> {
   await ensureEmbeddingServiceReady();
-  let response = await requestEmbeddings(texts).catch((error) => {
+  let response = await requestEmbeddings(texts).catch(async (error) => {
     embeddingReadyPromise = null;
-    throw new Error(
-      `Không thể kết nối embedding service: ${error instanceof Error ? error.message : "unknown error"}`,
-    );
+    await ensureEmbeddingServiceReady();
+    return requestEmbeddings(texts).catch((retryError) => {
+      throw new Error(
+        `Không thể kết nối embedding service: ${retryError instanceof Error ? retryError.message : error instanceof Error ? error.message : "unknown error"}`,
+      );
+    });
   });
 
   if (response.status === 503) {

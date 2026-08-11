@@ -72,6 +72,46 @@ function stopApplication() {
   child.unref();
 }
 
+function readEmbeddingOrigin() {
+  if (!existsSync(logPath)) return null;
+  const log = readFileSync(logPath, "utf8");
+  return [...log.matchAll(/local BGE-M3 tại (http:\/\/127\.0\.0\.1:\d+)/g)].at(-1)?.[1] ?? null;
+}
+
+function findListeningProcessId(origin) {
+  const port = new URL(origin).port;
+  const result = spawnSync("netstat.exe", ["-ano", "-p", "tcp"], {
+    encoding: "utf8",
+    windowsHide: true,
+  });
+  const match = result.stdout
+    .split(/\r?\n/)
+    .find((line) => line.includes(`127.0.0.1:${port}`) && line.includes("LISTENING"))
+    ?.trim()
+    .match(/\s(\d+)$/);
+  const processId = Number(match?.[1]);
+  return Number.isInteger(processId) && processId > 0 ? processId : null;
+}
+
+async function verifyEmbeddingAutoRestart() {
+  const embeddingOrigin = readEmbeddingOrigin();
+  assert.ok(embeddingOrigin, "Packaged app must log the local embedding origin");
+  const embeddingPid = findListeningProcessId(embeddingOrigin);
+  assert.ok(embeddingPid, "Packaged embedding runtime must be listening");
+
+  const readyBefore = (readFileSync(logPath, "utf8").match(/ready model=/g) ?? []).length;
+  process.kill(embeddingPid, "SIGTERM");
+
+  const deadline = Date.now() + 30_000;
+  while (Date.now() < deadline) {
+    const log = readFileSync(logPath, "utf8");
+    const readyNow = (log.match(/ready model=/g) ?? []).length;
+    if (readyNow > readyBefore && log.includes("Embedding runtime đã tự khôi phục.")) return;
+    await new Promise((resolve) => setTimeout(resolve, 250));
+  }
+  throw new Error(`Embedding runtime did not restart:\n${readFileSync(logPath, "utf8")}`);
+}
+
 try {
   // The isolated Windows test account cannot load Chromium's GPU child DLLs.
   // Keep this workaround test-only so the released app retains process isolation.
@@ -103,8 +143,10 @@ try {
     database.close();
   }
   assert.equal(child.exitCode, null, "Desktop main process must stay alive after startup");
+  await verifyEmbeddingAutoRestart();
+  assert.equal(child.exitCode, null, "Desktop main process must survive an embedding restart");
 
-  console.log("PASS packaged desktop: app window runtime, fresh local database and registration");
+  console.log("PASS packaged desktop: app window runtime, local database and embedding auto-restart");
 } finally {
   stopApplication();
   // Windows may keep Chromium cache files locked briefly after taskkill returns.
