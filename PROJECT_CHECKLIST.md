@@ -1,6 +1,6 @@
 # Project Checklist — ScholarFlow Desktop
 
-**Cập nhật:** 08/08/2026
+**Cập nhật:** 10/08/2026
 **Phạm vi thống nhất:** một ứng dụng desktop Windows, không Docker và không có bản web riêng.
 
 ## A. Hợp nhất phiên bản desktop
@@ -60,7 +60,10 @@
 - [x] Hỗ trợ Custom API tương thích chat completions.
 - [x] Thêm, sửa, kiểm tra, đặt mặc định và xóa kết nối.
 - [x] Cho phép đổi loại nhà cung cấp trong màn hình chỉnh sửa.
-- [x] Phân tích chủ đề, độ khó, ngôn ngữ và tóm tắt.
+- [x] Phân tích môn học, độ khó, ngôn ngữ và tóm tắt.
+- [x] Chỉ cho AI chọn mã môn học có sẵn hoặc trả về “Chưa phân loại”.
+- [x] Kiểm tra lại mã môn học và áp dụng ngưỡng tin cậy 75% ở server.
+- [x] Không cho AI tự tạo môn học mới.
 - [x] Nhận diện lỗi URL/model/API key/quyền/hạn mức/timeout/mạng/server.
 - [x] Rút gọn thông báo lỗi và không hiển thị stack trace, HTML hoặc mã nguồn.
 - [x] Tìm kiếm và thư viện không phụ thuộc Ollama.
@@ -70,27 +73,30 @@
 
 - [x] Tìm kiếm bằng câu truy vấn tự nhiên tiếng Việt và tiếng Anh.
 - [x] Kết hợp ngữ nghĩa, từ khóa và metadata.
-- [x] Lọc theo chủ đề, độ khó, định dạng và thời gian.
+- [x] Lọc theo môn học, “Chưa phân loại”, độ khó, định dạng và thời gian.
 - [x] Mỗi tài liệu chỉ hiện đoạn phù hợp nhất.
 - [x] Hiển thị lý do phù hợp và vị trí nguồn.
 - [x] Có ngưỡng từ chối kết quả không đủ liên quan.
 - [x] Ghi lịch sử tìm kiếm theo tài khoản cục bộ.
 - [x] Có bộ kiểm thử ranking và đánh giá evidence search.
 
-## G. Chủ đề
+## G. Môn học và phân loại
 
-- [x] Tạo canonical tag và alias.
-- [x] Chuẩn hóa tên chủ đề.
-- [x] Gắn chủ đề từ AI hoặc người dùng.
-- [x] Đổi tên, thêm alias và xóa chủ đề.
-- [x] Gộp thủ công hai chủ đề.
-- [x] Bỏ giao diện và API “đề xuất gộp chủ đề”.
-- [x] Bỏ model/bảng lưu đề xuất khỏi database mới.
+- [x] Khởi tạo một lần 27 môn chuyên ngành CNTT NTTU từ học kỳ 2 đến học kỳ 12.
+- [x] Loại tiếng Anh và các học phần không liên quan trực tiếp đến ngành CNTT khỏi danh sách mặc định.
+- [x] Cho người dùng thêm, đổi tên, thêm tên gọi khác, xóa và gộp môn học.
+- [x] Gắn môn học từ AI hoặc thao tác người dùng mà không tạo môn mới.
+- [x] Chuyển tài liệu về “Chưa phân loại” khi môn học của tài liệu bị xóa.
+- [x] Chuyển tài liệu mang chủ đề cũ về “Chưa phân loại” và không bật chủ đề cũ cho AI cho đến khi người dùng chỉnh sửa xác nhận.
+- [x] Bỏ giao diện, API và bảng “đề xuất gộp chủ đề”.
 
 ## H. Dashboard và quản trị
 
-- [x] Dashboard thư viện hiển thị số tài liệu, tài liệu sẵn sàng và chủ đề.
+- [x] Dashboard thư viện hiển thị số tài liệu, tài liệu sẵn sàng và môn học.
 - [x] Hiển thị tài liệu mới thêm và thao tác nhanh.
+- [x] Thêm header/footer chứa thông tin đề tài, nhóm, GVHD, email, GitHub và phiên bản.
+- [x] Thêm bảng “Về dự án” với họ tên và MSSV của thành viên.
+- [x] Kiểm tra header/footer trên giao diện desktop và màn hình nhỏ.
 - [ ] **Ưu tiên tiếp theo:** thêm role `USER` và `ADMIN` cho tài khoản cục bộ.
 - [ ] **Ưu tiên tiếp theo:** tạo dashboard quản trị bên trong ứng dụng desktop.
 - [ ] **Ưu tiên tiếp theo:** xem, tìm kiếm, thêm, sửa, khóa/mở và xóa tài khoản.

@@ -15,6 +15,7 @@ import { DocumentStatus, JobStatus } from "@/generated/prisma/enums";
 import { db } from "@/lib/db";
 import { getDocumentDisplayStatus } from "@/lib/documents/display-status";
 import { formatDifficulty } from "@/lib/labels";
+import { ensureCurriculumTopics } from "@/lib/taxonomy/curriculum-topics";
 
 const statusLabels: Record<string, string> = {
   UPLOADED: "Đã tải lên",
@@ -64,6 +65,7 @@ function getProviderStatus(provider: { displayName: string; type: string; authSt
 export default async function DashboardPage() {
   const session = await auth();
   const userId = session!.user.id;
+  await ensureCurriculumTopics(userId);
   const [
     documentCount,
     readyCount,
@@ -231,7 +233,7 @@ export default async function DashboardPage() {
             <span>3</span>
             <div>
               <strong>Tìm tài liệu</strong>
-              <small>Tìm nguồn theo chủ đề, độ khó và nhu cầu nghiên cứu.</small>
+              <small>Tìm nguồn theo môn học, độ khó và nhu cầu nghiên cứu.</small>
             </div>
             {documentCount > 0 ? <Link href="/search">Bắt đầu tìm</Link> : null}
           </li>
@@ -319,7 +321,7 @@ export default async function DashboardPage() {
               </span>
               <p>
                 <strong>Chọn tài liệu để đọc</strong>
-                <small>Xem chủ đề, độ khó, đoạn khớp và lý do phù hợp trước khi mở tài liệu.</small>
+                <small>Xem môn học, độ khó, đoạn khớp và lý do phù hợp trước khi mở tài liệu.</small>
               </p>
             </li>
           </ol>
@@ -330,8 +332,8 @@ export default async function DashboardPage() {
         <div className="content-section chart-card">
           <div className="section-heading">
             <div>
-              <h2>Chủ đề phổ biến</h2>
-              <p>Top chủ đề AI đã phân loại.</p>
+              <h2>Môn học phổ biến</h2>
+              <p>Các môn có nhiều tài liệu nhất.</p>
             </div>
           </div>
           <div className="bar-list">

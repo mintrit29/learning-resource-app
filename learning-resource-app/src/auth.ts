@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
 import { db } from "@/lib/db";
+import { ensureCurriculumTopics } from "@/lib/taxonomy/curriculum-topics";
 import { loginSchema } from "@/lib/validation";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -28,6 +29,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         );
 
         if (!passwordMatches) return null;
+        await ensureCurriculumTopics(user.id);
         return { id: user.id, name: user.name, email: user.email };
       },
     }),

@@ -1,12 +1,11 @@
 import { unlink } from "node:fs/promises";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { Difficulty } from "@/generated/prisma/enums";
-import { documentAnalysisSchema } from "@/lib/ai/analysis-schema";
+import { Difficulty, DocumentTagSource } from "@/generated/prisma/enums";
+import { documentAnalysisEditSchema } from "@/lib/ai/analysis-schema";
 import { db } from "@/lib/db";
 import { resolveStoredUploadPath } from "@/lib/storage/local-storage";
-import { canonicalizePrimaryTopic } from "@/lib/taxonomy/canonical-topic";
-import { syncDocumentTags } from "@/lib/taxonomy/sync-document-tags";
+import { replaceDocumentTopic } from "@/lib/taxonomy/topic-assignment";
 import { getSqliteVectorStore } from "@/lib/vector/sqlite-vector-store";
 
 export async function PATCH(
@@ -16,7 +15,7 @@ export async function PATCH(
   const session = await auth();
   if (!session?.user?.id) return NextResponse.json({ message: "Bạn cần đăng nhập" }, { status: 401 });
 
-  const parsed = documentAnalysisSchema.safeParse(await request.json().catch(() => null));
+  const parsed = documentAnalysisEditSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
     return NextResponse.json(
       { message: parsed.error.issues[0]?.message ?? "Dữ liệu không hợp lệ" },
@@ -29,12 +28,24 @@ export async function PATCH(
   if (!document) return NextResponse.json({ message: "Không tìm thấy tài liệu" }, { status: 404 });
 
   const result = parsed.data;
-  const canonicalTopic = await canonicalizePrimaryTopic(session.user.id, result.topic, result.topicAliases);
-  await syncDocumentTags(document.id, session.user.id, [canonicalTopic]);
+  let topic: Awaited<ReturnType<typeof replaceDocumentTopic>>;
+  try {
+    topic = await replaceDocumentTopic({
+      documentId: document.id,
+      userId: session.user.id,
+      topicId: result.topicId,
+      source: DocumentTagSource.USER,
+    });
+  } catch (error) {
+    return NextResponse.json(
+      { message: error instanceof Error ? error.message : "Không thể cập nhật môn học" },
+      { status: 400 },
+    );
+  }
   await db.document.update({
     where: { id: document.id },
     data: {
-      primaryTopic: canonicalTopic,
+      primaryTopic: topic?.name ?? null,
       difficulty: result.difficulty as Difficulty,
       language: result.language,
       summary: result.summary,

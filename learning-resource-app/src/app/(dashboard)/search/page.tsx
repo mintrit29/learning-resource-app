@@ -1,16 +1,17 @@
 import { auth } from "@/auth";
 import { ResourceSearch } from "@/components/search/semantic-search";
 import { db } from "@/lib/db";
+import { ensureCurriculumTopics } from "@/lib/taxonomy/curriculum-topics";
 
 export default async function SearchPage() {
   const session = await auth();
-  const topicRows = await db.document.findMany({
-    where: { userId: session!.user.id, primaryTopic: { not: null } },
-    distinct: ["primaryTopic"],
-    orderBy: { primaryTopic: "asc" },
-    select: { primaryTopic: true },
+  await ensureCurriculumTopics(session!.user.id);
+  const topicRows = await db.tag.findMany({
+    where: { createdByUserId: session!.user.id, isClassificationEnabled: true },
+    orderBy: { name: "asc" },
+    select: { name: true },
   });
-  const topics = topicRows.flatMap((row) => row.primaryTopic ? [row.primaryTopic] : []);
+  const topics = topicRows.map((row) => row.name);
 
   return (
     <div className="page-wrap">

@@ -52,6 +52,7 @@ export function initializeSqliteDatabase(
 
   const database = new Database(databasePath);
   try {
+    database.pragma("busy_timeout = 30000");
     database.pragma("foreign_keys = ON");
     if (databasePath !== ":memory:") database.pragma("journal_mode = WAL");
     database.exec(`
@@ -62,35 +63,41 @@ export function initializeSqliteDatabase(
     `);
 
     const migrations = migrationFiles(migrationsRoot);
-    const appliedRows = database
-      .prepare(`SELECT "name" FROM "${MIGRATION_TABLE_NAME}"`)
-      .all() as Array<{ name: string }>;
-    const applied = new Set(appliedRows.map((row) => row.name));
-    const applicationSchemaExists = Boolean(
-      database
-        .prepare("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'User'")
-        .get(),
-    );
     const recordMigration = database.prepare(
       `INSERT INTO "${MIGRATION_TABLE_NAME}" ("name", "appliedAt") VALUES (?, ?)`,
     );
 
-    migrations.forEach((migration, index) => {
-      if (applied.has(migration.name)) return;
+    // Next.js can load the database module in several build/runtime workers at
+    // the same time. An IMMEDIATE transaction serializes migration discovery
+    // and application so a second process re-checks markers after the first one.
+    database.transaction(() => {
+      const appliedRows = database
+        .prepare(`SELECT "name" FROM "${MIGRATION_TABLE_NAME}"`)
+        .all() as Array<{ name: string }>;
+      const applied = new Set(appliedRows.map((row) => row.name));
+      const applicationSchemaExists = Boolean(
+        database
+          .prepare("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'User'")
+          .get(),
+      );
 
-      // Databases created by an earlier SQLite development build already contain
-      // the initial schema but do not have ScholarFlow's migration marker yet.
-      if (index === 0 && applicationSchemaExists) {
-        recordMigration.run(migration.name, new Date().toISOString());
-        return;
-      }
+      migrations.forEach((migration, index) => {
+        if (applied.has(migration.name)) return;
 
-      const sql = readFileSync(migration.path, "utf8");
-      database.transaction(() => {
+        // Databases created by an earlier SQLite development build already contain
+        // the initial schema but do not have ScholarFlow's migration marker yet.
+        if (index === 0 && applicationSchemaExists) {
+          recordMigration.run(migration.name, new Date().toISOString());
+          applied.add(migration.name);
+          return;
+        }
+
+        const sql = readFileSync(migration.path, "utf8");
         database.exec(sql);
         recordMigration.run(migration.name, new Date().toISOString());
-      })();
-    });
+        applied.add(migration.name);
+      });
+    }).immediate();
   } finally {
     database.close();
   }

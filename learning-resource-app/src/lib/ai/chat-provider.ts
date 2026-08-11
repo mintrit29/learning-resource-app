@@ -49,6 +49,13 @@ async function fetchOllama(baseUrl: string, path: string, init: RequestInit) {
   }
 }
 
+function bearerHeaders(apiKey: string, includeJson = false) {
+  return {
+    ...(includeJson ? { "Content-Type": "application/json" } : {}),
+    ...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {}),
+  };
+}
+
 export async function listProviderModels(config: ProviderConfig) {
   const type = config.type as ProviderType;
   const baseUrl = normalizeBaseUrl(config.baseUrl ?? "");
@@ -62,7 +69,7 @@ export async function listProviderModels(config: ProviderConfig) {
   const apiKey = decryptApiKey(config.apiKeyEncrypted);
   const response = await request(`${baseUrl}/models`, {
     method: "GET",
-    headers: { Authorization: `Bearer ${apiKey}` },
+    headers: bearerHeaders(apiKey),
   });
   if (!response.ok) {
     throw aiHttpError(response.status);
@@ -140,10 +147,7 @@ export async function completeChat(
 
     const response = await fetch(`${baseUrl}/chat/completions`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${decryptApiKey(config.apiKeyEncrypted)}`,
-      },
+      headers: bearerHeaders(decryptApiKey(config.apiKeyEncrypted), true),
       body: JSON.stringify({
         model: config.defaultChatModel,
         messages,

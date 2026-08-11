@@ -9,6 +9,7 @@ type TagItem = {
   name: string;
   normalizedName: string;
   description: string | null;
+  isClassificationEnabled: boolean;
   aliases: Array<{ id: string; alias: string }>;
   _count: { aliases: number; documents: number };
 };
@@ -40,19 +41,19 @@ export function TagManager({ initialTags }: { initialTags: TagItem[] }) {
     });
     const data = (await response.json()) as { message?: string };
     setBusy("");
-    if (!response.ok) return setError(data.message ?? "Không thể lưu chủ đề");
+    if (!response.ok) return setError(data.message ?? "Không thể lưu môn học");
     setEditing(undefined);
     router.refresh();
   }
 
   async function remove(tag: TagItem) {
-    if (!window.confirm(`Xóa chủ đề “${tag.name}”? Các tên gọi khác và liên kết tài liệu cũng sẽ bị xóa.`)) return;
+    if (!window.confirm(`Xóa môn “${tag.name}”? Tài liệu thuộc môn này sẽ được chuyển sang “Chưa phân loại”.`)) return;
     setBusy(tag.id);
     setError("");
     const response = await fetch(`/api/tags/${tag.id}`, { method: "DELETE" });
     const data = (await response.json()) as { message?: string };
     setBusy("");
-    if (!response.ok) return setError(data.message ?? "Không thể xóa chủ đề");
+    if (!response.ok) return setError(data.message ?? "Không thể xóa môn học");
     router.refresh();
   }
 
@@ -76,12 +77,14 @@ export function TagManager({ initialTags }: { initialTags: TagItem[] }) {
     });
     const data = (await response.json()) as { message?: string };
     setBusy("");
-    if (!response.ok) return setError(data.message ?? "Không thể gộp chủ đề");
+    if (!response.ok) return setError(data.message ?? "Không thể gộp môn học");
     setIsMerging(false);
     router.refresh();
   }
 
   const targetOptions = initialTags.filter((tag) => tag.id !== mergeForm.sourceTagId);
+  const enabledCount = initialTags.filter((tag) => tag.isClassificationEnabled).length;
+  const legacyCount = initialTags.length - enabledCount;
   const visibleAliasLimit = 6;
 
   function toggleAliases(tagId: string) {
@@ -97,19 +100,22 @@ export function TagManager({ initialTags }: { initialTags: TagItem[] }) {
     <>
       <div className="tag-toolbar">
         <div>
-          <h2>Chủ đề chuẩn</h2>
-          <p>{initialTags.length} chủ đề đang được dùng để gom các tài liệu cùng nghĩa.</p>
+          <h2>Danh sách môn học</h2>
+          <p>
+            {enabledCount} môn được phép phân loại
+            {legacyCount ? ` · ${legacyCount} mục cũ đang chờ bạn xác nhận` : ""}. AI không thể tự thêm môn mới.
+          </p>
         </div>
         <div className="provider-actions">
           {initialTags.length > 1 ? (
             <button className="secondary-button compact" onClick={openMerge} type="button">
               <Tags size={17} />
-              Gộp chủ đề
+              Gộp môn học
             </button>
           ) : null}
           <button className="primary-button compact" onClick={() => open(null)} type="button">
             <Plus size={17} />
-            Thêm chủ đề
+            Thêm môn học
           </button>
         </div>
       </div>
@@ -125,6 +131,7 @@ export function TagManager({ initialTags }: { initialTags: TagItem[] }) {
               </span>
               <div>
                 <strong>{tag.name}</strong>
+                {!tag.isClassificationEnabled ? <span className="legacy-topic-badge">Chưa duyệt cho AI · chỉnh sửa để bật</span> : null}
                 <small>{tag.description ?? "Tên chính dùng để lọc và hiển thị trong tài liệu."}</small>
                 {tag.aliases.length ? (
                   <div className="tag-alias-list" aria-label={`Tên gọi khác của ${tag.name}`}>
@@ -146,11 +153,11 @@ export function TagManager({ initialTags }: { initialTags: TagItem[] }) {
                 <span>{tag._count.aliases} tên gọi khác</span>
               </div>
               <div className="provider-actions">
-                <button aria-label="Chỉnh sửa chủ đề" className="icon-button" onClick={() => open(tag)} type="button">
+                <button aria-label="Chỉnh sửa môn học" className="icon-button" onClick={() => open(tag)} type="button">
                   <Pencil size={17} />
                 </button>
                 <button
-                  aria-label="Xóa chủ đề"
+                  aria-label="Xóa môn học"
                   className="icon-button danger-icon"
                   disabled={busy === tag.id}
                   onClick={() => remove(tag)}
@@ -165,8 +172,8 @@ export function TagManager({ initialTags }: { initialTags: TagItem[] }) {
       ) : (
         <div className="provider-empty">
           <Tags size={28} />
-          <strong>Chưa có chủ đề</strong>
-          <p>Khi AI phân tích tài liệu, chủ đề và tên gọi khác sẽ xuất hiện ở đây.</p>
+          <strong>Chưa có môn học</strong>
+          <p>Hãy thêm ít nhất một môn học để AI có thể phân loại tài liệu.</p>
         </div>
       )}
 
@@ -175,8 +182,8 @@ export function TagManager({ initialTags }: { initialTags: TagItem[] }) {
           <section aria-modal="true" className="confirm-dialog tag-dialog" role="dialog">
             <div className="dialog-heading">
               <div>
-                <p className="eyebrow">Chủ đề</p>
-                <h2>{editing ? "Chỉnh sửa chủ đề" : "Thêm chủ đề chuẩn"}</h2>
+                <p className="eyebrow">Môn học</p>
+                <h2>{editing ? "Chỉnh sửa môn học" : "Thêm môn học"}</h2>
               </div>
               <button aria-label="Đóng" className="icon-button" disabled={busy === "save"} onClick={() => setEditing(undefined)} type="button">
                 <X size={19} />
@@ -184,7 +191,7 @@ export function TagManager({ initialTags }: { initialTags: TagItem[] }) {
             </div>
             <form className="analysis-form" onSubmit={save}>
               <label>
-                Tên chủ đề chuẩn
+                Tên môn học
                 <input autoFocus maxLength={100} required value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} />
               </label>
               <label>
@@ -198,7 +205,7 @@ export function TagManager({ initialTags }: { initialTags: TagItem[] }) {
                 </button>
                 <button className="primary-button" disabled={busy === "save"} type="submit">
                   {busy === "save" ? <LoaderCircle className="spin" size={18} /> : null}
-                  {editing ? "Lưu thay đổi" : "Tạo chủ đề"}
+                  {editing ? "Lưu thay đổi" : "Tạo môn học"}
                 </button>
               </div>
             </form>
@@ -211,17 +218,17 @@ export function TagManager({ initialTags }: { initialTags: TagItem[] }) {
           <section aria-modal="true" className="confirm-dialog tag-dialog" role="dialog">
             <div className="dialog-heading">
               <div>
-                <p className="eyebrow">Chủ đề</p>
-                <h2>Gộp chủ đề thủ công</h2>
+                <p className="eyebrow">Môn học</p>
+                <h2>Gộp môn học thủ công</h2>
               </div>
               <button aria-label="Đóng" className="icon-button" disabled={busy === "merge"} onClick={() => setIsMerging(false)} type="button">
                 <X size={19} />
               </button>
             </div>
             <form className="analysis-form" onSubmit={merge}>
-              <p className="dialog-copy">Chọn chủ đề muốn bỏ, rồi chọn chủ đề chuẩn sẽ giữ lại. App sẽ chuyển tài liệu và tên gọi khác sang chủ đề giữ lại.</p>
+              <p className="dialog-copy">Chọn môn muốn bỏ, rồi chọn môn sẽ giữ lại. App sẽ chuyển tài liệu và tên gọi khác sang môn giữ lại.</p>
               <label>
-                Chủ đề muốn gộp/bỏ
+                Môn học muốn gộp/bỏ
                 <select
                   required
                   value={mergeForm.sourceTagId}
@@ -240,7 +247,7 @@ export function TagManager({ initialTags }: { initialTags: TagItem[] }) {
                 </select>
               </label>
               <label>
-                Chủ đề giữ lại
+                Môn học giữ lại
                 <select required value={mergeForm.targetTagId} onChange={(event) => setMergeForm({ ...mergeForm, targetTagId: event.target.value })}>
                   {targetOptions.map((tag) => (
                     <option key={tag.id} value={tag.id}>
@@ -260,7 +267,7 @@ export function TagManager({ initialTags }: { initialTags: TagItem[] }) {
                   type="submit"
                 >
                   {busy === "merge" ? <LoaderCircle className="spin" size={18} /> : null}
-                  Gộp chủ đề
+                  Gộp môn học
                 </button>
               </div>
             </form>

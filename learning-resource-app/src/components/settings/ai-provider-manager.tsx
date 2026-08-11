@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import {
   Bot,
   Check,
@@ -16,6 +16,8 @@ import {
   Trash2,
   X,
 } from "lucide-react";
+import { LocalAiManager } from "@/components/settings/local-ai-manager";
+import { isLoopbackUrl } from "@/lib/ai/local-ollama";
 
 type Provider = {
   id: string;
@@ -67,6 +69,10 @@ function connectionLabel(status: string) {
   return "Chưa kiểm tra";
 }
 
+function isLocalProvider(provider: Provider) {
+  return (provider.type === "OLLAMA" || provider.type === "CUSTOM") && isLoopbackUrl(provider.baseUrl);
+}
+
 async function readApiResponse<T extends object>(response: Response): Promise<Partial<T>> {
   try {
     const data = await response.json() as unknown;
@@ -95,13 +101,13 @@ export function AiProviderManager({ initialProviders }: { initialProviders: Prov
   const [availableModels, setAvailableModels] = useState<string[]>([]);
   const [notice, setNotice] = useState<{ kind: "ok" | "error"; text: string } | null>(null);
 
-  function openCreate() {
+  function openCreate(initialType: ProviderType = "OPENROUTER") {
     setEditing(null);
-    setType("OPENROUTER");
-    setDisplayName(choices.OPENROUTER.label);
-    setBaseUrl(choices.OPENROUTER.baseUrl);
+    setType(initialType);
+    setDisplayName(choices[initialType].label);
+    setBaseUrl(choices[initialType].baseUrl);
     setApiKey("");
-    setChatModel(choices.OPENROUTER.model);
+    setChatModel(choices[initialType].model);
     setAvailableModels([]);
     setNotice(null);
     setIsOpen(true);
@@ -159,7 +165,10 @@ export function AiProviderManager({ initialProviders }: { initialProviders: Prov
           ),
         );
       } else {
-        setProviders((current) => [data.provider!, ...current.map((item) => ({ ...item, isActive: false }))]);
+        setProviders((current) => [
+          data.provider!,
+          ...current.map((item) => data.provider!.isActive ? { ...item, isActive: false } : item),
+        ]);
       }
       setNotice({
         kind: "ok",
@@ -231,17 +240,102 @@ export function AiProviderManager({ initialProviders }: { initialProviders: Prov
     }
   }
 
+  const handleLocalNotice = useCallback((nextNotice: { kind: "ok" | "error"; text: string }) => {
+    setNotice(nextNotice);
+  }, []);
+
+  const handleLocalProviderReady = useCallback((readyProvider: Provider) => {
+    setProviders((current) => {
+      const exists = current.some((provider) => provider.id === readyProvider.id);
+      const next = current.map((provider) => ({
+        ...(provider.id === readyProvider.id ? { ...provider, ...readyProvider } : provider),
+        isActive: provider.id === readyProvider.id,
+      }));
+      return exists ? next : [{ ...readyProvider, isActive: true }, ...next];
+    });
+  }, []);
+
   const saving = busyId === "create" || busyId.startsWith("edit:");
   const currentChoice = choices[type];
+  const localProviders = providers.filter(isLocalProvider);
+  const onlineProviders = providers.filter((provider) => !isLocalProvider(provider));
+  const localOllamaProvider = localProviders.find((provider) => provider.type === "OLLAMA") ?? null;
+
+  function renderProviderList(items: Provider[]) {
+    return (
+      <div className="provider-list">
+        {items.map((provider) => {
+          const Icon = choices[provider.type as ProviderType]?.icon ?? Bot;
+          const isBusy = busyId.endsWith(provider.id);
+          return (
+            <article className={`provider-card ${provider.isActive ? "active" : ""}`} key={provider.id}>
+              <span className="provider-icon">
+                <Icon size={21} />
+              </span>
+              <div className="provider-main">
+                <div className="provider-title">
+                  <strong>{provider.displayName}</strong>
+                  {provider.isActive ? (
+                    <span className="status-pill success">
+                      <i />
+                      Mặc định
+                    </span>
+                  ) : null}
+                </div>
+                <p>{providerTypeLabel(provider.type)} · {provider.defaultChatModel}</p>
+                <small>{provider.baseUrl}</small>
+              </div>
+              <span className={`connection-state ${provider.authStatus.toLowerCase()}`}>
+                {connectionLabel(provider.authStatus)}
+              </span>
+              <div className="provider-actions">
+                <button aria-label="Chỉnh sửa provider" className="icon-button" disabled={isBusy} onClick={() => openEdit(provider)} title="Chỉnh sửa" type="button">
+                  <Pencil size={18} />
+                </button>
+                <button aria-label="Kiểm tra kết nối" className="icon-button" disabled={isBusy} onClick={() => runAction(provider.id, "test")} title="Kiểm tra kết nối" type="button">
+                  {busyId === `test:${provider.id}` ? <LoaderCircle className="spin" size={18} /> : <TestTube2 size={18} />}
+                </button>
+                <button aria-label="Đặt làm mặc định" className="icon-button" disabled={isBusy || provider.isActive} onClick={() => runAction(provider.id, "activate")} title="Đặt làm mặc định" type="button">
+                  <Radio size={18} />
+                </button>
+                <button aria-label="Xóa provider" className="icon-button danger-icon" disabled={isBusy} onClick={() => runAction(provider.id, "delete")} title="Xóa" type="button">
+                  <Trash2 size={18} />
+                </button>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    );
+  }
+
+  function renderProviderChoice(item: ProviderType) {
+    const ItemIcon = choices[item].icon;
+    return (
+      <button
+        className={type === item ? "selected" : ""}
+        disabled={saving}
+        key={item}
+        onClick={() => chooseType(item)}
+        type="button"
+      >
+        <ItemIcon size={20} />
+        <span>
+          <strong>{choices[item].label}</strong>
+          <small>{choices[item].description}</small>
+        </span>
+      </button>
+    );
+  }
 
   return (
     <>
       <div className="provider-toolbar">
         <div>
-          <h2>Kết nối AI đã thêm</h2>
-          <p>Kết nối mặc định được dùng để phân tích tài liệu và trả lời câu hỏi có dẫn nguồn.</p>
+          <h2>Chọn nơi AI hoạt động</h2>
+          <p>Dùng AI trên thiết bị để ưu tiên riêng tư, hoặc kết nối dịch vụ trực tuyến khi cần.</p>
         </div>
-        <button className="primary-button compact" onClick={openCreate} type="button">
+        <button className="primary-button compact" onClick={() => openCreate()} type="button">
           <Plus size={17} />
           Thêm kết nối AI
         </button>
@@ -254,91 +348,58 @@ export function AiProviderManager({ initialProviders }: { initialProviders: Prov
         </div>
       ) : null}
 
-      {providers.length ? (
-        <div className="provider-list">
-          {providers.map((provider) => {
-            const Icon = choices[provider.type as ProviderType]?.icon ?? Bot;
-            const isBusy = busyId.endsWith(provider.id);
-            return (
-              <article className={`provider-card ${provider.isActive ? "active" : ""}`} key={provider.id}>
-                <span className="provider-icon">
-                  <Icon size={21} />
-                </span>
-                <div className="provider-main">
-                  <div className="provider-title">
-                    <strong>{provider.displayName}</strong>
-                    {provider.isActive ? (
-                      <span className="status-pill success">
-                        <i />
-                        Mặc định
-                      </span>
-                    ) : null}
-                  </div>
-                  <p>
-                    {providerTypeLabel(provider.type)} · {provider.defaultChatModel}
-                  </p>
-                  <small>{provider.baseUrl}</small>
-                </div>
-                <span className={`connection-state ${provider.authStatus.toLowerCase()}`}>
-                  {connectionLabel(provider.authStatus)}
-                </span>
-                <div className="provider-actions">
-                  <button
-                    aria-label="Chỉnh sửa provider"
-                    className="icon-button"
-                    disabled={isBusy}
-                    onClick={() => openEdit(provider)}
-                    title="Chỉnh sửa"
-                    type="button"
-                  >
-                    <Pencil size={18} />
-                  </button>
-                  <button
-                    aria-label="Kiểm tra kết nối"
-                    className="icon-button"
-                    disabled={isBusy}
-                    onClick={() => runAction(provider.id, "test")}
-                    title="Kiểm tra kết nối"
-                    type="button"
-                  >
-                    {busyId === `test:${provider.id}` ? <LoaderCircle className="spin" size={18} /> : <TestTube2 size={18} />}
-                  </button>
-                  <button
-                    aria-label="Đặt làm mặc định"
-                    className="icon-button"
-                    disabled={isBusy || provider.isActive}
-                    onClick={() => runAction(provider.id, "activate")}
-                    title="Đặt làm mặc định"
-                    type="button"
-                  >
-                    <Radio size={18} />
-                  </button>
-                  <button
-                    aria-label="Xóa provider"
-                    className="icon-button danger-icon"
-                    disabled={isBusy}
-                    onClick={() => runAction(provider.id, "delete")}
-                    title="Xóa"
-                    type="button"
-                  >
-                    <Trash2 size={18} />
-                  </button>
-                </div>
-              </article>
-            );
-          })}
-        </div>
-      ) : (
-        <div className="provider-empty">
-          <Bot size={28} />
-          <strong>Chưa có kết nối AI</strong>
-          <p>Thêm OpenRouter, Ollama hoặc Custom API để app có thể phân tích tài liệu.</p>
-          <button className="primary-button compact" onClick={openCreate} type="button">
-            <Plus size={17} />
-            Thêm kết nối đầu tiên
+      <section className="provider-group local-provider-group">
+        <header className="provider-group-heading">
+          <span className="provider-group-icon"><Cpu size={22} /></span>
+          <div>
+            <div className="provider-group-title">
+              <h2>AI chạy trên thiết bị</h2>
+              <span className="provider-kind-badge local">Local · riêng tư</span>
+            </div>
+            <p>Model chạy bằng Ollama trên máy của bạn; nội dung phân tích không cần gửi lên cloud.</p>
+          </div>
+        </header>
+
+        <LocalAiManager
+          hasAnyProvider={providers.length > 0}
+          onNotice={handleLocalNotice}
+          onProviderReady={handleLocalProviderReady}
+          provider={localOllamaProvider}
+        />
+
+        {localProviders.length ? (
+          <div className="saved-provider-block">
+            <div className="saved-provider-heading">
+              <strong>Kết nối local đã lưu</strong>
+              <span>{localProviders.length}</span>
+            </div>
+            {renderProviderList(localProviders)}
+          </div>
+        ) : null}
+      </section>
+
+      <section className="provider-group online-provider-group">
+        <header className="provider-group-heading with-action">
+          <span className="provider-group-icon cloud"><Cloud size={22} /></span>
+          <div>
+            <div className="provider-group-title">
+              <h2>AI trực tuyến hoặc qua mạng</h2>
+              <span className="provider-kind-badge online">Cloud · API</span>
+            </div>
+            <p>OpenRouter, máy chủ Ollama từ xa hoặc Custom API do bạn cấu hình.</p>
+          </div>
+          <button className="secondary-button compact" onClick={() => openCreate("OPENROUTER")} type="button">
+            <Plus size={16} /> Thêm kết nối
           </button>
-        </div>
-      )}
+        </header>
+        {onlineProviders.length ? renderProviderList(onlineProviders) : (
+          <div className="provider-empty compact-empty">
+            <Cloud size={25} />
+            <strong>Chưa có kết nối trực tuyến</strong>
+            <p>Bạn vẫn có thể chỉ sử dụng AI local nếu muốn.</p>
+          </div>
+        )}
+      </section>
 
       {isOpen ? (
         <div className="modal-backdrop" role="presentation">
@@ -353,25 +414,20 @@ export function AiProviderManager({ initialProviders }: { initialProviders: Prov
               </button>
             </div>
 
-            <div className="provider-choices">
-              {(Object.keys(choices) as ProviderType[]).map((item) => {
-                const ItemIcon = choices[item].icon;
-                return (
-                  <button
-                    className={type === item ? "selected" : ""}
-                    disabled={saving}
-                    key={item}
-                    onClick={() => chooseType(item)}
-                    type="button"
-                  >
-                    <ItemIcon size={20} />
-                    <span>
-                      <strong>{choices[item].label}</strong>
-                      <small>{choices[item].description}</small>
-                    </span>
-                  </button>
-                );
-              })}
+            <div className="provider-choice-sections">
+              <div>
+                <span className="provider-choice-label">Trên thiết bị</span>
+                <div className="provider-choices local-choice">
+                  {renderProviderChoice("OLLAMA")}
+                </div>
+              </div>
+              <div>
+                <span className="provider-choice-label">Trực tuyến hoặc tùy chỉnh</span>
+                <div className="provider-choices online-choice">
+                  {renderProviderChoice("OPENROUTER")}
+                  {renderProviderChoice("CUSTOM")}
+                </div>
+              </div>
             </div>
 
             <div className="provider-help">
@@ -413,12 +469,12 @@ export function AiProviderManager({ initialProviders }: { initialProviders: Prov
               </label>
               {type !== "OLLAMA" ? (
                 <label>
-                  API key
+                  API key {type === "CUSTOM" ? <span className="optional-label">(không bắt buộc)</span> : null}
                   <input
                     autoComplete="off"
                     onChange={(event) => setApiKey(event.target.value)}
                     placeholder={editing?.hasApiKey ? "Để trống để giữ API key hiện tại" : "Dán API key vào đây"}
-                    required={!editing?.hasApiKey}
+                    required={type === "OPENROUTER" && !editing?.hasApiKey}
                     type="password"
                     value={apiKey}
                   />

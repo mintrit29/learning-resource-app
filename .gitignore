@@ -27,6 +27,7 @@
 
 # Runtime data and logs
 **/storage/uploads/
+**/tmp/
 .tmp/
 *.log
 *.db

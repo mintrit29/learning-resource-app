@@ -30,7 +30,7 @@ try {
     const migrationCount = database
       .prepare('SELECT count(*) AS count FROM "_ScholarFlowMigration"')
       .get().count;
-    assert.equal(migrationCount, 1, "Migration must be applied exactly once");
+    assert.equal(migrationCount, 2, "Every migration must be applied exactly once");
   } finally {
     database.close();
   }

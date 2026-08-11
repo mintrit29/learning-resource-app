@@ -6,6 +6,9 @@ import { ProcessingRefresh } from "@/components/documents/processing-refresh";
 import { Difficulty, FileType, JobStatus } from "@/generated/prisma/enums";
 import { db } from "@/lib/db";
 import { getDocumentDisplayStatus } from "@/lib/documents/display-status";
+import { ensureCurriculumTopics } from "@/lib/taxonomy/curriculum-topics";
+
+const UNCLASSIFIED_FILTER = "__unclassified__";
 
 const statusOptions = [
   { value: "READY", label: "Sẵn sàng" },
@@ -35,6 +38,7 @@ export default async function DocumentsPage({
 }) {
   const session = await auth();
   const userId = session!.user.id;
+  await ensureCurriculumTopics(userId);
   const filters = await searchParams;
   const q = filters.q?.trim() ?? "";
   const topic = filters.topic?.trim() ?? "";
@@ -52,7 +56,11 @@ export default async function DocumentsPage({
           ],
         }
       : {}),
-    ...(topic ? { primaryTopic: topic } : {}),
+    ...(topic === UNCLASSIFIED_FILTER
+      ? { primaryTopic: null }
+      : topic
+        ? { primaryTopic: topic }
+        : {}),
     ...(difficulty ? { difficulty } : {}),
     ...(fileType ? { fileType } : {}),
   };
@@ -78,11 +86,10 @@ export default async function DocumentsPage({
         },
       },
     }),
-    db.document.findMany({
-      where: { userId, primaryTopic: { not: null } },
-      distinct: ["primaryTopic"],
-      orderBy: { primaryTopic: "asc" },
-      select: { primaryTopic: true },
+    db.tag.findMany({
+      where: { createdByUserId: userId, isClassificationEnabled: true },
+      orderBy: { name: "asc" },
+      select: { name: true },
     }),
     db.document.count({ where: { userId } }),
     db.analysisJob.count({
@@ -123,16 +130,11 @@ export default async function DocumentsPage({
             <input name="q" placeholder="Tìm theo tên file..." defaultValue={q} />
           </label>
           <label>
-            <span>Chủ đề</span>
+            <span>Môn học</span>
             <select name="topic" defaultValue={topic}>
               <option value="">Tất cả</option>
-              {topics.map((item) =>
-                item.primaryTopic ? (
-                  <option value={item.primaryTopic} key={item.primaryTopic}>
-                    {item.primaryTopic}
-                  </option>
-                ) : null,
-              )}
+              <option value={UNCLASSIFIED_FILTER}>Chưa phân loại</option>
+              {topics.map((item) => <option value={item.name} key={item.name}>{item.name}</option>)}
             </select>
           </label>
           <label>
@@ -196,7 +198,7 @@ export default async function DocumentsPage({
           <EmptyState
             icon={FileStack}
             title="Không có tài liệu khớp bộ lọc"
-            description="Thử đổi từ khóa, chủ đề, độ khó, loại file hoặc trạng thái."
+            description="Thử đổi từ khóa, môn học, độ khó, loại file hoặc trạng thái."
             actionHref="/documents"
             actionLabel="Xóa bộ lọc"
           />
@@ -206,7 +208,7 @@ export default async function DocumentsPage({
           <div className="document-table-header">
             <span>Tài liệu</span>
             <span>Loại</span>
-            <span>Chủ đề</span>
+            <span>Môn học</span>
             <span>Độ khó</span>
             <span>Trạng thái</span>
             <span>Ngày thêm</span>
@@ -226,7 +228,7 @@ export default async function DocumentsPage({
                     </div>
                   </div>
                   <span>{document.fileType}</span>
-                  <span>{document.primaryTopic ?? "Chưa phân tích"}</span>
+                  <span>{document.primaryTopic ?? "Chưa phân loại"}</span>
                   <span>{document.difficulty ? difficultyLabels[document.difficulty] : "Chưa rõ"}</span>
                   <span>
                     <i className={`status-dot ${displayStatus.className}`} />

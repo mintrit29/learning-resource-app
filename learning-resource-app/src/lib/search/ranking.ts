@@ -221,7 +221,7 @@ export function rankSearchCandidatesWithDiagnostics(
         keyword !== null && lexicalCoverage > 0 ? "Khớp từ khóa" : null,
         matchesFileType ? "Đúng định dạng" : null,
         matchesDifficulty ? "Đúng độ khó" : null,
-        matchesTopic ? "Đúng chủ đề" : null,
+        matchesTopic ? "Đúng môn học" : null,
       ].filter((reason): reason is string => Boolean(reason));
 
       return {

@@ -1,7 +1,7 @@
 # PRD — ScholarFlow Desktop
 
 **Phiên bản:** 1.0
-**Cập nhật:** 08/08/2026
+**Cập nhật:** 10/08/2026
 **Trạng thái:** MVP desktop đang hoàn thiện để báo cáo đồ án
 
 ## 1. Tổng quan
@@ -25,7 +25,7 @@ Phiên bản thống nhất của dự án là ứng dụng Windows desktop. Kh�
 
 - Lưu tài liệu môn học và tài liệu tham khảo.
 - Tìm nhanh đoạn phù hợp cho bài tập, báo cáo hoặc ôn tập.
-- Lọc tài liệu theo chủ đề, độ khó và định dạng.
+- Lọc tài liệu theo môn học, độ khó và định dạng.
 
 ### Quản trị viên cục bộ — giai đoạn tiếp theo
 
@@ -40,7 +40,7 @@ Dashboard quản trị phải nằm trong ứng dụng desktop nếu được tr
 ### 4.1 Tài khoản
 
 - Đăng ký, đăng nhập và đăng xuất.
-- Cô lập tài liệu, chủ đề, cấu hình AI và lịch sử tìm kiếm theo tài khoản cục bộ.
+- Cô lập tài liệu, danh sách môn học, cấu hình AI và lịch sử tìm kiếm theo tài khoản cục bộ.
 
 ### 4.2 Quản lý tài liệu
 
@@ -71,7 +71,9 @@ Khi có nhiều tài liệu, toàn bộ pipeline chạy tuần tự theo hàng �
 
 - Hỗ trợ OpenRouter, Ollama chạy trên máy và Custom API tương thích chat completions.
 - Cho phép thêm, sửa, kiểm tra, đặt mặc định và xóa kết nối.
-- Phân tích chủ đề chính, độ khó, ngôn ngữ, tóm tắt và tên chủ đề liên quan.
+- Phân tích độ khó, ngôn ngữ, tóm tắt và chọn một môn học từ danh sách hiện có.
+- AI chỉ trả về mã môn học đang được phép phân loại hoặc `null`; server kiểm tra lại mã và chỉ tự gắn khi độ tin cậy đạt từ 75%.
+- Nếu tài liệu không phù hợp rõ ràng với môn nào, tài liệu được giữ ở trạng thái “Chưa phân loại”; AI không được tạo môn học mới.
 - API key được mã hóa trước khi lưu.
 - Lỗi phổ biến cần được nhận diện: URL/model sai, API key sai, không đủ quyền, hết hạn mức, quá tải, timeout và mất kết nối.
 
@@ -81,26 +83,35 @@ AI phân tích metadata là tùy chọn. Embedding tìm kiếm luôn dùng BGE-M
 
 - Nhận câu truy vấn tự nhiên bằng tiếng Việt hoặc tiếng Anh.
 - Kết hợp vector BGE-M3, từ khóa và metadata.
-- Cho phép lọc theo chủ đề, độ khó, loại file và thời gian.
+- Cho phép lọc theo môn học, “Chưa phân loại”, độ khó, loại file và thời gian.
 - Chỉ hiển thị kết quả đủ liên quan.
 - Mỗi tài liệu lấy đoạn phù hợp nhất để tránh lặp kết quả.
 - Hiển thị tiêu đề, đoạn trích, lý do phù hợp, trang/slide/mục và liên kết mở nguồn.
 
 Tìm kiếm hiện tại là tìm nguồn tham khảo, không phải chatbot sinh câu trả lời thay cho tài liệu.
 
-### 4.6 Chủ đề
+### 4.6 Môn học và phân loại
 
-- Tạo tên chủ đề chuẩn và các tên gọi khác.
-- Chuẩn hóa tên để hạn chế trùng lặp.
-- Gắn chủ đề vào tài liệu từ kết quả AI hoặc thao tác người dùng.
-- Cho phép đổi tên, thêm alias, xóa và gộp thủ công.
-- Không có tính năng “đề xuất gộp chủ đề” chờ duyệt.
+- Mỗi tài khoản được khởi tạo một lần với 27 môn chuyên ngành CNTT của Trường Đại học Nguyễn Tất Thành, từ học kỳ 2 đến học kỳ 12.
+- Danh sách không bao gồm tiếng Anh và các học phần đại cương hoặc không liên quan trực tiếp đến ngành CNTT.
+- Người dùng có toàn quyền thêm, đổi tên, thêm tên gọi khác, xóa và gộp môn học.
+- AI chỉ được chọn trong danh sách môn học đang được người dùng cho phép phân loại, không được tự tạo tên mới.
+- Tài liệu không đạt ngưỡng phù hợp được giữ ở trạng thái “Chưa phân loại” để người dùng xem và gắn thủ công.
+- Khi xóa một môn học, tài liệu đang thuộc môn đó không bị xóa mà chuyển về “Chưa phân loại”.
+- Các chủ đề cũ tồn tại trước bản nâng cấp không tự động được AI sử dụng; tài liệu liên quan chuyển về “Chưa phân loại”, còn người dùng có thể chỉnh sửa chủ đề cũ để xác nhận và bật lại.
 
 ### 4.7 Dashboard
 
-- Thống kê số tài liệu, tài liệu sẵn sàng và chủ đề.
+- Thống kê số tài liệu, tài liệu sẵn sàng và môn học.
 - Hiển thị tài liệu mới thêm và thao tác nhanh.
 - Phản ánh đúng trạng thái xử lý của thư viện cục bộ.
+
+### 4.8 Thông tin dự án
+
+- Header toàn ứng dụng hiển thị tên đề tài, khoa và nhóm thực hiện.
+- Footer hiển thị đơn vị đào tạo, giảng viên hướng dẫn, email, GitHub và phiên bản ứng dụng.
+- Mục “Về dự án” cung cấp đầy đủ thành viên và mã số sinh viên mà không làm rối nội dung chính.
+- Thông tin dự án hiển thị phù hợp trên cả màn hình desktop và màn hình nhỏ.
 
 ## 5. Yêu cầu phi chức năng
 
@@ -151,6 +162,7 @@ Tìm kiếm hiện tại là tìm nguồn tham khảo, không phải chatbot sin
 - Tạo được vector BGE-M3 1.024 chiều khi các dịch vụ cũ đã dừng/gỡ bỏ.
 - Tìm được tài liệu liên quan bằng truy vấn tự nhiên và mở đúng vị trí nguồn.
 - Kết nối, sửa và kiểm tra được ít nhất một nhà cung cấp AI.
+- AI chỉ gắn một môn học hiện có hoặc để tài liệu ở “Chưa phân loại”; không tạo môn mới.
 - Thông báo lỗi AI ngắn gọn và không làm lộ chi tiết kỹ thuật.
 - Dữ liệu được giữ sau khi đóng và mở lại ứng dụng.
 - Unit test, lint, production build và packaged smoke test đều đạt trước khi phát hành.

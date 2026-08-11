@@ -85,6 +85,7 @@ export const UserScalarFieldEnum = {
   emailVerified: 'emailVerified',
   image: 'image',
   passwordHash: 'passwordHash',
+  curriculumInitializedAt: 'curriculumInitializedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -155,6 +156,7 @@ export const TagScalarFieldEnum = {
   normalizedName: 'normalizedName',
   description: 'description',
   embedding: 'embedding',
+  isClassificationEnabled: 'isClassificationEnabled',
   createdByUserId: 'createdByUserId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

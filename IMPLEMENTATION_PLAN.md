@@ -1,6 +1,6 @@
 # Implementation Plan — ScholarFlow Desktop
 
-**Cập nhật:** 08/08/2026
+**Cập nhật:** 10/08/2026
 **Quyết định kiến trúc:** chỉ phát triển và phát hành ứng dụng desktop Windows.
 
 ## 1. Kiến trúc đích
@@ -83,11 +83,12 @@ ScholarFlow.exe
 3. Xóa Docker, Python service và PostgreSQL scripts.
 4. Chuyển các smoke/report script còn hữu ích sang SQLite.
 5. Xóa feature “đề xuất gộp chủ đề” khỏi UI, API và schema mới.
-6. Cập nhật CI cho môi trường Windows desktop.
-7. Chạy unit test, lint, production build và packaged smoke test.
-8. Chia commit theo nhóm chức năng.
-9. Đẩy nhánh và tạo Pull Request.
-10. Tạo GitHub Release kèm bộ cài Windows.
+6. Cố định danh mục 27 môn CNTT NTTU; AI chỉ phân loại vào môn hiện có hoặc để “Chưa phân loại”.
+7. Cập nhật CI cho môi trường Windows desktop.
+8. Chạy unit test, lint, production build và packaged smoke test.
+9. Chia commit theo nhóm chức năng.
+10. Đẩy nhánh và tạo Pull Request.
+11. Tạo GitHub Release kèm bộ cài Windows.
 
 ## 5. Giai đoạn 3 — Dashboard quản trị desktop
 
@@ -110,6 +111,7 @@ Giới hạn: dashboard này chỉ quản lý tài khoản trong cùng bản cà
 ## 6. Giai đoạn 4 — Cải thiện sau MVP
 
 - [Đã triển khai] Chọn nhiều file/thư mục và queue tuần tự toàn bộ pipeline tài liệu.
+- [Đã triển khai] Khởi tạo 27 môn CNTT NTTU, cho người dùng quản lý danh sách và giới hạn AI chỉ được chọn môn hiện có với ngưỡng tin cậy 75%.
 - Hiển thị tiến độ tải model lần đầu.
 - Backup/restore database và uploads trong giao diện.
 - [Đã triển khai] Phân loại PDF bằng pdf-inspector và OCR fallback bằng Docling; giữ Tesseract/Poppler làm fallback môi trường cũ.

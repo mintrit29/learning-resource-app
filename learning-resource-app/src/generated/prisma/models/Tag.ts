@@ -30,6 +30,7 @@ export type TagMinAggregateOutputType = {
   normalizedName: string | null
   description: string | null
   embedding: runtime.Bytes | null
+  isClassificationEnabled: boolean | null
   createdByUserId: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -41,6 +42,7 @@ export type TagMaxAggregateOutputType = {
   normalizedName: string | null
   description: string | null
   embedding: runtime.Bytes | null
+  isClassificationEnabled: boolean | null
   createdByUserId: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -52,6 +54,7 @@ export type TagCountAggregateOutputType = {
   normalizedName: number
   description: number
   embedding: number
+  isClassificationEnabled: number
   createdByUserId: number
   createdAt: number
   updatedAt: number
@@ -65,6 +68,7 @@ export type TagMinAggregateInputType = {
   normalizedName?: true
   description?: true
   embedding?: true
+  isClassificationEnabled?: true
   createdByUserId?: true
   createdAt?: true
   updatedAt?: true
@@ -76,6 +80,7 @@ export type TagMaxAggregateInputType = {
   normalizedName?: true
   description?: true
   embedding?: true
+  isClassificationEnabled?: true
   createdByUserId?: true
   createdAt?: true
   updatedAt?: true
@@ -87,6 +92,7 @@ export type TagCountAggregateInputType = {
   normalizedName?: true
   description?: true
   embedding?: true
+  isClassificationEnabled?: true
   createdByUserId?: true
   createdAt?: true
   updatedAt?: true
@@ -171,6 +177,7 @@ export type TagGroupByOutputType = {
   normalizedName: string
   description: string | null
   embedding: runtime.Bytes | null
+  isClassificationEnabled: boolean
   createdByUserId: string
   createdAt: Date
   updatedAt: Date
@@ -203,6 +210,7 @@ export type TagWhereInput = {
   normalizedName?: Prisma.StringFilter<"Tag"> | string
   description?: Prisma.StringNullableFilter<"Tag"> | string | null
   embedding?: Prisma.BytesNullableFilter<"Tag"> | runtime.Bytes | null
+  isClassificationEnabled?: Prisma.BoolFilter<"Tag"> | boolean
   createdByUserId?: Prisma.StringFilter<"Tag"> | string
   createdAt?: Prisma.DateTimeFilter<"Tag"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Tag"> | Date | string
@@ -217,6 +225,7 @@ export type TagOrderByWithRelationInput = {
   normalizedName?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   embedding?: Prisma.SortOrderInput | Prisma.SortOrder
+  isClassificationEnabled?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -235,6 +244,7 @@ export type TagWhereUniqueInput = Prisma.AtLeast<{
   normalizedName?: Prisma.StringFilter<"Tag"> | string
   description?: Prisma.StringNullableFilter<"Tag"> | string | null
   embedding?: Prisma.BytesNullableFilter<"Tag"> | runtime.Bytes | null
+  isClassificationEnabled?: Prisma.BoolFilter<"Tag"> | boolean
   createdByUserId?: Prisma.StringFilter<"Tag"> | string
   createdAt?: Prisma.DateTimeFilter<"Tag"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Tag"> | Date | string
@@ -249,6 +259,7 @@ export type TagOrderByWithAggregationInput = {
   normalizedName?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   embedding?: Prisma.SortOrderInput | Prisma.SortOrder
+  isClassificationEnabled?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -266,6 +277,7 @@ export type TagScalarWhereWithAggregatesInput = {
   normalizedName?: Prisma.StringWithAggregatesFilter<"Tag"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"Tag"> | string | null
   embedding?: Prisma.BytesNullableWithAggregatesFilter<"Tag"> | runtime.Bytes | null
+  isClassificationEnabled?: Prisma.BoolWithAggregatesFilter<"Tag"> | boolean
   createdByUserId?: Prisma.StringWithAggregatesFilter<"Tag"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Tag"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Tag"> | Date | string
@@ -277,6 +289,7 @@ export type TagCreateInput = {
   normalizedName: string
   description?: string | null
   embedding?: runtime.Bytes | null
+  isClassificationEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   createdByUser: Prisma.UserCreateNestedOneWithoutCreatedTagsInput
@@ -290,6 +303,7 @@ export type TagUncheckedCreateInput = {
   normalizedName: string
   description?: string | null
   embedding?: runtime.Bytes | null
+  isClassificationEnabled?: boolean
   createdByUserId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -303,6 +317,7 @@ export type TagUpdateInput = {
   normalizedName?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   embedding?: Prisma.NullableBytesFieldUpdateOperationsInput | runtime.Bytes | null
+  isClassificationEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdByUser?: Prisma.UserUpdateOneRequiredWithoutCreatedTagsNestedInput
@@ -316,6 +331,7 @@ export type TagUncheckedUpdateInput = {
   normalizedName?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   embedding?: Prisma.NullableBytesFieldUpdateOperationsInput | runtime.Bytes | null
+  isClassificationEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -329,6 +345,7 @@ export type TagCreateManyInput = {
   normalizedName: string
   description?: string | null
   embedding?: runtime.Bytes | null
+  isClassificationEnabled?: boolean
   createdByUserId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -340,6 +357,7 @@ export type TagUpdateManyMutationInput = {
   normalizedName?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   embedding?: Prisma.NullableBytesFieldUpdateOperationsInput | runtime.Bytes | null
+  isClassificationEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -350,6 +368,7 @@ export type TagUncheckedUpdateManyInput = {
   normalizedName?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   embedding?: Prisma.NullableBytesFieldUpdateOperationsInput | runtime.Bytes | null
+  isClassificationEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -376,6 +395,7 @@ export type TagCountOrderByAggregateInput = {
   normalizedName?: Prisma.SortOrder
   description?: Prisma.SortOrder
   embedding?: Prisma.SortOrder
+  isClassificationEnabled?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -387,6 +407,7 @@ export type TagMaxOrderByAggregateInput = {
   normalizedName?: Prisma.SortOrder
   description?: Prisma.SortOrder
   embedding?: Prisma.SortOrder
+  isClassificationEnabled?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -398,6 +419,7 @@ export type TagMinOrderByAggregateInput = {
   normalizedName?: Prisma.SortOrder
   description?: Prisma.SortOrder
   embedding?: Prisma.SortOrder
+  isClassificationEnabled?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -454,6 +476,10 @@ export type NullableBytesFieldUpdateOperationsInput = {
   set?: runtime.Bytes | null
 }
 
+export type BoolFieldUpdateOperationsInput = {
+  set?: boolean
+}
+
 export type TagCreateNestedOneWithoutAliasesInput = {
   create?: Prisma.XOR<Prisma.TagCreateWithoutAliasesInput, Prisma.TagUncheckedCreateWithoutAliasesInput>
   connectOrCreate?: Prisma.TagCreateOrConnectWithoutAliasesInput
@@ -488,6 +514,7 @@ export type TagCreateWithoutCreatedByUserInput = {
   normalizedName: string
   description?: string | null
   embedding?: runtime.Bytes | null
+  isClassificationEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   aliases?: Prisma.TagAliasCreateNestedManyWithoutTagInput
@@ -500,6 +527,7 @@ export type TagUncheckedCreateWithoutCreatedByUserInput = {
   normalizedName: string
   description?: string | null
   embedding?: runtime.Bytes | null
+  isClassificationEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   aliases?: Prisma.TagAliasUncheckedCreateNestedManyWithoutTagInput
@@ -540,6 +568,7 @@ export type TagScalarWhereInput = {
   normalizedName?: Prisma.StringFilter<"Tag"> | string
   description?: Prisma.StringNullableFilter<"Tag"> | string | null
   embedding?: Prisma.BytesNullableFilter<"Tag"> | runtime.Bytes | null
+  isClassificationEnabled?: Prisma.BoolFilter<"Tag"> | boolean
   createdByUserId?: Prisma.StringFilter<"Tag"> | string
   createdAt?: Prisma.DateTimeFilter<"Tag"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Tag"> | Date | string
@@ -551,6 +580,7 @@ export type TagCreateWithoutAliasesInput = {
   normalizedName: string
   description?: string | null
   embedding?: runtime.Bytes | null
+  isClassificationEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   createdByUser: Prisma.UserCreateNestedOneWithoutCreatedTagsInput
@@ -563,6 +593,7 @@ export type TagUncheckedCreateWithoutAliasesInput = {
   normalizedName: string
   description?: string | null
   embedding?: runtime.Bytes | null
+  isClassificationEnabled?: boolean
   createdByUserId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -591,6 +622,7 @@ export type TagUpdateWithoutAliasesInput = {
   normalizedName?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   embedding?: Prisma.NullableBytesFieldUpdateOperationsInput | runtime.Bytes | null
+  isClassificationEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdByUser?: Prisma.UserUpdateOneRequiredWithoutCreatedTagsNestedInput
@@ -603,6 +635,7 @@ export type TagUncheckedUpdateWithoutAliasesInput = {
   normalizedName?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   embedding?: Prisma.NullableBytesFieldUpdateOperationsInput | runtime.Bytes | null
+  isClassificationEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -615,6 +648,7 @@ export type TagCreateWithoutDocumentsInput = {
   normalizedName: string
   description?: string | null
   embedding?: runtime.Bytes | null
+  isClassificationEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   createdByUser: Prisma.UserCreateNestedOneWithoutCreatedTagsInput
@@ -627,6 +661,7 @@ export type TagUncheckedCreateWithoutDocumentsInput = {
   normalizedName: string
   description?: string | null
   embedding?: runtime.Bytes | null
+  isClassificationEnabled?: boolean
   createdByUserId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -655,6 +690,7 @@ export type TagUpdateWithoutDocumentsInput = {
   normalizedName?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   embedding?: Prisma.NullableBytesFieldUpdateOperationsInput | runtime.Bytes | null
+  isClassificationEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdByUser?: Prisma.UserUpdateOneRequiredWithoutCreatedTagsNestedInput
@@ -667,6 +703,7 @@ export type TagUncheckedUpdateWithoutDocumentsInput = {
   normalizedName?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   embedding?: Prisma.NullableBytesFieldUpdateOperationsInput | runtime.Bytes | null
+  isClassificationEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -679,6 +716,7 @@ export type TagCreateManyCreatedByUserInput = {
   normalizedName: string
   description?: string | null
   embedding?: runtime.Bytes | null
+  isClassificationEnabled?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -689,6 +727,7 @@ export type TagUpdateWithoutCreatedByUserInput = {
   normalizedName?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   embedding?: Prisma.NullableBytesFieldUpdateOperationsInput | runtime.Bytes | null
+  isClassificationEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   aliases?: Prisma.TagAliasUpdateManyWithoutTagNestedInput
@@ -701,6 +740,7 @@ export type TagUncheckedUpdateWithoutCreatedByUserInput = {
   normalizedName?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   embedding?: Prisma.NullableBytesFieldUpdateOperationsInput | runtime.Bytes | null
+  isClassificationEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   aliases?: Prisma.TagAliasUncheckedUpdateManyWithoutTagNestedInput
@@ -713,6 +753,7 @@ export type TagUncheckedUpdateManyWithoutCreatedByUserInput = {
   normalizedName?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   embedding?: Prisma.NullableBytesFieldUpdateOperationsInput | runtime.Bytes | null
+  isClassificationEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -763,6 +804,7 @@ export type TagSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = ru
   normalizedName?: boolean
   description?: boolean
   embedding?: boolean
+  isClassificationEnabled?: boolean
   createdByUserId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -778,6 +820,7 @@ export type TagSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extension
   normalizedName?: boolean
   description?: boolean
   embedding?: boolean
+  isClassificationEnabled?: boolean
   createdByUserId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -790,6 +833,7 @@ export type TagSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extension
   normalizedName?: boolean
   description?: boolean
   embedding?: boolean
+  isClassificationEnabled?: boolean
   createdByUserId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -802,12 +846,13 @@ export type TagSelectScalar = {
   normalizedName?: boolean
   description?: boolean
   embedding?: boolean
+  isClassificationEnabled?: boolean
   createdByUserId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type TagOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "normalizedName" | "description" | "embedding" | "createdByUserId" | "createdAt" | "updatedAt", ExtArgs["result"]["tag"]>
+export type TagOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "normalizedName" | "description" | "embedding" | "isClassificationEnabled" | "createdByUserId" | "createdAt" | "updatedAt", ExtArgs["result"]["tag"]>
 export type TagInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   createdByUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   aliases?: boolean | Prisma.Tag$aliasesArgs<ExtArgs>
@@ -834,6 +879,7 @@ export type $TagPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
     normalizedName: string
     description: string | null
     embedding: runtime.Bytes | null
+    isClassificationEnabled: boolean
     createdByUserId: string
     createdAt: Date
     updatedAt: Date
@@ -1268,6 +1314,7 @@ export interface TagFieldRefs {
   readonly normalizedName: Prisma.FieldRef<"Tag", 'String'>
   readonly description: Prisma.FieldRef<"Tag", 'String'>
   readonly embedding: Prisma.FieldRef<"Tag", 'Bytes'>
+  readonly isClassificationEnabled: Prisma.FieldRef<"Tag", 'Boolean'>
   readonly createdByUserId: Prisma.FieldRef<"Tag", 'String'>
   readonly createdAt: Prisma.FieldRef<"Tag", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Tag", 'DateTime'>

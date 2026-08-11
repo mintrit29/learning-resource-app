@@ -513,10 +513,6 @@ export type AiProviderUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.AiProviderScalarWhereInput | Prisma.AiProviderScalarWhereInput[]
 }
 
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
-}
-
 export type AiProviderCreateWithoutUserInput = {
   id?: string
   type: string

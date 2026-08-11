@@ -63,7 +63,7 @@ function saveSearch(state: SavedSearchState) {
 
 function buildSuitabilityReasons(result: SearchResult, filters: SearchFilters) {
   const reasons = new Set(result.matchReasons);
-  if (filters.topic && result.primaryTopic === filters.topic && !reasons.has("Đúng chủ đề")) reasons.add("Đúng chủ đề đã lọc");
+  if (filters.topic && result.primaryTopic === filters.topic && !reasons.has("Đúng môn học")) reasons.add("Đúng môn học đã lọc");
   if (filters.difficulty && result.difficulty === filters.difficulty && !reasons.has("Đúng độ khó")) reasons.add("Đúng độ khó đã lọc");
   if (filters.fileType && result.fileType === filters.fileType && !reasons.has("Đúng định dạng")) reasons.add("Đúng định dạng đã lọc");
   return [...reasons];
@@ -181,9 +181,9 @@ export function ResourceSearch({ topics }: { topics: string[] }) {
 
         <div className="search-filters" aria-label="Lọc tài liệu">
           <label>
-            <span>Chủ đề</span>
+            <span>Môn học</span>
             <select onChange={(event) => updateFilter("topic", event.target.value)} value={filters.topic}>
-              <option value="">Tất cả chủ đề</option>
+              <option value="">Tất cả môn học</option>
               {topics.map((topic) => <option key={topic} value={topic}>{topic}</option>)}
             </select>
           </label>
@@ -227,7 +227,7 @@ export function ResourceSearch({ topics }: { topics: string[] }) {
           <p>
             {searchStatus === "EMPTY_LIBRARY"
               ? "Hãy thêm tài liệu để ScholarFlow có dữ liệu phân loại và tìm kiếm."
-              : "Thử mô tả nhu cầu khác hoặc nới bộ lọc chủ đề, độ khó và loại file."}
+              : "Thử mô tả nhu cầu khác hoặc nới bộ lọc môn học, độ khó và loại file."}
           </p>
         </div>
       ) : null}

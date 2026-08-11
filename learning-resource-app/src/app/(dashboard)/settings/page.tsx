@@ -8,7 +8,7 @@ export default function SettingsPage() {
         <div>
           <p className="eyebrow">Cài đặt</p>
           <h1>Thiết lập hệ thống</h1>
-          <p>Kết nối AI và quản lý cách ScholarFlow gom chủ đề trong tài liệu.</p>
+          <p>Kết nối AI và quản lý danh sách môn học dùng để phân loại tài liệu.</p>
         </div>
       </header>
       <div className="settings-list">
@@ -27,8 +27,8 @@ export default function SettingsPage() {
             <Tags size={21} />
           </span>
           <div>
-            <strong>Chủ đề chuẩn & tên gọi khác</strong>
-            <p>Gom “Học máy”, “Machine Learning”, “ML”… về cùng một chủ đề.</p>
+            <strong>Danh sách môn học</strong>
+            <p>Quản lý các môn mà AI được phép dùng khi phân loại tài liệu.</p>
           </div>
           <ChevronRight size={18} />
         </Link>

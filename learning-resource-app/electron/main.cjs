@@ -372,7 +372,7 @@ function isAllowedAppUrl(targetUrl) {
 function openExternalUrl(targetUrl) {
   try {
     const parsed = new URL(targetUrl);
-    if (parsed.protocol === "https:") {
+    if (parsed.protocol === "https:" || parsed.protocol === "mailto:") {
       void shell.openExternal(parsed.toString());
     }
   } catch {

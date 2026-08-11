@@ -1,6 +1,7 @@
 import { hash } from "bcryptjs";
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { ensureCurriculumTopics } from "@/lib/taxonomy/curriculum-topics";
 import { registerSchema } from "@/lib/validation";
 
 export async function POST(request: Request) {
@@ -27,13 +28,15 @@ export async function POST(request: Request) {
   }
 
   const passwordHash = await hash(parsed.data.password, 12);
-  await db.user.create({
+  const user = await db.user.create({
     data: {
       name: parsed.data.name,
       email: parsed.data.email,
       passwordHash,
     },
+    select: { id: true },
   });
+  await ensureCurriculumTopics(user.id);
 
   return NextResponse.json({ message: "Tạo tài khoản thành công" }, { status: 201 });
 }

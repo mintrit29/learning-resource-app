@@ -2,7 +2,7 @@
 
 ScholarFlow là ứng dụng desktop Windows giúp sinh viên lưu trữ, phân loại và tìm lại học liệu bằng tìm kiếm ngữ nghĩa. Ứng dụng hỗ trợ PDF, DOCX, PPTX và EPUB; tự trích xuất nội dung, chia đoạn, tạo vector BGE-M3 và cho phép tìm nguồn phù hợp bằng câu hỏi tự nhiên.
 
-> Phiên bản chính thức của dự án là ứng dụng desktop. Repo không còn sử dụng Docker, PostgreSQL, Python embedding service hoặc một bản web triển khai riêng.
+> Đây là nhánh `desktop-app`, dùng Electron, SQLite và local runtime. Phiên bản web/Docker cũ vẫn được giữ riêng trên nhánh `main` và `archive/web-docker-before-desktop-2026-08-08`. Không merge trực tiếp `desktop-app` vào nhánh Docker vì hai bản dùng kiến trúc database và embedding khác nhau.
 
 ## Chức năng chính
 
@@ -12,10 +12,12 @@ ScholarFlow là ứng dụng desktop Windows giúp sinh viên lưu trữ, phân 
 - Trích xuất Markdown có cấu trúc, bảng và vị trí nguồn như trang, slide hoặc mục.
 - Tự nhận diện PDF scan/ảnh và dùng Docling OCR tiếng Việt/Anh khi cần.
 - Chia nội dung thành các đoạn và tạo vector BGE-M3 1.024 chiều trên máy.
-- Phân tích chủ đề, độ khó, ngôn ngữ và tóm tắt bằng OpenRouter, Ollama hoặc Custom API.
+- Phân loại tài liệu vào danh sách môn học cố định, đồng thời phân tích độ khó, ngôn ngữ và tóm tắt bằng OpenRouter, Ollama hoặc Custom API.
 - Tìm kiếm kết hợp ngữ nghĩa, từ khóa và bộ lọc metadata.
 - Hiển thị đoạn phù hợp nhất, lý do phù hợp và vị trí để mở lại nguồn.
-- Quản lý chủ đề, tên gọi khác và gộp thủ công các chủ đề trùng nhau.
+- Khởi tạo 27 môn chuyên ngành CNTT của Trường Đại học Nguyễn Tất Thành; người dùng có thể thêm, sửa, xóa hoặc gộp môn học.
+- AI chỉ được chọn một môn học đang có. Tài liệu không đủ phù hợp được giữ ở trạng thái “Chưa phân loại”, AI không tự tạo môn mới.
+- Header, footer và mục “Về dự án” hiển thị thông tin đề tài, nhóm TH67, giảng viên hướng dẫn và kênh liên hệ.
 - Theo dõi tiến trình xử lý, thử lại bước lỗi và phân tích lại bằng AI.
 
 ## Kiến trúc hiện tại
@@ -98,3 +100,12 @@ Bộ cài được tạo trong `learning-resource-app\dist-electron`. Thư mục
 - Dashboard quản trị tài khoản trong desktop là hạng mục ưu tiên tiếp theo và chưa nằm trong bản MVP hiện tại.
 
 Chi tiết phạm vi sản phẩm nằm trong [PRD.md](PRD.md), tiến độ trong [PROJECT_CHECKLIST.md](PROJECT_CHECKLIST.md) và kế hoạch kỹ thuật trong [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md).
+
+## Làm việc cùng phiên bản Docker
+
+- `desktop-app`: Electron + SQLite + sqlite-vec + BGE-M3 local.
+- `main`: web/Docker + PostgreSQL/pgvector + embedding service riêng.
+- Không dùng nút **Merge** để nhập toàn bộ `desktop-app` vào `main`. Git có thể merge sạch nhưng đồng thời xóa Dockerfile, compose và Python embedding service.
+- Muốn đưa một tính năng giao diện sang Docker, hãy tạo branch mới từ `main` rồi chuyển thủ công đúng component/API cần thiết và giữ nguyên tầng database của Docker.
+
+Xem danh sách xung đột kiến trúc và cách xử lý tại [DOCKER_COMPATIBILITY.md](DOCKER_COMPATIBILITY.md).

@@ -12,6 +12,7 @@ import { db } from "@/lib/db";
 import { getDocumentDisplayStatus } from "@/lib/documents/display-status";
 import { estimateProcessingRemaining } from "@/lib/documents/processing-estimate";
 import { formatDifficulty } from "@/lib/labels";
+import { ensureCurriculumTopics } from "@/lib/taxonomy/curriculum-topics";
 
 const jobLabels: Record<string, string> = {
   EXTRACT_TEXT: "Trích xuất nội dung",
@@ -48,6 +49,7 @@ export default async function DocumentDetailPage({
   searchParams: Promise<{ chunk?: string; fullText?: string }>;
 }) {
   const session = await auth();
+  await ensureCurriculumTopics(session!.user.id);
   const { id } = await params;
   const { chunk: matchedChunkId, fullText } = await searchParams;
   const shouldShowFullText = fullText === "1";
@@ -63,9 +65,14 @@ export default async function DocumentDetailPage({
   });
   if (!document) notFound();
 
-  const missingEmbeddings = await db.documentChunk.count({
-    where: { documentId: document.id, embedding: null },
-  });
+  const [missingEmbeddings, topics] = await Promise.all([
+    db.documentChunk.count({ where: { documentId: document.id, embedding: null } }),
+    db.tag.findMany({
+      where: { createdByUserId: session!.user.id, isClassificationEnabled: true },
+      select: { id: true, name: true },
+      orderBy: { name: "asc" },
+    }),
+  ]);
 
   const textContent = document.textContent ?? "";
   const previewLimit = 15000;
@@ -75,7 +82,7 @@ export default async function DocumentDetailPage({
   const isProcessing = document.jobs.some((job) =>
     job.status === "PENDING" || job.status === "PROCESSING"
   );
-  const analysisComplete = Boolean(document.primaryTopic && document.difficulty && document.summary);
+  const analysisComplete = Boolean(document.difficulty && document.summary);
   const needsProcessing = !document.textContent || document._count.chunks === 0 ||
     missingEmbeddings > 0 || !analysisComplete;
   const originalFileHref = `/api/documents/${document.id}/file`;
@@ -122,7 +129,7 @@ export default async function DocumentDetailPage({
         <section className="document-analysis-section">
           <div className="analysis-heading">
             <div><p className="eyebrow">Phân tích AI</p><h2>Tóm tắt</h2></div>
-            <EditAnalysisButton documentId={document.id} initial={{ topic: document.primaryTopic ?? "Other", difficulty: document.difficulty ?? "INTERMEDIATE", language: document.language ?? "Unknown", summary: document.summary, reason: document.analysisReason ?? "Người dùng cập nhật kết quả phân loại" }} />
+            <EditAnalysisButton documentId={document.id} topics={topics} initial={{ topicId: topics.find((topic) => topic.name === document.primaryTopic)?.id ?? "", difficulty: document.difficulty ?? "INTERMEDIATE", language: document.language ?? "Unknown", summary: document.summary, reason: document.analysisReason ?? "Người dùng cập nhật kết quả phân loại" }} />
           </div>
           <p>{document.summary}</p>
         </section>
@@ -131,7 +138,7 @@ export default async function DocumentDetailPage({
       <section className="document-meta-strip">
         <div><span>Kích thước</span><strong>{formatBytes(document.fileSize)}</strong></div>
         <div><span>Ký tự đã trích xuất</span><strong>{document.textContent?.length.toLocaleString("vi-VN") ?? 0}</strong></div>
-        <div><span>Chủ đề</span><strong>{document.primaryTopic ?? "Chưa phân tích"}</strong></div>
+        <div><span>Môn học</span><strong>{document.primaryTopic ?? "Chưa phân loại"}</strong></div>
         <div><span>Độ khó</span><strong>{document.difficulty ? formatDifficulty(document.difficulty) : "Chưa phân tích"}</strong></div>
         <div><span>Ngôn ngữ</span><strong>{document.language ?? "Chưa nhận diện"}</strong></div>
       </section>

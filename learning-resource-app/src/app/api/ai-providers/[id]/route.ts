@@ -24,7 +24,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
   const parsed = providerUpdateSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ message: parsed.error.issues[0]?.message ?? "Dữ liệu không hợp lệ" }, { status: 400 });
-  if (parsed.data.type !== "OLLAMA" && !parsed.data.apiKey && !existing.apiKeyEncrypted) {
+  if (parsed.data.type === "OPENROUTER" && !parsed.data.apiKey && !existing.apiKeyEncrypted) {
     return NextResponse.json({ message: "API key là bắt buộc cho loại kết nối này" }, { status: 400 });
   }
   const updated = await db.aiProvider.update({ where: { id }, data: {

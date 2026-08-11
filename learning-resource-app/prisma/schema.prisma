@@ -50,20 +50,21 @@ enum DocumentTagSource {
 }
 
 model User {
-  id              String           @id @default(cuid())
-  name            String?
-  email           String           @unique
-  emailVerified   DateTime?
-  image           String?
-  passwordHash    String?
-  accounts        Account[]
-  sessions        Session[]
-  documents       Document[]
-  aiProviders     AiProvider[]
-  searchLogs      SearchLog[]
-  createdTags     Tag[]            @relation("TagCreator")
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+  id                      String       @id @default(cuid())
+  name                    String?
+  email                   String       @unique
+  emailVerified           DateTime?
+  image                   String?
+  passwordHash            String?
+  accounts                Account[]
+  sessions                Session[]
+  documents               Document[]
+  aiProviders             AiProvider[]
+  searchLogs              SearchLog[]
+  createdTags             Tag[]        @relation("TagCreator")
+  curriculumInitializedAt DateTime?
+  createdAt               DateTime     @default(now())
+  updatedAt               DateTime     @updatedAt
 }
 
 model Account {
@@ -99,7 +100,7 @@ model VerificationToken {
 }
 
 model Document {
-  id               String           @id @default(cuid())
+  id               String          @id @default(cuid())
   userId           String
   title            String
   originalFileName String
@@ -112,13 +113,13 @@ model Document {
   difficulty       Difficulty?
   summary          String?
   analysisReason   String?
-  status           DocumentStatus   @default(UPLOADED)
-  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status           DocumentStatus  @default(UPLOADED)
+  user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   chunks           DocumentChunk[]
   jobs             AnalysisJob[]
   tags             DocumentTag[]
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
 
   @@index([userId, createdAt])
   @@index([userId, status])
@@ -126,17 +127,18 @@ model Document {
 }
 
 model Tag {
-  id              String           @id @default(cuid())
-  name            String
-  normalizedName  String
-  description     String?
-  embedding       Bytes?
-  createdByUserId String
-  createdByUser   User             @relation("TagCreator", fields: [createdByUserId], references: [id], onDelete: Cascade)
-  aliases         TagAlias[]
-  documents       DocumentTag[]
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+  id                      String        @id @default(cuid())
+  name                    String
+  normalizedName          String
+  description             String?
+  embedding               Bytes?
+  isClassificationEnabled Boolean       @default(false)
+  createdByUserId         String
+  createdByUser           User          @relation("TagCreator", fields: [createdByUserId], references: [id], onDelete: Cascade)
+  aliases                 TagAlias[]
+  documents               DocumentTag[]
+  createdAt               DateTime      @default(now())
+  updatedAt               DateTime      @updatedAt
 
   @@unique([createdByUserId, normalizedName])
   @@index([createdByUserId, name])

@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { BookOpenText, LogOut } from "lucide-react";
 import { auth, signOut } from "@/auth";
 import { SidebarNav } from "@/components/dashboard/sidebar-nav";
+import { ProjectFooter } from "@/components/layout/project-footer";
+import { ProjectHeader } from "@/components/layout/project-header";
 
 export default async function DashboardLayout({
   children,
@@ -49,7 +51,11 @@ export default async function DashboardLayout({
           </form>
         </div>
       </aside>
-      <main className="app-main">{children}</main>
+      <div className="app-content-shell">
+        <ProjectHeader />
+        <main className="app-main">{children}</main>
+        <ProjectFooter />
+      </div>
     </div>
   );
 }

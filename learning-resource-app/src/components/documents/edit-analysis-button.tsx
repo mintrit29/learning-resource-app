@@ -5,14 +5,24 @@ import { useRouter } from "next/navigation";
 import { LoaderCircle, Pencil, Save, X } from "lucide-react";
 
 type Analysis = {
-  topic: string;
+  topicId: string;
   difficulty: string;
   language: string;
   summary: string;
   reason: string;
 };
 
-export function EditAnalysisButton({ documentId, initial }: { documentId: string; initial: Analysis }) {
+type TopicOption = { id: string; name: string };
+
+export function EditAnalysisButton({
+  documentId,
+  initial,
+  topics,
+}: {
+  documentId: string;
+  initial: Analysis;
+  topics: TopicOption[];
+}) {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -26,7 +36,7 @@ export function EditAnalysisButton({ documentId, initial }: { documentId: string
     const response = await fetch(`/api/documents/${documentId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...form }),
+      body: JSON.stringify({ ...form, topicId: form.topicId || null }),
     });
     const data = await response.json() as { message?: string };
     setIsSaving(false);
@@ -42,7 +52,7 @@ export function EditAnalysisButton({ documentId, initial }: { documentId: string
         <div className="dialog-heading"><div><p className="eyebrow">Kết quả phân tích</p><h2 id="edit-analysis-title">Chỉnh sửa phân loại</h2></div><button aria-label="Đóng" className="icon-button" disabled={isSaving} onClick={() => setIsOpen(false)} type="button"><X size={19} /></button></div>
         <form className="analysis-form" onSubmit={save}>
           <div className="form-grid-two">
-            <label>Chủ đề chính<input maxLength={100} required value={form.topic} onChange={(event) => setForm({ ...form, topic: event.target.value })} placeholder="Ví dụ: Văn học, Cơ sở dữ liệu, Kinh tế..." /></label>
+            <label>Môn học<select value={form.topicId} onChange={(event) => setForm({ ...form, topicId: event.target.value })}><option value="">Chưa phân loại</option>{topics.map((topic) => <option key={topic.id} value={topic.id}>{topic.name}</option>)}</select></label>
             <label>Độ khó<select value={form.difficulty} onChange={(event) => setForm({ ...form, difficulty: event.target.value })}><option value="BEGINNER">Cơ bản</option><option value="INTERMEDIATE">Trung cấp</option><option value="ADVANCED">Nâng cao</option></select></label>
           </div>
           <label>Ngôn ngữ chính<input maxLength={80} required value={form.language} onChange={(event) => setForm({ ...form, language: event.target.value })} placeholder="English, Vietnamese..." /></label>

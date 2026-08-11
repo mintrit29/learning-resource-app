@@ -12,7 +12,7 @@ export const providerSchema = z.object({
   defaultChatModel: z.string().trim().min(1).max(160),
   isActive: z.boolean().optional().default(false),
 }).superRefine((value, context) => {
-  if (value.type !== "OLLAMA" && !value.apiKey) {
+  if (value.type === "OPENROUTER" && !value.apiKey) {
     context.addIssue({ code: "custom", path: ["apiKey"], message: "API key là bắt buộc" });
   }
 });

@@ -111,9 +111,23 @@ try {
   const database = new Database(databasePath, { readonly: true });
   try {
     assert.equal(database.prepare('SELECT count(*) AS count FROM "User"').get().count, 1);
+    assert.equal(database.prepare('SELECT count(*) AS count FROM "Tag"').get().count, 27);
+    assert.equal(
+      database.prepare('SELECT count(*) AS count FROM "Tag" WHERE "isClassificationEnabled" = 1').get().count,
+      27,
+    );
+    assert.equal(
+      database.prepare('SELECT count(*) AS count FROM "Tag" WHERE "description" LIKE ?').get("NTTU · Học kỳ 1 ·%").count,
+      0,
+      "Semester 1 subjects must not be seeded",
+    );
+    assert.ok(
+      database.prepare('SELECT "curriculumInitializedAt" FROM "User" LIMIT 1').get().curriculumInitializedAt,
+      "The curriculum must be marked as initialized",
+    );
     assert.equal(
       database.prepare('SELECT count(*) AS count FROM "_ScholarFlowMigration"').get().count,
-      1,
+      2,
     );
   } finally {
     database.close();

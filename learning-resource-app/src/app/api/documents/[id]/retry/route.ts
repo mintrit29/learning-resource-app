@@ -32,7 +32,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
   });
   if (activeJob) return NextResponse.json({ message: "Tài liệu đang có tác vụ chạy" }, { status: 409 });
 
-  const analysisComplete = Boolean(document.primaryTopic && document.difficulty && document.summary);
+  const analysisComplete = Boolean(document.difficulty && document.summary);
 
   if (!document.textContent || document._count.chunks === 0) {
     const jobs = await Promise.all([

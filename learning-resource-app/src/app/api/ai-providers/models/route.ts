@@ -26,7 +26,7 @@ export async function POST(request: Request) {
       if (!providerTypes.includes(requestedType as (typeof providerTypes)[number])) {
         return NextResponse.json({ message: "Loại provider không hợp lệ" }, { status: 400 });
       }
-      if (requestedType !== "OLLAMA" && !body.apiKey && !saved.apiKeyEncrypted) {
+      if (requestedType === "OPENROUTER" && !body.apiKey && !saved.apiKeyEncrypted) {
         return NextResponse.json({ message: "Hãy nhập API key trước khi tải danh sách model" }, { status: 400 });
       }
       config = {
@@ -42,6 +42,9 @@ export async function POST(request: Request) {
     } else {
       if (!body?.type || !providerTypes.includes(body.type as (typeof providerTypes)[number])) {
         return NextResponse.json({ message: "Loại provider không hợp lệ" }, { status: 400 });
+      }
+      if (body.type === "OPENROUTER" && !body.apiKey) {
+        return NextResponse.json({ message: "Hãy nhập API key trước khi tải danh sách model" }, { status: 400 });
       }
       const parsedUrl = new URL(body.baseUrl ?? "");
       if (!['http:', 'https:'].includes(parsedUrl.protocol)) {

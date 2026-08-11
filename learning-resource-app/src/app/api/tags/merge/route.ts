@@ -17,12 +17,12 @@ export async function POST(request: Request) {
 
   const parsed = mergeSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
-    return NextResponse.json({ message: "Dữ liệu gộp tag không hợp lệ" }, { status: 400 });
+    return NextResponse.json({ message: "Dữ liệu gộp môn học không hợp lệ" }, { status: 400 });
   }
 
   const { sourceTagId, targetTagId } = parsed.data;
   if (sourceTagId === targetTagId) {
-    return NextResponse.json({ message: "Tag nguồn và tag đích phải khác nhau" }, { status: 400 });
+    return NextResponse.json({ message: "Môn muốn bỏ và môn giữ lại phải khác nhau" }, { status: 400 });
   }
 
   const [sourceTag, targetTag] = await Promise.all([
@@ -32,15 +32,19 @@ export async function POST(request: Request) {
     }),
     db.tag.findFirst({
       where: { id: targetTagId, createdByUserId: session.user.id },
-      select: { id: true },
+      select: { id: true, name: true },
     }),
   ]);
 
   if (!sourceTag || !targetTag) {
-    return NextResponse.json({ message: "Không tìm thấy tag nguồn hoặc tag đích" }, { status: 404 });
+    return NextResponse.json({ message: "Không tìm thấy môn học muốn gộp" }, { status: 404 });
   }
 
   await db.$transaction(async (tx) => {
+    await tx.tag.update({
+      where: { id: targetTagId },
+      data: { isClassificationEnabled: true },
+    });
     await tx.tagAlias.upsert({
       where: {
         tagId_normalizedAlias: {
@@ -102,8 +106,19 @@ export async function POST(request: Request) {
       });
     }
 
+    await tx.document.updateMany({
+      where: {
+        userId: session.user.id,
+        OR: [
+          { primaryTopic: sourceTag.name },
+          { id: { in: sourceTag.documents.map((item) => item.documentId) } },
+        ],
+      },
+      data: { primaryTopic: targetTag.name },
+    });
+
     await tx.tag.delete({ where: { id: sourceTagId } });
   });
 
-  return NextResponse.json({ message: "Đã gộp tag thủ công" });
+  return NextResponse.json({ message: "Đã gộp môn học" });
 }
