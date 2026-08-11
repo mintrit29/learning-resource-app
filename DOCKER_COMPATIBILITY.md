@@ -68,4 +68,13 @@ git branch backup/merged-state
 git switch -c recover/docker origin/main
 ```
 
-Nếu commit lỗi đã được push vào `main`, ưu tiên `git revert <merge-commit>` để tạo commit đảo ngược có lịch sử rõ ràng. Không dùng `git reset --hard` hoặc force-push trên nhánh chung khi chưa thống nhất với cả nhóm.
+Nếu PR được nhập bằng merge commit và đã push vào `main`, ưu tiên nút **Revert** trên GitHub hoặc:
+
+```bash
+git switch main
+git pull origin main
+git revert -m 1 <merge-commit>
+git push origin main
+```
+
+Nếu PR được squash thành một commit, dùng `git revert <squash-commit>` thay vì tùy chọn `-m`. Không dùng `git reset --hard` hoặc force-push trên nhánh chung khi chưa thống nhất với cả nhóm.
