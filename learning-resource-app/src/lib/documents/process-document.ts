@@ -21,6 +21,8 @@ export type PipelineInput = {
   chunkJobId: string;
   embeddingJobId: string;
   analysisJobId?: string;
+  resetAnalysisAfterExtraction?: boolean;
+  preserveExistingOnExtractionFailure?: boolean;
 };
 
 const extensions: Record<FileType, SupportedExtension> = {
@@ -76,9 +78,24 @@ export async function processDocumentPipeline(input: PipelineInput) {
     }
 
     await Promise.all([
-      db.document.update({
-        where: { id: document.id },
-        data: { textContent: result.text, status: DocumentStatus.EXTRACTED },
+      db.$transaction(async (transaction) => {
+        if (input.resetAnalysisAfterExtraction) {
+          await transaction.documentTag.deleteMany({ where: { documentId: document.id } });
+        }
+        await transaction.document.update({
+          where: { id: document.id },
+          data: {
+            textContent: result.text,
+            status: DocumentStatus.EXTRACTED,
+            ...(input.resetAnalysisAfterExtraction ? {
+              primaryTopic: null,
+              difficulty: null,
+              language: null,
+              summary: null,
+              analysisReason: null,
+            } : {}),
+          },
+        });
       }),
       db.analysisJob.update({
         where: { id: input.extractionJobId },
@@ -135,7 +152,12 @@ export async function processDocumentPipeline(input: PipelineInput) {
       await Promise.all([
         db.document.update({
           where: { id: input.documentId },
-          data: { status: DocumentStatus.FAILED, analysisReason: message.slice(0, 500) },
+          data: {
+            status: input.preserveExistingOnExtractionFailure
+              ? DocumentStatus.READY
+              : DocumentStatus.FAILED,
+            analysisReason: `${input.preserveExistingOnExtractionFailure ? "Trích xuất lại" : "Trích xuất"}: ${message}`.slice(0, 500),
+          },
         }),
         db.analysisJob.update({
           where: { id: input.chunkJobId },

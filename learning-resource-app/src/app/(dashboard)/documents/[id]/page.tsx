@@ -7,6 +7,7 @@ import { EditAnalysisButton } from "@/components/documents/edit-analysis-button"
 import { ProcessingEstimate } from "@/components/documents/processing-estimate";
 import { ProcessingRefresh } from "@/components/documents/processing-refresh";
 import { ReanalyzeButton } from "@/components/documents/reanalyze-button";
+import { ReextractButton } from "@/components/documents/reextract-button";
 import { RetryJobButton } from "@/components/documents/retry-job-button";
 import { db } from "@/lib/db";
 import { getDocumentDisplayStatus } from "@/lib/documents/display-status";
@@ -121,6 +122,7 @@ export default async function DocumentDetailPage({
         <div><p className="eyebrow">Tài liệu {document.fileType}</p><h1>{document.title}</h1><p>{document.originalFileName}</p></div>
         <div className="document-header-actions">
           {!isProcessing && needsProcessing ? <RetryJobButton documentId={document.id} /> : null}
+          {!isProcessing ? <ReextractButton documentId={document.id} documentTitle={document.title} /> : null}
           {!isProcessing && document.textContent ? <ReanalyzeButton documentId={document.id} /> : null}
           <span className={`status-pill ${displayStatus.className}`}><i className="status-dot" />{displayStatus.label}</span>
           <DeleteDocumentButton documentId={document.id} documentTitle={document.title} />
