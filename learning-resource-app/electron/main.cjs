@@ -6,7 +6,8 @@ const { appendFileSync, createWriteStream, existsSync, mkdirSync, readFileSync, 
 const http = require("node:http");
 const net = require("node:net");
 const path = require("node:path");
-const { app, BrowserWindow, dialog, session, shell } = require("electron");
+const { app, BrowserWindow, dialog, ipcMain, session, shell } = require("electron");
+const { ComponentManager } = require("./component-manager.cjs");
 
 const HOST = "127.0.0.1";
 const HEALTH_PATH = "/api/health";
@@ -31,6 +32,9 @@ let isQuitting = false;
 let allowQuit = false;
 let logStream = null;
 let logFilePath = null;
+let componentManager = null;
+let serverHealthToken = null;
+let isRestartingEmbedding = false;
 
 app.disableHardwareAcceleration();
 app.enableSandbox();
@@ -106,15 +110,7 @@ function getDesktopDataEnvironment(resolvedEmbeddingUrl) {
   const serverRoot = app.isPackaged
     ? path.join(process.resourcesPath, "app")
     : path.resolve(__dirname, "..");
-  const documentRuntimeRoot = app.isPackaged
-    ? path.join(process.resourcesPath, "document-runtime")
-    : path.resolve(__dirname, "..", ".docling-runtime");
-  const documentRuntimeEnvironment = existsSync(documentRuntimeRoot)
-    ? {
-        DOCLING_RS_HOME: documentRuntimeRoot,
-        PDFIUM_DYNAMIC_LIB_PATH: path.join(documentRuntimeRoot, "pdfium", "lib"),
-      }
-    : {};
+  const documentRuntimeRoot = path.join(app.getPath("userData"), "runtimes", "docling");
 
   return {
     SCHOLARFLOW_DATA_ROOT: dataRoot,
@@ -128,7 +124,8 @@ function getDesktopDataEnvironment(resolvedEmbeddingUrl) {
       "sqlite-vec-windows-x64",
       "vec0.dll",
     ),
-    ...documentRuntimeEnvironment,
+    DOCLING_RS_HOME: documentRuntimeRoot,
+    PDFIUM_DYNAMIC_LIB_PATH: path.join(documentRuntimeRoot, "pdfium", "lib"),
   };
 }
 
@@ -166,7 +163,7 @@ function forwardEmbeddingLogs(child) {
   child.on("exit", (code, signal) => {
     writeLog(`Local embedding runtime đã dừng (code=${code ?? "null"}, signal=${signal ?? "null"})`);
     if (embeddingProcess === child) embeddingProcess = null;
-    if (!isQuitting && embeddingPort) scheduleEmbeddingRestart();
+    if (!isQuitting && !isRestartingEmbedding && embeddingPort) scheduleEmbeddingRestart();
   });
 }
 
@@ -266,7 +263,7 @@ async function waitForEmbeddingServer(url) {
     if (health?.status === "error") {
       throw new Error(`Không thể nạp BGE-M3 local: ${health.error || "unknown error"}`);
     }
-    if (health?.status === "loading" || health?.status === "ready") return;
+    if (health?.status === "missing" || health?.status === "loading" || health?.status === "ready") return;
     await new Promise((resolve) => setTimeout(resolve, 250));
   }
   throw new Error("Local embedding runtime khởi động quá thời gian cho phép");
@@ -482,7 +479,63 @@ function createMainWindow() {
     mainWindow = null;
   });
 
-  void mainWindow.loadURL(serverUrl);
+  const needsSetup = componentManager
+    ? Object.values(componentManager.getQuickStatuses()).some((component) => component.status !== "ready")
+    : false;
+  void mainWindow.loadURL(`${serverUrl}${needsSetup ? "/setup/components" : ""}`);
+}
+
+async function restartEmbeddingService() {
+  if (!embeddingPort || isQuitting) return;
+  isRestartingEmbedding = true;
+  try {
+    await stopEmbeddingService();
+    startEmbeddingService(embeddingPort);
+    await waitForEmbeddingServer(embeddingUrl);
+  } finally {
+    isRestartingEmbedding = false;
+  }
+}
+
+async function hasActiveDocumentJobs() {
+  if (!serverUrl || !serverHealthToken) return true;
+  return new Promise((resolve) => {
+    const request = http.get(`${serverUrl}/api/desktop/component-removal-check`, {
+      timeout: 3_000,
+      headers: { "x-scholarflow-health-token": serverHealthToken },
+    }, (response) => {
+      let body = "";
+      response.setEncoding("utf8");
+      response.on("data", (chunk) => { body += chunk; });
+      response.on("end", () => {
+        try { resolve(Boolean(JSON.parse(body).active)); } catch { resolve(true); }
+      });
+    });
+    request.once("timeout", () => request.destroy());
+    request.once("error", () => resolve(true));
+  });
+}
+
+function registerComponentIpc() {
+  const sendProgress = (progress) => {
+    if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send("components:progress", progress);
+  };
+  const legacyRoots = [
+    path.resolve(__dirname, "..", ".docling-runtime"),
+    ...(app.isPackaged ? [path.join(process.resourcesPath, "document-runtime")] : []),
+  ];
+  componentManager = new ComponentManager({
+    userDataRoot: app.getPath("userData"),
+    legacyDoclingRoots: legacyRoots,
+    onProgress: sendProgress,
+    onBgeChanged: restartEmbeddingService,
+    canRemove: async () => !(await hasActiveDocumentJobs()),
+  });
+  ipcMain.handle("components:status", () => componentManager.getStatuses());
+  ipcMain.handle("components:install", (_event, id) => componentManager.install(id));
+  ipcMain.handle("components:cancel", (_event, id) => componentManager.cancel(id));
+  ipcMain.handle("components:verify", (_event, id) => componentManager.verify(id));
+  ipcMain.handle("components:remove", (_event, id) => componentManager.remove(id));
 }
 
 function waitForProcessExit(child, timeoutMs) {
@@ -546,22 +599,27 @@ async function stopEmbeddingService() {
 
 async function bootstrap() {
   initializeLogging();
+  registerComponentIpc();
   embeddingPort = await findFreePort();
   startEmbeddingService(embeddingPort);
-  await waitForEmbeddingServer(embeddingUrl);
 
   const port = await findFreePort();
   const healthToken = randomBytes(32).toString("base64url");
+  serverHealthToken = healthToken;
   serverUrl = `http://${HOST}:${port}`;
   writeLog(`Khởi động ScholarFlow tại ${serverUrl}`);
   startNextServer(port, healthToken, embeddingUrl);
-  await waitForServer(serverUrl, healthToken);
+  await Promise.all([waitForServer(serverUrl, healthToken), waitForEmbeddingServer(embeddingUrl)]);
   const recovery = await requestProcessingRecovery(serverUrl, healthToken);
   if (recovery?.scheduled) {
     writeLog(`Đã xếp lại ${recovery.scheduled} tài liệu bị gián đoạn.`);
   }
   writeLog("Dịch vụ local đã sẵn sàng; đang mở cửa sổ ứng dụng.");
   createMainWindow();
+  void componentManager.verifyAdoptedComponents();
+  void componentManager.importLegacyDocling().then((imported) => {
+    if (imported) writeLog("Đã nhập Docling runtime cũ vào vùng thành phần cục bộ.");
+  });
 }
 
 if (!hasSingleInstanceLock) {

@@ -1,5 +1,5 @@
 import http from "node:http";
-import { mkdir } from "node:fs/promises";
+import { access, mkdir } from "node:fs/promises";
 import path from "node:path";
 import { performance } from "node:perf_hooks";
 
@@ -15,6 +15,13 @@ const MAX_TEXT_LENGTH = 20_000;
 const DIMENSIONS = 1024;
 const MAX_REQUEST_BYTES = 1024 * 1024;
 const MOCK_MODE = process.env.SCHOLARFLOW_EMBEDDING_MOCK === "1";
+const REQUIRED_MODEL_FILES = [
+  "config.json",
+  "tokenizer.json",
+  "tokenizer_config.json",
+  "onnx/model.onnx",
+  "onnx/model.onnx_data",
+];
 
 const state = {
   status: "loading",
@@ -114,7 +121,16 @@ async function loadModel() {
       const { env, pipeline } = await import("@huggingface/transformers");
       env.cacheDir = CACHE_DIRECTORY;
       env.allowLocalModels = true;
-      env.allowRemoteModels = true;
+      env.allowRemoteModels = false;
+      const modelRoot = path.join(CACHE_DIRECTORY, ...MODEL_NAME.split("/"));
+      try {
+        await Promise.all(REQUIRED_MODEL_FILES.map((file) => access(path.join(modelRoot, file))));
+      } catch {
+        state.status = "missing";
+        state.error = "BGE-M3 chưa được cài đặt";
+        process.stdout.write(`[embedding] missing model=${MODEL_NAME}\n`);
+        return;
+      }
       state.extractor = await pipeline("feature-extraction", MODEL_NAME, {
         device: "cpu",
         dtype: "fp32",
@@ -187,7 +203,9 @@ const server = http.createServer(async (request, response) => {
     if (request.method === "POST" && requestUrl.pathname === "/embed") {
       if (state.status !== "ready" || !state.extractor) {
         sendJson(response, 503, {
-          detail: state.status === "error"
+          detail: state.status === "missing"
+            ? "BGE-M3 chưa được cài đặt. Hãy mở Cài đặt → Thành phần cục bộ."
+            : state.status === "error"
             ? `Embedding model failed to load: ${state.error}`
             : "Embedding model is still loading",
         });

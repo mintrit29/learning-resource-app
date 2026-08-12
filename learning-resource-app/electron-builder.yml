@@ -10,6 +10,7 @@ directories:
 files:
   - main.cjs
   - preload.cjs
+  - component-manager.cjs
   - package.json
 
 extraResources:
@@ -32,13 +33,6 @@ extraResources:
     to: embedding-runtime/node_modules
     filter:
       - "**/*"
-  - from: .docling-runtime
-    to: document-runtime
-    filter:
-      - "models/**/*"
-      - "pdfium/**/*"
-      - "MODEL_LICENSES.md"
-
 win:
   target:
     - target: nsis

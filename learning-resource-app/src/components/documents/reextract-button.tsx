@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { FileScan, LoaderCircle, X } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export function ReextractButton({
   documentId,
@@ -15,15 +16,18 @@ export function ReextractButton({
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [setupUrl, setSetupUrl] = useState("");
 
   async function reextract() {
     setLoading(true);
     setError("");
+    setSetupUrl("");
     try {
       const response = await fetch(`/api/documents/${documentId}/reextract`, { method: "POST" });
-      const data = await response.json() as { message?: string };
+      const data = await response.json() as { message?: string; setupUrl?: string };
       if (!response.ok) {
         setError(data.message ?? "Không thể trích xuất lại tài liệu");
+        setSetupUrl(data.setupUrl ?? "");
         setLoading(false);
         return;
       }
@@ -51,6 +55,7 @@ export function ReextractButton({
               ScholarFlow sẽ đọc lại <strong>{documentTitle}</strong>, tạo lại các đoạn, embedding và kết quả phân tích AI. Bản hiện tại được giữ cho tới khi Docling trích xuất thành công.
             </p>
             {error ? <p className="form-error">{error}</p> : null}
+            {setupUrl ? <p><Link href={setupUrl}>Mở Thành phần cục bộ</Link></p> : null}
             <div className="dialog-actions">
               <button className="secondary-button" disabled={loading} onClick={() => setIsOpen(false)} type="button">Hủy</button>
               <button className="primary-button" disabled={loading} onClick={reextract} type="button">

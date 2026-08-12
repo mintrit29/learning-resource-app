@@ -13,6 +13,7 @@ import {
   SUPPORTED_UPLOAD_LABEL,
 } from "@/lib/documents/upload-policy";
 import { createUploadStorageLocation } from "@/lib/storage/local-storage";
+import { DOCLING_MISSING_MESSAGE, isDoclingReady } from "@/lib/desktop/component-availability";
 
 export const runtime = "nodejs";
 
@@ -37,6 +38,10 @@ export async function POST(request: Request) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ message: "Bạn cần đăng nhập" }, { status: 401 });
+  }
+
+  if (!await isDoclingReady()) {
+    return NextResponse.json({ message: DOCLING_MISSING_MESSAGE, setupUrl: "/settings/components" }, { status: 503 });
   }
 
   const formData = await request.formData();

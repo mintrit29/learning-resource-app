@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   AlertCircle,
   CheckCircle2,
@@ -53,6 +54,7 @@ export function UploadForm() {
   const [error, setError] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [needsDocling, setNeedsDocling] = useState(false);
 
   useEffect(() => {
     folderInputRef.current?.setAttribute("webkitdirectory", "");
@@ -107,6 +109,7 @@ export function UploadForm() {
     if (!pendingItems.length) return;
 
     setError("");
+    setNeedsDocling(false);
     setIsUploading(true);
     let uploadedCount = 0;
     let failedCount = 0;
@@ -125,6 +128,7 @@ export function UploadForm() {
         const data = (await response.json()) as {
           documentId?: string;
           message?: string;
+          setupUrl?: string;
         };
         if (!response.ok || !data.documentId) {
           failedCount += 1;
@@ -132,6 +136,7 @@ export function UploadForm() {
             status: "error",
             message: data.message ?? "Không thể thêm tài liệu.",
           });
+          if (data.setupUrl) setNeedsDocling(true);
           continue;
         }
 
@@ -271,6 +276,7 @@ export function UploadForm() {
         )}
       </div>
       {error ? <p className="upload-error">{error}</p> : null}
+      {needsDocling ? <p className="foundation-note"><Link href="/settings/components">Mở Thành phần cục bộ để tải Docling</Link></p> : null}
       {items.length ? (
         <div className="upload-actions">
           <p>

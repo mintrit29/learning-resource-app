@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Bot, ChevronRight, Tags } from "lucide-react";
+import { Bot, ChevronRight, HardDrive, Tags } from "lucide-react";
 
 export default function SettingsPage() {
   return (
@@ -12,6 +12,11 @@ export default function SettingsPage() {
         </div>
       </header>
       <div className="settings-list">
+        <Link href="/settings/components">
+          <span><HardDrive size={21} /></span>
+          <div><strong>Thành phần cục bộ</strong><p>Tải và quản lý Docling cùng BGE-M3 trên máy.</p></div>
+          <ChevronRight size={18} />
+        </Link>
         <Link href="/settings/ai-providers">
           <span>
             <Bot size={21} />

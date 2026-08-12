@@ -4,7 +4,7 @@ const SERVICE_CONNECT_TIMEOUT_MS = 30_000;
 const MODEL_READY_TIMEOUT_MS = 60 * 60 * 1000;
 
 type EmbeddingHealth = {
-  status: "loading" | "ready" | "error";
+  status: "missing" | "loading" | "ready" | "error";
   error?: string | null;
 };
 
@@ -56,6 +56,11 @@ async function readEmbeddingHealth(): Promise<EmbeddingHealth | null> {
     return body && typeof body.status === "string" ? body : null;
   }).catch(() => null);
 }
+
+export async function isEmbeddingReady() {
+  return (await readEmbeddingHealth())?.status === "ready";
+}
+
 async function waitForEmbeddingService() {
   const startedAt = Date.now();
   const connectDeadline = startedAt + SERVICE_CONNECT_TIMEOUT_MS;
@@ -67,6 +72,9 @@ async function waitForEmbeddingService() {
     if (health) {
       hasConnected = true;
       if (health.status === "ready") return;
+      if (health.status === "missing") {
+        throw new Error("BGE-M3 chưa được cài đặt. Hãy mở Cài đặt → Thành phần cục bộ rồi chạy lại tác vụ.");
+      }
       if (health.status === "error") {
         throw new Error(`Không thể nạp model BGE-M3 local: ${health.error ?? "unknown error"}`);
       }

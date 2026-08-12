@@ -5,7 +5,12 @@ const nextConfig: NextConfig = {
   output: "standalone",
   serverExternalPackages: ["docling.rs"],
   outputFileTracingExcludes: {
-    "*": ["./dist-electron/**/*", "./storage/**/*"],
+    "*": [
+      "./.docling-runtime/**/*",
+      "./dist-electron/**/*",
+      "./models-cache/**/*",
+      "./storage/**/*",
+    ],
   },
 };
 

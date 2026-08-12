@@ -6,6 +6,7 @@ import { db } from "@/lib/db";
 import { enqueueDocumentPipeline } from "@/lib/documents/document-processing-queue";
 import { resetDocumentJob } from "@/lib/documents/processing-jobs";
 import { resolveStoredUploadPath } from "@/lib/storage/local-storage";
+import { DOCLING_MISSING_MESSAGE, isDoclingReady } from "@/lib/desktop/component-availability";
 
 export const runtime = "nodejs";
 
@@ -13,6 +14,9 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ message: "Bạn cần đăng nhập" }, { status: 401 });
+  }
+  if (!await isDoclingReady()) {
+    return NextResponse.json({ message: DOCLING_MISSING_MESSAGE, setupUrl: "/settings/components" }, { status: 503 });
   }
 
   const { id } = await params;
