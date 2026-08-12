@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   devIndicators: false,
   output: "standalone",
-  serverExternalPackages: ["@firecrawl/pdf-inspector", "docling.rs"],
+  serverExternalPackages: ["docling.rs"],
   outputFileTracingExcludes: {
     "*": ["./dist-electron/**/*", "./storage/**/*"],
   },

@@ -9,8 +9,8 @@ ScholarFlow là ứng dụng desktop Windows giúp sinh viên lưu trữ, phân 
 - Đăng ký, đăng nhập và quản lý thư viện cục bộ.
 - Thêm một hoặc nhiều tài liệu PDF, DOCX, PPTX và EPUB; có thể chọn cả thư mục.
 - Xử lý nhiều tài liệu theo hàng đợi tuần tự để không làm quá tải máy.
-- Trích xuất Markdown có cấu trúc, bảng và vị trí nguồn như trang, slide hoặc mục.
-- Tự nhận diện PDF scan/ảnh và dùng Docling OCR tiếng Việt/Anh khi cần.
+- Dùng Docling thống nhất để trích xuất cấu trúc, bảng, công thức và vị trí nguồn từ PDF, DOCX, PPTX và EPUB.
+- Dùng Docling OCR cho PDF scan và ảnh nhúng trong DOCX, PPTX, EPUB.
 - Chia nội dung thành các đoạn và tạo vector BGE-M3 1.024 chiều trên máy.
 - Phân loại tài liệu vào danh sách môn học cố định, đồng thời phân tích độ khó, ngôn ngữ và tóm tắt bằng OpenRouter, Ollama hoặc Custom API.
 - Tìm kiếm kết hợp ngữ nghĩa, từ khóa và bộ lọc metadata.
@@ -27,7 +27,7 @@ Electron Desktop
   ├─ Next.js chạy nội bộ trên 127.0.0.1
   ├─ SQLite + sqlite-vec
   ├─ BGE-M3 qua Transformers.js/ONNX Runtime
-  ├─ pdf-inspector + Docling OCR cho tài liệu
+  ├─ Docling cho trích xuất tài liệu và OCR ảnh
   └─ OpenRouter / Ollama / Custom API (tùy chọn cho phân tích AI)
 ```
 
@@ -54,18 +54,22 @@ Yêu cầu phát triển:
 ```powershell
 cd learning-resource-app
 npm ci
+npm run docling:prepare
+cd embedding-runtime
+npm ci
+cd ..
 npm run dev
 ```
 
 Lệnh `npm run dev` mở cửa sổ Electron, không mở một sản phẩm web độc lập.
 
-PDF có sẵn text layer hoạt động ngay. Để kiểm thử PDF scan trong môi trường phát triển, tải bộ model Docling một lần:
+Pipeline trích xuất chỉ dùng Docling. Tải PDFium và các model layout/OCR/TableFormer một lần trước khi thêm tài liệu:
 
 ```powershell
 npm run docling:prepare
 ```
 
-Bộ model nằm trong `.docling-runtime` và không được commit. Các lệnh đóng gói tự chạy bước chuẩn bị này và đưa runtime vào bộ cài.
+Bộ model nằm trong `.docling-runtime` và không được commit. Nếu runtime thiếu, ScholarFlow báo lỗi rõ ràng và không quay về parser cũ. Các lệnh đóng gói tự chạy bước chuẩn bị này và đưa runtime vào bộ cài.
 
 ## Kiểm thử
 

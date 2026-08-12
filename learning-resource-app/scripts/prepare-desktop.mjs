@@ -40,8 +40,6 @@ await cp(
 for (const dependency of [
   "sqlite-vec",
   "sqlite-vec-windows-x64",
-  "@firecrawl/pdf-inspector",
-  "@firecrawl/pdf-inspector-win32-x64-msvc",
   "docling.rs",
   "docling.rs-win32-x64-msvc",
 ]) {

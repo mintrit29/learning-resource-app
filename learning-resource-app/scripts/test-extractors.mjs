@@ -1,6 +1,13 @@
 import assert from "node:assert/strict";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import JSZip from "jszip";
-import { extractDocumentText } from "../src/lib/documents/extract-text.ts";
+
+const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+process.env.DOCLING_RS_HOME ||= path.join(projectRoot, ".docling-runtime");
+process.env.PDFIUM_DYNAMIC_LIB_PATH ||= path.join(projectRoot, ".docling-runtime", "pdfium", "lib");
+
+const { extractDocumentText } = await import("../src/lib/documents/extract-text.ts");
 
 function createPdf(text) {
   const objects = [
@@ -37,7 +44,11 @@ async function createDocx() {
 
 async function createPptx() {
   const zip = new JSZip();
-  zip.file("ppt/slides/slide1.xml", `<?xml version="1.0"?><p:sld xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><p:cSld><a:t>ScholarFlow PPTX extraction test</a:t></p:cSld></p:sld>`);
+  zip.file("[Content_Types].xml", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/ppt/presentation.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.presentation.main+xml"/><Override PartName="/ppt/slides/slide1.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slide+xml"/></Types>`);
+  zip.file("_rels/.rels", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="ppt/presentation.xml"/></Relationships>`);
+  zip.file("ppt/presentation.xml", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><p:presentation xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main"><p:sldIdLst><p:sldId id="256" r:id="rId1"/></p:sldIdLst><p:sldSz cx="9144000" cy="6858000"/><p:notesSz cx="6858000" cy="9144000"/></p:presentation>`);
+  zip.file("ppt/_rels/presentation.xml.rels", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slide" Target="slides/slide1.xml"/></Relationships>`);
+  zip.file("ppt/slides/slide1.xml", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><p:sld xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main"><p:cSld><p:spTree><p:nvGrpSpPr><p:cNvPr id="1" name=""/><p:cNvGrpSpPr/><p:nvPr/></p:nvGrpSpPr><p:grpSpPr/><p:sp><p:nvSpPr><p:cNvPr id="2" name="Title 1"/><p:cNvSpPr/><p:nvPr/></p:nvSpPr><p:spPr/><p:txBody><a:bodyPr/><a:lstStyle/><a:p><a:r><a:t>ScholarFlow PPTX extraction test</a:t></a:r></a:p></p:txBody></p:sp></p:spTree></p:cSld></p:sld>`);
   return zip.generateAsync({ type: "nodebuffer" });
 }
 
@@ -52,8 +63,8 @@ async function createEpub() {
 const fixtures = [
   ["pdf", createPdf("ScholarFlow PDF extraction test"), "ScholarFlow PDF extraction test", "Trang 1"],
   ["docx", await createDocx(), "ScholarFlow DOCX extraction test", "Nội dung tài liệu"],
-  ["pptx", await createPptx(), "ScholarFlow PPTX extraction test", "Slide 1"],
-  ["epub", await createEpub(), "ScholarFlow EPUB extraction test", "Chương 1: ScholarFlow EPUB extraction test"],
+  ["pptx", await createPptx(), "ScholarFlow PPTX extraction test", "Nội dung trình chiếu"],
+  ["epub", await createEpub(), "ScholarFlow EPUB extraction test", "ScholarFlow EPUB extraction test"],
 ];
 
 for (const [extension, buffer, expected, expectedLocation] of fixtures) {

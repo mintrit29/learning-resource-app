@@ -1,26 +1,18 @@
-import { execFile as execFileCallback } from "node:child_process";
-import { mkdtemp, readdir, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { promisify } from "node:util";
-import { extractPagesMarkdown } from "@firecrawl/pdf-inspector";
-import * as cheerio from "cheerio";
-import { checkDependencies, convertAsync, Pipeline } from "docling.rs";
-import JSZip from "jszip";
-import mammoth from "mammoth";
-import { extractText as extractPdfText, getDocumentProxy } from "unpdf";
+import {
+  checkDependencies,
+  chunkDocumentAsync,
+  convertAsync,
+  convertFileAsync,
+  type Chunk,
+} from "docling.rs";
 
-const execFile = promisify(execFileCallback);
 const MIN_EXTRACTED_TEXT_LENGTH = 20;
-const MIN_PAGE_TEXT_LENGTH_BEFORE_OCR = Number(process.env.OCR_PAGE_TEXT_THRESHOLD ?? 80);
-const OCR_DPI = Number(process.env.OCR_DPI ?? 180);
-const OCR_MAX_PAGES = Number(process.env.OCR_MAX_PAGES ?? 20);
-const OCR_LANGS = process.env.OCR_LANGS ?? "vie+eng";
 const DOCLING_OCR_LANG = process.env.DOCLING_OCR_LANG ?? "ch";
-
-const globalForDocling = globalThis as typeof globalThis & {
-  scholarFlowDoclingPdfPipeline?: Pipeline;
-};
+const DOCLING_FORCE_FULL_PAGE_OCR = process.env.DOCLING_FORCE_FULL_PAGE_OCR === "1";
+const MAX_EMBEDDED_IMAGES = Number(process.env.DOCLING_MAX_EMBEDDED_IMAGES ?? 100);
 
 export type SupportedExtension = "pdf" | "pptx" | "docx" | "epub";
 
@@ -36,9 +28,42 @@ export type ExtractedSection = {
   sourceLabel: string;
 };
 
+type DoclingReference = { $ref?: string };
+
+type DoclingProvenance = {
+  page_no?: number;
+  pageNumber?: number;
+};
+
+type DoclingImage = {
+  mimetype?: string;
+  uri?: string;
+  size?: { width?: number; height?: number };
+};
+
+type DoclingItem = {
+  self_ref?: string;
+  label?: string;
+  text?: string;
+  orig?: string;
+  prov?: DoclingProvenance[];
+  image?: DoclingImage;
+  captions?: DoclingReference[];
+};
+
+type DoclingDocument = {
+  texts?: DoclingItem[];
+  pictures?: DoclingItem[];
+  tables?: DoclingItem[];
+  key_value_items?: DoclingItem[];
+  form_items?: DoclingItem[];
+  pages?: Record<string, unknown>;
+};
+
 function normalizeExtractedText(value: string) {
   return value
     .replace(/\u0000/g, "")
+    .replace(/<!--\s*image\s*-->/gi, "")
     .replace(/\r\n/g, "\n")
     .replace(/[ \t]+/g, " ")
     .replace(/ *\n */g, "\n")
@@ -46,392 +71,196 @@ function normalizeExtractedText(value: string) {
     .trim();
 }
 
-function markdownSections(markdown: string, defaultLabel: string): ExtractedSection[] {
+function requireDoclingRuntime() {
+  const dependencies = checkDependencies();
+  if (dependencies.ready && dependencies.ocr) return;
+
+  const missing = dependencies.missing.length
+    ? dependencies.missing.join(", ")
+    : "OCR models";
+  throw new Error(
+    `Docling chưa sẵn sàng (${missing}). Hãy cài bộ runtime Docling rồi thử lại.`,
+  );
+}
+
+function parseDoclingDocument(content: string) {
+  try {
+    return JSON.parse(content) as DoclingDocument;
+  } catch {
+    throw new Error("Docling trả về cấu trúc tài liệu không hợp lệ.");
+  }
+}
+
+function allDocumentItems(document: DoclingDocument) {
+  return [
+    ...(document.texts ?? []),
+    ...(document.pictures ?? []),
+    ...(document.tables ?? []),
+    ...(document.key_value_items ?? []),
+    ...(document.form_items ?? []),
+  ];
+}
+
+function pageNumberFromItem(item: DoclingItem | undefined) {
+  const provenance = item?.prov?.[0];
+  const pageNumber = provenance?.page_no ?? provenance?.pageNumber;
+  return Number.isInteger(pageNumber) && Number(pageNumber) > 0
+    ? Number(pageNumber)
+    : undefined;
+}
+
+function defaultSourceLabel(extension: SupportedExtension, pageNumber?: number) {
+  if (extension === "pdf" && pageNumber) return `Trang ${pageNumber}`;
+  if (extension === "pptx") return "Nội dung trình chiếu";
+  if (extension === "epub") return "Nội dung sách";
+  return "Nội dung tài liệu";
+}
+
+function sectionsFromDoclingChunks(
+  chunks: Chunk[],
+  document: DoclingDocument,
+  extension: SupportedExtension,
+) {
+  const itemsByReference = new Map(
+    allDocumentItems(document).flatMap((item) => item.self_ref ? [[item.self_ref, item] as const] : []),
+  );
+
+  return chunks.flatMap((chunk) => {
+    const text = normalizeExtractedText(chunk.contextualized || chunk.text);
+    if (!text) return [];
+
+    const pageNumber = chunk.docItems
+      .map((reference) => pageNumberFromItem(itemsByReference.get(reference)))
+      .find((value) => value !== undefined);
+    const heading = chunk.headings?.map(normalizeExtractedText).filter(Boolean).at(-1);
+
+    return [{
+      text,
+      pageNumber,
+      sourceLabel: pageNumber
+        ? defaultSourceLabel(extension, pageNumber)
+        : heading || defaultSourceLabel(extension),
+    }];
+  });
+}
+
+function decodeDataImage(image: DoclingImage | undefined) {
+  const match = image?.uri?.match(/^data:([^;,]+);base64,([A-Za-z0-9+/=\r\n]+)$/);
+  if (!match) return null;
+  return {
+    mimeType: image?.mimetype || match[1],
+    data: Buffer.from(match[2], "base64"),
+  };
+}
+
+function imageFormatFromMimeType(mimeType: string) {
+  const normalized = mimeType.toLowerCase();
+  if (normalized.includes("jpeg") || normalized.includes("jpg")) return "jpeg";
+  if (normalized.includes("webp")) return "webp";
+  if (normalized.includes("tiff")) return "tiff";
+  if (normalized.includes("bmp")) return "bmp";
+  return "png";
+}
+
+async function extractEmbeddedImageSections(
+  document: DoclingDocument,
+  extension: SupportedExtension,
+) {
+  if (extension === "pdf") return [];
+
   const sections: ExtractedSection[] = [];
-  let currentLabel = defaultLabel;
-  let currentLines: string[] = [];
+  const seenImages = new Set<string>();
+  const pictures = (document.pictures ?? []).slice(0, Math.max(0, MAX_EMBEDDED_IMAGES));
 
-  function flushSection() {
-    const text = normalizeExtractedText(currentLines.join("\n"));
-    if (text) sections.push({ text, sourceLabel: currentLabel });
-    currentLines = [];
-  }
+  for (const [index, picture] of pictures.entries()) {
+    const decoded = decodeDataImage(picture.image);
+    if (!decoded || decoded.data.length === 0) continue;
 
-  for (const line of markdown.replace(/\r\n/g, "\n").split("\n")) {
-    const heading = line.match(/^#{1,6}\s+(.+?)\s*$/);
-    if (heading) {
-      flushSection();
-      currentLabel = normalizeExtractedText(heading[1]);
-    }
-    currentLines.push(line);
+    const fingerprint = decoded.data.subarray(0, 64).toString("base64") + decoded.data.length;
+    if (seenImages.has(fingerprint)) continue;
+    seenImages.add(fingerprint);
+
+    const format = imageFormatFromMimeType(decoded.mimeType);
+    const result = await convertAsync(
+      { name: `embedded-${index + 1}.${format}`, data: decoded.data, format: "image" },
+      {
+        strict: true,
+        to: "markdown",
+        imageMode: "placeholder",
+        ocrLang: DOCLING_OCR_LANG,
+      },
+    );
+    const text = normalizeExtractedText(result.content);
+    if (result.status === "failure" || text.length < MIN_EXTRACTED_TEXT_LENGTH) continue;
+
+    const pageNumber = pageNumberFromItem(picture);
+    sections.push({
+      text,
+      pageNumber,
+      sourceLabel: pageNumber
+        ? `${defaultSourceLabel(extension, pageNumber)} · Hình ${index + 1} (Docling OCR)`
+        : `Hình ${index + 1} (Docling OCR)`,
+    });
   }
-  flushSection();
 
   return sections;
 }
 
-async function extractDeclarativeFormatWithDocling(
-  buffer: Buffer,
-  extension: Exclude<SupportedExtension, "pdf">,
-  defaultLabel: string,
-): Promise<ExtractionResult | null> {
-  try {
-    const result = await convertAsync(
-      { name: `document.${extension}`, data: buffer, format: extension },
-      { strict: true, to: "markdown", imageMode: "placeholder" },
-    );
-    const text = normalizeExtractedText(result.content);
-    if (result.status === "failure" || text.length < MIN_EXTRACTED_TEXT_LENGTH) return null;
-    const sections = markdownSections(text, defaultLabel);
-    return { text, sections: sections.length ? sections : [{ text, sourceLabel: defaultLabel }] };
-  } catch {
-    return null;
-  }
-}
-
-async function extractPdfWithDocling(
-  buffer: Buffer,
-  pageCount: number,
-): Promise<ExtractionResult | null> {
-  const dependencies = checkDependencies();
-  if (!dependencies.ready || !dependencies.ocr) return null;
-
-  try {
-    const pipeline = globalForDocling.scholarFlowDoclingPdfPipeline
-      ?? new Pipeline({ strict: true, ocrLang: DOCLING_OCR_LANG });
-    globalForDocling.scholarFlowDoclingPdfPipeline = pipeline;
-    const result = await pipeline.convertAsync(
-      { name: "document.pdf", data: buffer, format: "pdf" },
-      { to: "markdown", imageMode: "placeholder" },
-    );
-    const text = normalizeExtractedText(result.content);
-    if (result.status === "failure" || text.length < MIN_EXTRACTED_TEXT_LENGTH) return null;
-    return {
-      text,
-      pageCount,
-      sections: [{ text, sourceLabel: "Nội dung PDF (Docling OCR)" }],
-    };
-  } catch {
-    return null;
-  }
-}
-
-async function runPdfOcr(
-  buffer: Buffer,
-  pageCount: number,
-  pageNumbers?: number[],
-): Promise<ExtractionResult> {
-  if (process.env.OCR_ENABLED === "0") {
-    throw new Error("PDF này cần OCR, nhưng OCR đang bị tắt bằng OCR_ENABLED=0.");
-  }
-
-  const maxPages = Math.max(1, Math.min(pageCount, OCR_MAX_PAGES));
-  const pagesToOcr = (pageNumbers?.length
-    ? pageNumbers
-    : Array.from({ length: maxPages }, (_, index) => index + 1)
-  ).filter((pageNumber) => pageNumber >= 1 && pageNumber <= maxPages);
-
-  if (!pagesToOcr.length) return { text: "", pageCount, sections: [] };
-
-  const workDir = await mkdtemp(path.join(os.tmpdir(), "scholarflow-ocr-"));
-  const pdfPath = path.join(workDir, "source.pdf");
-  const imagePrefix = path.join(workDir, "page");
-
-  try {
-    await writeFile(pdfPath, buffer);
-    await execFile("pdftoppm", [
-      "-f",
-      "1",
-      "-l",
-      String(Math.max(...pagesToOcr)),
-      "-r",
-      String(OCR_DPI),
-      "-png",
-      pdfPath,
-      imagePrefix,
-    ]);
-
-    const images = (await readdir(workDir))
-      .filter((fileName) => {
-        const pageNumber = Number(fileName.match(/page-(\d+)\.png/i)?.[1] ?? 0);
-        return /^page-\d+\.png$/i.test(fileName) && pagesToOcr.includes(pageNumber);
-      })
-      .sort((a, b) => {
-        const aNumber = Number(a.match(/page-(\d+)\.png/i)?.[1] ?? 0);
-        const bNumber = Number(b.match(/page-(\d+)\.png/i)?.[1] ?? 0);
-        return aNumber - bNumber;
-      });
-
-    const sections: ExtractedSection[] = [];
-    for (const image of images) {
-      const pageNumber = Number(image.match(/page-(\d+)\.png/i)?.[1] ?? sections.length + 1);
-      const { stdout } = await execFile("tesseract", [
-        path.join(workDir, image),
-        "stdout",
-        "-l",
-        OCR_LANGS,
-        "--psm",
-        "6",
-      ]);
-      const text = normalizeExtractedText(stdout);
-      if (text) {
-        sections.push({
-          text,
-          pageNumber,
-          sourceLabel: `Trang ${pageNumber} (OCR)`,
-        });
-      }
-    }
-
-    const text = normalizeExtractedText(sections.map((section) => section.text).join("\n\n"));
-    if (!pageNumbers?.length && text.length < MIN_EXTRACTED_TEXT_LENGTH) {
-      throw new Error("OCR đã chạy nhưng không đọc được đủ chữ từ PDF scan/ảnh.");
-    }
-
-    return { text, pageCount, sections };
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "OCR PDF thất bại";
-    throw new Error(
-      `PDF này cần OCR nhưng OCR chưa chạy được. Hãy kiểm tra Poppler/Tesseract trong môi trường chạy. Chi tiết: ${message}`,
-    );
-  } finally {
-    await rm(workDir, { recursive: true, force: true });
-  }
-}
-
-async function extractPdfLegacy(buffer: Buffer): Promise<ExtractionResult> {
-  const pdf = await getDocumentProxy(new Uint8Array(buffer));
-  const result = await extractPdfText(pdf);
-  const pageSections = result.text.map((text, index) => ({
-    text: normalizeExtractedText(text),
-    pageNumber: index + 1,
-    sourceLabel: `Trang ${index + 1}`,
-  }));
-  const sections = pageSections.filter((section) => section.text.length > 0);
-  const text = normalizeExtractedText(sections.map((section) => section.text).join("\n\n"));
-  if (text.length < MIN_EXTRACTED_TEXT_LENGTH && result.totalPages > 0) {
-    return runPdfOcr(buffer, result.totalPages);
-  }
-
-  const pagesNeedingOcr = pageSections
-    .filter((section) => section.pageNumber <= OCR_MAX_PAGES)
-    .filter((section) => section.text.length < MIN_PAGE_TEXT_LENGTH_BEFORE_OCR)
-    .map((section) => section.pageNumber);
-
-  if (pagesNeedingOcr.length > 0) {
-    try {
-      const ocrResult = await runPdfOcr(buffer, result.totalPages, pagesNeedingOcr);
-      const ocrSectionsByPage = new Map(
-        ocrResult.sections.map((section) => [section.pageNumber, section]),
-      );
-      const mergedSections = pageSections
-        .map((section) => ocrSectionsByPage.get(section.pageNumber) ?? section)
-        .filter((section) => section.text.length > 0);
-
-      return {
-        text: normalizeExtractedText(mergedSections.map((section) => section.text).join("\n\n")),
-        pageCount: result.totalPages,
-        sections: mergedSections,
-      };
-    } catch {
-      return {
-        text,
-        pageCount: result.totalPages,
-        sections,
-      };
-    }
-  }
-
-  return {
-    text,
-    pageCount: result.totalPages,
-    sections,
-  };
-}
-
-async function extractPdf(buffer: Buffer): Promise<ExtractionResult> {
-  try {
-    const result = extractPagesMarkdown(buffer);
-    const sections = result.pages
-      .map((page) => ({
-        text: normalizeExtractedText(page.markdown),
-        pageNumber: page.page + 1,
-        sourceLabel: `Trang ${page.page + 1}`,
-      }))
-      .filter((section) => section.text.length > 0);
-    const text = normalizeExtractedText(sections.map((section) => section.text).join("\n\n"));
-
-    if (result.pagesNeedingOcr.length > 0) {
-      const doclingResult = await extractPdfWithDocling(buffer, result.pages.length);
-      if (doclingResult) return doclingResult;
-      return extractPdfLegacy(buffer);
-    }
-
-    if (text.length >= MIN_EXTRACTED_TEXT_LENGTH) {
-      return { text, pageCount: result.pages.length, sections };
-    }
-  } catch {
-    // Some malformed-but-readable PDFs are handled better by unpdf.
-  }
-
-  return extractPdfLegacy(buffer);
-}
-
-async function extractDocxLegacy(buffer: Buffer): Promise<ExtractionResult> {
-  const result = await mammoth.convertToHtml({ buffer });
-  const $ = cheerio.load(result.value);
-  const sections: ExtractedSection[] = [];
-  let currentLabel = "Nội dung tài liệu";
-  let currentParts: string[] = [];
-
-  function flushSection() {
-    const text = normalizeExtractedText(currentParts.join("\n"));
-    if (text) sections.push({ text, sourceLabel: currentLabel });
-    currentParts = [];
-  }
-
-  $("body").children().each((_, element) => {
-    const tagName = element.tagName?.toLowerCase();
-    const text = $(element).text().trim();
-    if (!text) return;
-    if (/^h[1-6]$/.test(tagName)) {
-      flushSection();
-      currentLabel = text;
-      currentParts.push(text);
-    } else {
-      currentParts.push(text);
-    }
+function fallbackSectionsFromDocument(
+  document: DoclingDocument,
+  extension: SupportedExtension,
+) {
+  return (document.texts ?? []).flatMap((item) => {
+    const text = normalizeExtractedText(item.text || item.orig || "");
+    if (!text) return [];
+    const pageNumber = pageNumberFromItem(item);
+    return [{ text, pageNumber, sourceLabel: defaultSourceLabel(extension, pageNumber) }];
   });
-  flushSection();
-
-  const text = normalizeExtractedText(sections.map((section) => section.text).join("\n\n"));
-  return { text, sections: sections.length ? sections : [{ text, sourceLabel: currentLabel }] };
-}
-
-async function extractDocx(buffer: Buffer): Promise<ExtractionResult> {
-  return await extractDeclarativeFormatWithDocling(buffer, "docx", "Nội dung tài liệu")
-    ?? extractDocxLegacy(buffer);
-}
-
-async function extractPptxLegacy(buffer: Buffer): Promise<ExtractionResult> {
-  const zip = await JSZip.loadAsync(buffer);
-  const slides = Object.keys(zip.files)
-    .filter((name) => /^ppt\/slides\/slide\d+\.xml$/i.test(name))
-    .sort((a, b) => {
-      const aNumber = Number(a.match(/slide(\d+)\.xml/i)?.[1] ?? 0);
-      const bNumber = Number(b.match(/slide(\d+)\.xml/i)?.[1] ?? 0);
-      return aNumber - bNumber;
-    });
-
-  const sections = await Promise.all(
-    slides.map(async (slideName, index) => {
-      const xml = await zip.file(slideName)?.async("text");
-      if (!xml) return null;
-      const $ = cheerio.load(xml, { xmlMode: true });
-      const fragments: string[] = [];
-      $("a\\:t").each((_, element) => {
-        const value = $(element).text().trim();
-        if (value) fragments.push(value);
-      });
-      const text = normalizeExtractedText(fragments.join("\n"));
-      return text ? { text, pageNumber: index + 1, sourceLabel: `Slide ${index + 1}` } : null;
-    }),
-  );
-  const validSections = sections.filter((section) => section !== null);
-
-  return {
-    text: normalizeExtractedText(validSections.map((section) => section.text).join("\n\n")),
-    pageCount: slides.length,
-    sections: validSections,
-  };
-}
-
-async function extractPptx(buffer: Buffer): Promise<ExtractionResult> {
-  const legacyResult = await extractPptxLegacy(buffer);
-  if (legacyResult.text.length >= MIN_EXTRACTED_TEXT_LENGTH) return legacyResult;
-  return await extractDeclarativeFormatWithDocling(buffer, "pptx", "Nội dung trình chiếu")
-    ?? legacyResult;
-}
-
-async function extractEpubLegacy(buffer: Buffer): Promise<ExtractionResult> {
-  const zip = await JSZip.loadAsync(buffer);
-  const containerXml = await zip.file("META-INF/container.xml")?.async("text");
-  if (!containerXml) throw new Error("EPUB không có META-INF/container.xml");
-
-  const container = cheerio.load(containerXml, { xmlMode: true });
-  const opfPath = container("rootfile").attr("full-path");
-  if (!opfPath) throw new Error("Không tìm thấy package document trong EPUB");
-
-  const opfXml = await zip.file(opfPath)?.async("text");
-  if (!opfXml) throw new Error("Không đọc được package document của EPUB");
-
-  const opf = cheerio.load(opfXml, { xmlMode: true });
-  const manifest = new Map<string, string>();
-  opf("manifest item").each((_, element) => {
-    const id = opf(element).attr("id");
-    const href = opf(element).attr("href");
-    if (id && href) manifest.set(id, href);
-  });
-
-  const opfDirectory = path.posix.dirname(opfPath);
-  const contentPaths: string[] = [];
-  opf("spine itemref").each((_, element) => {
-    const idref = opf(element).attr("idref");
-    const href = idref ? manifest.get(idref) : undefined;
-    if (href) contentPaths.push(path.posix.normalize(path.posix.join(opfDirectory, href)));
-  });
-
-  const sections = await Promise.all(
-    contentPaths.map(async (contentPath, index) => {
-      const html = await zip.file(contentPath)?.async("text");
-      if (!html) return null;
-      const $ = cheerio.load(html);
-      $("script, style, nav").remove();
-      const heading = $("h1, h2, title").first().text().trim();
-      const text = normalizeExtractedText($("body").text());
-      return text
-        ? {
-            text,
-            sourceLabel: heading ? `Chương ${index + 1}: ${heading}` : `Chương ${index + 1}`,
-          }
-        : null;
-    }),
-  );
-  const validSections = sections.filter((section) => section !== null);
-
-  return {
-    text: normalizeExtractedText(validSections.map((section) => section.text).join("\n\n")),
-    pageCount: contentPaths.length,
-    sections: validSections,
-  };
-}
-
-async function extractEpub(buffer: Buffer): Promise<ExtractionResult> {
-  const doclingResult = await extractDeclarativeFormatWithDocling(buffer, "epub", "Nội dung sách");
-  if (doclingResult) {
-    return {
-      ...doclingResult,
-      sections: doclingResult.sections.map((section, index) => ({
-        ...section,
-        sourceLabel: `Chương ${index + 1}: ${section.sourceLabel}`,
-      })),
-    };
-  }
-  return extractEpubLegacy(buffer);
 }
 
 export async function extractDocumentText(
   buffer: Buffer,
   extension: SupportedExtension,
 ): Promise<ExtractionResult> {
-  switch (extension) {
-    case "pdf":
-      return extractPdf(buffer);
-    case "docx":
-      return extractDocx(buffer);
-    case "pptx":
-      return extractPptx(buffer);
-    case "epub":
-      return extractEpub(buffer);
+  requireDoclingRuntime();
+
+  const workDirectory = await mkdtemp(path.join(os.tmpdir(), "scholarflow-docling-"));
+  const documentPath = path.join(workDirectory, `document.${extension}`);
+  let result: Awaited<ReturnType<typeof convertFileAsync>>;
+  try {
+    await writeFile(documentPath, buffer);
+    result = await convertFileAsync(documentPath, {
+      strict: true,
+      to: "json",
+      imageMode: "embedded",
+      fetchImages: extension === "epub",
+      ocrLang: DOCLING_OCR_LANG,
+      forceFullPageOcr: extension === "pdf" && DOCLING_FORCE_FULL_PAGE_OCR,
+    });
+  } finally {
+    await rm(workDirectory, { recursive: true, force: true });
   }
+  if (result.status === "failure") {
+    throw new Error(`Docling không thể xử lý tài liệu ${extension.toUpperCase()}.`);
+  }
+
+  const document = parseDoclingDocument(result.content);
+  const chunks = await chunkDocumentAsync(result.content, { chunker: "hierarchical" });
+  const structuredSections = sectionsFromDoclingChunks(chunks, document, extension);
+  const textSections = structuredSections.length
+    ? structuredSections
+    : fallbackSectionsFromDocument(document, extension);
+  const imageSections = await extractEmbeddedImageSections(document, extension);
+  const sections = [...textSections, ...imageSections];
+  const text = normalizeExtractedText(sections.map((section) => section.text).join("\n\n"));
+  const pageCount = Math.max(
+    Object.keys(document.pages ?? {}).length,
+    ...sections.map((section) => section.pageNumber ?? 0),
+  );
+
+  return {
+    text,
+    pageCount: pageCount || undefined,
+    sections,
+  };
 }
