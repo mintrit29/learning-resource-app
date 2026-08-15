@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Download, ExternalLink, FileText, LocateFixed } from "lucide-react";
-import { auth } from "@/auth";
 import { DeleteDocumentButton } from "@/components/documents/delete-document-button";
 import { EditAnalysisButton } from "@/components/documents/edit-analysis-button";
 import { ProcessingEstimate } from "@/components/documents/processing-estimate";
@@ -49,13 +48,12 @@ export default async function DocumentDetailPage({
   params: Promise<{ id: string }>;
   searchParams: Promise<{ chunk?: string; fullText?: string }>;
 }) {
-  const session = await auth();
-  await ensureCurriculumTopics(session!.user.id);
+  await ensureCurriculumTopics();
   const { id } = await params;
   const { chunk: matchedChunkId, fullText } = await searchParams;
   const shouldShowFullText = fullText === "1";
   const document = await db.document.findFirst({
-    where: { id, userId: session!.user.id },
+    where: { id },
     include: {
       jobs: { orderBy: { createdAt: "asc" } },
       chunks: matchedChunkId
@@ -69,7 +67,7 @@ export default async function DocumentDetailPage({
   const [missingEmbeddings, topics] = await Promise.all([
     db.documentChunk.count({ where: { documentId: document.id, embedding: null } }),
     db.tag.findMany({
-      where: { createdByUserId: session!.user.id, isClassificationEnabled: true },
+      where: { isClassificationEnabled: true },
       select: { id: true, name: true },
       orderBy: { name: "asc" },
     }),

@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { FileStack, Filter, Search, Upload, X } from "lucide-react";
-import { auth } from "@/auth";
 import { EmptyState } from "@/components/dashboard/empty-state";
 import { ProcessingRefresh } from "@/components/documents/processing-refresh";
 import { Difficulty, FileType, JobStatus } from "@/generated/prisma/enums";
@@ -36,9 +35,7 @@ export default async function DocumentsPage({
 }: {
   searchParams: Promise<{ q?: string; topic?: string; difficulty?: string; fileType?: string; status?: string }>;
 }) {
-  const session = await auth();
-  const userId = session!.user.id;
-  await ensureCurriculumTopics(userId);
+  await ensureCurriculumTopics();
   const filters = await searchParams;
   const q = filters.q?.trim() ?? "";
   const topic = filters.topic?.trim() ?? "";
@@ -47,7 +44,6 @@ export default async function DocumentsPage({
   const status = pickEnumValue(filters.status, statusOptions.map((option) => option.value));
 
   const where = {
-    userId,
     ...(q
       ? {
           OR: [
@@ -87,15 +83,14 @@ export default async function DocumentsPage({
       },
     }),
     db.tag.findMany({
-      where: { createdByUserId: userId, isClassificationEnabled: true },
+      where: { isClassificationEnabled: true },
       orderBy: { name: "asc" },
       select: { name: true },
     }),
-    db.document.count({ where: { userId } }),
+    db.document.count(),
     db.analysisJob.count({
       where: {
         status: { in: [JobStatus.PENDING, JobStatus.PROCESSING] },
-        document: { userId },
       },
     }),
   ]);

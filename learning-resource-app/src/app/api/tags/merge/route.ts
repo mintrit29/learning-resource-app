@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { auth } from "@/auth";
 import { DocumentTagSource } from "@/generated/prisma/enums";
 import { db } from "@/lib/db";
 
@@ -10,11 +9,6 @@ const mergeSchema = z.object({
 });
 
 export async function POST(request: Request) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return NextResponse.json({ message: "Bạn cần đăng nhập" }, { status: 401 });
-  }
-
   const parsed = mergeSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
     return NextResponse.json({ message: "Dữ liệu gộp môn học không hợp lệ" }, { status: 400 });
@@ -27,11 +21,11 @@ export async function POST(request: Request) {
 
   const [sourceTag, targetTag] = await Promise.all([
     db.tag.findFirst({
-      where: { id: sourceTagId, createdByUserId: session.user.id },
+      where: { id: sourceTagId },
       include: { aliases: true, documents: true },
     }),
     db.tag.findFirst({
-      where: { id: targetTagId, createdByUserId: session.user.id },
+      where: { id: targetTagId },
       select: { id: true, name: true },
     }),
   ]);
@@ -108,7 +102,6 @@ export async function POST(request: Request) {
 
     await tx.document.updateMany({
       where: {
-        userId: session.user.id,
         OR: [
           { primaryTopic: sourceTag.name },
           { id: { in: sourceTag.documents.map((item) => item.documentId) } },

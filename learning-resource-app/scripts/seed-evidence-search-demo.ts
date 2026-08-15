@@ -5,8 +5,6 @@ import {
   toSqliteVectorBlob,
 } from "../src/lib/vector/sqlite-vector-store";
 
-const email = "demo@scholarflow.local";
-const user = await db.user.findUniqueOrThrow({ where: { email } });
 const fixtures = [
   {
     title: "Database Transactions for Beginners",
@@ -83,14 +81,13 @@ const fixtures = [
 
 for (const fixture of fixtures) {
   const existing = await db.document.findFirst({
-    where: { userId: user.id, originalFileName: fixture.originalFileName },
+    where: { originalFileName: fixture.originalFileName },
     select: { id: true },
   });
   if (existing) await db.document.delete({ where: { id: existing.id } });
 
   const document = await db.document.create({
     data: {
-      userId: user.id,
       title: fixture.title,
       originalFileName: fixture.originalFileName,
       fileType: fixture.fileType,
@@ -127,5 +124,5 @@ for (const fixture of fixtures) {
   }
 }
 
-console.log(`PASS evidence search demo seed: ${fixtures.length} documents for ${email}`);
+console.log(`PASS evidence search demo seed: ${fixtures.length} local documents`);
 await db.$disconnect();

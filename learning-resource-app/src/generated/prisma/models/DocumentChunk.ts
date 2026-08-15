@@ -509,6 +509,14 @@ export type DocumentChunkUncheckedUpdateManyWithoutDocumentNestedInput = {
   deleteMany?: Prisma.DocumentChunkScalarWhereInput | Prisma.DocumentChunkScalarWhereInput[]
 }
 
+export type NullableIntFieldUpdateOperationsInput = {
+  set?: number | null
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
 export type DocumentChunkCreateWithoutDocumentInput = {
   id?: string
   chunkIndex: number

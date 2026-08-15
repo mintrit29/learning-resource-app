@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import {
   ArrowUpRight,
   BookOpen,
@@ -10,7 +9,6 @@ import {
   Sparkles,
   Upload,
 } from "lucide-react";
-import { auth } from "@/auth";
 import { ProcessingRefresh } from "@/components/documents/processing-refresh";
 import { DocumentStatus, JobStatus } from "@/generated/prisma/enums";
 import { db } from "@/lib/db";
@@ -64,10 +62,7 @@ function getProviderStatus(provider: { displayName: string; type: string; authSt
 }
 
 export default async function DashboardPage() {
-  const session = await auth();
-  if (!session?.user?.id) redirect("/login");
-  const userId = session.user.id;
-  await ensureCurriculumTopics(userId);
+  await ensureCurriculumTopics();
   const [
     documentCount,
     processedCount,
@@ -78,16 +73,14 @@ export default async function DashboardPage() {
     activeProvider,
     activeProcessingJobs,
   ] = await Promise.all([
-    db.document.count({ where: { userId } }),
+    db.document.count(),
     db.document.count({
       where: {
-        userId,
         status: DocumentStatus.READY,
         jobs: { none: { status: { in: [JobStatus.PENDING, JobStatus.PROCESSING] } } },
       },
     }),
     db.document.findMany({
-      where: { userId },
       orderBy: { createdAt: "desc" },
       take: 5,
       select: {
@@ -106,31 +99,29 @@ export default async function DashboardPage() {
     }),
     db.document.groupBy({
       by: ["primaryTopic"],
-      where: { userId, primaryTopic: { not: null } },
+      where: { primaryTopic: { not: null } },
       _count: { _all: true },
       orderBy: { _count: { primaryTopic: "desc" } },
       take: 6,
     }),
     db.document.groupBy({
       by: ["difficulty"],
-      where: { userId, difficulty: { not: null } },
+      where: { difficulty: { not: null } },
       _count: { _all: true },
       orderBy: { _count: { difficulty: "desc" } },
     }),
     db.document.groupBy({
       by: ["status"],
-      where: { userId },
       _count: { _all: true },
       orderBy: { _count: { status: "desc" } },
     }),
     db.aiProvider.findFirst({
-      where: { userId, isActive: true },
+      where: { isActive: true },
       select: { displayName: true, type: true, authStatus: true },
     }),
     db.analysisJob.count({
       where: {
         status: { in: [JobStatus.PENDING, JobStatus.PROCESSING] },
-        document: { userId },
       },
     }),
   ]);

@@ -2,7 +2,6 @@ import { randomUUID } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { after, NextResponse } from "next/server";
-import { auth } from "@/auth";
 import { DocumentStatus, FileType, JobType } from "@/generated/prisma/enums";
 import { db } from "@/lib/db";
 import { enqueueDocumentPipeline } from "@/lib/documents/document-processing-queue";
@@ -35,11 +34,6 @@ function hasExpectedSignature(buffer: Buffer, extension: SupportedExtension) {
 }
 
 export async function POST(request: Request) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return NextResponse.json({ message: "Bạn cần đăng nhập" }, { status: 401 });
-  }
-
   if (!await isDoclingReady()) {
     return NextResponse.json({ message: DOCLING_MISSING_MESSAGE, setupUrl: "/settings/components" }, { status: 503 });
   }
@@ -74,14 +68,13 @@ export async function POST(request: Request) {
   }
 
   const storedName = `${randomUUID()}.${extension}`;
-  const storageLocation = createUploadStorageLocation(session.user.id, storedName);
+  const storageLocation = createUploadStorageLocation(storedName);
   await mkdir(storageLocation.directory, { recursive: true });
   await writeFile(storageLocation.absolutePath, buffer, { flag: "wx" });
 
   const title = path.basename(file.name, path.extname(file.name)).trim() || file.name;
   const document = await db.document.create({
     data: {
-      userId: session.user.id,
       title,
       originalFileName: file.name,
       fileType: FILE_TYPES[extension],

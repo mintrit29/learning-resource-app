@@ -1,13 +1,11 @@
-import { auth } from "@/auth";
 import { ResourceSearch } from "@/components/search/semantic-search";
 import { db } from "@/lib/db";
 import { ensureCurriculumTopics } from "@/lib/taxonomy/curriculum-topics";
 
 export default async function SearchPage() {
-  const session = await auth();
-  await ensureCurriculumTopics(session!.user.id);
+  await ensureCurriculumTopics();
   const topicRows = await db.tag.findMany({
-    where: { createdByUserId: session!.user.id, isClassificationEnabled: true },
+    where: { isClassificationEnabled: true },
     orderBy: { name: "asc" },
     select: { name: true },
   });

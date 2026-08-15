@@ -46,7 +46,7 @@ async function waitForApplication() {
       const origins = [...log.matchAll(/http:\/\/127\.0\.0\.1:\d+/g)].map((match) => match[0]);
       const origin = origins.at(-1);
       if (origin) {
-        const response = await fetch(`${origin}/register`).catch(() => null);
+        const response = await fetch(`${origin}/dashboard`).catch(() => null);
         if (response?.ok) return origin;
       }
     }
@@ -124,21 +124,14 @@ try {
   child.stderr.on("data", (chunk) => processLogs.push(String(chunk).trimEnd()));
   const origin = await waitForApplication();
 
-  const registration = await fetch(`${origin}/api/register`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      name: "Packaged Smoke",
-      email: "packaged-smoke@example.test",
-      password: "ScholarFlow!123",
-    }),
-  });
-  assert.equal(registration.status, 201, await registration.text());
+  const dashboard = await fetch(`${origin}/dashboard`);
+  assert.equal(dashboard.status, 200, await dashboard.text());
 
   const databasePath = path.join(userDataRoot, "data", "scholarflow.db");
   const database = new Database(databasePath, { readonly: true });
   try {
-    assert.equal(database.prepare('SELECT count(*) AS count FROM "User"').get().count, 1);
+    assert.equal(database.prepare("SELECT count(*) AS count FROM sqlite_master WHERE type = 'table' AND name IN ('User', 'Account', 'Session', 'VerificationToken')").get().count, 0);
+    assert.equal(database.prepare('SELECT count(*) AS count FROM "Tag"').get().count, 27);
   } finally {
     database.close();
   }
@@ -146,7 +139,7 @@ try {
   await verifyEmbeddingAutoRestart();
   assert.equal(child.exitCode, null, "Desktop main process must survive an embedding restart");
 
-  console.log("PASS packaged desktop: app window runtime, local database and embedding auto-restart");
+  console.log("PASS packaged desktop: local-only startup, credential-free database and embedding auto-restart");
 } finally {
   stopApplication();
   // Windows may keep Chromium cache files locked briefly after taskkill returns.

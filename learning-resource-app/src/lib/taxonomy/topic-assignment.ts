@@ -3,7 +3,6 @@ import { db } from "@/lib/db";
 
 type AssignmentInput = {
   documentId: string;
-  userId: string;
   topicId: string | null;
   source: DocumentTagSource;
   confidence?: number;
@@ -11,7 +10,7 @@ type AssignmentInput = {
 
 export async function replaceDocumentTopic(input: AssignmentInput) {
   const document = await db.document.findFirst({
-    where: { id: input.documentId, userId: input.userId },
+    where: { id: input.documentId },
     select: { id: true },
   });
   if (!document) {
@@ -22,7 +21,6 @@ export async function replaceDocumentTopic(input: AssignmentInput) {
     ? await db.tag.findFirst({
         where: {
           id: input.topicId,
-          createdByUserId: input.userId,
           isClassificationEnabled: true,
         },
         select: { id: true, name: true },

@@ -1,14 +1,10 @@
-import { auth } from "@/auth";
 import { TagManager } from "@/components/settings/tag-manager";
 import { db } from "@/lib/db";
 import { ensureCurriculumTopics } from "@/lib/taxonomy/curriculum-topics";
 
 export default async function TopicsPage() {
-  const session = await auth();
-  const userId = session!.user.id;
-  await ensureCurriculumTopics(userId);
+  await ensureCurriculumTopics();
   const tags = await db.tag.findMany({
-    where: { createdByUserId: userId },
     select: {
       id: true,
       name: true,

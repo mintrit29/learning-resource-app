@@ -2,7 +2,7 @@
 
 const { randomBytes } = require("node:crypto");
 const { spawn, spawnSync } = require("node:child_process");
-const { appendFileSync, createWriteStream, existsSync, mkdirSync, readFileSync, writeFileSync } = require("node:fs");
+const { appendFileSync, createWriteStream, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } = require("node:fs");
 const http = require("node:http");
 const net = require("node:net");
 const path = require("node:path");
@@ -50,8 +50,18 @@ const hasSingleInstanceLock = app.requestSingleInstanceLock();
 function writeLog(message) {
   const line = `[${new Date().toISOString()}] ${message}\n`;
   if (logStream) logStream.write(line);
-  if (!app.isPackaged) process.stdout.write(line);
+  if (!app.isPackaged && process.stdout?.writable && !process.stdout.destroyed) {
+    try {
+      process.stdout.write(line, () => {});
+    } catch {
+      // A detached development launch may close its console pipe before Electron exits.
+      // The persistent desktop log remains available, so stdout failure is non-fatal.
+    }
+  }
 }
+
+// Prevent a closed parent console from crashing the Electron main process with EPIPE.
+process.stdout?.on?.("error", () => {});
 
 function initializeLogging() {
   const logDirectory = path.join(app.getPath("userData"), "logs");
@@ -66,17 +76,27 @@ function writeCriticalLog(message) {
   if (!app.isPackaged) process.stderr.write(line);
 }
 
-function getOrCreateAuthSecret() {
-  const secretPath = path.join(app.getPath("userData"), ".auth-secret");
-  try {
-    if (existsSync(secretPath)) return readFileSync(secretPath, "utf8").trim();
-    const secret = randomBytes(48).toString("base64url");
-    writeFileSync(secretPath, secret, { encoding: "utf8", mode: 0o600 });
-    return secret;
-  } catch (error) {
-    writeLog(`Không thể lưu auth secret: ${error instanceof Error ? error.message : String(error)}`);
-    return randomBytes(48).toString("base64url");
+function getOrCreateEncryptionKey() {
+  const keyPath = path.join(app.getPath("userData"), ".encryption-key");
+  const legacyAuthPath = path.join(app.getPath("userData"), ".auth-secret");
+  if (existsSync(keyPath)) return readFileSync(keyPath, "utf8").trim();
+  const key = existsSync(legacyAuthPath)
+    ? readFileSync(legacyAuthPath, "utf8").trim()
+    : randomBytes(48).toString("base64url");
+  writeFileSync(keyPath, key, { encoding: "utf8", mode: 0o600 });
+  return key;
+}
+
+function resetImportedFilesForLocalLibrary() {
+  const markerPath = path.join(app.getPath("userData"), ".local-library-v1");
+  if (existsSync(markerPath)) return;
+  const dataRoot = path.resolve(app.getPath("userData"), "data");
+  const uploadsRoot = path.resolve(dataRoot, "uploads");
+  if (uploadsRoot !== dataRoot && uploadsRoot.startsWith(`${dataRoot}${path.sep}`)) {
+    rmSync(uploadsRoot, { recursive: true, force: true });
   }
+  writeFileSync(markerPath, new Date().toISOString(), "utf8");
+  writeLog("Đã dọn các bản sao tài liệu cũ khi chuyển sang thư viện local.");
 }
 
 function sanitizedChildEnvironment() {
@@ -91,6 +111,7 @@ function sanitizedChildEnvironment() {
     "EMBEDDING_PORT",
     "SCHOLARFLOW_MODEL_CACHE",
     "SCHOLARFLOW_EMBEDDING_MOCK",
+    "AI_PROVIDER_ENCRYPTION_KEY",
     "DOCLING_RS_HOME",
     "PDFIUM_DYNAMIC_LIB_PATH",
     "DOCLING_LAYOUT_ONNX",
@@ -290,13 +311,10 @@ function startNextServer(port, healthToken, resolvedEmbeddingUrl) {
     ...getDesktopDataEnvironment(resolvedEmbeddingUrl),
     HOSTNAME: HOST,
     PORT: String(port),
-    AUTH_URL: `http://${HOST}:${port}`,
-    NEXTAUTH_URL: `http://${HOST}:${port}`,
-    AUTH_TRUST_HOST: "true",
-    AUTH_SECRET: process.env.AUTH_SECRET || getOrCreateAuthSecret(),
     NEXT_TELEMETRY_DISABLED: "1",
     SCHOLARFLOW_DESKTOP: "1",
     SCHOLARFLOW_HEALTH_TOKEN: healthToken,
+    AI_PROVIDER_ENCRYPTION_KEY: getOrCreateEncryptionKey(),
   };
 
   if (app.isPackaged) {
@@ -599,6 +617,7 @@ async function stopEmbeddingService() {
 
 async function bootstrap() {
   initializeLogging();
+  resetImportedFilesForLocalLibrary();
   registerComponentIpc();
   embeddingPort = await findFreePort();
   startEmbeddingService(embeddingPort);

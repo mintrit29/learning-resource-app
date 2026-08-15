@@ -1,5 +1,4 @@
 import { readFile } from "node:fs/promises";
-import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import {
   renderDocumentPreview,
@@ -34,12 +33,9 @@ export async function GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await auth();
-  if (!session?.user?.id) return errorPage("Bạn cần đăng nhập.", 401);
-
   const { id } = await params;
   const document = await db.document.findFirst({
-    where: { id, userId: session.user.id },
+    where: { id },
     select: { filePath: true, fileType: true, originalFileName: true },
   });
   if (!document) return errorPage("Không tìm thấy tài liệu.", 404);
@@ -47,7 +43,7 @@ export async function GET(
     return errorPage("Định dạng này không cần bộ xem chuyển đổi.", 415);
   }
 
-  const absolutePath = resolveStoredUploadPath(document.filePath, session.user.id);
+  const absolutePath = resolveStoredUploadPath(document.filePath);
   if (!absolutePath) return errorPage("Đường dẫn file không hợp lệ.", 400);
   const file = await readFile(absolutePath).catch(() => null);
   if (!file) return errorPage("File gốc không còn tồn tại.", 404);

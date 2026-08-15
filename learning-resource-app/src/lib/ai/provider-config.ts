@@ -26,8 +26,8 @@ export const providerUpdateSchema = z.object({
 });
 
 function encryptionKey() {
-  const secret = process.env.AI_PROVIDER_ENCRYPTION_KEY ?? process.env.AUTH_SECRET;
-  if (!secret) throw new Error("Thiếu AI_PROVIDER_ENCRYPTION_KEY hoặc AUTH_SECRET");
+  const secret = process.env.AI_PROVIDER_ENCRYPTION_KEY;
+  if (!secret) throw new Error("Thiếu AI_PROVIDER_ENCRYPTION_KEY");
   return createHash("sha256").update(secret).digest();
 }
 

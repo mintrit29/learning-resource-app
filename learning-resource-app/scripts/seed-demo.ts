@@ -1,16 +1,6 @@
-import bcrypt from "bcryptjs";
 import { db } from "../src/lib/db";
+import { ensureCurriculumTopics } from "../src/lib/taxonomy/curriculum-topics";
 
-const email = "demo@scholarflow.local";
-const password = "demo123456";
-
-const passwordHash = await bcrypt.hash(password, 10);
-
-const user = await db.user.upsert({
-  where: { email },
-  update: { name: "Tài khoản Demo", passwordHash },
-  create: { email, name: "Tài khoản Demo", passwordHash },
-});
-
-console.log(JSON.stringify({ email, password, userId: user.id }, null, 2));
+await ensureCurriculumTopics();
+console.log(JSON.stringify({ mode: "local", defaultTopics: 27 }, null, 2));
 await db.$disconnect();

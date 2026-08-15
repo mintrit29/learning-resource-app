@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { isAllowedLocalModel } from "@/lib/ai/local-model-catalog";
 import { DEFAULT_OLLAMA_BASE_URL, isLoopbackUrl, localOllamaBaseUrl } from "@/lib/ai/local-ollama";
@@ -13,9 +12,6 @@ type PullBody = {
 };
 
 export async function POST(request: Request) {
-  const session = await auth();
-  if (!session?.user?.id) return NextResponse.json({ message: "Bạn cần đăng nhập" }, { status: 401 });
-
   const body = await request.json().catch(() => null) as PullBody | null;
   const model = body?.model?.trim() ?? "";
   if (!isAllowedLocalModel(model)) {
@@ -25,7 +21,7 @@ export async function POST(request: Request) {
   let savedProvider = null;
   if (body?.providerId) {
     savedProvider = await db.aiProvider.findFirst({
-      where: { id: body.providerId, userId: session.user.id, type: "OLLAMA" },
+      where: { id: body.providerId, type: "OLLAMA" },
     });
     if (!savedProvider) return NextResponse.json({ message: "Không tìm thấy kết nối Ollama." }, { status: 404 });
     if (!isLoopbackUrl(savedProvider.baseUrl)) {

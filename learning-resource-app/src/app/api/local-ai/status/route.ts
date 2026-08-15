@@ -3,7 +3,6 @@ import { statfs } from "node:fs/promises";
 import { cpus, freemem, platform, totalmem } from "node:os";
 import { promisify } from "node:util";
 import { NextResponse } from "next/server";
-import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { recommendLocalModels } from "@/lib/ai/local-model-catalog";
 import { DEFAULT_OLLAMA_BASE_URL, isLoopbackUrl, localOllamaBaseUrl } from "@/lib/ai/local-ollama";
@@ -116,12 +115,9 @@ async function readOllamaModels(baseUrl: string) {
 }
 
 export async function GET(request: Request) {
-  const session = await auth();
-  if (!session?.user?.id) return NextResponse.json({ message: "Bạn cần đăng nhập" }, { status: 401 });
-
   const providerId = new URL(request.url).searchParams.get("providerId");
   const savedProviders = await db.aiProvider.findMany({
-    where: { userId: session.user.id, type: "OLLAMA" },
+    where: { type: "OLLAMA" },
     orderBy: [{ isActive: "desc" }, { createdAt: "desc" }],
   });
   const selectedProvider = providerId

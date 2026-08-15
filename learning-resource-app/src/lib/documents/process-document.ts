@@ -50,7 +50,7 @@ export async function processDocumentPipeline(input: PipelineInput) {
   try {
     const document = await db.document.findUniqueOrThrow({
       where: { id: input.documentId },
-      select: { id: true, userId: true, filePath: true, fileType: true },
+      select: { id: true, filePath: true, fileType: true },
     });
 
     await Promise.all([
@@ -64,7 +64,7 @@ export async function processDocumentPipeline(input: PipelineInput) {
       }),
     ]);
 
-    const absolutePath = resolveStoredUploadPath(document.filePath, document.userId);
+    const absolutePath = resolveStoredUploadPath(document.filePath);
     if (!absolutePath) throw new Error("Invalid document file path");
     const buffer = await readFile(absolutePath);
     const result = await extractDocumentText(buffer, extensions[document.fileType]);

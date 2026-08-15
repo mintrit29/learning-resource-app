@@ -1,22 +1,19 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { encryptApiKey, normalizeBaseUrl, providerUpdateSchema } from "@/lib/ai/provider-config";
 
-async function ownedProvider(id: string, userId: string) {
-  return db.aiProvider.findFirst({ where: { id, userId } });
+async function localProvider(id: string) {
+  return db.aiProvider.findUnique({ where: { id } });
 }
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const session = await auth();
-  if (!session?.user?.id) return NextResponse.json({ message: "Bạn cần đăng nhập" }, { status: 401 });
   const { id } = await params;
-  const existing = await ownedProvider(id, session.user.id);
+  const existing = await localProvider(id);
   if (!existing) return NextResponse.json({ message: "Không tìm thấy provider" }, { status: 404 });
   const body = await request.json().catch(() => null) as Record<string, unknown> | null;
   if (body?.isActive === true) {
     await db.$transaction([
-      db.aiProvider.updateMany({ where: { userId: session.user.id }, data: { isActive: false } }),
+      db.aiProvider.updateMany({ data: { isActive: false } }),
       db.aiProvider.update({ where: { id }, data: { isActive: true } }),
     ]);
     return NextResponse.json({ message: "Đã đặt provider mặc định" });
@@ -52,10 +49,8 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 }
 
 export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const session = await auth();
-  if (!session?.user?.id) return NextResponse.json({ message: "Bạn cần đăng nhập" }, { status: 401 });
   const { id } = await params;
-  const provider = await ownedProvider(id, session.user.id);
+  const provider = await localProvider(id);
   if (!provider) return NextResponse.json({ message: "Không tìm thấy provider" }, { status: 404 });
   await db.aiProvider.delete({ where: { id } });
   return NextResponse.json({ message: "Đã xóa provider" });

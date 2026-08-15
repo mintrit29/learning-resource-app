@@ -20,12 +20,12 @@ export async function analyzeDocument(documentId: string, jobId: string) {
   try {
     const document = await db.document.findUniqueOrThrow({
       where: { id: documentId },
-      select: { id: true, userId: true, originalFileName: true, textContent: true },
+      select: { id: true, originalFileName: true, textContent: true },
     });
     if (!document.textContent) throw new AiProviderError("Tài liệu chưa có nội dung để phân tích.");
 
     const provider = await db.aiProvider.findFirst({
-      where: { userId: document.userId, isActive: true },
+      where: { isActive: true },
       orderBy: { updatedAt: "desc" },
     });
     if (!provider) throw new AiProviderError("Chưa có kết nối AI đang hoạt động.");
@@ -38,9 +38,9 @@ export async function analyzeDocument(documentId: string, jobId: string) {
       db.document.update({ where: { id: document.id }, data: { status: DocumentStatus.ANALYZING } }),
     ]);
 
-    await ensureCurriculumTopics(document.userId);
+    await ensureCurriculumTopics();
     const topics = await db.tag.findMany({
-      where: { createdByUserId: document.userId, isClassificationEnabled: true },
+      where: { isClassificationEnabled: true },
       select: { id: true, name: true, description: true },
       orderBy: { name: "asc" },
     });
@@ -81,7 +81,6 @@ ${content}`,
     );
     await replaceDocumentTopic({
       documentId: document.id,
-      userId: document.userId,
       topicId: selectedTopic?.id ?? null,
       source: DocumentTagSource.AI,
       confidence: result.confidence,

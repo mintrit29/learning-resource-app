@@ -26,7 +26,6 @@ export type AggregateAiProvider = {
 
 export type AiProviderMinAggregateOutputType = {
   id: string | null
-  userId: string | null
   type: string | null
   displayName: string | null
   baseUrl: string | null
@@ -41,7 +40,6 @@ export type AiProviderMinAggregateOutputType = {
 
 export type AiProviderMaxAggregateOutputType = {
   id: string | null
-  userId: string | null
   type: string | null
   displayName: string | null
   baseUrl: string | null
@@ -56,7 +54,6 @@ export type AiProviderMaxAggregateOutputType = {
 
 export type AiProviderCountAggregateOutputType = {
   id: number
-  userId: number
   type: number
   displayName: number
   baseUrl: number
@@ -73,7 +70,6 @@ export type AiProviderCountAggregateOutputType = {
 
 export type AiProviderMinAggregateInputType = {
   id?: true
-  userId?: true
   type?: true
   displayName?: true
   baseUrl?: true
@@ -88,7 +84,6 @@ export type AiProviderMinAggregateInputType = {
 
 export type AiProviderMaxAggregateInputType = {
   id?: true
-  userId?: true
   type?: true
   displayName?: true
   baseUrl?: true
@@ -103,7 +98,6 @@ export type AiProviderMaxAggregateInputType = {
 
 export type AiProviderCountAggregateInputType = {
   id?: true
-  userId?: true
   type?: true
   displayName?: true
   baseUrl?: true
@@ -191,7 +185,6 @@ export type AiProviderGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inter
 
 export type AiProviderGroupByOutputType = {
   id: string
-  userId: string
   type: string
   displayName: string
   baseUrl: string | null
@@ -227,7 +220,6 @@ export type AiProviderWhereInput = {
   OR?: Prisma.AiProviderWhereInput[]
   NOT?: Prisma.AiProviderWhereInput | Prisma.AiProviderWhereInput[]
   id?: Prisma.StringFilter<"AiProvider"> | string
-  userId?: Prisma.StringFilter<"AiProvider"> | string
   type?: Prisma.StringFilter<"AiProvider"> | string
   displayName?: Prisma.StringFilter<"AiProvider"> | string
   baseUrl?: Prisma.StringNullableFilter<"AiProvider"> | string | null
@@ -238,12 +230,10 @@ export type AiProviderWhereInput = {
   authStatus?: Prisma.StringFilter<"AiProvider"> | string
   createdAt?: Prisma.DateTimeFilter<"AiProvider"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"AiProvider"> | Date | string
-  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
 
 export type AiProviderOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
   type?: Prisma.SortOrder
   displayName?: Prisma.SortOrder
   baseUrl?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -254,7 +244,6 @@ export type AiProviderOrderByWithRelationInput = {
   authStatus?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  user?: Prisma.UserOrderByWithRelationInput
 }
 
 export type AiProviderWhereUniqueInput = Prisma.AtLeast<{
@@ -262,7 +251,6 @@ export type AiProviderWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.AiProviderWhereInput | Prisma.AiProviderWhereInput[]
   OR?: Prisma.AiProviderWhereInput[]
   NOT?: Prisma.AiProviderWhereInput | Prisma.AiProviderWhereInput[]
-  userId?: Prisma.StringFilter<"AiProvider"> | string
   type?: Prisma.StringFilter<"AiProvider"> | string
   displayName?: Prisma.StringFilter<"AiProvider"> | string
   baseUrl?: Prisma.StringNullableFilter<"AiProvider"> | string | null
@@ -273,12 +261,10 @@ export type AiProviderWhereUniqueInput = Prisma.AtLeast<{
   authStatus?: Prisma.StringFilter<"AiProvider"> | string
   createdAt?: Prisma.DateTimeFilter<"AiProvider"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"AiProvider"> | Date | string
-  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }, "id">
 
 export type AiProviderOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
   type?: Prisma.SortOrder
   displayName?: Prisma.SortOrder
   baseUrl?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -299,7 +285,6 @@ export type AiProviderScalarWhereWithAggregatesInput = {
   OR?: Prisma.AiProviderScalarWhereWithAggregatesInput[]
   NOT?: Prisma.AiProviderScalarWhereWithAggregatesInput | Prisma.AiProviderScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"AiProvider"> | string
-  userId?: Prisma.StringWithAggregatesFilter<"AiProvider"> | string
   type?: Prisma.StringWithAggregatesFilter<"AiProvider"> | string
   displayName?: Prisma.StringWithAggregatesFilter<"AiProvider"> | string
   baseUrl?: Prisma.StringNullableWithAggregatesFilter<"AiProvider"> | string | null
@@ -324,12 +309,10 @@ export type AiProviderCreateInput = {
   authStatus?: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  user: Prisma.UserCreateNestedOneWithoutAiProvidersInput
 }
 
 export type AiProviderUncheckedCreateInput = {
   id?: string
-  userId: string
   type: string
   displayName: string
   baseUrl?: string | null
@@ -354,12 +337,10 @@ export type AiProviderUpdateInput = {
   authStatus?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  user?: Prisma.UserUpdateOneRequiredWithoutAiProvidersNestedInput
 }
 
 export type AiProviderUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
   baseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -374,7 +355,6 @@ export type AiProviderUncheckedUpdateInput = {
 
 export type AiProviderCreateManyInput = {
   id?: string
-  userId: string
   type: string
   displayName: string
   baseUrl?: string | null
@@ -403,7 +383,6 @@ export type AiProviderUpdateManyMutationInput = {
 
 export type AiProviderUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
   baseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -416,19 +395,8 @@ export type AiProviderUncheckedUpdateManyInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type AiProviderListRelationFilter = {
-  every?: Prisma.AiProviderWhereInput
-  some?: Prisma.AiProviderWhereInput
-  none?: Prisma.AiProviderWhereInput
-}
-
-export type AiProviderOrderByRelationAggregateInput = {
-  _count?: Prisma.SortOrder
-}
-
 export type AiProviderCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
   type?: Prisma.SortOrder
   displayName?: Prisma.SortOrder
   baseUrl?: Prisma.SortOrder
@@ -443,7 +411,6 @@ export type AiProviderCountOrderByAggregateInput = {
 
 export type AiProviderMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
   type?: Prisma.SortOrder
   displayName?: Prisma.SortOrder
   baseUrl?: Prisma.SortOrder
@@ -458,7 +425,6 @@ export type AiProviderMaxOrderByAggregateInput = {
 
 export type AiProviderMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
   type?: Prisma.SortOrder
   displayName?: Prisma.SortOrder
   baseUrl?: Prisma.SortOrder
@@ -471,180 +437,10 @@ export type AiProviderMinOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
 }
 
-export type AiProviderCreateNestedManyWithoutUserInput = {
-  create?: Prisma.XOR<Prisma.AiProviderCreateWithoutUserInput, Prisma.AiProviderUncheckedCreateWithoutUserInput> | Prisma.AiProviderCreateWithoutUserInput[] | Prisma.AiProviderUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.AiProviderCreateOrConnectWithoutUserInput | Prisma.AiProviderCreateOrConnectWithoutUserInput[]
-  createMany?: Prisma.AiProviderCreateManyUserInputEnvelope
-  connect?: Prisma.AiProviderWhereUniqueInput | Prisma.AiProviderWhereUniqueInput[]
-}
-
-export type AiProviderUncheckedCreateNestedManyWithoutUserInput = {
-  create?: Prisma.XOR<Prisma.AiProviderCreateWithoutUserInput, Prisma.AiProviderUncheckedCreateWithoutUserInput> | Prisma.AiProviderCreateWithoutUserInput[] | Prisma.AiProviderUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.AiProviderCreateOrConnectWithoutUserInput | Prisma.AiProviderCreateOrConnectWithoutUserInput[]
-  createMany?: Prisma.AiProviderCreateManyUserInputEnvelope
-  connect?: Prisma.AiProviderWhereUniqueInput | Prisma.AiProviderWhereUniqueInput[]
-}
-
-export type AiProviderUpdateManyWithoutUserNestedInput = {
-  create?: Prisma.XOR<Prisma.AiProviderCreateWithoutUserInput, Prisma.AiProviderUncheckedCreateWithoutUserInput> | Prisma.AiProviderCreateWithoutUserInput[] | Prisma.AiProviderUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.AiProviderCreateOrConnectWithoutUserInput | Prisma.AiProviderCreateOrConnectWithoutUserInput[]
-  upsert?: Prisma.AiProviderUpsertWithWhereUniqueWithoutUserInput | Prisma.AiProviderUpsertWithWhereUniqueWithoutUserInput[]
-  createMany?: Prisma.AiProviderCreateManyUserInputEnvelope
-  set?: Prisma.AiProviderWhereUniqueInput | Prisma.AiProviderWhereUniqueInput[]
-  disconnect?: Prisma.AiProviderWhereUniqueInput | Prisma.AiProviderWhereUniqueInput[]
-  delete?: Prisma.AiProviderWhereUniqueInput | Prisma.AiProviderWhereUniqueInput[]
-  connect?: Prisma.AiProviderWhereUniqueInput | Prisma.AiProviderWhereUniqueInput[]
-  update?: Prisma.AiProviderUpdateWithWhereUniqueWithoutUserInput | Prisma.AiProviderUpdateWithWhereUniqueWithoutUserInput[]
-  updateMany?: Prisma.AiProviderUpdateManyWithWhereWithoutUserInput | Prisma.AiProviderUpdateManyWithWhereWithoutUserInput[]
-  deleteMany?: Prisma.AiProviderScalarWhereInput | Prisma.AiProviderScalarWhereInput[]
-}
-
-export type AiProviderUncheckedUpdateManyWithoutUserNestedInput = {
-  create?: Prisma.XOR<Prisma.AiProviderCreateWithoutUserInput, Prisma.AiProviderUncheckedCreateWithoutUserInput> | Prisma.AiProviderCreateWithoutUserInput[] | Prisma.AiProviderUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.AiProviderCreateOrConnectWithoutUserInput | Prisma.AiProviderCreateOrConnectWithoutUserInput[]
-  upsert?: Prisma.AiProviderUpsertWithWhereUniqueWithoutUserInput | Prisma.AiProviderUpsertWithWhereUniqueWithoutUserInput[]
-  createMany?: Prisma.AiProviderCreateManyUserInputEnvelope
-  set?: Prisma.AiProviderWhereUniqueInput | Prisma.AiProviderWhereUniqueInput[]
-  disconnect?: Prisma.AiProviderWhereUniqueInput | Prisma.AiProviderWhereUniqueInput[]
-  delete?: Prisma.AiProviderWhereUniqueInput | Prisma.AiProviderWhereUniqueInput[]
-  connect?: Prisma.AiProviderWhereUniqueInput | Prisma.AiProviderWhereUniqueInput[]
-  update?: Prisma.AiProviderUpdateWithWhereUniqueWithoutUserInput | Prisma.AiProviderUpdateWithWhereUniqueWithoutUserInput[]
-  updateMany?: Prisma.AiProviderUpdateManyWithWhereWithoutUserInput | Prisma.AiProviderUpdateManyWithWhereWithoutUserInput[]
-  deleteMany?: Prisma.AiProviderScalarWhereInput | Prisma.AiProviderScalarWhereInput[]
-}
-
-export type AiProviderCreateWithoutUserInput = {
-  id?: string
-  type: string
-  displayName: string
-  baseUrl?: string | null
-  apiKeyEncrypted?: string | null
-  defaultChatModel?: string | null
-  defaultEmbeddingModel?: string | null
-  isActive?: boolean
-  authStatus?: string
-  createdAt?: Date | string
-  updatedAt?: Date | string
-}
-
-export type AiProviderUncheckedCreateWithoutUserInput = {
-  id?: string
-  type: string
-  displayName: string
-  baseUrl?: string | null
-  apiKeyEncrypted?: string | null
-  defaultChatModel?: string | null
-  defaultEmbeddingModel?: string | null
-  isActive?: boolean
-  authStatus?: string
-  createdAt?: Date | string
-  updatedAt?: Date | string
-}
-
-export type AiProviderCreateOrConnectWithoutUserInput = {
-  where: Prisma.AiProviderWhereUniqueInput
-  create: Prisma.XOR<Prisma.AiProviderCreateWithoutUserInput, Prisma.AiProviderUncheckedCreateWithoutUserInput>
-}
-
-export type AiProviderCreateManyUserInputEnvelope = {
-  data: Prisma.AiProviderCreateManyUserInput | Prisma.AiProviderCreateManyUserInput[]
-}
-
-export type AiProviderUpsertWithWhereUniqueWithoutUserInput = {
-  where: Prisma.AiProviderWhereUniqueInput
-  update: Prisma.XOR<Prisma.AiProviderUpdateWithoutUserInput, Prisma.AiProviderUncheckedUpdateWithoutUserInput>
-  create: Prisma.XOR<Prisma.AiProviderCreateWithoutUserInput, Prisma.AiProviderUncheckedCreateWithoutUserInput>
-}
-
-export type AiProviderUpdateWithWhereUniqueWithoutUserInput = {
-  where: Prisma.AiProviderWhereUniqueInput
-  data: Prisma.XOR<Prisma.AiProviderUpdateWithoutUserInput, Prisma.AiProviderUncheckedUpdateWithoutUserInput>
-}
-
-export type AiProviderUpdateManyWithWhereWithoutUserInput = {
-  where: Prisma.AiProviderScalarWhereInput
-  data: Prisma.XOR<Prisma.AiProviderUpdateManyMutationInput, Prisma.AiProviderUncheckedUpdateManyWithoutUserInput>
-}
-
-export type AiProviderScalarWhereInput = {
-  AND?: Prisma.AiProviderScalarWhereInput | Prisma.AiProviderScalarWhereInput[]
-  OR?: Prisma.AiProviderScalarWhereInput[]
-  NOT?: Prisma.AiProviderScalarWhereInput | Prisma.AiProviderScalarWhereInput[]
-  id?: Prisma.StringFilter<"AiProvider"> | string
-  userId?: Prisma.StringFilter<"AiProvider"> | string
-  type?: Prisma.StringFilter<"AiProvider"> | string
-  displayName?: Prisma.StringFilter<"AiProvider"> | string
-  baseUrl?: Prisma.StringNullableFilter<"AiProvider"> | string | null
-  apiKeyEncrypted?: Prisma.StringNullableFilter<"AiProvider"> | string | null
-  defaultChatModel?: Prisma.StringNullableFilter<"AiProvider"> | string | null
-  defaultEmbeddingModel?: Prisma.StringNullableFilter<"AiProvider"> | string | null
-  isActive?: Prisma.BoolFilter<"AiProvider"> | boolean
-  authStatus?: Prisma.StringFilter<"AiProvider"> | string
-  createdAt?: Prisma.DateTimeFilter<"AiProvider"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"AiProvider"> | Date | string
-}
-
-export type AiProviderCreateManyUserInput = {
-  id?: string
-  type: string
-  displayName: string
-  baseUrl?: string | null
-  apiKeyEncrypted?: string | null
-  defaultChatModel?: string | null
-  defaultEmbeddingModel?: string | null
-  isActive?: boolean
-  authStatus?: string
-  createdAt?: Date | string
-  updatedAt?: Date | string
-}
-
-export type AiProviderUpdateWithoutUserInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.StringFieldUpdateOperationsInput | string
-  displayName?: Prisma.StringFieldUpdateOperationsInput | string
-  baseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKeyEncrypted?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultChatModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultEmbeddingModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  authStatus?: Prisma.StringFieldUpdateOperationsInput | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type AiProviderUncheckedUpdateWithoutUserInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.StringFieldUpdateOperationsInput | string
-  displayName?: Prisma.StringFieldUpdateOperationsInput | string
-  baseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKeyEncrypted?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultChatModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultEmbeddingModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  authStatus?: Prisma.StringFieldUpdateOperationsInput | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type AiProviderUncheckedUpdateManyWithoutUserInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.StringFieldUpdateOperationsInput | string
-  displayName?: Prisma.StringFieldUpdateOperationsInput | string
-  baseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  apiKeyEncrypted?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultChatModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  defaultEmbeddingModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  authStatus?: Prisma.StringFieldUpdateOperationsInput | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
 
 
 export type AiProviderSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  userId?: boolean
   type?: boolean
   displayName?: boolean
   baseUrl?: boolean
@@ -655,12 +451,10 @@ export type AiProviderSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   authStatus?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["aiProvider"]>
 
 export type AiProviderSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  userId?: boolean
   type?: boolean
   displayName?: boolean
   baseUrl?: boolean
@@ -671,12 +465,10 @@ export type AiProviderSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   authStatus?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["aiProvider"]>
 
 export type AiProviderSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  userId?: boolean
   type?: boolean
   displayName?: boolean
   baseUrl?: boolean
@@ -687,12 +479,10 @@ export type AiProviderSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   authStatus?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["aiProvider"]>
 
 export type AiProviderSelectScalar = {
   id?: boolean
-  userId?: boolean
   type?: boolean
   displayName?: boolean
   baseUrl?: boolean
@@ -705,25 +495,13 @@ export type AiProviderSelectScalar = {
   updatedAt?: boolean
 }
 
-export type AiProviderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "type" | "displayName" | "baseUrl" | "apiKeyEncrypted" | "defaultChatModel" | "defaultEmbeddingModel" | "isActive" | "authStatus" | "createdAt" | "updatedAt", ExtArgs["result"]["aiProvider"]>
-export type AiProviderInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-}
-export type AiProviderIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-}
-export type AiProviderIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-}
+export type AiProviderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "type" | "displayName" | "baseUrl" | "apiKeyEncrypted" | "defaultChatModel" | "defaultEmbeddingModel" | "isActive" | "authStatus" | "createdAt" | "updatedAt", ExtArgs["result"]["aiProvider"]>
 
 export type $AiProviderPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "AiProvider"
-  objects: {
-    user: Prisma.$UserPayload<ExtArgs>
-  }
+  objects: {}
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
-    userId: string
     type: string
     displayName: string
     baseUrl: string | null
@@ -1128,7 +906,6 @@ readonly fields: AiProviderFieldRefs;
  */
 export interface Prisma__AiProviderClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1159,7 +936,6 @@ export interface Prisma__AiProviderClient<T, Null = never, ExtArgs extends runti
  */
 export interface AiProviderFieldRefs {
   readonly id: Prisma.FieldRef<"AiProvider", 'String'>
-  readonly userId: Prisma.FieldRef<"AiProvider", 'String'>
   readonly type: Prisma.FieldRef<"AiProvider", 'String'>
   readonly displayName: Prisma.FieldRef<"AiProvider", 'String'>
   readonly baseUrl: Prisma.FieldRef<"AiProvider", 'String'>
@@ -1187,10 +963,6 @@ export type AiProviderFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.In
    */
   omit?: Prisma.AiProviderOmit<ExtArgs> | null
   /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.AiProviderInclude<ExtArgs> | null
-  /**
    * Filter, which AiProvider to fetch.
    */
   where: Prisma.AiProviderWhereUniqueInput
@@ -1209,10 +981,6 @@ export type AiProviderFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extens
    */
   omit?: Prisma.AiProviderOmit<ExtArgs> | null
   /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.AiProviderInclude<ExtArgs> | null
-  /**
    * Filter, which AiProvider to fetch.
    */
   where: Prisma.AiProviderWhereUniqueInput
@@ -1230,10 +998,6 @@ export type AiProviderFindFirstArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Omit specific fields from the AiProvider
    */
   omit?: Prisma.AiProviderOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.AiProviderInclude<ExtArgs> | null
   /**
    * Filter, which AiProvider to fetch.
    */
@@ -1283,10 +1047,6 @@ export type AiProviderFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extensi
    */
   omit?: Prisma.AiProviderOmit<ExtArgs> | null
   /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.AiProviderInclude<ExtArgs> | null
-  /**
    * Filter, which AiProvider to fetch.
    */
   where?: Prisma.AiProviderWhereInput
@@ -1334,10 +1094,6 @@ export type AiProviderFindManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * Omit specific fields from the AiProvider
    */
   omit?: Prisma.AiProviderOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.AiProviderInclude<ExtArgs> | null
   /**
    * Filter, which AiProviders to fetch.
    */
@@ -1387,10 +1143,6 @@ export type AiProviderCreateArgs<ExtArgs extends runtime.Types.Extensions.Intern
    */
   omit?: Prisma.AiProviderOmit<ExtArgs> | null
   /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.AiProviderInclude<ExtArgs> | null
-  /**
    * The data needed to create a AiProvider.
    */
   data: Prisma.XOR<Prisma.AiProviderCreateInput, Prisma.AiProviderUncheckedCreateInput>
@@ -1422,10 +1174,6 @@ export type AiProviderCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Exte
    * The data used to create many AiProviders.
    */
   data: Prisma.AiProviderCreateManyInput | Prisma.AiProviderCreateManyInput[]
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.AiProviderIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1440,10 +1188,6 @@ export type AiProviderUpdateArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Omit specific fields from the AiProvider
    */
   omit?: Prisma.AiProviderOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.AiProviderInclude<ExtArgs> | null
   /**
    * The data needed to update a AiProvider.
    */
@@ -1496,10 +1240,6 @@ export type AiProviderUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Exte
    * Limit how many AiProviders to update.
    */
   limit?: number
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.AiProviderIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1514,10 +1254,6 @@ export type AiProviderUpsertArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Omit specific fields from the AiProvider
    */
   omit?: Prisma.AiProviderOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.AiProviderInclude<ExtArgs> | null
   /**
    * The filter to search for the AiProvider to update in case it exists.
    */
@@ -1544,10 +1280,6 @@ export type AiProviderDeleteArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Omit specific fields from the AiProvider
    */
   omit?: Prisma.AiProviderOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.AiProviderInclude<ExtArgs> | null
   /**
    * Filter which AiProvider to delete.
    */
@@ -1580,8 +1312,4 @@ export type AiProviderDefaultArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Omit specific fields from the AiProvider
    */
   omit?: Prisma.AiProviderOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.AiProviderInclude<ExtArgs> | null
 }

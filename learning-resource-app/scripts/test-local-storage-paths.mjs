@@ -27,44 +27,38 @@ try {
 
   delete process.env.SCHOLARFLOW_DATA_ROOT;
   assert.equal(
-    resolveStoredUploadPath("storage/uploads/user-123/document.pdf", "user-123"),
+    resolveStoredUploadPath("storage/uploads/user-123/document.pdf"),
     path.resolve("storage", "uploads", "user-123", "document.pdf"),
   );
 
   process.env.SCHOLARFLOW_DATA_ROOT = configuredRoot;
-  const location = createUploadStorageLocation("user-123", "document.pdf");
-  assert.equal(location.directory, path.join(configuredRoot, "uploads", "user-123"));
+  const location = createUploadStorageLocation("document.pdf");
+  assert.equal(location.directory, path.join(configuredRoot, "uploads"));
   assert.equal(location.absolutePath, path.join(location.directory, "document.pdf"));
-  assert.equal(location.storedPath, "uploads/user-123/document.pdf");
+  assert.equal(location.storedPath, "uploads/document.pdf");
 
   assert.equal(
-    resolveStoredUploadPath("uploads/user-123/document.pdf", "user-123"),
+    resolveStoredUploadPath("uploads/document.pdf"),
     location.absolutePath,
   );
   assert.equal(
-    resolveStoredUploadPath("storage\\uploads\\user-123\\document.pdf", "user-123"),
-    location.absolutePath,
+    resolveStoredUploadPath("storage\\uploads\\user-123\\document.pdf"),
+    path.join(configuredRoot, "uploads", "user-123", "document.pdf"),
   );
 
   const invalidStoredPaths = [
     "uploads/user-123/../other-user/private.pdf",
-    "uploads/other-user/private.pdf",
     "storage/private.pdf",
     "../uploads/user-123/document.pdf",
     path.resolve(configuredRoot, "uploads", "user-123", "document.pdf"),
-    "uploads/user-123",
     "uploads//user-123/document.pdf",
   ];
   for (const storedPath of invalidStoredPaths) {
-    assert.equal(resolveStoredUploadPath(storedPath, "user-123"), null, storedPath);
+    assert.equal(resolveStoredUploadPath(storedPath), null, storedPath);
   }
 
   assert.throws(
-    () => createUploadStorageLocation("../other-user", "document.pdf"),
-    /Invalid user id/,
-  );
-  assert.throws(
-    () => createUploadStorageLocation("user-123", "../document.pdf"),
+    () => createUploadStorageLocation("../document.pdf"),
     /Invalid upload file name/,
   );
 

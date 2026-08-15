@@ -12,7 +12,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ status: "not_found" }, { status: 404 });
   }
 
-  await db.user.count();
+  await db.document.count();
   const indexedChunks = getSqliteVectorStore().count();
 
   return NextResponse.json({

@@ -1,6 +1,5 @@
 import { unlink } from "node:fs/promises";
 import { NextResponse } from "next/server";
-import { auth } from "@/auth";
 import { Difficulty, DocumentTagSource } from "@/generated/prisma/enums";
 import { documentAnalysisEditSchema } from "@/lib/ai/analysis-schema";
 import { db } from "@/lib/db";
@@ -12,9 +11,6 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await auth();
-  if (!session?.user?.id) return NextResponse.json({ message: "Bạn cần đăng nhập" }, { status: 401 });
-
   const parsed = documentAnalysisEditSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
     return NextResponse.json(
@@ -24,7 +20,7 @@ export async function PATCH(
   }
 
   const { id } = await params;
-  const document = await db.document.findFirst({ where: { id, userId: session.user.id }, select: { id: true } });
+  const document = await db.document.findUnique({ where: { id }, select: { id: true } });
   if (!document) return NextResponse.json({ message: "Không tìm thấy tài liệu" }, { status: 404 });
 
   const result = parsed.data;
@@ -32,7 +28,6 @@ export async function PATCH(
   try {
     topic = await replaceDocumentTopic({
       documentId: document.id,
-      userId: session.user.id,
       topicId: result.topicId,
       source: DocumentTagSource.USER,
     });
@@ -59,14 +54,9 @@ export async function DELETE(
   _request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return NextResponse.json({ message: "Bạn cần đăng nhập" }, { status: 401 });
-  }
-
   const { id } = await params;
   const document = await db.document.findFirst({
-    where: { id, userId: session.user.id },
+    where: { id },
     select: { id: true, filePath: true, chunks: { select: { id: true } } },
   });
 
@@ -74,7 +64,7 @@ export async function DELETE(
     return NextResponse.json({ message: "Không tìm thấy tài liệu" }, { status: 404 });
   }
 
-  const absoluteFilePath = resolveStoredUploadPath(document.filePath, session.user.id);
+  const absoluteFilePath = resolveStoredUploadPath(document.filePath);
   if (!absoluteFilePath) {
     return NextResponse.json(
       { message: "Đường dẫn file không hợp lệ" },

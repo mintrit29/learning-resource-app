@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { randomUUID } from "node:crypto";
 import { db } from "../src/lib/db";
 import { embedTexts } from "../src/lib/embedding/client";
 import { searchByVector } from "../src/lib/search/hybrid-search";
@@ -10,13 +9,10 @@ import {
 
 const query = "tai lieu giai thich decision tree cho nguoi moi";
 const seedText = "Decision tree is a beginner friendly machine learning model that splits data by questions until it reaches a prediction.";
-const suffix = randomUUID();
-const owner = await db.user.create({ data: { email: `semantic-smoke-${suffix}@example.test` } });
-
+let documentId = "";
 try {
   const document = await db.document.create({
     data: {
-      userId: owner.id,
       title: "Decision tree basics",
       originalFileName: "decision-tree-basics.pdf",
       fileType: "PDF",
@@ -29,6 +25,7 @@ try {
       status: "READY",
     },
   });
+  documentId = document.id;
   const chunk = await db.documentChunk.create({
     data: {
       documentId: document.id,
@@ -45,7 +42,7 @@ try {
     where: { id: chunk.id },
     data: { embedding: toSqliteVectorBlob(chunkEmbedding) },
   });
-  const [result] = await searchByVector(owner.id, query, {}, 1);
+  const [result] = await searchByVector(query, {}, 1);
 
   assert.ok(result, "Semantic search must return a result");
   assert.ok(result.chunkId, "Result must identify the matched chunk");
@@ -54,6 +51,6 @@ try {
 
   console.log(JSON.stringify({ query, ...result }, null, 2));
 } finally {
-  await db.user.delete({ where: { id: owner.id } });
+  if (documentId) await db.document.deleteMany({ where: { id: documentId } });
   await db.$disconnect();
 }

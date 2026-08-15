@@ -43,39 +43,30 @@ function topicDescription(topic: CurriculumTopic) {
   return `NTTU · Học kỳ ${topic.semester} · Mã ${topic.code}. ${topic.description}`;
 }
 
-export async function ensureCurriculumTopics(userId: string) {
-  const user = await db.user.findUnique({
-    where: { id: userId },
-    select: { curriculumInitializedAt: true },
-  });
-  if (!user || user.curriculumInitializedAt) return;
+const globalForCurriculum = globalThis as typeof globalThis & {
+  scholarFlowCurriculumInitialization?: Promise<void>;
+};
 
+async function initializeCurriculumTopics() {
   await db.$transaction(async (transaction) => {
-    const current = await transaction.user.findUnique({
-      where: { id: userId },
-      select: { curriculumInitializedAt: true },
-    });
-    if (!current || current.curriculumInitializedAt) return;
-
     for (const topic of NTTU_IT_CURRICULUM_TOPICS) {
       const normalizedName = normalizeTagName(topic.name);
-      const tag = await transaction.tag.upsert({
-        where: {
-          createdByUserId_normalizedName: {
-            createdByUserId: userId,
-            normalizedName,
-          },
-        },
-        create: {
+      const existing = await transaction.tag.findFirst({ where: { normalizedName } });
+      const tag = existing
+        ? await transaction.tag.update({
+            where: { id: existing.id },
+            data: { isClassificationEnabled: true },
+            select: { id: true },
+          })
+        : await transaction.tag.create({
+            data: {
           name: topic.name,
           normalizedName,
           description: topicDescription(topic),
           isClassificationEnabled: true,
-          createdByUserId: userId,
-        },
-        update: { isClassificationEnabled: true },
-        select: { id: true },
-      });
+            },
+            select: { id: true },
+          });
 
       for (const alias of topic.aliases) {
         const normalizedAlias = normalizeTagName(alias);
@@ -88,14 +79,13 @@ export async function ensureCurriculumTopics(userId: string) {
     }
 
     const allowedTopics = await transaction.tag.findMany({
-      where: { createdByUserId: userId, isClassificationEnabled: true },
+      where: { isClassificationEnabled: true },
       select: { id: true, name: true },
     });
     const allowedTopicIds = allowedTopics.map((topic) => topic.id);
     const allowedTopicNames = allowedTopics.map((topic) => topic.name);
     const legacyDocuments = await transaction.document.findMany({
       where: {
-        userId,
         primaryTopic: { notIn: allowedTopicNames },
       },
       select: { id: true },
@@ -103,7 +93,7 @@ export async function ensureCurriculumTopics(userId: string) {
     const legacyDocumentIds = legacyDocuments.map((document) => document.id);
 
     await transaction.document.updateMany({
-      where: { userId, id: { in: legacyDocumentIds } },
+      where: { id: { in: legacyDocumentIds } },
       data: {
         primaryTopic: null,
         analysisReason: "Chủ đề từ phiên bản cũ chưa được người dùng xác nhận. Tài liệu đang chờ phân loại lại.",
@@ -111,17 +101,22 @@ export async function ensureCurriculumTopics(userId: string) {
     });
     await transaction.documentTag.deleteMany({
       where: {
-        document: { userId },
         OR: [
           { tagId: { notIn: allowedTopicIds } },
           ...(legacyDocumentIds.length ? [{ documentId: { in: legacyDocumentIds } }] : []),
         ],
       },
     });
-
-    await transaction.user.update({
-      where: { id: userId },
-      data: { curriculumInitializedAt: new Date() },
-    });
   });
+}
+
+export function ensureCurriculumTopics() {
+  if (!globalForCurriculum.scholarFlowCurriculumInitialization) {
+    globalForCurriculum.scholarFlowCurriculumInitialization = initializeCurriculumTopics().catch((error) => {
+      globalForCurriculum.scholarFlowCurriculumInitialization = undefined;
+      throw error;
+    });
+  }
+
+  return globalForCurriculum.scholarFlowCurriculumInitialization;
 }

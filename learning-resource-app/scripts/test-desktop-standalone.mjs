@@ -76,10 +76,7 @@ try {
       HOSTNAME: "127.0.0.1",
       PORT: String(port),
       NODE_ENV: "production",
-      AUTH_URL: origin,
-      NEXTAUTH_URL: origin,
-      AUTH_TRUST_HOST: "true",
-      AUTH_SECRET: "desktop-runtime-smoke-auth-secret-with-enough-entropy",
+      AI_PROVIDER_ENCRYPTION_KEY: "desktop-runtime-smoke-encryption-key",
       SCHOLARFLOW_DESKTOP: "1",
       SCHOLARFLOW_DATA_ROOT: dataRoot,
       SCHOLARFLOW_HEALTH_TOKEN: healthToken,
@@ -93,24 +90,12 @@ try {
   child.stderr.on("data", (chunk) => logs.push(String(chunk).trimEnd()));
 
   await waitUntilReady(origin);
-  const registration = await fetch(`${origin}/api/register`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      name: "Desktop Smoke",
-      email: "desktop-smoke@example.test",
-      password: "ScholarFlow!123",
-    }),
-  });
-  assert.equal(
-    registration.status,
-    201,
-    `Registration failed: ${await registration.text()}\n${logs.slice(-20).join("\n")}`,
-  );
+  const dashboard = await fetch(`${origin}/dashboard`);
+  assert.equal(dashboard.status, 200, await dashboard.text());
 
   const database = new Database(databasePath, { readonly: true });
   try {
-    assert.equal(database.prepare('SELECT count(*) AS count FROM "User"').get().count, 1);
+    assert.equal(database.prepare("SELECT count(*) AS count FROM sqlite_master WHERE type = 'table' AND name = 'User'").get().count, 0);
     assert.equal(database.prepare('SELECT count(*) AS count FROM "Tag"').get().count, 27);
     assert.equal(
       database.prepare('SELECT count(*) AS count FROM "Tag" WHERE "isClassificationEnabled" = 1').get().count,
@@ -121,19 +106,15 @@ try {
       0,
       "Semester 1 subjects must not be seeded",
     );
-    assert.ok(
-      database.prepare('SELECT "curriculumInitializedAt" FROM "User" LIMIT 1').get().curriculumInitializedAt,
-      "The curriculum must be marked as initialized",
-    );
     assert.equal(
       database.prepare('SELECT count(*) AS count FROM "_ScholarFlowMigration"').get().count,
-      2,
+      3,
     );
   } finally {
     database.close();
   }
 
-  console.log("PASS desktop standalone: fresh SQLite migration, health check and registration");
+  console.log("PASS desktop standalone: fresh SQLite migration and local-only startup");
 } finally {
   await stopChild();
   await rm(dataRoot, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });

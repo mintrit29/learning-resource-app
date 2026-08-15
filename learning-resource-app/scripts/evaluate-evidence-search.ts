@@ -1,7 +1,6 @@
 import { db } from "../src/lib/db";
 import { hybridSearch, searchByVector } from "../src/lib/search/hybrid-search";
 
-const user = await db.user.findUniqueOrThrow({ where: { email: "demo@scholarflow.local" } });
 const fixtureFiles = [
   "evidence-search-database.pdf",
   "evidence-search-ml.pptx",
@@ -11,7 +10,7 @@ const fixtureFiles = [
   "evidence-search-threat-modeling.docx",
 ] as const;
 const documents = await db.document.findMany({
-  where: { userId: user.id, originalFileName: { in: [...fixtureFiles] } },
+  where: { originalFileName: { in: [...fixtureFiles] } },
   select: { id: true, originalFileName: true },
 });
 const documentIdByFile = new Map(documents.map((document) => [document.originalFileName, document.id]));
@@ -107,11 +106,11 @@ const positiveBestScores: Array<{
 }> = [];
 for (const [query, expectedId] of cases) {
   let startedAt = Date.now();
-  const baseline = await searchByVector(user.id, query, {}, 30);
+  const baseline = await searchByVector(query, {}, 30);
   baselineRows.push(score(baseline.map((result) => result.documentId), expectedId, Date.now() - startedAt));
 
   startedAt = Date.now();
-  const hybrid = await hybridSearch(user.id, query, {});
+  const hybrid = await hybridSearch(query, {});
   const hybridDocumentIds = hybrid.candidates.map((result) => result.documentId);
   positiveBestScores.push({
     query,
@@ -131,7 +130,7 @@ for (const [query, expectedId] of cases) {
 
 const negativeResults = [];
 for (const query of negativeCases) {
-  const hybrid = await hybridSearch(user.id, query, {});
+  const hybrid = await hybridSearch(query, {});
   negativeResults.push({
     query,
     accepted: hybrid.candidates.length > 0,

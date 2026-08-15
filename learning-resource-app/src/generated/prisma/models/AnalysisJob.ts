@@ -521,6 +521,10 @@ export type EnumJobStatusFieldUpdateOperationsInput = {
   set?: $Enums.JobStatus
 }
 
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
+}
+
 export type AnalysisJobCreateWithoutDocumentInput = {
   id?: string
   type: $Enums.JobType

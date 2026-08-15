@@ -13,10 +13,9 @@ type SimilarTag = {
   score: number;
 };
 
-export async function embedCanonicalTags(userId: string, tagIds?: string[]) {
+export async function embedCanonicalTags(tagIds?: string[]) {
   const tags = await db.tag.findMany({
     where: {
-      createdByUserId: userId,
       ...(tagIds?.length ? { id: { in: tagIds } } : {}),
     },
     select: { id: true, name: true, description: true },
@@ -36,13 +35,13 @@ export async function embedCanonicalTags(userId: string, tagIds?: string[]) {
   return tags.length;
 }
 
-export async function findSimilarCanonicalTags(userId: string, name: string, limit = 5) {
+export async function findSimilarCanonicalTags(name: string, limit = 5) {
   const query = name.trim();
   if (!query) return [];
   const safeLimit = Math.max(1, Math.min(20, Math.trunc(limit)));
   const embedded = await embedTexts([query]);
   const tags = await db.tag.findMany({
-    where: { createdByUserId: userId, embedding: { not: null } },
+    where: { embedding: { not: null } },
     select: { id: true, name: true, normalizedName: true, embedding: true },
   });
 

@@ -1,25 +1,22 @@
 import { db } from "@/lib/db";
 import { normalizeTagName } from "@/lib/taxonomy/normalize-tag";
 
-export async function findExactCanonicalTag(userId: string, name: string) {
+export async function findExactCanonicalTag(name: string) {
   const normalizedName = normalizeTagName(name);
   if (!normalizedName) return null;
 
-  return db.tag.findUnique({
-    where: {
-      createdByUserId_normalizedName: { createdByUserId: userId, normalizedName },
-    },
+  return db.tag.findFirst({
+    where: { normalizedName },
   });
 }
 
-export async function findCanonicalTagByAlias(userId: string, alias: string) {
+export async function findCanonicalTagByAlias(alias: string) {
   const normalizedAlias = normalizeTagName(alias);
   if (!normalizedAlias) return null;
 
   const match = await db.tagAlias.findFirst({
     where: {
       normalizedAlias,
-      tag: { createdByUserId: userId },
     },
     include: { tag: true },
     orderBy: { createdAt: "asc" },
@@ -27,6 +24,6 @@ export async function findCanonicalTagByAlias(userId: string, alias: string) {
   return match?.tag ?? null;
 }
 
-export async function findExactTagOrAlias(userId: string, name: string) {
-  return (await findExactCanonicalTag(userId, name)) ?? findCanonicalTagByAlias(userId, name);
+export async function findExactTagOrAlias(name: string) {
+  return (await findExactCanonicalTag(name)) ?? findCanonicalTagByAlias(name);
 }

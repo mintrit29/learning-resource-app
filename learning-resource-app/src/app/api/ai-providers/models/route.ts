@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { listProviderModels } from "@/lib/ai/chat-provider";
 import { encryptApiKey, normalizeBaseUrl, providerTypes } from "@/lib/ai/provider-config";
@@ -13,14 +12,12 @@ type DiscoveryBody = {
 };
 
 export async function POST(request: Request) {
-  const session = await auth();
-  if (!session?.user?.id) return NextResponse.json({ message: "Bạn cần đăng nhập" }, { status: 401 });
   const body = await request.json().catch(() => null) as DiscoveryBody | null;
 
   try {
     let config;
     if (body?.providerId) {
-      const saved = await db.aiProvider.findFirst({ where: { id: body.providerId, userId: session.user.id } });
+      const saved = await db.aiProvider.findUnique({ where: { id: body.providerId } });
       if (!saved) return NextResponse.json({ message: "Không tìm thấy provider" }, { status: 404 });
       const requestedType = body.type ?? saved.type;
       if (!providerTypes.includes(requestedType as (typeof providerTypes)[number])) {

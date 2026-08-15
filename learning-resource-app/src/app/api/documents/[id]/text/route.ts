@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/auth";
 import { db } from "@/lib/db";
 
 function textFileName(originalFileName: string) {
@@ -11,14 +10,9 @@ export async function GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return NextResponse.json({ message: "Bạn cần đăng nhập" }, { status: 401 });
-  }
-
   const { id } = await params;
   const document = await db.document.findFirst({
-    where: { id, userId: session.user.id },
+    where: { id },
     select: { originalFileName: true, textContent: true },
   });
   if (!document) {

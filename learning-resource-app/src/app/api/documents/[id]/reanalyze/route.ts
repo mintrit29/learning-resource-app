@@ -1,5 +1,4 @@
 import { after, NextResponse } from "next/server";
-import { auth } from "@/auth";
 import { JobStatus, JobType } from "@/generated/prisma/enums";
 import { analyzeDocument } from "@/lib/ai/analyze-document";
 import { db } from "@/lib/db";
@@ -8,14 +7,9 @@ import { resetDocumentJob } from "@/lib/documents/processing-jobs";
 export const runtime = "nodejs";
 
 export async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return NextResponse.json({ message: "Bạn cần đăng nhập" }, { status: 401 });
-  }
-
   const { id } = await params;
   const document = await db.document.findFirst({
-    where: { id, userId: session.user.id },
+    where: { id },
     select: { id: true, textContent: true },
   });
   if (!document) {

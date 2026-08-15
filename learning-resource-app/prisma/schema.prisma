@@ -49,59 +49,8 @@ enum DocumentTagSource {
   MERGED
 }
 
-model User {
-  id                      String       @id @default(cuid())
-  name                    String?
-  email                   String       @unique
-  emailVerified           DateTime?
-  image                   String?
-  passwordHash            String?
-  accounts                Account[]
-  sessions                Session[]
-  documents               Document[]
-  aiProviders             AiProvider[]
-  searchLogs              SearchLog[]
-  createdTags             Tag[]        @relation("TagCreator")
-  curriculumInitializedAt DateTime?
-  createdAt               DateTime     @default(now())
-  updatedAt               DateTime     @updatedAt
-}
-
-model Account {
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refreshToken      String?
-  accessToken       String?
-  expiresAt         Int?
-  tokenType         String?
-  scope             String?
-  idToken           String?
-  sessionState      String?
-  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@id([provider, providerAccountId])
-}
-
-model Session {
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model VerificationToken {
-  identifier String
-  token      String
-  expires    DateTime
-
-  @@id([identifier, token])
-}
-
 model Document {
   id               String          @id @default(cuid())
-  userId           String
   title            String
   originalFileName String
   fileType         FileType
@@ -114,15 +63,14 @@ model Document {
   summary          String?
   analysisReason   String?
   status           DocumentStatus  @default(UPLOADED)
-  user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   chunks           DocumentChunk[]
   jobs             AnalysisJob[]
   tags             DocumentTag[]
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
 
-  @@index([userId, createdAt])
-  @@index([userId, status])
+  @@index([createdAt])
+  @@index([status])
   @@index([primaryTopic])
 }
 
@@ -133,15 +81,13 @@ model Tag {
   description             String?
   embedding               Bytes?
   isClassificationEnabled Boolean       @default(false)
-  createdByUserId         String
-  createdByUser           User          @relation("TagCreator", fields: [createdByUserId], references: [id], onDelete: Cascade)
   aliases                 TagAlias[]
   documents               DocumentTag[]
   createdAt               DateTime      @default(now())
   updatedAt               DateTime      @updatedAt
 
-  @@unique([createdByUserId, normalizedName])
-  @@index([createdByUserId, name])
+  @@index([normalizedName])
+  @@index([name])
 }
 
 model TagAlias {
@@ -204,7 +150,6 @@ model DocumentChunk {
 
 model AiProvider {
   id                    String   @id @default(cuid())
-  userId                String
   type                  String
   displayName           String
   baseUrl               String?
@@ -213,21 +158,17 @@ model AiProvider {
   defaultEmbeddingModel String?
   isActive              Boolean  @default(false)
   authStatus            String   @default("DISCONNECTED")
-  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
 
-  @@index([userId])
 }
 
 model SearchLog {
   id                String   @id @default(cuid())
-  userId            String
   query             String
   filters           Json?
   resultDocumentIds Json     @default("[]")
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt         DateTime @default(now())
 
-  @@index([userId, createdAt])
+  @@index([createdAt])
 }

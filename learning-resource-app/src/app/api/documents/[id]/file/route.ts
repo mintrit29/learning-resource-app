@@ -1,6 +1,5 @@
 import { readFile } from "node:fs/promises";
 import { NextResponse } from "next/server";
-import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { resolveStoredUploadPath } from "@/lib/storage/local-storage";
 
@@ -15,21 +14,16 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return NextResponse.json({ message: "Bạn cần đăng nhập" }, { status: 401 });
-  }
-
   const { id } = await params;
   const document = await db.document.findFirst({
-    where: { id, userId: session.user.id },
+    where: { id },
     select: { filePath: true, fileType: true, originalFileName: true },
   });
   if (!document) {
     return NextResponse.json({ message: "Không tìm thấy tài liệu" }, { status: 404 });
   }
 
-  const absolutePath = resolveStoredUploadPath(document.filePath, session.user.id);
+  const absolutePath = resolveStoredUploadPath(document.filePath);
   if (!absolutePath) {
     return NextResponse.json({ message: "Đường dẫn file không hợp lệ" }, { status: 400 });
   }

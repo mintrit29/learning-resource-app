@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { auth } from "@/auth";
 import { completeChat } from "@/lib/ai/chat-provider";
 import { safeAiErrorMessage } from "@/lib/ai/provider-errors";
 import { db } from "@/lib/db";
@@ -42,11 +41,6 @@ function parseJson(value: string) {
 }
 
 export async function POST(request: Request) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return NextResponse.json({ message: "Bạn cần đăng nhập" }, { status: 401 });
-  }
-
   const body: unknown = await request.json().catch(() => null);
   const parsed = curateRequestSchema.safeParse(body);
   if (!parsed.success) {
@@ -54,7 +48,7 @@ export async function POST(request: Request) {
   }
 
   const provider = await db.aiProvider.findFirst({
-    where: { userId: session.user.id, isActive: true },
+    where: { isActive: true },
     orderBy: { updatedAt: "desc" },
   });
   if (!provider) {

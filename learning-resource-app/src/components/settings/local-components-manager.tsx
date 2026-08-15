@@ -126,7 +126,7 @@ export function LocalComponentsManager({ onboarding = false }: { onboarding?: bo
       {onboarding ? (
         <div className="setup-actions">
           <button className="primary-button" disabled={allReady || Boolean(busy)} onClick={installMissing} type="button"><Download size={18} />{allReady ? "Đã thiết lập xong" : "Tải và thiết lập"}</button>
-          <Link className="secondary-button" href={allReady ? "/" : "/login"}>{allReady ? "Tiếp tục" : "Để sau"}</Link>
+          <Link className="secondary-button" href="/dashboard">{allReady ? "Tiếp tục" : "Để sau"}</Link>
         </div>
       ) : null}
     </section>

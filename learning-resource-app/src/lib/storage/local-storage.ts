@@ -52,19 +52,6 @@ export function getUploadsRoot() {
   return path.join(resolveScholarFlowDataRoot(), UPLOADS_DIRECTORY);
 }
 
-export function getUserUploadsDirectory(userId: string) {
-  if (!isSafePathSegment(userId)) {
-    throw new Error("Invalid user id for local storage");
-  }
-
-  const uploadsRoot = getUploadsRoot();
-  const userDirectory = path.resolve(uploadsRoot, userId);
-  if (!isPathInside(uploadsRoot, userDirectory) || userDirectory === uploadsRoot) {
-    throw new Error("Invalid user upload directory");
-  }
-  return userDirectory;
-}
-
 export type UploadStorageLocation = {
   absolutePath: string;
   directory: string;
@@ -72,14 +59,13 @@ export type UploadStorageLocation = {
 };
 
 export function createUploadStorageLocation(
-  userId: string,
   storedFileName: string,
 ): UploadStorageLocation {
   if (!isSafePathSegment(storedFileName)) {
     throw new Error("Invalid upload file name");
   }
 
-  const directory = getUserUploadsDirectory(userId);
+  const directory = getUploadsRoot();
   const absolutePath = path.resolve(directory, storedFileName);
   if (!isPathInside(directory, absolutePath) || absolutePath === directory) {
     throw new Error("Invalid upload file path");
@@ -88,7 +74,7 @@ export function createUploadStorageLocation(
   return {
     absolutePath,
     directory,
-    storedPath: [UPLOADS_DIRECTORY, userId, storedFileName].join("/"),
+    storedPath: [UPLOADS_DIRECTORY, storedFileName].join("/"),
   };
 }
 
@@ -112,20 +98,18 @@ function normalizeStoredUploadSegments(storedPath: string) {
   // mapped onto the configured data root.
   if (segments[0] === LEGACY_STORAGE_DIRECTORY) segments.shift();
 
-  if (segments[0] !== UPLOADS_DIRECTORY || segments.length < 3) return null;
+  if (segments[0] !== UPLOADS_DIRECTORY || segments.length < 2) return null;
   return segments;
 }
 
-/** Resolve a database filePath only when it belongs to the expected user's upload tree. */
-export function resolveStoredUploadPath(storedPath: string, expectedUserId: string) {
-  if (!isSafePathSegment(expectedUserId)) return null;
-
+/** Resolve current and legacy database paths only inside ScholarFlow's upload tree. */
+export function resolveStoredUploadPath(storedPath: string) {
   const segments = normalizeStoredUploadSegments(storedPath);
-  if (!segments || segments[1] !== expectedUserId) return null;
+  if (!segments) return null;
 
-  const userDirectory = getUserUploadsDirectory(expectedUserId);
+  const uploadsRoot = getUploadsRoot();
   const absolutePath = path.resolve(resolveScholarFlowDataRoot(), ...segments);
-  if (!isPathInside(userDirectory, absolutePath) || absolutePath === userDirectory) {
+  if (!isPathInside(uploadsRoot, absolutePath) || absolutePath === uploadsRoot) {
     return null;
   }
 

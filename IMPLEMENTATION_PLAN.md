@@ -1,169 +1,223 @@
 # Implementation Plan — ScholarFlow Desktop
 
-**Cập nhật:** 10/08/2026
-**Quyết định kiến trúc:** chỉ phát triển và phát hành ứng dụng desktop Windows.
+**Cập nhật:** 15/08/2026
+**Nhánh thực hiện:** `desktop-app`
+**Phạm vi:** ứng dụng desktop Windows chạy local, không có tài khoản, cloud backend, Docker hoặc bản web độc lập.
+**Lưu ý tài liệu:** PRD chưa cập nhật ở giai đoạn này; chỉ cập nhật khi sản phẩm hoàn thiện theo yêu cầu của nhóm.
 
 ## 1. Kiến trúc đích
 
 ```text
 ScholarFlow.exe
   ├─ Electron main process
-  │   ├─ quản lý cửa sổ và chính sách bảo mật
-  │   ├─ chọn cổng loopback ngẫu nhiên
-  │   ├─ khởi động/dừng Next.js standalone
+  │   ├─ quản lý cửa sổ, IPC và chính sách bảo mật
+  │   ├─ khởi động/dừng Next.js standalone trên loopback
+  │   ├─ quản lý BGE-M3 và Docling trong vùng dữ liệu ứng dụng
   │   └─ khởi động/dừng embedding runtime
   ├─ Next.js application server — chỉ 127.0.0.1
   ├─ SQLite database
-  ├─ sqlite-vec index — 1024 dimensions
+  ├─ sqlite-vec index — vector 1.024 chiều
   ├─ BGE-M3 — Transformers.js + ONNX Runtime
-  └─ thư mục dữ liệu trong %APPDATA%\ScholarFlow
+  ├─ Docling.rs — PDFium + layout + OCR + TableFormer
+  └─ dữ liệu ứng dụng trong %APPDATA%\ScholarFlow
 ```
 
-Đây là kiến trúc desktop đóng gói. Next.js được dùng làm lớp giao diện/API nội bộ, không được triển khai thành một sản phẩm web riêng.
+Next.js chỉ là lớp giao diện/API nội bộ của ứng dụng desktop. Tài liệu, database, vector, cấu hình AI, model và log đều nằm trên máy người dùng.
 
-## 2. Nguyên tắc kỹ thuật
+## 2. Nguyên tắc đã chốt
 
-- Một source of truth nằm trong thư mục `learning-resource-app`.
-- Không duy trì Dockerfile, Docker Compose hoặc container service.
-- Không dùng PostgreSQL, pgvector hoặc Python embedding service.
-- Dữ liệu tài liệu, vector, cấu hình AI và log nằm trên máy người dùng.
-- BGE-M3 local chịu trách nhiệm embedding; Ollama chỉ là một tùy chọn phân tích AI.
-- Mỗi thay đổi lớn phải có test và một commit riêng dễ review/revert.
-- File cài đặt phát hành qua GitHub Releases, không commit vào source.
+- Source of truth nằm trong `learning-resource-app`.
+- Không dùng đăng ký, đăng nhập, session, mật khẩu, bảng `User` hoặc Supabase.
+- Không duy trì Docker, PostgreSQL, pgvector hoặc Python embedding service.
+- File gốc người dùng chọn bên ngoài ứng dụng không bị sửa hoặc xóa.
+- Bản sao tài liệu được nhập vào thư viện là dữ liệu của ứng dụng và có thể được xóa trong app.
+- Giữ lại môn học mặc định, cài đặt, cấu hình AI và model local khi chuyển sang chế độ local-only.
+- BGE-M3 và Docling không nằm trong installer; người dùng quản lý chúng trong app.
+- Ollama/Qwen là tùy chọn cho phân tích và tóm tắt, không phải điều kiện để tìm kiếm thư viện.
+- Mỗi thay đổi lớn phải có test và commit riêng; không push nếu chưa được yêu cầu.
 
-## 3. Giai đoạn 1 — Hợp nhất desktop MVP
+## 3. Những phần đã hoàn thành
 
-**Trạng thái:** đã triển khai, đang kiểm thử cuối.
+### 3.1 Desktop shell và dữ liệu local
 
-### Electron shell
+- Electron single-instance, sandbox, context isolation và điều hướng an toàn.
+- Next.js/embedding runtime chạy trên cổng loopback ngẫu nhiên và được Electron quản lý vòng đời.
+- SQLite + Prisma lưu metadata; sqlite-vec lưu vector BGE-M3 1.024 chiều.
+- Database, uploads, model và log được đặt dưới `%APPDATA%\ScholarFlow`.
+- Có migration tự động, idempotent và kiểm tra path containment.
+- Đã sửa lỗi `EPIPE` khi Electron dev mất console pipe; lỗi ghi stdout không còn làm main process crash.
 
-- Dùng single-instance lock.
-- Bật sandbox, context isolation và chặn điều hướng ngoài.
-- Chờ health check trước khi mở cửa sổ.
-- Dừng toàn bộ process tree khi thoát ứng dụng.
-- Ghi log chẩn đoán vào `%APPDATA%\ScholarFlow\logs`.
+### 3.2 Quản lý BGE-M3 và Docling
 
-### Local data layer
+- Có manifest cố định cho `bge-m3` và `docling`; renderer không truyền URL/path tùy ý.
+- Có trạng thái `missing`, `downloading`, `verifying`, `ready`, `corrupt`, `error`.
+- Hỗ trợ tải `.partial`, HTTP Range, tiếp tục tải, hủy, kiểm tra dung lượng và SHA-256.
+- Có màn hình thiết lập lần đầu và `Cài đặt → Thành phần cục bộ`.
+- Nhận diện cache BGE-M3 cũ và nhập Docling runtime cũ vào vùng quản lý.
+- Installer không chứa model lớn hoặc `.docling-runtime`.
+- Chế độ giới hạn hoạt động rõ ràng khi thiếu Docling hoặc BGE-M3.
 
-- Prisma dùng SQLite.
-- Migration được áp dụng tự động và idempotent.
-- sqlite-vec lưu index vector tách khỏi metadata Prisma.
-- Uploads, database và vector thuộc cùng thư mục dữ liệu người dùng.
-- Không chuyển dữ liệu từ database Docker cũ theo quyết định của nhóm.
+### 3.3 Trích xuất tài liệu bằng Docling
 
-### Local embedding
+- PDF, DOCX, PPTX và EPUB đều đi qua Docling.rs.
+- PDF scan và ảnh trong tài liệu được OCR bằng pipeline Docling hiện tại.
+- Giữ cấu trúc, trang/slide/mục và `sourceLabel` để dẫn về nguồn.
+- Chunk Docling được dùng cho embedding và tìm kiếm.
+- Có thao tác trích xuất lại, retry và queue xử lý tuần tự.
+- Bốn định dạng có unit test extractor và preview.
 
-- Runtime Node riêng sử dụng `@huggingface/transformers`.
-- Model cố định `BAAI/bge-m3`, vector 1.024 chiều.
-- Electron cấp URL embedding động cho Next.js nội bộ.
-- Model cache được dùng lại giữa các lần mở.
-- Embedding chạy CPU mặc định để tương thích nhiều máy Windows.
+### 3.4 Tìm kiếm hiện tại
 
-### AI providers
+- Nhận truy vấn chữ tiếng Việt/Anh.
+- Hybrid retrieval kết hợp vector BGE-M3, từ khóa và metadata.
+- Có relevance gate để trả “không có tài liệu phù hợp” khi điểm thấp.
+- Kết quả dẫn tới chunk và vị trí nguồn trong tài liệu.
+- Tìm kiếm không phụ thuộc Ollama.
 
-- Chuẩn hóa cấu hình OpenRouter, Ollama và Custom API.
-- API key được mã hóa trước khi lưu.
-- Có test kết nối/model và xử lý lỗi an toàn.
-- Không trả raw provider body, HTML hoặc stack trace lên giao diện.
+### 3.5 Tối ưu chuyển trang
 
-### Search
+- Danh mục 27 môn mặc định chỉ được đồng bộ một lần trong mỗi phiên app thay vì ghi lại SQLite ở mỗi lần chuyển trang.
+- Thời gian đo trong dev giảm từ khoảng 520–620 ms xuống 210–225 ms cho Dashboard và từ 470–510 ms xuống 180–186 ms cho Tài liệu.
+- Production build đã đạt sau thay đổi.
 
-- Semantic retrieval từ sqlite-vec.
-- Keyword retrieval không phân biệt dấu cho truy vấn tiếng Việt.
-- Rerank theo vector, từ khóa, metadata và tiêu chí suy ra từ câu hỏi.
-- Relevance gate loại kết quả yếu.
-- Kết quả giữ `pageNumber`/`sourceLabel` để quay lại nguồn.
+## 4. Công việc đang thực hiện: chuyển hoàn toàn sang local-only
 
-## 4. Giai đoạn 2 — Dọn repo và phát hành thống nhất
+**Trạng thái:** code đã triển khai trong working tree, đã qua lint, TypeScript, unit test và production build; chưa commit/push.
 
-**Trạng thái:** đang thực hiện trên nhánh `desktop-app`.
+- Xóa giao diện/API đăng ký và đăng nhập.
+- Xóa NextAuth, adapter auth, bcrypt và các type/validation liên quan.
+- Xóa các bảng `User`, `Account`, `Session`, `VerificationToken` và toàn bộ `userId` khỏi schema mới.
+- Chuyển document, tag, AI provider và search log sang phạm vi một thư viện local duy nhất.
+- Migration xóa tài liệu đã nhập và dữ liệu tài khoản cũ nhưng giữ môn học/tag, alias, AI provider và cài đặt khác.
+- Lần mở đầu sau nâng cấp chỉ dọn đúng `%APPDATA%\ScholarFlow\data\uploads`; file gốc bên ngoài app không bị đụng tới.
+- Khóa mã hóa API provider được tách khỏi auth secret và có thể nhận khóa cũ để không làm mất cấu hình provider.
+- Test migration xác nhận tài liệu/tài khoản bị xóa nhưng tag và cấu hình Ollama vẫn còn.
+- Còn phải chạy lại desktop standalone/package/smoke trên bản local-only cuối cùng trước khi commit.
 
-1. Lưu bản cũ tại `archive/web-docker-before-desktop-2026-08-08`.
-2. Đồng bộ với `origin/main` mới nhất.
-3. Xóa Docker, Python service và PostgreSQL scripts.
-4. Chuyển các smoke/report script còn hữu ích sang SQLite.
-5. Xóa feature “đề xuất gộp chủ đề” khỏi UI, API và schema mới.
-6. Cố định danh mục 27 môn CNTT NTTU; AI chỉ phân loại vào môn hiện có hoặc để “Chưa phân loại”.
-7. Cập nhật CI cho môi trường Windows desktop.
-8. Chạy unit test, lint, production build và packaged smoke test.
-9. Chia commit theo nhóm chức năng.
-10. Đẩy nhánh và tạo Pull Request.
-11. Tạo GitHub Release kèm bộ cài Windows.
+## 5. Tính năng tiếp theo đang thiết kế: tìm bằng vùng chọn trên ảnh hoặc file
 
-## 5. Giai đoạn 3 — Dashboard quản trị desktop
+**Trạng thái:** đã thống nhất hướng sản phẩm, chưa bắt đầu viết code.
 
-**Mức ưu tiên:** cao theo yêu cầu nhóm trưởng.
-**Trạng thái:** chưa triển khai.
+### 5.1 Mục tiêu
 
-Phạm vi đề xuất:
+Cho người dùng mở một ảnh hoặc file, chủ động khoanh vùng nội dung cần tìm và nhận kết quả tương tự trong thư viện. Đây là tìm kiếm học liệu, không phải hỏi đáp hoặc giải bài.
 
-- Thêm role `USER` và `ADMIN` trong SQLite.
-- Tài khoản đầu tiên hoặc tài khoản seed được gán admin theo quy tắc rõ ràng.
-- Middleware/API kiểm tra role ở server nội bộ, không chỉ ẩn nút trên UI.
-- Dashboard hiển thị tổng số tài khoản và trạng thái.
-- Tìm kiếm, xem, thêm, sửa, khóa/mở và xóa tài khoản cục bộ.
-- Không cho admin xóa chính mình hoặc xóa admin cuối cùng.
-- Ghi audit log cho thao tác quản trị.
-- Test quyền truy cập cho user thường và admin.
+### 5.2 Trải nghiệm đã thống nhất
 
-Giới hạn: dashboard này chỉ quản lý tài khoản trong cùng bản cài/database. Quản lý xuyên nhiều thiết bị cần backend trung tâm và là một quyết định kiến trúc khác.
+- Một nút chung `Mở ảnh hoặc file để tìm`; không chia chế độ ảnh/bài tập/đề thi.
+- Hỗ trợ ảnh, PDF, DOCX, PPTX và EPUB.
+- Giao diện hai cột: viewer bên trái, nội dung OCR và kết quả bên phải.
+- Người dùng kéo/đổi kích thước khung trực tiếp trên viewer; không có bước crop/lưu ảnh riêng.
+- Sau khi vùng chọn ổn định khoảng 250–400 ms, app tự OCR rồi tự tìm; yêu cầu cũ bị hủy/bỏ qua khi vùng chọn thay đổi.
+- OCR là nguồn chính để không bỏ sót chữ nằm trong ảnh; text layer chỉ dùng bổ trợ độ chính xác.
+- Nội dung OCR được hiển thị và có thể sửa; kết quả tự cập nhật sau khi sửa.
+- Vùng chọn được xem là một query hoàn chỉnh, không tự tách câu hỏi và không phân loại bài tập/đề thi.
+- Không phân chủ đề cho file truy vấn và không dùng chủ đề đoán được làm bộ lọc cứng.
+- BGE-M3 + keyword retrieval dùng lại pipeline tìm kiếm hiện tại.
+- Chỉ trả tài liệu/chunk phù hợp; không sinh đáp án. Nếu không vượt ngưỡng thì báo không có tài liệu phù hợp.
+- File truy vấn và ảnh vùng chọn chỉ tồn tại tạm thời và bị xóa khi đóng công cụ.
+- Chưa thêm vision model; vùng không có đủ chữ sẽ yêu cầu người dùng chọn thêm nhãn/chú thích.
 
-## 6. Giai đoạn 4 — Cải thiện sau MVP
+### 5.3 File nhiều trang
 
-- [Đã triển khai] Chọn nhiều file/thư mục và queue tuần tự toàn bộ pipeline tài liệu.
-- [Đã triển khai] Khởi tạo 27 môn CNTT NTTU, cho người dùng quản lý danh sách và giới hạn AI chỉ được chọn môn hiện có với ngưỡng tin cậy 75%.
-- Hiển thị tiến độ tải model lần đầu.
-- Backup/restore database và uploads trong giao diện.
-- [Đã triển khai] Phân loại PDF bằng pdf-inspector và OCR fallback bằng Docling; giữ Tesseract/Poppler làm fallback môi trường cũ.
-- Đo chất lượng tìm kiếm trên bộ dữ liệu đồ án cố định.
-- Ký số bộ cài và tự động hóa release khi có chứng chỉ phù hợp.
+Hướng ưu tiên hiện tại:
+
+- Chỉ render trang/slide đang xem; tải thumbnail và các trang khác theo nhu cầu.
+- Điều hướng bằng số trang, trước/sau và thanh thumbnail thu gọn.
+- Mỗi lần tìm chọn một vùng trên một trang; chưa hỗ trợ gộp vùng qua nhiều trang ở bản đầu.
+- Khi đổi trang, xóa khung chọn nhưng giữ kết quả cũ cho tới khi có vùng mới.
+- Ảnh một trang tự ẩn điều khiển nhiều trang.
+
+Điểm cần xác nhận trước khi code UI: thanh thumbnail dọc luôn hiển thị hay mặc định thu gọn. Khuyến nghị hiện tại là mặc định thu gọn để giữ diện tích viewer.
+
+### 5.4 Kiến trúc dự kiến
+
+```text
+Viewer + ROI overlay
+  → render vùng chọn ở độ phân giải OCR vào RAM
+  → Docling warm pipeline
+  → chuẩn hóa text/công thức/bảng
+  → API hybrid search hiện tại
+  → relevance gate
+  → kết quả tài liệu + chunk + trang/slide
+```
+
+- Giữ Docling pipeline ấm trong phiên tìm bằng vùng để tránh reload model sau mỗi lần chọn.
+- Queue OCR tuần tự và gắn request id để bỏ kết quả cũ.
+- Chuẩn hóa tọa độ vùng chọn độc lập với zoom/DPI.
+- Không ghi ảnh crop vào thư viện hoặc database.
+
+## 6. Thứ tự thực hiện tiếp theo
+
+### Giai đoạn A — Hoàn tất local-only
+
+1. Chạy lại lint, toàn bộ unit test và production build trên working tree cuối.
+2. Chạy desktop standalone smoke test.
+3. Tạo unpacked/package mới và chạy packaged smoke test.
+4. Kiểm tra installer không chứa model và không còn auth dependency/route.
+5. Commit thay đổi local-only + sửa ổn định/hiệu năng; không push nếu chưa được yêu cầu.
+
+### Giai đoạn B — Tìm bằng vùng chọn
+
+1. Tạo viewer thống nhất và adapter render cho ảnh/PDF/DOCX/PPTX/EPUB.
+2. Thêm điều hướng lazy cho file nhiều trang.
+3. Thêm ROI overlay với kéo, resize, zoom và chuẩn hóa tọa độ.
+4. Tạo OCR endpoint/worker nhận buffer vùng chọn trong RAM.
+5. Dùng Docling warm pipeline và cơ chế hủy kết quả cũ.
+6. Nối text OCR với hybrid search hiện tại.
+7. Hoàn thiện panel kết quả, trạng thái loading/no-result và chỉnh sửa OCR.
+8. Kiểm tra cleanup file tạm, giới hạn dung lượng/trang và path containment.
+9. Thêm unit, integration và desktop interaction tests.
+
+### Giai đoạn C — Hoàn thiện sản phẩm
+
+1. Kiểm thử với tài liệu thực tế và ảnh câu hỏi tiếng Việt.
+2. Đo độ trễ OCR lần đầu/lần sau và chất lượng relevance gate.
+3. Hoàn thiện backup/restore nếu còn trong phạm vi release.
+4. Cập nhật README, PRD và tài liệu bàn giao sau khi chức năng cuối ổn định.
+5. Package, smoke test, tạo commit/release theo yêu cầu nhóm.
 
 ## 7. Chiến lược kiểm thử
 
-### Mỗi commit
+### Mỗi thay đổi
 
-- ESLint.
+- ESLint và TypeScript.
 - Unit test liên quan.
-- Kiểm tra không còn secret hoặc file build bị stage.
+- `git diff --check` và kiểm tra không stage secret/build/model.
 
-### Trước Pull Request
+### Tìm bằng vùng chọn
+
+- Tọa độ crop đúng ở nhiều mức zoom và DPI.
+- Debounce/cancel không cho kết quả cũ ghi đè vùng mới.
+- OCR ảnh, PDF scan, PDF text, DOCX, PPTX và EPUB.
+- Vùng chứa tiếng Việt, công thức, bảng và vùng gần như không có chữ.
+- File nhiều trang chỉ render/xử lý trang cần thiết.
+- Query/file tạm bị xóa; file gốc không bị thay đổi.
+- Kết quả dưới ngưỡng trả no-result, không tạo câu trả lời.
+
+### Trước commit/release
 
 - Toàn bộ `test:unit`.
 - Production build.
-- Desktop standalone runtime test.
-- Kiểm tra các đường dẫn API và schema SQLite.
+- Desktop standalone smoke.
+- Packaged desktop smoke.
+- Kiểm tra mở/đóng app, chuyển trang và tương tác nhiều lần không tái diễn `EPIPE`.
 
-### Trước Release
-
-- Tạo bản unpacked và chạy packaged smoke test.
-- Cài bằng NSIS trên Windows.
-- Mở app khi các dịch vụ Docker cũ đã dừng/gỡ bỏ.
-- Thêm tài liệu, xử lý, tìm kiếm, mở nguồn và khởi động lại app.
-- Kiểm tra OpenRouter/Ollama/Custom API với cả trường hợp thành công và lỗi.
-- Xác nhận file `.exe`, database, uploads và model cache không nằm trong commit.
-
-## 8. Chiến lược Git
+## 8. Trạng thái Git
 
 - `main`: phiên bản đã được nhóm duyệt.
-- `archive/web-docker-before-desktop-2026-08-08`: ảnh chụp bản web/Docker cũ.
-- `desktop-app`: nhánh hợp nhất desktop để review.
+- `archive/web-docker-before-desktop-2026-08-08`: lịch sử bản web/Docker cũ.
+- `desktop-app`: nhánh phát triển desktop, hiện đang trước `origin/desktop-app` ba commit.
+- Ba commit local gần nhất: chuyển toàn bộ extraction sang Docling, thêm trích xuất lại, quản lý BGE-M3/Docling.
+- Thay đổi local-only, sửa `EPIPE`, tối ưu chuyển trang và hai tài liệu kế hoạch hiện chưa commit/push.
 
-Nhóm commit đề xuất:
+## 9. Điều kiện hoàn thành sản phẩm
 
-1. `feat(desktop): add standalone Electron and local embedding runtime`
-2. `refactor(storage): migrate application data and vectors to SQLite`
-3. `fix(app): improve AI connections, processing feedback and tag management`
-4. `chore: remove Docker, PostgreSQL and obsolete web artifacts`
-5. `docs: align project documents with desktop-only scope`
-
-Pull Request phải mô tả thay đổi kiến trúc, cách kiểm thử, giới hạn CPU/model download và vị trí GitHub Release.
-
-## 9. Điều kiện hoàn thành
-
-Phiên bản desktop được coi là sẵn sàng để gộp khi:
-
-- Không còn code hoặc workflow yêu cầu Docker/PostgreSQL/Python.
-- Tất cả tài liệu mô tả cùng một phạm vi desktop-only.
-- Unit test, lint, build và packaged smoke test đạt.
-- Có nhánh lưu trữ bản cũ và Pull Request để nhóm review.
-- Bộ cài chạy độc lập và được phát hành ngoài source tree.
+- App không còn auth/user/Supabase/Docker/PostgreSQL/Python runtime cũ.
+- Docling và BGE-M3 được cài, kiểm tra, tải lại và xóa an toàn trong app.
+- PDF, DOCX, PPTX, EPUB và OCR ảnh hoạt động trên dữ liệu thực tế.
+- Tìm kiếm chữ và tìm bằng vùng chọn đều trả nguồn/chunk phù hợp hoặc no-result trung thực.
+- File gốc bên ngoài app không bị sửa/xóa; dữ liệu tạm được cleanup.
+- Unit, build, standalone smoke và packaged smoke đều đạt.
+- Installer không chứa model lớn.
+- README, PRD, Plan và Checklist phản ánh đúng sản phẩm cuối trước release.

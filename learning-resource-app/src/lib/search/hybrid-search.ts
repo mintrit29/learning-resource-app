@@ -46,12 +46,11 @@ function endOfDay(value?: string) {
   return date;
 }
 
-function documentFilter(userId: string, filters: SearchFilters) {
+function documentFilter(filters: SearchFilters) {
   const dateFrom = startOfDay(filters.dateFrom);
   const dateTo = endOfDay(filters.dateTo);
 
   return {
-    userId,
     primaryTopic: filters.topic || undefined,
     difficulty: filters.difficulty,
     fileType: filters.fileType,
@@ -75,7 +74,6 @@ function toSearchCandidate(chunk: SearchChunk): SearchCandidate {
 }
 
 export async function searchByVector(
-  userId: string,
   query: string,
   filters: SearchFilters,
   limit: number,
@@ -85,7 +83,7 @@ export async function searchByVector(
     db.documentChunk.findMany({
       where: {
         embedding: { not: null },
-        document: documentFilter(userId, filters),
+        document: documentFilter(filters),
       },
       select: {
         id: true,
@@ -120,7 +118,6 @@ export async function searchByVector(
 }
 
 export async function searchByKeyword(
-  userId: string,
   query: string,
   filters: SearchFilters,
   limit: number,
@@ -131,7 +128,7 @@ export async function searchByKeyword(
   const normalizedPhrase = normalizeSearchText(query);
   const normalizedTerms = terms.map((term) => normalizeSearchText(term));
   const chunks = await db.documentChunk.findMany({
-    where: { document: documentFilter(userId, filters) },
+    where: { document: documentFilter(filters) },
     select: {
       id: true,
       content: true,
@@ -182,11 +179,11 @@ export async function searchByKeyword(
     });
 }
 
-export async function hybridSearch(userId: string, query: string, filters: SearchFilters) {
+export async function hybridSearch(query: string, filters: SearchFilters) {
   const candidateLimit = 30;
   const [vectorAttempt, keywordAttempt] = await Promise.allSettled([
-    searchByVector(userId, query, filters, candidateLimit),
-    searchByKeyword(userId, query, filters, candidateLimit),
+    searchByVector(query, filters, candidateLimit),
+    searchByKeyword(query, filters, candidateLimit),
   ]);
   const vectorCandidates = vectorAttempt.status === "fulfilled" ? vectorAttempt.value : [];
   const keywordCandidates = keywordAttempt.status === "fulfilled" ? keywordAttempt.value : [];
