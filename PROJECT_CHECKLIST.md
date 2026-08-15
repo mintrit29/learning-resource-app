@@ -110,7 +110,7 @@
 
 ## H. Tìm bằng vùng chọn trên ảnh hoặc file
 
-**Trạng thái: đang thiết kế, chưa bắt đầu code.**
+**Trạng thái: đang triển khai. Luồng MVP đã hoạt động; các mục chưa đánh dấu bên dưới vẫn cần hoàn thiện và kiểm thử.**
 
 ### Quyết định sản phẩm đã thống nhất
 
@@ -130,21 +130,21 @@
 
 ### Việc cần triển khai
 
-- [ ] Thêm nút `Mở ảnh hoặc file để tìm` trên trang Tìm kiếm.
-- [ ] Xây viewer hai cột thống nhất cho năm loại đầu vào.
+- [x] Thêm nút `Mở ảnh hoặc file để tìm` trên trang Tìm kiếm.
+- [x] Xây viewer hai cột thống nhất cho năm loại đầu vào.
 - [ ] Render lazy trang/slide/phần đang xem.
 - [ ] Thêm điều hướng trước/sau, số trang và thumbnail thu gọn.
-- [ ] Thêm ROI overlay hỗ trợ kéo, resize, zoom và DPI.
-- [ ] Render vùng chọn vào buffer ảnh trong RAM.
-- [ ] Tạo Docling warm pipeline/worker cho OCR lặp lại nhanh.
-- [ ] Thêm debounce, request id và bỏ kết quả OCR/search đã lỗi thời.
-- [ ] Chuẩn hóa OCR text, công thức và bảng thành một query.
-- [ ] Hiển thị text OCR có thể sửa; tự tìm lại sau khi sửa.
-- [ ] Nối query OCR vào API hybrid search hiện tại.
-- [ ] Hiển thị loading, kết quả, no-result và lỗi OCR bên phải.
-- [ ] Báo rõ khi vùng chọn không có đủ chữ để tìm.
-- [ ] Cleanup file/buffer tạm khi đổi file hoặc đóng công cụ.
-- [ ] Giới hạn dung lượng file, kích thước ảnh, số trang và thời gian xử lý.
+- [ ] Thêm ROI overlay hỗ trợ kéo, resize, zoom và DPI. Đã có kéo chọn và resize bằng bốn góc; còn zoom và kiểm tra nhiều mức DPI.
+- [x] Render vùng chọn vào buffer ảnh trong RAM qua Electron `capturePage`; không tạo file crop.
+- [x] Tạo Docling warm pipeline/worker cho OCR lặp lại nhanh.
+- [x] Thêm debounce, request id và bỏ kết quả OCR/search đã lỗi thời.
+- [x] Chuẩn hóa OCR text thành một query; giữ Markdown cho công thức/bảng Docling nhận ra.
+- [x] Hiển thị text OCR có thể sửa; tự tìm lại sau khi sửa.
+- [x] Nối query OCR vào API hybrid search hiện tại.
+- [x] Hiển thị loading, kết quả, no-result và lỗi OCR bên phải.
+- [x] Báo rõ khi vùng chọn không có đủ chữ để tìm.
+- [x] Cleanup object URL/buffer tạm khi đổi file hoặc đóng công cụ; không ghi vào thư viện.
+- [ ] Giới hạn dung lượng file, kích thước ảnh, số trang và thời gian xử lý. Đã giới hạn file 40 MB, vùng 8 MP và payload OCR 12 MB; còn số trang/thời gian.
 
 ### Kiểm thử cần bổ sung
 
@@ -159,6 +159,8 @@
 - [ ] Kết quả dưới ngưỡng trả no-result.
 - [ ] Đo độ trễ OCR lần đầu và các lần sau khi pipeline đã warm.
 
+Kiểm tra nhanh ngày 15/08/2026: unit validation vùng/payload đạt; typecheck và lint file mới đạt; DOCX thực tế preview 200 (~3 giây); Docling OCR ảnh chữ sinh tự động trả đúng text (~0,82 giây khi warm); OCR → search trả trạng thái thư viện trống đúng dự kiến. Chưa thay thế cho full test/build/package/smoke.
+
 ### Điểm còn cần chốt
 
 - [ ] Thumbnail dọc mặc định hiển thị hay thu gọn; đề xuất hiện tại là mặc định thu gọn.
@@ -172,7 +174,7 @@
 - [x] Đo thời gian dev trước/sau tối ưu.
 - [x] Production build đạt sau tối ưu.
 - [ ] Đo lại hiệu năng trên bản packaged local-only.
-- [ ] Tối ưu Docling warm pipeline cho tìm bằng vùng chọn.
+- [x] Tối ưu Docling warm pipeline cho tìm bằng vùng chọn.
 
 ## J. Kiểm thử, Git và phát hành
 

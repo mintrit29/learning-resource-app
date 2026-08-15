@@ -96,7 +96,7 @@ Next.js chỉ là lớp giao diện/API nội bộ của ứng dụng desktop. T
 
 ## 5. Tính năng tiếp theo đang thiết kế: tìm bằng vùng chọn trên ảnh hoặc file
 
-**Trạng thái:** đã thống nhất hướng sản phẩm, chưa bắt đầu viết code.
+**Trạng thái:** đang triển khai. Luồng MVP ảnh/file → chọn/resize vùng → Docling OCR → hybrid search đã chạy; điều hướng lazy/thumbnail, zoom/DPI và kiểm thử tương tác desktop đầy đủ còn tiếp tục.
 
 ### 5.1 Mục tiêu
 

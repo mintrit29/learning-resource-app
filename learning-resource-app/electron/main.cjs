@@ -8,6 +8,7 @@ const net = require("node:net");
 const path = require("node:path");
 const { app, BrowserWindow, dialog, ipcMain, session, shell } = require("electron");
 const { ComponentManager } = require("./component-manager.cjs");
+const { normalizeCaptureRectangle } = require("./visual-search.cjs");
 
 const HOST = "127.0.0.1";
 const HEALTH_PATH = "/api/health";
@@ -556,6 +557,23 @@ function registerComponentIpc() {
   ipcMain.handle("components:remove", (_event, id) => componentManager.remove(id));
 }
 
+function registerVisualSearchIpc() {
+  ipcMain.handle("visual-search:capture-region", async (event, value) => {
+    if (!mainWindow || mainWindow.isDestroyed() || event.sender !== mainWindow.webContents) {
+      throw new Error("Không thể chụp vùng chọn từ cửa sổ này.");
+    }
+    const rectangle = normalizeCaptureRectangle(value, mainWindow.getContentBounds());
+    const image = await mainWindow.webContents.capturePage(rectangle);
+    if (image.isEmpty()) throw new Error("Không chụp được vùng đã chọn.");
+    const size = image.getSize();
+    return {
+      dataUrl: `data:image/jpeg;base64,${image.toJPEG(92).toString("base64")}`,
+      width: size.width,
+      height: size.height,
+    };
+  });
+}
+
 function waitForProcessExit(child, timeoutMs) {
   if (child.exitCode !== null) return Promise.resolve(true);
   return new Promise((resolve) => {
@@ -619,6 +637,7 @@ async function bootstrap() {
   initializeLogging();
   resetImportedFilesForLocalLibrary();
   registerComponentIpc();
+  registerVisualSearchIpc();
   embeddingPort = await findFreePort();
   startEmbeddingService(embeddingPort);
 

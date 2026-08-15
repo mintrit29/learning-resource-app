@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
-import { ArrowUpRight, FileSearch, LoaderCircle, Search } from "lucide-react";
+import { ArrowUpRight, FileImage, FileSearch, LoaderCircle, Search } from "lucide-react";
 import { formatDifficulty } from "@/lib/labels";
+import { VisualResourceSearch } from "@/components/search/visual-resource-search";
 
 type SearchResult = {
   chunkId: string;
@@ -70,6 +71,7 @@ function buildSuitabilityReasons(result: SearchResult, filters: SearchFilters) {
 }
 
 export function ResourceSearch({ topics }: { topics: string[] }) {
+  const [searchMode, setSearchMode] = useState<"text" | "visual">("text");
   const [query, setQuery] = useState("");
   const [filters, setFilters] = useState<SearchFilters>(EMPTY_FILTERS);
   const [appliedFilters, setAppliedFilters] = useState<SearchFilters>(EMPTY_FILTERS);
@@ -164,6 +166,12 @@ export function ResourceSearch({ topics }: { topics: string[] }) {
 
   return (
     <div>
+      <div className="search-mode-tabs" aria-label="Cách tìm tài liệu">
+        <button className={searchMode === "text" ? "active" : ""} onClick={() => setSearchMode("text")} type="button"><Search size={17} /> Nhập mô tả</button>
+        <button className={searchMode === "visual" ? "active" : ""} onClick={() => setSearchMode("visual")} type="button"><FileImage size={17} /> Ảnh hoặc file</button>
+      </div>
+
+      {searchMode === "visual" ? <VisualResourceSearch /> : <>
       <form onSubmit={handleSubmit}>
         <div className="search-bar active-search resource-search-bar">
           <Search size={20} />
@@ -269,6 +277,7 @@ export function ResourceSearch({ topics }: { topics: string[] }) {
           })}
         </section>
       ) : null}
+      </>}
     </div>
   );
 }

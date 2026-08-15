@@ -16,11 +16,25 @@ type LocalComponentsResponse = {
   freeBytes: number;
 };
 
+type DesktopCaptureRectangle = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
+type DesktopCaptureResult = {
+  dataUrl: string;
+  width: number;
+  height: number;
+};
+
 interface Window {
   scholarFlowDesktop?: {
     isDesktop: true;
     platform: string;
     electronVersion: string;
+    captureSearchRegion(rectangle: DesktopCaptureRectangle): Promise<DesktopCaptureResult>;
     getComponentStatus(): Promise<LocalComponentsResponse>;
     installComponent(id: LocalComponentId): Promise<LocalComponentStatus>;
     cancelComponentInstall(id: LocalComponentId): Promise<boolean>;

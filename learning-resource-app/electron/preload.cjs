@@ -8,6 +8,7 @@ contextBridge.exposeInMainWorld(
     isDesktop: true,
     platform: process.platform,
     electronVersion: process.versions.electron,
+    captureSearchRegion: (rectangle) => ipcRenderer.invoke("visual-search:capture-region", rectangle),
     getComponentStatus: () => ipcRenderer.invoke("components:status"),
     installComponent: (id) => ipcRenderer.invoke("components:install", id),
     cancelComponentInstall: (id) => ipcRenderer.invoke("components:cancel", id),

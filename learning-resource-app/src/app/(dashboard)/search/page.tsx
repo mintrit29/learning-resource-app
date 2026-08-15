@@ -18,7 +18,7 @@ export default async function SearchPage() {
           <p className="eyebrow">Nguồn tham khảo</p>
           <h1>Tìm tài liệu phù hợp</h1>
           <p>
-            Mô tả nhu cầu cho Research Project. ScholarFlow tìm theo ý nghĩa, kết hợp từ khóa và dữ liệu phân loại để chọn tài liệu phù hợp.
+            Nhập mô tả hoặc khoanh trực tiếp một vùng trên ảnh, PDF hay tài liệu. ScholarFlow chỉ tìm nguồn tương tự trong thư viện, không tự giải câu hỏi.
           </p>
         </div>
       </header>
