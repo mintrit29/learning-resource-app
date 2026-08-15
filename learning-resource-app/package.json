@@ -37,6 +37,7 @@
     "test:embedding-runtime": "node scripts/test-embedding-runtime.mjs",
     "test:component-manager": "node scripts/test-component-manager.mjs",
     "test:visual-search": "node --experimental-strip-types scripts/test-visual-search.mjs",
+    "test:visual-capture": "electron scripts/test-electron-visual-capture.cjs",
     "test:embedding-config": "node --experimental-strip-types scripts/test-embedding-config.mjs",
     "test:processing-estimate": "node --experimental-strip-types scripts/test-processing-estimate.mjs",
     "test:local-ai-recommendation": "node --experimental-strip-types scripts/test-local-ai-recommendation.mjs",

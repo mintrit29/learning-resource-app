@@ -132,38 +132,39 @@
 
 - [x] Thêm nút `Mở ảnh hoặc file để tìm` trên trang Tìm kiếm.
 - [x] Xây viewer hai cột thống nhất cho năm loại đầu vào.
-- [ ] Render lazy trang/slide/phần đang xem.
-- [ ] Thêm điều hướng trước/sau, số trang và thumbnail thu gọn.
-- [ ] Thêm ROI overlay hỗ trợ kéo, resize, zoom và DPI. Đã có kéo chọn và resize bằng bốn góc; còn zoom và kiểm tra nhiều mức DPI.
+- [x] Render lazy slide/chương đang xem qua session RAM tạm; integration test xác nhận lần đầu chỉ có slide 1, lần sau mới render slide 2 và DELETE trả 204.
+- [x] Thêm điều hướng trước/sau và chỉ mục số thu gọn cho PPTX/EPUB; PDF dùng viewer Chromium, DOCX cuộn liên tục. Không tạo thumbnail ảnh ở v1.
+- [x] Thêm ROI overlay hỗ trợ kéo, resize và zoom; smoke test tọa độ đạt ở DPI 100%/150% với zoom 80%/100%/125%.
 - [x] Render vùng chọn vào buffer ảnh trong RAM qua Electron `capturePage`; không tạo file crop.
 - [x] Tạo Docling warm pipeline/worker cho OCR lặp lại nhanh.
 - [x] Thêm debounce, request id và bỏ kết quả OCR/search đã lỗi thời.
 - [x] Chuẩn hóa OCR text thành một query; giữ Markdown cho công thức/bảng Docling nhận ra.
+- [x] Bổ sung text layer đúng vùng chọn cho DOCX/PPTX/EPUB để bù lỗi dấu/công thức OCR; ảnh và PDF scan vẫn dùng OCR.
 - [x] Hiển thị text OCR có thể sửa; tự tìm lại sau khi sửa.
 - [x] Nối query OCR vào API hybrid search hiện tại.
 - [x] Hiển thị loading, kết quả, no-result và lỗi OCR bên phải.
 - [x] Báo rõ khi vùng chọn không có đủ chữ để tìm.
 - [x] Cleanup object URL/buffer tạm khi đổi file hoặc đóng công cụ; không ghi vào thư viện.
-- [ ] Giới hạn dung lượng file, kích thước ảnh, số trang và thời gian xử lý. Đã giới hạn file 40 MB, vùng 8 MP và payload OCR 12 MB; còn số trang/thời gian.
+- [x] Giới hạn file 40 MB, vùng 8 MP, payload OCR 12 MB, tối đa 200 slide/chương; timeout UI 30 giây cho preview/search và 90 giây cho OCR.
 
 ### Kiểm thử cần bổ sung
 
-- [ ] Tọa độ vùng chọn đúng ở nhiều zoom/DPI.
+- [x] Tọa độ vùng chọn đúng ở nhiều zoom/DPI bằng Electron capture smoke test.
 - [ ] Chọn lại nhanh không để kết quả cũ ghi đè kết quả mới.
 - [ ] Ảnh thường và ảnh scan tiếng Việt.
 - [ ] PDF text và PDF scan.
 - [ ] DOCX, PPTX và EPUB nhiều trang/phần.
 - [ ] Công thức, bảng, hình có nhãn và vùng không có chữ.
-- [ ] File nhiều trang chỉ xử lý trang đang xem.
+- [x] OCR chỉ xử lý vùng chọn trong viewport/slide/chương đang xem; không OCR toàn bộ file truy vấn.
 - [ ] Query tạm được xóa và file gốc không thay đổi.
 - [ ] Kết quả dưới ngưỡng trả no-result.
 - [ ] Đo độ trễ OCR lần đầu và các lần sau khi pipeline đã warm.
 
-Kiểm tra nhanh ngày 15/08/2026: unit validation vùng/payload đạt; typecheck và lint file mới đạt; DOCX thực tế preview 200 (~3 giây); Docling OCR ảnh chữ sinh tự động trả đúng text (~0,82 giây khi warm); OCR → search trả trạng thái thư viện trống đúng dự kiến. Chưa thay thế cho full test/build/package/smoke.
+Kiểm tra nhanh ngày 15/08/2026: unit validation vùng/payload/query merge/session đạt; typecheck và lint file mới đạt; DOCX thực tế preview 200 (~3 giây); lazy PPTX integration tạo session → render slide 2 → xóa session đạt; Docling OCR ảnh chữ sinh tự động trả đúng text (~0,82 giây khi warm); Electron crop đạt ở DPI 100%/150%; OCR → search trả trạng thái thư viện trống đúng dự kiến. OCR ảnh tiếng Việt có thể mất dấu và công thức ảnh có thể không giải mã, nên đã thêm text-layer supplement cho preview có text gốc. Chưa thay thế cho full test/build/package/smoke.
 
 ### Điểm còn cần chốt
 
-- [ ] Thumbnail dọc mặc định hiển thị hay thu gọn; đề xuất hiện tại là mặc định thu gọn.
+- [x] V1 dùng chỉ mục số thu gọn, không render thumbnail ảnh.
 - [ ] Có đưa “gộp nhiều vùng” vào phiên bản sau hay loại khỏi phạm vi hoàn toàn.
 
 ## I. Hiệu năng và ổn định
@@ -173,7 +174,7 @@ Kiểm tra nhanh ngày 15/08/2026: unit validation vùng/payload đạt; typeche
 - [x] Giảm truy vấn ghi SQLite lặp lại khi chuyển Dashboard/Tài liệu.
 - [x] Đo thời gian dev trước/sau tối ưu.
 - [x] Production build đạt sau tối ưu.
-- [ ] Đo lại hiệu năng trên bản packaged local-only.
+- [x] Packaged smoke xác nhận app local-only khởi động, database đúng và embedding tự khôi phục.
 - [x] Tối ưu Docling warm pipeline cho tìm bằng vùng chọn.
 
 ## J. Kiểm thử, Git và phát hành
@@ -184,13 +185,13 @@ Kiểm tra nhanh ngày 15/08/2026: unit validation vùng/payload đạt; typeche
 - [x] Test SQLite migration/local storage đạt.
 - [x] Production build đạt.
 - [x] Nhánh lưu trữ web/Docker cũ đã tồn tại.
-- [x] Nhánh `desktop-app` đang trước `origin/desktop-app` ba commit Docling/component manager.
-- [ ] Chạy standalone smoke sau thay đổi local-only.
-- [ ] Tạo unpacked/package mới sau thay đổi local-only.
-- [ ] Chạy packaged smoke sau thay đổi local-only.
-- [ ] Commit thay đổi local-only, sửa `EPIPE`, tối ưu chuyển trang và cập nhật tài liệu.
-- [ ] Không push hoặc tạo release nếu chưa được yêu cầu.
-- [ ] Sau khi tìm bằng vùng chọn hoàn tất, chạy lại toàn bộ test/build/package/smoke.
+- [x] Nhánh `desktop-app` giữ toàn bộ commit local, chưa push lên `origin/desktop-app`.
+- [x] Chạy standalone smoke sau thay đổi local-only.
+- [x] Tạo bản `dist-electron/win-unpacked` mới sau thay đổi tìm bằng vùng chọn.
+- [x] Chạy packaged smoke: startup local-only, 27 chủ đề mặc định, không còn bảng credential và embedding auto-restart đều đạt.
+- [x] Commit thay đổi local-only, sửa `EPIPE`, tối ưu chuyển trang và MVP tìm bằng vùng chọn.
+- [x] Không push hoặc tạo release nếu chưa được yêu cầu.
+- [x] Sau khi tìm bằng vùng chọn hoàn tất, chạy lại full lint/unit/build/standalone/package smoke.
 
 ## K. Tài liệu bàn giao
 

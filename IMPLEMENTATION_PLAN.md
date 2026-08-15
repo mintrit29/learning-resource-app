@@ -94,9 +94,9 @@ Next.js chỉ là lớp giao diện/API nội bộ của ứng dụng desktop. T
 - Test migration xác nhận tài liệu/tài khoản bị xóa nhưng tag và cấu hình Ollama vẫn còn.
 - Còn phải chạy lại desktop standalone/package/smoke trên bản local-only cuối cùng trước khi commit.
 
-## 5. Tính năng tiếp theo đang thiết kế: tìm bằng vùng chọn trên ảnh hoặc file
+## 5. Tính năng đang triển khai: tìm bằng vùng chọn trên ảnh hoặc file
 
-**Trạng thái:** đang triển khai. Luồng MVP ảnh/file → chọn/resize vùng → Docling OCR → hybrid search đã chạy; điều hướng lazy/thumbnail, zoom/DPI và kiểm thử tương tác desktop đầy đủ còn tiếp tục.
+**Trạng thái:** đã hoàn thiện vòng triển khai kỹ thuật. Luồng ảnh/file → chọn/resize vùng → Docling OCR → hybrid search, zoom, lazy preview nhiều phần và crop nhiều DPI đã có; full lint/unit/build/standalone/package smoke đều đạt. Còn QA thủ công với bộ tài liệu/ảnh thực tế trước khi cập nhật PRD và phát hành.
 
 ### 5.1 Mục tiêu
 
@@ -120,15 +120,15 @@ Cho người dùng mở một ảnh hoặc file, chủ động khoanh vùng nộ
 
 ### 5.3 File nhiều trang
 
-Hướng ưu tiên hiện tại:
+Hướng đã triển khai cho v1:
 
-- Chỉ render trang/slide đang xem; tải thumbnail và các trang khác theo nhu cầu.
-- Điều hướng bằng số trang, trước/sau và thanh thumbnail thu gọn.
-- Mỗi lần tìm chọn một vùng trên một trang; chưa hỗ trợ gộp vùng qua nhiều trang ở bản đầu.
-- Khi đổi trang, xóa khung chọn nhưng giữ kết quả cũ cho tới khi có vùng mới.
-- Ảnh một trang tự ẩn điều khiển nhiều trang.
-
-Điểm cần xác nhận trước khi code UI: thanh thumbnail dọc luôn hiển thị hay mặc định thu gọn. Khuyến nghị hiện tại là mặc định thu gọn để giữ diện tích viewer.
+- PPTX/EPUB chỉ render slide/chương hiện tại theo session RAM tạm, điều hướng bằng trước/sau và danh sách số thu gọn.
+- PDF dùng viewer Chromium với điều hướng trang và zoom tích hợp; không thêm PDF.js vào package.
+- DOCX cuộn liên tục vì ranh giới trang phụ thuộc font và renderer, không tự chia trang giả.
+- Mỗi lần tìm chọn một vùng trong viewport hiện tại; chưa hỗ trợ gộp vùng qua nhiều trang.
+- Khi đổi slide/chương, xóa khung chọn nhưng giữ kết quả cũ cho tới khi có vùng mới.
+- Không tạo thumbnail ảnh ở v1 để tránh render trước toàn bộ trang và tăng bộ nhớ; danh sách số là chỉ mục thu gọn.
+- Session preview giữ tối đa 15 phút, tối đa ba file và được xóa khi đổi file/đóng công cụ; không ghi file truy vấn xuống ổ đĩa.
 
 ### 5.4 Kiến trúc dự kiến
 

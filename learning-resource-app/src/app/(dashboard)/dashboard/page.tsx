@@ -16,6 +16,8 @@ import { getDocumentDisplayStatus } from "@/lib/documents/display-status";
 import { formatDifficulty } from "@/lib/labels";
 import { ensureCurriculumTopics } from "@/lib/taxonomy/curriculum-topics";
 
+export const dynamic = "force-dynamic";
+
 const statusLabels: Record<string, string> = {
   UPLOADED: "Đã tải lên",
   EXTRACTING: "Đang đọc file",

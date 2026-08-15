@@ -10,6 +10,8 @@ export type RenderedDocumentPreview = {
   itemCount: number;
 };
 
+const MAX_PREVIEW_ITEMS = 200;
+
 const previewStyles = `
 :root { color-scheme: light; font-family: "Segoe UI", Arial, sans-serif; }
 * { box-sizing: border-box; }
@@ -132,7 +134,7 @@ async function renderDocx(buffer: Buffer, title: string): Promise<RenderedDocume
   );
   const content = sanitizeFragment(result.value);
   const body = content
-    ? `<main class="document-canvas docx-document">${content}</main>`
+    ? `<main class="document-canvas docx-document" id="preview-item-1" data-preview-item="1">${content}</main>`
     : `<main class="empty-preview">Không tìm thấy nội dung có thể hiển thị trong file DOCX.</main>`;
   return { html: htmlDocument(title, "Bản xem nhanh DOCX trong ScholarFlow", body), itemCount: content ? 1 : 0 };
 }
@@ -144,7 +146,7 @@ function resolveArchivePath(baseFile: string, target: string) {
   return path.posix.normalize(path.posix.join(path.posix.dirname(baseFile), decoded));
 }
 
-async function renderEpub(buffer: Buffer, title: string): Promise<RenderedDocumentPreview> {
+async function renderEpub(buffer: Buffer, title: string, itemNumber?: number): Promise<RenderedDocumentPreview> {
   const zip = await JSZip.loadAsync(buffer);
   const containerXml = await zip.file("META-INF/container.xml")?.async("text");
   if (!containerXml) throw new Error("EPUB không có META-INF/container.xml");
@@ -169,8 +171,18 @@ async function renderEpub(buffer: Buffer, title: string): Promise<RenderedDocume
     const idref = opf(element).attr("idref");
     if (idref) spineIds.push(idref);
   });
+  if (spineIds.length > MAX_PREVIEW_ITEMS) {
+    throw new Error(`EPUB có quá ${MAX_PREVIEW_ITEMS} chương/phần, vượt giới hạn xem tạm.`);
+  }
 
-  for (const [index, idref] of spineIds.entries()) {
+  if (itemNumber !== undefined && (itemNumber < 1 || itemNumber > spineIds.length)) {
+    throw new Error("Chương/phần EPUB không tồn tại.");
+  }
+  const selectedSpineEntries = itemNumber === undefined
+    ? spineIds.map((idref, index) => [index, idref] as const)
+    : [[itemNumber - 1, spineIds[itemNumber - 1]] as const];
+
+  for (const [index, idref] of selectedSpineEntries) {
     const item = manifest.get(idref);
     if (!item) continue;
     const chapterPath = path.posix.normalize(path.posix.join(opfDirectory, item.href));
@@ -196,7 +208,7 @@ async function renderEpub(buffer: Buffer, title: string): Promise<RenderedDocume
     const heading = chapter("h1, h2, title").first().text().trim();
     const content = sanitizeFragment(chapter("body").html() ?? chapter.root().html() ?? "");
     if (!content.trim()) continue;
-    chapters.push(`<section class="epub-chapter"><p class="epub-chapter-label">Chương ${index + 1}${heading ? ` · ${escapeHtml(heading)}` : ""}</p>${content}</section>`);
+    chapters.push(`<section class="epub-chapter" id="preview-item-${index + 1}" data-preview-item="${index + 1}"><p class="epub-chapter-label">Chương ${index + 1}${heading ? ` · ${escapeHtml(heading)}` : ""}</p>${content}</section>`);
   }
 
   const body = chapters.length
@@ -204,7 +216,7 @@ async function renderEpub(buffer: Buffer, title: string): Promise<RenderedDocume
     : `<main class="empty-preview">Không tìm thấy chương có thể hiển thị trong file EPUB.</main>`;
   return {
     html: htmlDocument(title, `${chapters.length} chương · Bản xem nhanh EPUB`, body),
-    itemCount: chapters.length,
+    itemCount: itemNumber === undefined ? chapters.length : spineIds.length,
   };
 }
 
@@ -256,7 +268,7 @@ function slideRelationships(zip: JSZip, slidePath: string) {
   }) ?? Promise.resolve(new Map<string, string>());
 }
 
-async function renderPptx(buffer: Buffer, title: string): Promise<RenderedDocumentPreview> {
+async function renderPptx(buffer: Buffer, title: string, itemNumber?: number): Promise<RenderedDocumentPreview> {
   const zip = await JSZip.loadAsync(buffer);
   const presentationXml = await zip.file("ppt/presentation.xml")?.async("text");
   let slideWidth = 12_192_000;
@@ -271,9 +283,18 @@ async function renderPptx(buffer: Buffer, title: string): Promise<RenderedDocume
   const slidePaths = Object.keys(zip.files)
     .filter((name) => /^ppt\/slides\/slide\d+\.xml$/i.test(name))
     .sort((a, b) => Number(a.match(/slide(\d+)\.xml/i)?.[1] ?? 0) - Number(b.match(/slide(\d+)\.xml/i)?.[1] ?? 0));
+  if (slidePaths.length > MAX_PREVIEW_ITEMS) {
+    throw new Error(`PPTX có quá ${MAX_PREVIEW_ITEMS} slide, vượt giới hạn xem tạm.`);
+  }
+  if (itemNumber !== undefined && (itemNumber < 1 || itemNumber > slidePaths.length)) {
+    throw new Error("Slide không tồn tại.");
+  }
+  const selectedSlideEntries = itemNumber === undefined
+    ? slidePaths.map((slidePath, index) => [index, slidePath] as const)
+    : [[itemNumber - 1, slidePaths[itemNumber - 1]] as const];
   const slides: string[] = [];
 
-  for (const [index, slidePath] of slidePaths.entries()) {
+  for (const [index, slidePath] of selectedSlideEntries) {
     const xml = await zip.file(slidePath)?.async("text");
     if (!xml) continue;
     const $ = cheerio.load(xml, { xmlMode: true });
@@ -322,7 +343,7 @@ async function renderPptx(buffer: Buffer, title: string): Promise<RenderedDocume
       ? `<div class="ppt-fallback">${uniqueFallback.map(escapeHtml).join("\n")}</div>`
       : "";
     const background = readHexColor($("p\\:bg").first()) ?? "#ffffff";
-    slides.push(`<article class="slide-card"><p class="slide-label">Slide ${index + 1}</p><div class="ppt-slide" style="--slide-ratio:${slideWidth} / ${slideHeight};--slide-background:${background};">${elements.join("")}${fallback}</div></article>`);
+    slides.push(`<article class="slide-card" id="preview-item-${index + 1}" data-preview-item="${index + 1}"><p class="slide-label">Slide ${index + 1}</p><div class="ppt-slide" style="--slide-ratio:${slideWidth} / ${slideHeight};--slide-background:${background};">${elements.join("")}${fallback}</div></article>`);
   }
 
   const body = slides.length
@@ -330,7 +351,7 @@ async function renderPptx(buffer: Buffer, title: string): Promise<RenderedDocume
     : `<main class="empty-preview">Không tìm thấy slide có thể hiển thị trong file PPTX.</main>`;
   return {
     html: htmlDocument(title, `${slides.length} slide · Bản xem nhanh PPTX`, body, "pptx-preview"),
-    itemCount: slides.length,
+    itemCount: itemNumber === undefined ? slides.length : slidePaths.length,
   };
 }
 
@@ -338,10 +359,11 @@ export async function renderDocumentPreview(
   buffer: Buffer,
   fileType: PreviewFileType,
   title: string,
+  itemNumber?: number,
 ): Promise<RenderedDocumentPreview> {
   switch (fileType) {
     case "DOCX": return renderDocx(buffer, title);
-    case "PPTX": return renderPptx(buffer, title);
-    case "EPUB": return renderEpub(buffer, title);
+    case "PPTX": return renderPptx(buffer, title, itemNumber);
+    case "EPUB": return renderEpub(buffer, title, itemNumber);
   }
 }

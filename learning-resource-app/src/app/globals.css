@@ -614,6 +614,11 @@ svg { flex-shrink: 0; stroke-width: 1.8; }
 .visual-viewer-modes { display: inline-flex; flex: 0 0 auto; gap: 3px; border: 1px solid var(--line); border-radius: 7px; background: #f2f6f4; margin-left: auto; padding: 3px; }
 .visual-viewer-modes button { min-height: 32px; display: inline-flex; align-items: center; gap: 6px; border: 0; border-radius: 5px; background: transparent; padding: 0 9px; color: var(--muted); font-size: 11px; font-weight: 750; cursor: pointer; }
 .visual-viewer-modes button.active { background: white; color: var(--teal); box-shadow: 0 2px 8px rgba(23,33,31,.08); }
+.visual-zoom-controls { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 3px; border: 1px solid var(--line); border-radius: 7px; background: white; padding: 3px; }
+.visual-zoom-controls button { width: 30px; height: 30px; display: grid; place-items: center; border: 0; border-radius: 5px; background: transparent; color: var(--ink); cursor: pointer; }
+.visual-zoom-controls button:hover { background: var(--mint); color: var(--teal); }
+.visual-zoom-controls button:disabled { color: #a9b4b1; cursor: not-allowed; }
+.visual-zoom-controls span { min-width: 42px; color: var(--muted); font-size: 11px; font-weight: 750; text-align: center; }
 .visual-search-grid { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(320px, .85fr); min-height: 620px; }
 .visual-viewer-panel { min-width: 0; min-height: 620px; display: grid; border-right: 1px solid var(--line); background: #e7eeeb; }
 .visual-drop-placeholder { width: min(520px, calc(100% - 40px)); min-height: 260px; display: grid; align-content: center; justify-items: center; gap: 10px; align-self: center; justify-self: center; border: 1px dashed #98b4ad; border-radius: 12px; background: rgba(255,255,255,.72); padding: 30px; color: var(--teal); cursor: pointer; text-align: center; }
@@ -622,7 +627,7 @@ svg { flex-shrink: 0; stroke-width: 1.8; }
 .visual-preview-loading { display: grid; place-content: center; justify-items: center; gap: 10px; color: var(--muted); }
 .visual-viewer { position: relative; min-width: 0; height: 620px; overflow: hidden; background: #cad5d1; touch-action: none; user-select: none; }
 .visual-viewer.is-selecting { cursor: crosshair; }
-.visual-viewer.is-moving { touch-action: auto; }
+.visual-viewer.is-moving { overflow: auto; touch-action: auto; }
 .visual-viewer > img { width: 100%; height: 100%; display: block; object-fit: contain; pointer-events: none; }
 .visual-viewer > iframe { width: 100%; height: 100%; display: block; border: 0; background: white; }
 .visual-viewer.is-selecting > iframe { pointer-events: none; }
@@ -633,12 +638,22 @@ svg { flex-shrink: 0; stroke-width: 1.8; }
 .visual-selection-handle.handle-sw { bottom: -8px; left: -8px; cursor: nesw-resize; }
 .visual-selection-handle.handle-se { right: -8px; bottom: -8px; cursor: nwse-resize; }
 .visual-selection-hint { position: absolute; z-index: 2; top: 12px; left: 50%; max-width: calc(100% - 24px); transform: translateX(-50%); border-radius: 999px; background: rgba(18,38,34,.88); padding: 7px 12px; color: white; font-size: 11px; font-weight: 700; pointer-events: none; text-align: center; }
+.visual-page-controls { position: absolute; z-index: 5; right: 12px; bottom: 12px; display: flex; align-items: flex-end; gap: 4px; border: 1px solid rgba(255,255,255,.55); border-radius: 8px; background: rgba(18,38,34,.9); padding: 4px; color: white; box-shadow: 0 8px 24px rgba(18,38,34,.24); }
+.visual-page-controls > button, .visual-page-controls summary { min-width: 32px; height: 32px; display: grid; place-items: center; border: 0; border-radius: 5px; background: transparent; color: white; cursor: pointer; }
+.visual-page-controls > button:disabled { opacity: .35; cursor: not-allowed; }
+.visual-page-controls summary { min-width: 88px; padding: 0 8px; font-size: 11px; font-weight: 750; list-style: none; }
+.visual-page-controls summary::-webkit-details-marker { display: none; }
+.visual-page-controls details { position: relative; }
+.visual-page-controls details > div { position: absolute; right: 0; bottom: calc(100% + 8px); width: 210px; max-height: 190px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; overflow-y: auto; border: 1px solid var(--line); border-radius: 8px; background: white; padding: 8px; box-shadow: var(--shadow-soft); }
+.visual-page-controls details > div button { min-height: 30px; border: 1px solid var(--line); border-radius: 5px; background: white; color: var(--muted); font-size: 11px; cursor: pointer; }
+.visual-page-controls details > div button.active { border-color: var(--teal); background: var(--mint); color: var(--teal); font-weight: 800; }
 .visual-results-panel { min-width: 0; height: 620px; overflow-y: auto; background: #fbfdfc; padding: 16px; }
 .visual-query-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 9px; }
 .visual-query-heading > div { display: grid; }
 .visual-query-heading span { color: var(--muted); font-size: 11px; font-weight: 750; text-transform: uppercase; }
 .visual-query-heading strong { font-size: var(--text-sm); }
 .visual-query-heading > button { width: 32px; height: 32px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 6px; background: white; color: var(--muted); cursor: pointer; }
+.visual-captured-preview { width: 100%; max-height: 120px; display: block; object-fit: contain; border: 1px solid var(--line); border-radius: 7px; background: #e8efec; margin-bottom: 9px; }
 .visual-query-form { display: grid; gap: 8px; margin-bottom: 14px; }
 .visual-query-form textarea { width: 100%; min-height: 112px; resize: vertical; border: 1px solid var(--line); border-radius: 7px; background: white; padding: 11px 12px; color: var(--ink); outline: 0; line-height: 1.5; }
 .visual-query-form textarea:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(8,127,112,.1); }
@@ -767,6 +782,7 @@ svg { flex-shrink: 0; stroke-width: 1.8; }
   .visual-file-name { order: -1; }
   .visual-viewer-modes { width: 100%; margin-left: 0; }
   .visual-viewer-modes button { flex: 1; justify-content: center; }
+  .visual-zoom-controls { align-self: flex-end; }
   .visual-search-grid { grid-template-columns: 1fr; }
   .visual-viewer-panel { min-height: 440px; border-right: 0; border-bottom: 1px solid var(--line); }
   .visual-viewer { height: 440px; }

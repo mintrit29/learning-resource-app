@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-require-imports */
-
 function normalizeCaptureRectangle(value, contentBounds) {
   if (!value || typeof value !== "object") throw new Error("Vùng chọn không hợp lệ.");
   const rectangle = {
@@ -26,4 +24,15 @@ function normalizeCaptureRectangle(value, contentBounds) {
   return rectangle;
 }
 
-module.exports = { normalizeCaptureRectangle };
+function targetOcrSize(width, height) {
+  if (![width, height].every(Number.isFinite) || width <= 0 || height <= 0) {
+    throw new Error("Kích thước ảnh OCR không hợp lệ.");
+  }
+  const scale = Math.min(3, Math.max(1, 1200 / width, 500 / height));
+  return {
+    width: Math.round(width * scale),
+    height: Math.round(height * scale),
+  };
+}
+
+module.exports = { normalizeCaptureRectangle, targetOcrSize };

@@ -3,9 +3,10 @@
 /* eslint-disable @next/next/no-img-element -- Blob URLs are user-selected local files, not optimizable app assets. */
 
 import Link from "next/link";
-import { ArrowUpRight, FileImage, FileSearch, Hand, LoaderCircle, MousePointer2, RotateCcw, Search, Upload } from "lucide-react";
+import { ArrowLeft, ArrowRight, ArrowUpRight, FileImage, FileSearch, Hand, LoaderCircle, Minus, MousePointer2, Plus, RotateCcw, Search, Upload } from "lucide-react";
 import { ChangeEvent, FormEvent, PointerEvent, useEffect, useRef, useState } from "react";
 import { formatDifficulty } from "@/lib/labels";
+import { mergeRecognizedText, normalizeVisualQueryText } from "@/lib/search/visual-query";
 
 type SearchResult = {
   chunkId: string;
@@ -41,22 +42,33 @@ function nextAnimationFrame() {
 export function VisualResourceSearch() {
   const inputRef = useRef<HTMLInputElement>(null);
   const viewerRef = useRef<HTMLDivElement>(null);
+  const previewFrameRef = useRef<HTMLIFrameElement>(null);
   const dragStartRef = useRef<{ x: number; y: number } | null>(null);
   const resizeRef = useRef<{ corner: ResizeCorner; clientX: number; clientY: number; original: Selection } | null>(null);
   const resizeDraftRef = useRef<Selection | null>(null);
   const requestSequenceRef = useRef(0);
   const lastSearchQueryRef = useRef("");
   const objectUrlRef = useRef<string | null>(null);
+  const ocrAbortRef = useRef<AbortController | null>(null);
+  const searchAbortRef = useRef<AbortController | null>(null);
+  const previewAbortRef = useRef<AbortController | null>(null);
+  const pageAbortRef = useRef<AbortController | null>(null);
+  const previewSessionRef = useRef<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState("");
   const [previewHtml, setPreviewHtml] = useState("");
+  const [previewItemCount, setPreviewItemCount] = useState(0);
+  const [currentPreviewItem, setCurrentPreviewItem] = useState(1);
+  const [zoom, setZoom] = useState(1);
   const [viewerMode, setViewerMode] = useState<ViewerMode>("select");
   const [selection, setSelection] = useState<Selection | null>(null);
   const [draftSelection, setDraftSelection] = useState<Selection | null>(null);
   const [query, setQuery] = useState("");
+  const [capturedPreview, setCapturedPreview] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [searchStatus, setSearchStatus] = useState<SearchStatus | null>(null);
   const [isPreparing, setIsPreparing] = useState(false);
+  const [isChangingPage, setIsChangingPage] = useState(false);
   const [isCapturing, setIsCapturing] = useState(false);
   const [isRecognizing, setIsRecognizing] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
@@ -64,12 +76,26 @@ export function VisualResourceSearch() {
 
   useEffect(() => () => {
     if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
+    ocrAbortRef.current?.abort();
+    searchAbortRef.current?.abort();
+    previewAbortRef.current?.abort();
+    pageAbortRef.current?.abort();
+    if (previewSessionRef.current) {
+      void fetch(`/api/search/visual/preview?sessionId=${encodeURIComponent(previewSessionRef.current)}`, {
+        method: "DELETE",
+        keepalive: true,
+      });
+    }
   }, []);
 
   async function runSearch(searchQuery: string, sequence = ++requestSequenceRef.current) {
     const normalizedQuery = searchQuery.trim().slice(0, 500);
     if (normalizedQuery.length < 2) return;
     lastSearchQueryRef.current = normalizedQuery;
+    searchAbortRef.current?.abort();
+    const searchController = new AbortController();
+    searchAbortRef.current = searchController;
+    const searchTimeout = window.setTimeout(() => searchController.abort(), 30_000);
     setIsSearching(true);
     setError("");
     try {
@@ -77,6 +103,7 @@ export function VisualResourceSearch() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query: normalizedQuery, chunksPerDocument: 1 }),
+        signal: searchController.signal,
       });
       const data = (await response.json()) as { message?: string; status?: SearchStatus; results?: SearchResult[] };
       if (sequence !== requestSequenceRef.current) return;
@@ -84,9 +111,14 @@ export function VisualResourceSearch() {
       setResults(data.results ?? []);
       setSearchStatus(data.status ?? ((data.results?.length ?? 0) ? "OK" : "NO_RELEVANT_RESULTS"));
     } catch (caught) {
+      if (caught instanceof DOMException && caught.name === "AbortError") {
+        if (sequence === requestSequenceRef.current) setError("Tìm kiếm quá 30 giây và đã được dừng.");
+        return;
+      }
       if (sequence !== requestSequenceRef.current) return;
       setError(caught instanceof Error ? caught.message : "Không thể tìm trong tài liệu.");
     } finally {
+      window.clearTimeout(searchTimeout);
       if (sequence === requestSequenceRef.current) setIsSearching(false);
     }
   }
@@ -102,7 +134,9 @@ export function VisualResourceSearch() {
     setError("");
     setIsCapturing(true);
     setIsRecognizing(false);
+    let ocrTimeout: number | undefined;
     try {
+      const nativeText = extractNativeText(region);
       await nextAnimationFrame();
       await nextAnimationFrame();
       const bounds = viewer.getBoundingClientRect();
@@ -113,26 +147,83 @@ export function VisualResourceSearch() {
         height: region.height,
       });
       if (sequence !== requestSequenceRef.current) return;
+      setCapturedPreview(capture.dataUrl);
       setIsCapturing(false);
       setIsRecognizing(true);
+      ocrAbortRef.current?.abort();
+      const ocrController = new AbortController();
+      ocrAbortRef.current = ocrController;
+      ocrTimeout = window.setTimeout(() => ocrController.abort(), 90_000);
       const response = await fetch("/api/search/visual/ocr", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ imageDataUrl: capture.dataUrl }),
+        signal: ocrController.signal,
       });
       const data = (await response.json()) as { text?: string; message?: string };
       if (sequence !== requestSequenceRef.current) return;
       if (!response.ok || !data.text) throw new Error(data.message ?? "Không nhận ra chữ trong vùng chọn.");
-      setQuery(data.text);
+      setQuery(mergeRecognizedText(data.text, nativeText));
       setIsRecognizing(false);
     } catch (caught) {
+      if (caught instanceof DOMException && caught.name === "AbortError") {
+        if (sequence === requestSequenceRef.current) setError("OCR quá 90 giây và đã được dừng.");
+        return;
+      }
       if (sequence !== requestSequenceRef.current) return;
       setError(caught instanceof Error ? caught.message : "Không thể nhận dạng vùng chọn.");
     } finally {
+      if (ocrTimeout !== undefined) window.clearTimeout(ocrTimeout);
       if (sequence === requestSequenceRef.current) {
         setIsCapturing(false);
         setIsRecognizing(false);
       }
+    }
+  }
+
+  function extractNativeText(region: Selection) {
+    const viewer = viewerRef.current;
+    const frame = previewFrameRef.current;
+    const frameDocument = frame?.contentDocument;
+    if (!viewer || !frame || !frameDocument) return "";
+    try {
+      const viewerBounds = viewer.getBoundingClientRect();
+      const frameBounds = frame.getBoundingClientRect();
+      const scaleX = frameBounds.width / frame.offsetWidth;
+      const scaleY = frameBounds.height / frame.offsetHeight;
+      const selectedBounds = {
+        left: viewerBounds.left + region.x,
+        top: viewerBounds.top + region.y,
+        right: viewerBounds.left + region.x + region.width,
+        bottom: viewerBounds.top + region.y + region.height,
+      };
+      const walker = frameDocument.createTreeWalker(frameDocument.body, window.NodeFilter.SHOW_TEXT);
+      const selectedText: string[] = [];
+      let node = walker.nextNode();
+      while (node) {
+        const text = normalizeVisualQueryText(node.textContent ?? "");
+        if (text) {
+          const range = frameDocument.createRange();
+          range.selectNodeContents(node);
+          const intersectsSelection = [...range.getClientRects()].some((rect) => {
+            const bounds = {
+              left: frameBounds.left + rect.left * scaleX,
+              top: frameBounds.top + rect.top * scaleY,
+              right: frameBounds.left + rect.right * scaleX,
+              bottom: frameBounds.top + rect.bottom * scaleY,
+            };
+            return bounds.left < selectedBounds.right
+              && bounds.right > selectedBounds.left
+              && bounds.top < selectedBounds.bottom
+              && bounds.bottom > selectedBounds.top;
+          });
+          if (intersectsSelection) selectedText.push(text);
+        }
+        node = walker.nextNode();
+      }
+      return selectedText.join(" ").slice(0, 1_500);
+    } catch {
+      return "";
     }
   }
 
@@ -166,19 +257,40 @@ export function VisualResourceSearch() {
       setError("File phải nhỏ hơn 40 MB.");
       return;
     }
-    requestSequenceRef.current += 1;
+    const sequence = requestSequenceRef.current + 1;
+    requestSequenceRef.current = sequence;
+    ocrAbortRef.current?.abort();
+    searchAbortRef.current?.abort();
+    previewAbortRef.current?.abort();
+    pageAbortRef.current?.abort();
+    if (previewSessionRef.current) {
+      void fetch(`/api/search/visual/preview?sessionId=${encodeURIComponent(previewSessionRef.current)}`, {
+        method: "DELETE",
+        keepalive: true,
+      });
+      previewSessionRef.current = null;
+    }
     if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
     objectUrlRef.current = null;
     setFile(nextFile);
     setPreviewUrl("");
     setPreviewHtml("");
+    setPreviewItemCount(0);
+    setCurrentPreviewItem(1);
+    setZoom(1);
     setSelection(null);
     setDraftSelection(null);
     setQuery("");
+    setCapturedPreview("");
     setResults([]);
     setSearchStatus(null);
     lastSearchQueryRef.current = "";
     setError("");
+    setIsPreparing(false);
+    setIsChangingPage(false);
+    setIsCapturing(false);
+    setIsRecognizing(false);
+    setIsSearching(false);
     setViewerMode("select");
 
     if (IMAGE_EXTENSIONS.has(extension) || extension === "pdf") {
@@ -189,17 +301,29 @@ export function VisualResourceSearch() {
     }
 
     setIsPreparing(true);
+    const previewController = new AbortController();
+    previewAbortRef.current = previewController;
+    const previewTimeout = window.setTimeout(() => previewController.abort(), 30_000);
     try {
       const form = new FormData();
       form.set("file", nextFile);
-      const response = await fetch("/api/search/visual/preview", { method: "POST", body: form });
-      const data = (await response.json()) as { html?: string; message?: string };
+      const response = await fetch("/api/search/visual/preview", { method: "POST", body: form, signal: previewController.signal });
+      const data = (await response.json()) as { html?: string; itemCount?: number; sessionId?: string | null; message?: string };
+      if (sequence !== requestSequenceRef.current) return;
       if (!response.ok || !data.html) throw new Error(data.message ?? "Không thể xem trước file.");
       setPreviewHtml(data.html);
+      setPreviewItemCount(data.itemCount ?? 0);
+      previewSessionRef.current = data.sessionId ?? null;
     } catch (caught) {
+      if (caught instanceof DOMException && caught.name === "AbortError") {
+        if (sequence === requestSequenceRef.current) setError("Tạo bản xem trước quá 30 giây và đã được dừng.");
+        return;
+      }
+      if (sequence !== requestSequenceRef.current) return;
       setError(caught instanceof Error ? caught.message : "Không thể xem trước file.");
     } finally {
-      setIsPreparing(false);
+      window.clearTimeout(previewTimeout);
+      if (sequence === requestSequenceRef.current) setIsPreparing(false);
     }
   }
 
@@ -211,8 +335,18 @@ export function VisualResourceSearch() {
     };
   }
 
+  function supersedeActiveRequests() {
+    requestSequenceRef.current += 1;
+    ocrAbortRef.current?.abort();
+    searchAbortRef.current?.abort();
+    setIsCapturing(false);
+    setIsRecognizing(false);
+    setIsSearching(false);
+  }
+
   function handlePointerDown(event: PointerEvent<HTMLDivElement>) {
     if (viewerMode !== "select" || !file) return;
+    supersedeActiveRequests();
     event.currentTarget.setPointerCapture(event.pointerId);
     const point = localPoint(event);
     dragStartRef.current = point;
@@ -282,6 +416,7 @@ export function VisualResourceSearch() {
     if (!selection || !viewerRef.current) return;
     event.preventDefault();
     event.stopPropagation();
+    supersedeActiveRequests();
     viewerRef.current.setPointerCapture(event.pointerId);
     resizeRef.current = {
       corner,
@@ -291,6 +426,53 @@ export function VisualResourceSearch() {
     };
     resizeDraftRef.current = selection;
     setDraftSelection(selection);
+  }
+
+  async function jumpToPreviewItem(nextItem: number) {
+    const normalizedItem = Math.max(1, Math.min(previewItemCount, nextItem));
+    const sessionId = previewSessionRef.current;
+    if (!sessionId || normalizedItem === currentPreviewItem) return;
+    setSelection(null);
+    setDraftSelection(null);
+    pageAbortRef.current?.abort();
+    const controller = new AbortController();
+    pageAbortRef.current = controller;
+    const timeout = window.setTimeout(() => controller.abort(), 30_000);
+    setIsChangingPage(true);
+    setError("");
+    try {
+      const response = await fetch("/api/search/visual/preview", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionId, item: normalizedItem }),
+        signal: controller.signal,
+      });
+      const data = (await response.json()) as { html?: string; itemCount?: number; message?: string };
+      if (!response.ok || !data.html) throw new Error(data.message ?? "Không thể chuyển trang xem trước.");
+      if (previewSessionRef.current !== sessionId) return;
+      setPreviewHtml(data.html);
+      setPreviewItemCount(data.itemCount ?? previewItemCount);
+      setCurrentPreviewItem(normalizedItem);
+    } catch (caught) {
+      if (caught instanceof DOMException && caught.name === "AbortError") {
+        if (previewSessionRef.current === sessionId) setError("Chuyển trang quá 30 giây và đã được dừng.");
+        return;
+      }
+      if (previewSessionRef.current === sessionId) {
+        setError(caught instanceof Error ? caught.message : "Không thể chuyển trang xem trước.");
+      }
+    } finally {
+      window.clearTimeout(timeout);
+      if (previewSessionRef.current === sessionId) setIsChangingPage(false);
+    }
+  }
+
+  function changeViewerMode(nextMode: ViewerMode) {
+    if (nextMode === "move") {
+      setSelection(null);
+      setDraftSelection(null);
+    }
+    setViewerMode(nextMode);
   }
 
   function handleTextSearch(event: FormEvent<HTMLFormElement>) {
@@ -310,8 +492,15 @@ export function VisualResourceSearch() {
         {file ? <span className="visual-file-name"><FileImage size={16} /> {file.name}</span> : null}
         {file ? (
           <div className="visual-viewer-modes" aria-label="Chế độ xem">
-            <button className={viewerMode === "move" ? "active" : ""} onClick={() => setViewerMode("move")} type="button"><Hand size={16} /> Di chuyển</button>
-            <button className={viewerMode === "select" ? "active" : ""} onClick={() => setViewerMode("select")} type="button"><MousePointer2 size={16} /> Chọn vùng</button>
+            <button className={viewerMode === "move" ? "active" : ""} onClick={() => changeViewerMode("move")} type="button"><Hand size={16} /> Di chuyển</button>
+            <button className={viewerMode === "select" ? "active" : ""} onClick={() => changeViewerMode("select")} type="button"><MousePointer2 size={16} /> Chọn vùng</button>
+          </div>
+        ) : null}
+        {file && extension !== "pdf" ? (
+          <div className="visual-zoom-controls" aria-label="Thu phóng">
+            <button aria-label="Thu nhỏ" disabled={zoom <= .75} onClick={() => setZoom((value) => Math.max(.75, value - .25))} type="button"><Minus size={15} /></button>
+            <span>{Math.round(zoom * 100)}%</span>
+            <button aria-label="Phóng to" disabled={zoom >= 2} onClick={() => setZoom((value) => Math.min(2, value + .25))} type="button"><Plus size={15} /></button>
           </div>
         ) : null}
       </div>
@@ -326,9 +515,9 @@ export function VisualResourceSearch() {
           {isPreparing ? <div className="visual-preview-loading"><LoaderCircle className="spin" size={28} /><span>Đang tạo bản xem trước…</span></div> : null}
           {file && !isPreparing ? (
             <div className={`visual-viewer ${viewerMode === "select" ? "is-selecting" : "is-moving"}`} onPointerDown={handlePointerDown} onPointerMove={handlePointerMove} onPointerUp={handlePointerUp} ref={viewerRef}>
-              {IMAGE_EXTENSIONS.has(extension) && previewUrl ? <img alt={file.name} draggable={false} src={previewUrl} /> : null}
+              {IMAGE_EXTENSIONS.has(extension) && previewUrl ? <img alt={file.name} draggable={false} src={previewUrl} style={{ width: `${zoom * 100}%`, height: `${zoom * 100}%`, maxWidth: "none" }} /> : null}
               {extension === "pdf" && previewUrl ? <iframe aria-label={`Xem ${file.name}`} src={previewUrl} title={file.name} /> : null}
-              {HTML_PREVIEW_EXTENSIONS.has(extension) && previewHtml ? <iframe aria-label={`Xem ${file.name}`} sandbox="" srcDoc={previewHtml} title={file.name} /> : null}
+              {HTML_PREVIEW_EXTENSIONS.has(extension) && previewHtml ? <iframe aria-label={`Xem ${file.name}`} ref={previewFrameRef} sandbox="allow-same-origin" srcDoc={previewHtml} style={{ width: `${100 / zoom}%`, height: `${100 / zoom}%`, transform: `scale(${zoom})`, transformOrigin: "top left" }} title={file.name} /> : null}
               {activeSelection && !isCapturing ? (
                 <div className="visual-selection" style={{ left: activeSelection.x, top: activeSelection.y, width: activeSelection.width, height: activeSelection.height }}>
                   {(["nw", "ne", "sw", "se"] as ResizeCorner[]).map((corner) => (
@@ -337,6 +526,16 @@ export function VisualResourceSearch() {
                 </div>
               ) : null}
               {viewerMode === "select" && !isCapturing ? <span className="visual-selection-hint">Kéo khung quanh câu hỏi hoặc nội dung muốn tìm</span> : null}
+              {previewItemCount > 1 && !isCapturing ? (
+                <div className="visual-page-controls" onPointerDown={(event) => event.stopPropagation()}>
+                  <button aria-label="Mục trước" disabled={isChangingPage || currentPreviewItem <= 1} onClick={() => void jumpToPreviewItem(currentPreviewItem - 1)} type="button"><ArrowLeft size={15} /></button>
+                  <details>
+                    <summary>{isChangingPage ? "Đang tải…" : `${extension === "pptx" ? "Slide" : "Phần"} ${currentPreviewItem}/${previewItemCount}`}</summary>
+                    <div>{Array.from({ length: previewItemCount }, (_, index) => index + 1).map((item) => <button className={item === currentPreviewItem ? "active" : ""} disabled={isChangingPage} key={item} onClick={() => void jumpToPreviewItem(item)} type="button">{item}</button>)}</div>
+                  </details>
+                  <button aria-label="Mục sau" disabled={isChangingPage || currentPreviewItem >= previewItemCount} onClick={() => void jumpToPreviewItem(currentPreviewItem + 1)} type="button"><ArrowRight size={15} /></button>
+                </div>
+              ) : null}
             </div>
           ) : null}
         </div>
@@ -346,6 +545,7 @@ export function VisualResourceSearch() {
             <div><span>Nội dung nhận dạng</span><strong>{processingLabel || (query ? "Có thể sửa trước khi tìm lại" : "Chưa chọn vùng")}</strong></div>
             {selection ? <button aria-label="Chọn lại vùng" onClick={() => { setSelection(null); setDraftSelection(null); }} type="button"><RotateCcw size={16} /></button> : null}
           </div>
+          {capturedPreview ? <img alt="Vùng vừa chọn để OCR" className="visual-captured-preview" src={capturedPreview} /> : null}
           <form className="visual-query-form" onSubmit={handleTextSearch}>
             <textarea onChange={(event) => setQuery(event.target.value)} placeholder="Chữ trong vùng chọn sẽ hiện ở đây…" value={query} />
             <button disabled={isSearching || query.trim().length < 2} type="submit"><Search size={16} /> Tìm lại</button>

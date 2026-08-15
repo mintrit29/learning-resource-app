@@ -8,7 +8,7 @@ const net = require("node:net");
 const path = require("node:path");
 const { app, BrowserWindow, dialog, ipcMain, session, shell } = require("electron");
 const { ComponentManager } = require("./component-manager.cjs");
-const { normalizeCaptureRectangle } = require("./visual-search.cjs");
+const { normalizeCaptureRectangle, targetOcrSize } = require("./visual-search.cjs");
 
 const HOST = "127.0.0.1";
 const HEALTH_PATH = "/api/health";
@@ -566,10 +566,14 @@ function registerVisualSearchIpc() {
     const image = await mainWindow.webContents.capturePage(rectangle);
     if (image.isEmpty()) throw new Error("Không chụp được vùng đã chọn.");
     const size = image.getSize();
+    const ocrSize = targetOcrSize(size.width, size.height);
+    const ocrImage = ocrSize.width === size.width && ocrSize.height === size.height
+      ? image
+      : image.resize({ width: ocrSize.width, height: ocrSize.height, quality: "best" });
     return {
-      dataUrl: `data:image/jpeg;base64,${image.toJPEG(92).toString("base64")}`,
-      width: size.width,
-      height: size.height,
+      dataUrl: `data:image/jpeg;base64,${ocrImage.toJPEG(94).toString("base64")}`,
+      width: ocrSize.width,
+      height: ocrSize.height,
     };
   });
 }

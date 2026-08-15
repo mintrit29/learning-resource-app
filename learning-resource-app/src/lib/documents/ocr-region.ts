@@ -6,6 +6,7 @@ const MIN_OCR_TEXT_LENGTH = 2;
 type OcrGlobal = typeof globalThis & {
   scholarFlowOcrPipeline?: Pipeline;
   scholarFlowOcrTail?: Promise<void>;
+  scholarFlowLatestOcrGeneration?: number;
 };
 
 function normalizeOcrText(value: string) {
@@ -53,8 +54,14 @@ async function enqueueOcr<T>(operation: () => Promise<T>) {
 export async function recognizeSearchRegion(image: Buffer) {
   requireOcrRuntime();
   if (!image.length) throw new Error("Ảnh vùng chọn trống.");
+  const shared = globalThis as OcrGlobal;
+  const generation = (shared.scholarFlowLatestOcrGeneration ?? 0) + 1;
+  shared.scholarFlowLatestOcrGeneration = generation;
 
   return enqueueOcr(async () => {
+    if (shared.scholarFlowLatestOcrGeneration !== generation) {
+      throw new Error("Vùng chọn này đã được thay thế bởi vùng mới hơn.");
+    }
     const result = await getOcrPipeline().convertAsync(
       { name: "search-selection.png", data: image, format: "image" },
       { to: "markdown", imageMode: "placeholder" },
