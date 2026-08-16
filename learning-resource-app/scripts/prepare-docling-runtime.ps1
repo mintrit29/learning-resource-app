@@ -7,6 +7,7 @@ $projectRoot = Split-Path -Parent $PSScriptRoot
 $runtimeRoot = Join-Path $projectRoot ".docling-runtime"
 $modelsRoot = Join-Path $runtimeRoot "models"
 $tableFormerRoot = Join-Path $modelsRoot "tableformer"
+$tesseractRoot = Join-Path $modelsRoot "tesseract"
 $pdfiumRoot = Join-Path $runtimeRoot "pdfium\lib"
 $modelsBaseUrl = if ($env:DOCLING_RS_MODELS_URL) {
   $env:DOCLING_RS_MODELS_URL.TrimEnd("/")
@@ -15,7 +16,7 @@ $modelsBaseUrl = if ($env:DOCLING_RS_MODELS_URL) {
 }
 $pdfiumUrl = "https://github.com/bblanchon/pdfium-binaries/releases/latest/download/pdfium-win-x64.tgz"
 
-New-Item -ItemType Directory -Force -Path $modelsRoot, $tableFormerRoot, $pdfiumRoot | Out-Null
+New-Item -ItemType Directory -Force -Path $modelsRoot, $tableFormerRoot, $tesseractRoot, $pdfiumRoot | Out-Null
 
 function Get-RuntimeAsset {
   param(
@@ -72,6 +73,13 @@ $requiredAssets = @(
 
 foreach ($asset in $requiredAssets) {
   Get-RuntimeAsset -Url "$modelsBaseUrl/$($asset[0])" -Destination $asset[1]
+}
+
+$vietnameseOcrModel = Join-Path $tesseractRoot "vie.traineddata"
+Get-RuntimeAsset -Url "https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/4.1.0/vie.traineddata" -Destination $vietnameseOcrModel
+$vietnameseOcrHash = (Get-FileHash -LiteralPath $vietnameseOcrModel -Algorithm SHA256).Hash.ToLowerInvariant()
+if ($vietnameseOcrHash -ne "79df64caf7bcfb2a27df5042ecb6121e196eada34da774956995747636d5bfa1") {
+  throw "Checksum model OCR tiếng Việt không đúng"
 }
 
 $optionalAssets = @(

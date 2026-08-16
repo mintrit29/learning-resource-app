@@ -121,6 +121,7 @@ function sanitizedChildEnvironment() {
     "DOCLING_TABLEFORMER_ENCODER",
     "DOCLING_TABLEFORMER_DECODER",
     "DOCLING_TABLEFORMER_BBOX",
+    "SCHOLARFLOW_TESSDATA_PATH",
   ].forEach((key) => delete environment[key]);
   return environment;
 }
@@ -148,6 +149,7 @@ function getDesktopDataEnvironment(resolvedEmbeddingUrl) {
     ),
     DOCLING_RS_HOME: documentRuntimeRoot,
     PDFIUM_DYNAMIC_LIB_PATH: path.join(documentRuntimeRoot, "pdfium", "lib"),
+    SCHOLARFLOW_TESSDATA_PATH: path.join(documentRuntimeRoot, "models", "tesseract"),
   };
 }
 

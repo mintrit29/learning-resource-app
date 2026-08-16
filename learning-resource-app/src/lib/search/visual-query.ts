@@ -24,5 +24,5 @@ export function mergeRecognizedText(ocrText: string, nativeText: string) {
   ) {
     return native;
   }
-  return `${ocr}\n\n${native}`;
+  return `${native}\n\n${ocr}`;
 }

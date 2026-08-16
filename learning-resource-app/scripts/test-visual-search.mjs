@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { createRequire } from "node:module";
 import { decodeSearchRegionDataUrl } from "../src/lib/search/visual-search-input.ts";
 import { mergeRecognizedText, normalizeVisualQueryText } from "../src/lib/search/visual-query.ts";
+import { normalizeVietnameseOcrText } from "../src/lib/documents/vietnamese-ocr.ts";
 import { createVisualPreviewSession, getVisualPreviewSession, removeVisualPreviewSession } from "../src/lib/search/visual-preview-sessions.ts";
 
 const require = createRequire(import.meta.url);
@@ -25,7 +26,11 @@ assert.deepEqual(targetOcrSize(100, 50), { width: 300, height: 150 });
 assert.throws(() => targetOcrSize(0, 100), /không hợp lệ/);
 assert.equal(normalizeVisualQueryText("  khóa   chính\nkhóa ngoại "), "khóa chính khóa ngoại");
 assert.equal(mergeRecognizedText("He quan tri co so du lieu", "Hệ quản trị cơ sở dữ liệu"), "Hệ quản trị cơ sở dữ liệu");
-assert.equal(mergeRecognizedText("formula-not-decoded", "f(x) = x² + 1"), "formula-not-decoded\n\nf(x) = x² + 1");
+assert.equal(mergeRecognizedText("formula-not-decoded", "f(x) = x² + 1"), "f(x) = x² + 1\n\nformula-not-decoded");
+assert.equal(
+  normalizeVietnameseOcrText("Câu 4. Đồ thị có cạnh âm?\nII —............................\n"),
+  "Câu 4. Đồ thị có cạnh âm?",
+);
 
 const previewSession = createVisualPreviewSession(Buffer.from("temporary preview"), "PPTX", "test.pptx");
 assert.equal(getVisualPreviewSession(previewSession.id)?.title, "test.pptx");

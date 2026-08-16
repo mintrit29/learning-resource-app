@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "libraryImportOrder": [
+    "library/01_mang_may_tinh_ospf.docx",
+    "library/02_co_so_du_lieu_text.pdf",
+    "library/03_thuat_toan_do_thi.pptx",
+    "library/04_an_toan_thong_tin.epub"
+  ],
+  "queries": [
+    {
+      "file": "queries/01_anh_cau_hoi_ospf.png",
+      "region": "ô câu hỏi phía trên bên trái",
+      "expected": "01_mang_may_tinh_ospf.docx",
+      "anchor": "SF-OSPF-LINK-STATE-42"
+    },
+    {
+      "file": "queries/01_anh_cau_hoi_ospf.png",
+      "region": "ô câu hỏi phía dưới bên trái",
+      "expected": "02_co_so_du_lieu_text.pdf",
+      "anchor": "SF-DATABASE-3NF-73"
+    },
+    {
+      "file": "queries/02_de_thi_scan_hai_trang.pdf",
+      "region": "trang 1, Câu 2",
+      "expected": "02_co_so_du_lieu_text.pdf",
+      "anchor": "SF-ACID-TRANSACTION-19"
+    },
+    {
+      "file": "queries/02_de_thi_scan_hai_trang.pdf",
+      "region": "trang 2, Câu 4",
+      "expected": "03_thuat_toan_do_thi.pptx",
+      "anchor": "SF-DIJKSTRA-NONNEGATIVE-37"
+    },
+    {
+      "file": "queries/03_bai_tap_nhieu_trang.docx",
+      "region": "trang 2, câu hỏi OSPF",
+      "expected": "01_mang_may_tinh_ospf.docx",
+      "anchor": "SF-OSPF-LINK-STATE-42"
+    },
+    {
+      "file": "queries/04_cau_hoi_do_thi.pptx",
+      "region": "slide 2, câu hỏi Dijkstra",
+      "expected": "03_thuat_toan_do_thi.pptx",
+      "anchor": "SF-DIJKSTRA-NONNEGATIVE-37"
+    },
+    {
+      "file": "queries/05_tuyen_tap_cau_hoi.epub",
+      "region": "chương 2, câu hỏi hàm băm",
+      "expected": "04_an_toan_thong_tin.epub",
+      "anchor": "SF-HASH-COLLISION-61"
+    },
+    {
+      "file": "queries/06_vung_khong_co_chu.png",
+      "region": "bất kỳ vùng nào",
+      "expected": null,
+      "expectedState": "không nhận ra đủ chữ"
+    },
+    {
+      "file": "queries/07_cong_thuc_va_bang.png",
+      "region": "hàng Dijkstra",
+      "expected": "03_thuat_toan_do_thi.pptx",
+      "anchor": "SF-DIJKSTRA-NONNEGATIVE-37"
+    }
+  ]
+}

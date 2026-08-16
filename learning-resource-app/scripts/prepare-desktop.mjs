@@ -42,6 +42,11 @@ for (const dependency of [
   "sqlite-vec-windows-x64",
   "docling.rs",
   "docling.rs-win32-x64-msvc",
+  "@napi-rs/canvas",
+  "@napi-rs/canvas-win32-x64-msvc",
+  "pdfjs-dist",
+  "tesseract.js",
+  "tesseract.js-core",
 ]) {
   const dependencyRoot = path.join(projectRoot, "node_modules", dependency);
   await requireDirectory(dependencyRoot, dependency);

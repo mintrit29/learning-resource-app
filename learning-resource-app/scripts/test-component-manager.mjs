@@ -13,6 +13,7 @@ const payload = Buffer.from("ScholarFlow component download test\n".repeat(4096)
 const sha256 = createHash("sha256").update(payload).digest("hex");
 const temporary = await mkdtemp(path.join(tmpdir(), "scholarflow-components-"));
 let rangeRequests = 0;
+let assetRequests = 0;
 let ignoreRange = false;
 
 const server = createServer((request, response) => {
@@ -22,6 +23,7 @@ const server = createServer((request, response) => {
     setTimeout(() => response.end(payload.subarray(100)), 500);
     return;
   }
+  assetRequests += 1;
   const range = request.headers.range;
   if (range && !ignoreRange) {
     rangeRequests += 1;
@@ -58,6 +60,10 @@ try {
   const fresh = path.join(temporary, "fresh.bin");
   await manager.downloadFile(`${origin}/asset`, fresh, expected, new AbortController().signal, () => {});
   assert.deepEqual(readFileSync(fresh), payload);
+
+  const requestsBeforeCachedFile = assetRequests;
+  await manager.downloadFile(`${origin}/asset`, fresh, expected, new AbortController().signal, () => {});
+  assert.equal(assetRequests, requestsBeforeCachedFile, "A verified existing asset must not be downloaded again");
 
   const resumed = path.join(temporary, "resumed.bin");
   writeFileSync(`${resumed}.partial`, payload.subarray(0, 321));

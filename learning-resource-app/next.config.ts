@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   devIndicators: false,
   output: "standalone",
-  serverExternalPackages: ["docling.rs"],
+  serverExternalPackages: ["@napi-rs/canvas", "docling.rs", "pdfjs-dist", "tesseract.js"],
   outputFileTracingExcludes: {
     "*": [
       "./.docling-runtime/**/*",

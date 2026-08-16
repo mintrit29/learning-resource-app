@@ -1,10 +1,9 @@
-import { checkDependencies, Pipeline } from "docling.rs";
+import { checkDependencies } from "docling.rs";
+import { recognizeVietnameseImage } from "./vietnamese-ocr.ts";
 
-const DOCLING_OCR_LANG = process.env.DOCLING_OCR_LANG ?? "ch";
 const MIN_OCR_TEXT_LENGTH = 2;
 
 type OcrGlobal = typeof globalThis & {
-  scholarFlowOcrPipeline?: Pipeline;
   scholarFlowOcrTail?: Promise<void>;
   scholarFlowLatestOcrGeneration?: number;
 };
@@ -26,16 +25,6 @@ function requireOcrRuntime() {
   if (dependencies.ready && dependencies.ocr) return;
   const missing = dependencies.missing.length ? dependencies.missing.join(", ") : "OCR models";
   throw new Error(`Docling OCR chưa sẵn sàng (${missing}). Hãy cài Docling trong Thành phần cục bộ.`);
-}
-
-function getOcrPipeline() {
-  const shared = globalThis as OcrGlobal;
-  shared.scholarFlowOcrPipeline ??= new Pipeline({
-    strict: true,
-    ocrLang: DOCLING_OCR_LANG,
-    allowedFormats: ["image"],
-  });
-  return shared.scholarFlowOcrPipeline;
 }
 
 async function enqueueOcr<T>(operation: () => Promise<T>) {
@@ -62,12 +51,7 @@ export async function recognizeSearchRegion(image: Buffer) {
     if (shared.scholarFlowLatestOcrGeneration !== generation) {
       throw new Error("Vùng chọn này đã được thay thế bởi vùng mới hơn.");
     }
-    const result = await getOcrPipeline().convertAsync(
-      { name: "search-selection.png", data: image, format: "image" },
-      { to: "markdown", imageMode: "placeholder" },
-    );
-    if (result.status === "failure") throw new Error("Docling không thể nhận dạng vùng đã chọn.");
-    const text = normalizeOcrText(result.content);
+    const text = normalizeOcrText(await recognizeVietnameseImage(image));
     if (text.length < MIN_OCR_TEXT_LENGTH) {
       throw new Error("Không nhận ra đủ chữ. Hãy chọn rộng hơn và gồm cả nhãn hoặc chú thích.");
     }

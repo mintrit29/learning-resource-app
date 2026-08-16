@@ -4,10 +4,11 @@ import path from "node:path";
 import {
   checkDependencies,
   chunkDocumentAsync,
-  convertAsync,
   convertFileAsync,
   type Chunk,
 } from "docling.rs";
+import { recognizeVietnameseImage } from "./vietnamese-ocr.ts";
+import { extractScannedPdfSections } from "./pdf-scan-ocr.ts";
 
 const MIN_EXTRACTED_TEXT_LENGTH = 20;
 const DOCLING_OCR_LANG = process.env.DOCLING_OCR_LANG ?? "ch";
@@ -153,15 +154,6 @@ function decodeDataImage(image: DoclingImage | undefined) {
   };
 }
 
-function imageFormatFromMimeType(mimeType: string) {
-  const normalized = mimeType.toLowerCase();
-  if (normalized.includes("jpeg") || normalized.includes("jpg")) return "jpeg";
-  if (normalized.includes("webp")) return "webp";
-  if (normalized.includes("tiff")) return "tiff";
-  if (normalized.includes("bmp")) return "bmp";
-  return "png";
-}
-
 async function extractEmbeddedImageSections(
   document: DoclingDocument,
   extension: SupportedExtension,
@@ -180,26 +172,16 @@ async function extractEmbeddedImageSections(
     if (seenImages.has(fingerprint)) continue;
     seenImages.add(fingerprint);
 
-    const format = imageFormatFromMimeType(decoded.mimeType);
-    const result = await convertAsync(
-      { name: `embedded-${index + 1}.${format}`, data: decoded.data, format: "image" },
-      {
-        strict: true,
-        to: "markdown",
-        imageMode: "placeholder",
-        ocrLang: DOCLING_OCR_LANG,
-      },
-    );
-    const text = normalizeExtractedText(result.content);
-    if (result.status === "failure" || text.length < MIN_EXTRACTED_TEXT_LENGTH) continue;
+    const text = normalizeExtractedText(await recognizeVietnameseImage(decoded.data));
+    if (text.length < MIN_EXTRACTED_TEXT_LENGTH) continue;
 
     const pageNumber = pageNumberFromItem(picture);
     sections.push({
       text,
       pageNumber,
       sourceLabel: pageNumber
-        ? `${defaultSourceLabel(extension, pageNumber)} · Hình ${index + 1} (Docling OCR)`
-        : `Hình ${index + 1} (Docling OCR)`,
+        ? `${defaultSourceLabel(extension, pageNumber)} · Hình ${index + 1} (OCR tiếng Việt)`
+        : `Hình ${index + 1} (OCR tiếng Việt)`,
     });
   }
 
@@ -251,7 +233,15 @@ export async function extractDocumentText(
     ? structuredSections
     : fallbackSectionsFromDocument(document, extension);
   const imageSections = await extractEmbeddedImageSections(document, extension);
-  const sections = [...textSections, ...imageSections];
+  const scannedPdfSections = extension === "pdf"
+    ? await extractScannedPdfSections(buffer)
+    : [];
+  const scannedPages = new Set(scannedPdfSections.map((section) => section.pageNumber));
+  const sections = [
+    ...textSections.filter((section) => !section.pageNumber || !scannedPages.has(section.pageNumber)),
+    ...imageSections,
+    ...scannedPdfSections,
+  ];
   const text = normalizeExtractedText(sections.map((section) => section.text).join("\n\n"));
   const pageCount = Math.max(
     Object.keys(document.pages ?? {}).length,
