@@ -1,6 +1,6 @@
 # Project Checklist — ScholarFlow Desktop
 
-**Cập nhật:** 15/08/2026
+**Cập nhật:** 17/08/2026
 **Nhánh:** `desktop-app`
 **Phạm vi:** desktop Windows, local-only, không đăng ký/đăng nhập, cloud backend, Docker hoặc web app riêng.
 **Quy ước:** mục đã code nhưng chưa hoàn tất packaged smoke/commit được ghi rõ trong nội dung. PRD để cập nhật sau khi sản phẩm hoàn thiện.
@@ -33,6 +33,7 @@
 - [x] Test migration xác nhận tag và cấu hình Ollama được giữ lại.
 - [x] Chỉ dọn bản sao tài liệu trong đúng `%APPDATA%\ScholarFlow\data\uploads` khi chuyển phiên bản.
 - [x] Xác nhận file gốc người dùng chọn bên ngoài app không bị xóa.
+- [x] File mới giữ tên gốc an toàn trong thư mục riêng theo document ID; app tự migrate file UUID cũ và cập nhật database khi khởi động.
 - [x] Tách khóa mã hóa AI provider khỏi auth và nhận lại khóa cũ khi có.
 - [ ] Chạy standalone/package smoke cuối cho migration local-only.
 - [ ] Commit thay đổi local-only; hiện chưa push.
@@ -67,7 +68,7 @@
 - [x] Hiển thị trạng thái, tiến trình và lỗi từng bước.
 - [x] Có retry, trích xuất lại và phân tích AI lại.
 - [x] Xử lý nhiều file/thư mục bằng queue tuần tự.
-- [x] Xem file gốc, preview và text đã trích xuất.
+- [x] Xem file gốc, preview và text đã trích xuất; text dài chỉ tải toàn bộ khi mở disclosure, không reload trang qua nút `Xem toàn bộ`.
 - [x] Test extractor PDF/DOCX/PPTX/EPUB đạt.
 - [x] Test preview DOCX/PPTX/EPUB đạt.
 - [ ] Kiểm tra lại toàn bộ bốn tài liệu thực tế sau khi hoàn tất local-only.
@@ -135,6 +136,7 @@
 - [x] Render lazy slide/chương đang xem qua session RAM tạm; integration test xác nhận lần đầu chỉ có slide 1, lần sau mới render slide 2 và DELETE trả 204.
 - [x] Thêm điều hướng trước/sau và chỉ mục số thu gọn cho PPTX/EPUB; PDF dùng viewer Chromium, DOCX cuộn liên tục. Không tạo thumbnail ảnh ở v1.
 - [x] Thêm ROI overlay hỗ trợ kéo, resize và zoom; smoke test tọa độ đạt ở DPI 100%/150% với zoom 80%/100%/125%.
+- [x] Đổi viewer sang pan thật khi `Kéo để xem`, giữ vùng chọn khi đổi chế độ, cho kéo cả khung chọn, giữ đúng tỉ lệ ảnh và đưa zoom về `Vừa khung` bằng một nút.
 - [x] Render vùng chọn vào buffer ảnh trong RAM qua Electron `capturePage`; không tạo file crop.
 - [x] Tạo Docling warm pipeline/worker cho OCR lặp lại nhanh.
 - [x] Thêm debounce, request id và bỏ kết quả OCR/search đã lỗi thời.
@@ -176,6 +178,18 @@ Kiểm tra nhanh ngày 15/08/2026: unit validation vùng/payload/query merge/ses
 - [x] Production build đạt sau tối ưu.
 - [x] Packaged smoke xác nhận app local-only khởi động, database đúng và embedding tự khôi phục.
 - [x] Tối ưu Docling warm pipeline cho tìm bằng vùng chọn.
+- [x] Sửa lỗi SQLite khi lọc thư viện bằng `?q=`.
+- [x] Tìm mô tả tự chạy sau debounce, hủy request cũ và xóa sạch query/kết quả bằng một thao tác.
+- [x] Giữ trạng thái tìm ảnh/file trong RAM khi đổi chế độ, mở kết quả hoặc chuyển trang rồi quay lại.
+- [x] Giữ danh sách file chờ upload trong RAM và cảnh báo khi đóng app lúc còn việc chưa xong.
+- [x] Link kết quả và nút quay lại giữ đúng nguồn tìm kiếm chữ/ảnh-file.
+- [x] Modal hỗ trợ Escape, bấm nền và khôi phục focus; các thao tác xóa/phân tích lại có xác nhận.
+- [x] Thêm tìm nhanh môn học và thu gọn các phần dài trên trang chi tiết tài liệu.
+- [x] Cache ngắn trạng thái Local AI và phản hồi ngay khi kiểm tra thành phần local.
+- [x] Bỏ preview cửa sổ riêng gây kẹt app; thêm thao tác hiện file ScholarFlow trong Explorer bằng IPC/path containment.
+- [x] Đồng nhất lý do phù hợp và trích dẫn nguồn giữa tìm mô tả với tìm ảnh/file.
+- [x] Khi quay lại kết quả ảnh/file, phục hồi OCR và kết quả đã lưu mà không tự chụp lại bằng tọa độ màn hình cũ.
+- [x] Khi quay lại tìm bằng mô tả, chờ phục hồi session hoàn tất trước khi chạy logic tự tìm/xóa để không làm mất kết quả cũ.
 
 ## J. Kiểm thử, Git và phát hành
 
@@ -192,6 +206,7 @@ Kiểm tra nhanh ngày 15/08/2026: unit validation vùng/payload/query merge/ses
 - [x] Commit thay đổi local-only, sửa `EPIPE`, tối ưu chuyển trang và MVP tìm bằng vùng chọn.
 - [x] Không push hoặc tạo release nếu chưa được yêu cầu.
 - [x] Sau khi tìm bằng vùng chọn hoàn tất, chạy lại full lint/unit/build/standalone/package smoke.
+- [x] UX regression ngày 17/08/2026: lint, `test:unit`, production build và kiểm thử trình duyệt local đều đạt.
 
 ## K. Tài liệu bàn giao
 

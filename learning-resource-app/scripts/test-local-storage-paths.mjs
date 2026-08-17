@@ -1,10 +1,12 @@
 import assert from "node:assert/strict";
 import path from "node:path";
 import {
+  createNamedUploadStorageLocation,
   createUploadStorageLocation,
   isPathInside,
   resolveScholarFlowDataRoot,
   resolveStoredUploadPath,
+  sanitizeUploadFileName,
 } from "../src/lib/storage/local-storage.ts";
 
 const originalDataRoot = process.env.SCHOLARFLOW_DATA_ROOT;
@@ -37,6 +39,14 @@ try {
   assert.equal(location.absolutePath, path.join(location.directory, "document.pdf"));
   assert.equal(location.storedPath, "uploads/document.pdf");
 
+  const namedLocation = createNamedUploadStorageLocation("document-id", "Bài tập OSPF?.pdf");
+  assert.equal(namedLocation.directory, path.join(configuredRoot, "uploads", "document-id"));
+  assert.equal(namedLocation.absolutePath, path.join(namedLocation.directory, "Bài tập OSPF_.pdf"));
+  assert.equal(namedLocation.storedPath, "uploads/document-id/Bài tập OSPF_.pdf");
+  assert.equal(sanitizeUploadFileName("CON.txt"), "document_CON.txt");
+  assert.equal(sanitizeUploadFileName("library/01 mạng máy tính.docx"), "01 mạng máy tính.docx");
+  assert.equal(sanitizeUploadFileName("  đề thi cuối kỳ...  "), "đề thi cuối kỳ");
+
   assert.equal(
     resolveStoredUploadPath("uploads/document.pdf"),
     location.absolutePath,
@@ -60,6 +70,10 @@ try {
   assert.throws(
     () => createUploadStorageLocation("../document.pdf"),
     /Invalid upload file name/,
+  );
+  assert.throws(
+    () => createNamedUploadStorageLocation("../document-id", "document.pdf"),
+    /Invalid named upload path/,
   );
 
   console.log("PASS local storage paths: data root, legacy mapping, and containment");

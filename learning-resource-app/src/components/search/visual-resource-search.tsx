@@ -4,26 +4,17 @@
 
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, ArrowUpRight, FileImage, FileSearch, Hand, LoaderCircle, Minus, MousePointer2, Plus, RotateCcw, Search, Upload } from "lucide-react";
-import { ChangeEvent, FormEvent, PointerEvent, useEffect, useRef, useState } from "react";
+import { ChangeEvent, FormEvent, PointerEvent, WheelEvent, useEffect, useRef, useState } from "react";
 import { formatDifficulty } from "@/lib/labels";
 import { mergeRecognizedText, normalizeVisualQueryText } from "@/lib/search/visual-query";
-
-type SearchResult = {
-  chunkId: string;
-  documentId: string;
-  title: string;
-  fileType: string;
-  primaryTopic: string | null;
-  difficulty: string | null;
-  content: string;
-  pageNumber: number | null;
-  sourceLabel: string | null;
-  matchReasons: string[];
-};
-
-type SearchStatus = "OK" | "NO_RELEVANT_RESULTS" | "EMPTY_LIBRARY";
-type ViewerMode = "select" | "move";
-type Selection = { x: number; y: number; width: number; height: number };
+import {
+  readVisualSearchDraft,
+  saveVisualSearchDraft,
+  type VisualSearchResult as SearchResult,
+  type VisualSearchStatus as SearchStatus,
+  type VisualSelection as Selection,
+  type VisualViewerMode as ViewerMode,
+} from "@/lib/search/visual-search-draft";
 type ResizeCorner = "nw" | "ne" | "sw" | "se";
 
 const ACCEPTED_FILE_TYPES = ".png,.jpg,.jpeg,.webp,.pdf,.docx,.pptx,.epub";
@@ -40,53 +31,107 @@ function nextAnimationFrame() {
 }
 
 export function VisualResourceSearch() {
+  const [restoredDraft] = useState(() => readVisualSearchDraft());
   const inputRef = useRef<HTMLInputElement>(null);
   const viewerRef = useRef<HTMLDivElement>(null);
   const previewFrameRef = useRef<HTMLIFrameElement>(null);
   const dragStartRef = useRef<{ x: number; y: number } | null>(null);
+  const panStartRef = useRef<{ clientX: number; clientY: number; scrollLeft: number; scrollTop: number } | null>(null);
   const resizeRef = useRef<{ corner: ResizeCorner; clientX: number; clientY: number; original: Selection } | null>(null);
   const resizeDraftRef = useRef<Selection | null>(null);
+  const moveSelectionRef = useRef<{ clientX: number; clientY: number; original: Selection } | null>(null);
+  const moveSelectionDraftRef = useRef<Selection | null>(null);
   const requestSequenceRef = useRef(0);
-  const lastSearchQueryRef = useRef("");
+  const lastSearchQueryRef = useRef(restoredDraft?.results.length ? restoredDraft.query : "");
   const objectUrlRef = useRef<string | null>(null);
   const ocrAbortRef = useRef<AbortController | null>(null);
   const searchAbortRef = useRef<AbortController | null>(null);
   const previewAbortRef = useRef<AbortController | null>(null);
   const pageAbortRef = useRef<AbortController | null>(null);
-  const previewSessionRef = useRef<string | null>(null);
-  const [file, setFile] = useState<File | null>(null);
+  const previewSessionRef = useRef<string | null>(restoredDraft?.previewSessionId ?? null);
+  const [file, setFile] = useState<File | null>(restoredDraft?.file ?? null);
   const [previewUrl, setPreviewUrl] = useState("");
-  const [previewHtml, setPreviewHtml] = useState("");
-  const [previewItemCount, setPreviewItemCount] = useState(0);
-  const [currentPreviewItem, setCurrentPreviewItem] = useState(1);
-  const [zoom, setZoom] = useState(1);
-  const [viewerMode, setViewerMode] = useState<ViewerMode>("select");
-  const [selection, setSelection] = useState<Selection | null>(null);
+  const [previewHtml, setPreviewHtml] = useState(restoredDraft?.previewHtml ?? "");
+  const [previewItemCount, setPreviewItemCount] = useState(restoredDraft?.previewItemCount ?? 0);
+  const [currentPreviewItem, setCurrentPreviewItem] = useState(restoredDraft?.currentPreviewItem ?? 1);
+  const [zoom, setZoom] = useState(restoredDraft?.zoom ?? 1);
+  const [canvasBaseSize, setCanvasBaseSize] = useState({ width: 0, height: 0 });
+  const [viewerMode, setViewerMode] = useState<ViewerMode>(restoredDraft?.viewerMode ?? "select");
+  const [selection, setSelection] = useState<Selection | null>(restoredDraft?.selection ?? null);
+  const [selectionRevision, setSelectionRevision] = useState(0);
   const [draftSelection, setDraftSelection] = useState<Selection | null>(null);
-  const [query, setQuery] = useState("");
-  const [capturedPreview, setCapturedPreview] = useState("");
-  const [results, setResults] = useState<SearchResult[]>([]);
-  const [searchStatus, setSearchStatus] = useState<SearchStatus | null>(null);
+  const [query, setQuery] = useState(restoredDraft?.query ?? "");
+  const [capturedPreview, setCapturedPreview] = useState(restoredDraft?.capturedPreview ?? "");
+  const [results, setResults] = useState<SearchResult[]>(restoredDraft?.results ?? []);
+  const [searchStatus, setSearchStatus] = useState<SearchStatus | null>(restoredDraft?.searchStatus ?? null);
   const [isPreparing, setIsPreparing] = useState(false);
   const [isChangingPage, setIsChangingPage] = useState(false);
   const [isCapturing, setIsCapturing] = useState(false);
   const [isRecognizing, setIsRecognizing] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
+  const [isPanning, setIsPanning] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => () => {
-    if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
     ocrAbortRef.current?.abort();
     searchAbortRef.current?.abort();
     previewAbortRef.current?.abort();
     pageAbortRef.current?.abort();
-    if (previewSessionRef.current) {
-      void fetch(`/api/search/visual/preview?sessionId=${encodeURIComponent(previewSessionRef.current)}`, {
-        method: "DELETE",
-        keepalive: true,
-      });
-    }
   }, []);
+
+  useEffect(() => {
+    if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
+    objectUrlRef.current = null;
+    const updateTimer = window.setTimeout(() => {
+      if (!file) {
+        setPreviewUrl("");
+        return;
+      }
+      const extension = extensionOf(file);
+      if (!IMAGE_EXTENSIONS.has(extension) && extension !== "pdf") {
+        setPreviewUrl("");
+        return;
+      }
+      const url = URL.createObjectURL(file);
+      objectUrlRef.current = url;
+      setPreviewUrl(url);
+    }, 0);
+    return () => {
+      window.clearTimeout(updateTimer);
+      if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
+      objectUrlRef.current = null;
+    };
+  }, [file]);
+
+  useEffect(() => {
+    const viewer = viewerRef.current;
+    const shell = viewer?.parentElement;
+    if (!viewer || !shell) return;
+    const updateSize = () => {
+      setCanvasBaseSize({ width: shell.clientWidth, height: shell.clientHeight });
+    };
+    updateSize();
+    const observer = new ResizeObserver(updateSize);
+    observer.observe(shell);
+    return () => observer.disconnect();
+  }, [file, isPreparing]);
+
+  useEffect(() => {
+    saveVisualSearchDraft({
+      file,
+      previewHtml,
+      previewItemCount,
+      currentPreviewItem,
+      previewSessionId: previewSessionRef.current,
+      zoom,
+      viewerMode,
+      selection,
+      query,
+      capturedPreview,
+      results,
+      searchStatus,
+    });
+  }, [file, previewHtml, previewItemCount, currentPreviewItem, zoom, viewerMode, selection, query, capturedPreview, results, searchStatus]);
 
   async function runSearch(searchQuery: string, sequence = ++requestSequenceRef.current) {
     const normalizedQuery = searchQuery.trim().slice(0, 500);
@@ -141,8 +186,8 @@ export function VisualResourceSearch() {
       await nextAnimationFrame();
       const bounds = viewer.getBoundingClientRect();
       const capture = await desktop.captureSearchRegion({
-        x: bounds.left + region.x,
-        y: bounds.top + region.y,
+        x: bounds.left + region.x - viewer.scrollLeft,
+        y: bounds.top + region.y - viewer.scrollTop,
         width: region.width,
         height: region.height,
       });
@@ -192,10 +237,10 @@ export function VisualResourceSearch() {
       const scaleX = frameBounds.width / frame.offsetWidth;
       const scaleY = frameBounds.height / frame.offsetHeight;
       const selectedBounds = {
-        left: viewerBounds.left + region.x,
-        top: viewerBounds.top + region.y,
-        right: viewerBounds.left + region.x + region.width,
-        bottom: viewerBounds.top + region.y + region.height,
+        left: viewerBounds.left + region.x - viewer.scrollLeft,
+        top: viewerBounds.top + region.y - viewer.scrollTop,
+        right: viewerBounds.left + region.x - viewer.scrollLeft + region.width,
+        bottom: viewerBounds.top + region.y - viewer.scrollTop + region.height,
       };
       const walker = frameDocument.createTreeWalker(frameDocument.body, window.NodeFilter.SHOW_TEXT);
       const selectedText: string[] = [];
@@ -228,12 +273,12 @@ export function VisualResourceSearch() {
   }
 
   useEffect(() => {
-    if (!selection || !file) return;
+    if (!selection || !file || selectionRevision === 0) return;
     const timer = window.setTimeout(() => void recognizeSelection(selection), 350);
     return () => window.clearTimeout(timer);
     // A new selection intentionally owns a new OCR/search request.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selection]);
+  }, [selectionRevision]);
 
   useEffect(() => {
     const normalizedQuery = query.trim().slice(0, 500);
@@ -270,10 +315,7 @@ export function VisualResourceSearch() {
       });
       previewSessionRef.current = null;
     }
-    if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
-    objectUrlRef.current = null;
     setFile(nextFile);
-    setPreviewUrl("");
     setPreviewHtml("");
     setPreviewItemCount(0);
     setCurrentPreviewItem(1);
@@ -293,12 +335,7 @@ export function VisualResourceSearch() {
     setIsSearching(false);
     setViewerMode("select");
 
-    if (IMAGE_EXTENSIONS.has(extension) || extension === "pdf") {
-      const url = URL.createObjectURL(nextFile);
-      objectUrlRef.current = url;
-      setPreviewUrl(url);
-      return;
-    }
+    if (IMAGE_EXTENSIONS.has(extension) || extension === "pdf") return;
 
     setIsPreparing(true);
     const previewController = new AbortController();
@@ -328,10 +365,11 @@ export function VisualResourceSearch() {
   }
 
   function localPoint(event: PointerEvent<HTMLDivElement>) {
-    const bounds = event.currentTarget.getBoundingClientRect();
+    const viewer = event.currentTarget;
+    const bounds = viewer.getBoundingClientRect();
     return {
-      x: Math.max(0, Math.min(bounds.width, event.clientX - bounds.left)),
-      y: Math.max(0, Math.min(bounds.height, event.clientY - bounds.top)),
+      x: Math.max(0, Math.min(viewer.scrollWidth, event.clientX - bounds.left + viewer.scrollLeft)),
+      y: Math.max(0, Math.min(viewer.scrollHeight, event.clientY - bounds.top + viewer.scrollTop)),
     };
   }
 
@@ -339,13 +377,32 @@ export function VisualResourceSearch() {
     requestSequenceRef.current += 1;
     ocrAbortRef.current?.abort();
     searchAbortRef.current?.abort();
+    lastSearchQueryRef.current = "";
+    setQuery("");
+    setCapturedPreview("");
+    setResults([]);
+    setSearchStatus(null);
+    setError("");
     setIsCapturing(false);
     setIsRecognizing(false);
     setIsSearching(false);
   }
 
   function handlePointerDown(event: PointerEvent<HTMLDivElement>) {
-    if (viewerMode !== "select" || !file) return;
+    if (!file) return;
+    if (viewerMode === "move") {
+      if (extension === "pdf") return;
+      event.preventDefault();
+      event.currentTarget.setPointerCapture(event.pointerId);
+      panStartRef.current = {
+        clientX: event.clientX,
+        clientY: event.clientY,
+        scrollLeft: event.currentTarget.scrollLeft,
+        scrollTop: event.currentTarget.scrollTop,
+      };
+      setIsPanning(true);
+      return;
+    }
     supersedeActiveRequests();
     event.currentTarget.setPointerCapture(event.pointerId);
     const point = localPoint(event);
@@ -355,9 +412,27 @@ export function VisualResourceSearch() {
   }
 
   function handlePointerMove(event: PointerEvent<HTMLDivElement>) {
+    const pan = panStartRef.current;
+    if (pan) {
+      event.currentTarget.scrollLeft = pan.scrollLeft - (event.clientX - pan.clientX);
+      event.currentTarget.scrollTop = pan.scrollTop - (event.clientY - pan.clientY);
+      return;
+    }
+    const movingSelection = moveSelectionRef.current;
+    if (movingSelection) {
+      const maxX = Math.max(0, event.currentTarget.scrollWidth - movingSelection.original.width);
+      const maxY = Math.max(0, event.currentTarget.scrollHeight - movingSelection.original.height);
+      const movedSelection = {
+        ...movingSelection.original,
+        x: Math.max(0, Math.min(maxX, movingSelection.original.x + event.clientX - movingSelection.clientX)),
+        y: Math.max(0, Math.min(maxY, movingSelection.original.y + event.clientY - movingSelection.clientY)),
+      };
+      moveSelectionDraftRef.current = movedSelection;
+      setDraftSelection(movedSelection);
+      return;
+    }
     const resize = resizeRef.current;
     if (resize) {
-      const bounds = event.currentTarget.getBoundingClientRect();
       const dx = event.clientX - resize.clientX;
       const dy = event.clientY - resize.clientY;
       const originalRight = resize.original.x + resize.original.width;
@@ -365,9 +440,9 @@ export function VisualResourceSearch() {
       const west = resize.corner.endsWith("w");
       const north = resize.corner.startsWith("n");
       const left = west ? Math.max(0, Math.min(originalRight - 12, resize.original.x + dx)) : resize.original.x;
-      const right = west ? originalRight : Math.max(resize.original.x + 12, Math.min(bounds.width, originalRight + dx));
+      const right = west ? originalRight : Math.max(resize.original.x + 12, Math.min(event.currentTarget.scrollWidth, originalRight + dx));
       const top = north ? Math.max(0, Math.min(originalBottom - 12, resize.original.y + dy)) : resize.original.y;
-      const bottom = north ? originalBottom : Math.max(resize.original.y + 12, Math.min(bounds.height, originalBottom + dy));
+      const bottom = north ? originalBottom : Math.max(resize.original.y + 12, Math.min(event.currentTarget.scrollHeight, originalBottom + dy));
       const resizedSelection = { x: left, y: top, width: right - left, height: bottom - top };
       resizeDraftRef.current = resizedSelection;
       setDraftSelection(resizedSelection);
@@ -385,10 +460,30 @@ export function VisualResourceSearch() {
   }
 
   function handlePointerUp(event: PointerEvent<HTMLDivElement>) {
+    if (panStartRef.current) {
+      panStartRef.current = null;
+      event.currentTarget.releasePointerCapture(event.pointerId);
+      setIsPanning(false);
+      return;
+    }
+    if (moveSelectionRef.current) {
+      moveSelectionRef.current = null;
+      event.currentTarget.releasePointerCapture(event.pointerId);
+      if (moveSelectionDraftRef.current) {
+        setSelection(moveSelectionDraftRef.current);
+        setSelectionRevision((current) => current + 1);
+      }
+      moveSelectionDraftRef.current = null;
+      setDraftSelection(null);
+      return;
+    }
     if (resizeRef.current) {
       resizeRef.current = null;
       event.currentTarget.releasePointerCapture(event.pointerId);
-      if (resizeDraftRef.current) setSelection(resizeDraftRef.current);
+      if (resizeDraftRef.current) {
+        setSelection(resizeDraftRef.current);
+        setSelectionRevision((current) => current + 1);
+      }
       resizeDraftRef.current = null;
       setDraftSelection(null);
       return;
@@ -407,6 +502,7 @@ export function VisualResourceSearch() {
     setDraftSelection(null);
     if (completedSelection.width >= 12 && completedSelection.height >= 12) {
       setSelection(completedSelection);
+      setSelectionRevision((current) => current + 1);
     } else {
       setError("Hãy kéo một vùng lớn hơn để nhận dạng.");
     }
@@ -428,10 +524,26 @@ export function VisualResourceSearch() {
     setDraftSelection(selection);
   }
 
+  function startMoveSelection(event: PointerEvent<HTMLDivElement>) {
+    if (!selection || !viewerRef.current || viewerMode !== "select") return;
+    event.preventDefault();
+    event.stopPropagation();
+    supersedeActiveRequests();
+    viewerRef.current.setPointerCapture(event.pointerId);
+    moveSelectionRef.current = {
+      clientX: event.clientX,
+      clientY: event.clientY,
+      original: selection,
+    };
+    moveSelectionDraftRef.current = selection;
+    setDraftSelection(selection);
+  }
+
   async function jumpToPreviewItem(nextItem: number) {
     const normalizedItem = Math.max(1, Math.min(previewItemCount, nextItem));
     const sessionId = previewSessionRef.current;
     if (!sessionId || normalizedItem === currentPreviewItem) return;
+    supersedeActiveRequests();
     setSelection(null);
     setDraftSelection(null);
     pageAbortRef.current?.abort();
@@ -468,11 +580,43 @@ export function VisualResourceSearch() {
   }
 
   function changeViewerMode(nextMode: ViewerMode) {
-    if (nextMode === "move") {
-      setSelection(null);
-      setDraftSelection(null);
-    }
+    setDraftSelection(null);
+    setError("");
     setViewerMode(nextMode);
+  }
+
+  function changeZoom(nextZoom: number, anchor?: { x: number; y: number }) {
+    const normalizedZoom = Math.max(1, Math.min(2, Math.round(nextZoom * 10) / 10));
+    if (normalizedZoom === zoom) return;
+    const viewer = viewerRef.current;
+    const ratio = normalizedZoom / zoom;
+    setSelection((current) => current ? {
+      x: current.x * ratio,
+      y: current.y * ratio,
+      width: current.width * ratio,
+      height: current.height * ratio,
+    } : null);
+    setDraftSelection(null);
+    setZoom(normalizedZoom);
+    if (viewer) {
+      const focus = anchor ?? { x: viewer.clientWidth / 2, y: viewer.clientHeight / 2 };
+      const oldLeft = viewer.scrollLeft;
+      const oldTop = viewer.scrollTop;
+      requestAnimationFrame(() => {
+        viewer.scrollLeft = (oldLeft + focus.x) * ratio - focus.x;
+        viewer.scrollTop = (oldTop + focus.y) * ratio - focus.y;
+      });
+    }
+  }
+
+  function handleWheel(event: WheelEvent<HTMLDivElement>) {
+    if (!event.ctrlKey || extension === "pdf") return;
+    event.preventDefault();
+    const bounds = event.currentTarget.getBoundingClientRect();
+    changeZoom(zoom + (event.deltaY < 0 ? .1 : -.1), {
+      x: event.clientX - bounds.left,
+      y: event.clientY - bounds.top,
+    });
   }
 
   function handleTextSearch(event: FormEvent<HTMLFormElement>) {
@@ -482,7 +626,7 @@ export function VisualResourceSearch() {
 
   const activeSelection = draftSelection ?? selection;
   const extension = file ? extensionOf(file) : "";
-  const processingLabel = isCapturing ? "Đang chụp vùng chọn…" : isRecognizing ? "Docling đang đọc chữ…" : isSearching ? "Đang tìm đoạn tương tự…" : "";
+  const processingLabel = isCapturing ? "Đang chụp vùng chọn…" : isRecognizing ? "Đang đọc chữ tiếng Việt…" : isSearching ? "Đang tìm đoạn tương tự…" : "";
 
   return (
     <section className="visual-search-shell">
@@ -492,15 +636,15 @@ export function VisualResourceSearch() {
         {file ? <span className="visual-file-name"><FileImage size={16} /> {file.name}</span> : null}
         {file ? (
           <div className="visual-viewer-modes" aria-label="Chế độ xem">
-            <button className={viewerMode === "move" ? "active" : ""} onClick={() => changeViewerMode("move")} type="button"><Hand size={16} /> Di chuyển</button>
+            <button className={viewerMode === "move" ? "active" : ""} onClick={() => changeViewerMode("move")} type="button"><Hand size={16} /> Kéo để xem</button>
             <button className={viewerMode === "select" ? "active" : ""} onClick={() => changeViewerMode("select")} type="button"><MousePointer2 size={16} /> Chọn vùng</button>
           </div>
         ) : null}
         {file && extension !== "pdf" ? (
           <div className="visual-zoom-controls" aria-label="Thu phóng">
-            <button aria-label="Thu nhỏ" disabled={zoom <= .75} onClick={() => setZoom((value) => Math.max(.75, value - .25))} type="button"><Minus size={15} /></button>
-            <span>{Math.round(zoom * 100)}%</span>
-            <button aria-label="Phóng to" disabled={zoom >= 2} onClick={() => setZoom((value) => Math.min(2, value + .25))} type="button"><Plus size={15} /></button>
+            <button aria-label="Thu nhỏ" disabled={zoom <= 1} onClick={() => changeZoom(zoom - .1)} type="button"><Minus size={15} /></button>
+            <button className="visual-zoom-reset" onClick={() => changeZoom(1)} title="Đưa nội dung về vừa khung" type="button">{zoom === 1 ? "Vừa khung" : `${Math.round(zoom * 100)}%`}</button>
+            <button aria-label="Phóng to" disabled={zoom >= 2} onClick={() => changeZoom(zoom + .1)} type="button"><Plus size={15} /></button>
           </div>
         ) : null}
       </div>
@@ -514,17 +658,24 @@ export function VisualResourceSearch() {
           ) : null}
           {isPreparing ? <div className="visual-preview-loading"><LoaderCircle className="spin" size={28} /><span>Đang tạo bản xem trước…</span></div> : null}
           {file && !isPreparing ? (
-            <div className={`visual-viewer ${viewerMode === "select" ? "is-selecting" : "is-moving"}`} onPointerDown={handlePointerDown} onPointerMove={handlePointerMove} onPointerUp={handlePointerUp} ref={viewerRef}>
-              {IMAGE_EXTENSIONS.has(extension) && previewUrl ? <img alt={file.name} draggable={false} src={previewUrl} style={{ width: `${zoom * 100}%`, height: `${zoom * 100}%`, maxWidth: "none" }} /> : null}
-              {extension === "pdf" && previewUrl ? <iframe aria-label={`Xem ${file.name}`} src={previewUrl} title={file.name} /> : null}
-              {HTML_PREVIEW_EXTENSIONS.has(extension) && previewHtml ? <iframe aria-label={`Xem ${file.name}`} ref={previewFrameRef} sandbox="allow-same-origin" srcDoc={previewHtml} style={{ width: `${100 / zoom}%`, height: `${100 / zoom}%`, transform: `scale(${zoom})`, transformOrigin: "top left" }} title={file.name} /> : null}
-              {activeSelection && !isCapturing ? (
-                <div className="visual-selection" style={{ left: activeSelection.x, top: activeSelection.y, width: activeSelection.width, height: activeSelection.height }}>
-                  {(["nw", "ne", "sw", "se"] as ResizeCorner[]).map((corner) => (
-                    <button aria-label={`Đổi kích thước ${corner}`} className={`visual-selection-handle handle-${corner}`} key={corner} onPointerDown={(event) => startResize(event, corner)} type="button" />
-                  ))}
+            <div className="visual-viewer-shell">
+              <div className={`visual-viewer ${viewerMode === "select" ? "is-selecting" : "is-moving"}${isPanning ? " is-panning" : ""}`} onPointerCancel={handlePointerUp} onPointerDown={handlePointerDown} onPointerMove={handlePointerMove} onPointerUp={handlePointerUp} onWheel={handleWheel} ref={viewerRef}>
+                <div className="visual-canvas" style={{
+                  width: canvasBaseSize.width ? `${canvasBaseSize.width * zoom}px` : "100%",
+                  height: canvasBaseSize.height ? `${canvasBaseSize.height * zoom}px` : "100%",
+                }}>
+                {IMAGE_EXTENSIONS.has(extension) && previewUrl ? <img alt={file.name} draggable={false} src={previewUrl} /> : null}
+                {extension === "pdf" && previewUrl ? <iframe aria-label={`Xem ${file.name}`} className="visual-pdf-frame" src={previewUrl} title={file.name} /> : null}
+                {HTML_PREVIEW_EXTENSIONS.has(extension) && previewHtml ? <iframe aria-label={`Xem ${file.name}`} ref={previewFrameRef} sandbox="allow-same-origin" srcDoc={previewHtml} style={{ width: `${100 / zoom}%`, height: `${100 / zoom}%`, transform: `scale(${zoom})`, transformOrigin: "top left" }} title={file.name} /> : null}
+                {activeSelection && !isCapturing ? (
+                  <div className="visual-selection" onPointerDown={startMoveSelection} style={{ left: activeSelection.x, top: activeSelection.y, width: activeSelection.width, height: activeSelection.height }}>
+                    {(["nw", "ne", "sw", "se"] as ResizeCorner[]).map((corner) => (
+                      <button aria-label={`Đổi kích thước ${corner}`} className={`visual-selection-handle handle-${corner}`} key={corner} onPointerDown={(event) => startResize(event, corner)} type="button" />
+                    ))}
+                  </div>
+                ) : null}
                 </div>
-              ) : null}
+              </div>
               {viewerMode === "select" && !isCapturing ? <span className="visual-selection-hint">Kéo khung quanh câu hỏi hoặc nội dung muốn tìm</span> : null}
               {previewItemCount > 1 && !isCapturing ? (
                 <div className="visual-page-controls" onPointerDown={(event) => event.stopPropagation()}>
@@ -543,7 +694,7 @@ export function VisualResourceSearch() {
         <div className="visual-results-panel">
           <div className="visual-query-heading">
             <div><span>Nội dung nhận dạng</span><strong>{processingLabel || (query ? "Có thể sửa trước khi tìm lại" : "Chưa chọn vùng")}</strong></div>
-            {selection ? <button aria-label="Chọn lại vùng" onClick={() => { setSelection(null); setDraftSelection(null); }} type="button"><RotateCcw size={16} /></button> : null}
+            {selection ? <button aria-label="Chọn lại vùng" onClick={() => { supersedeActiveRequests(); setSelection(null); setDraftSelection(null); }} type="button"><RotateCcw size={16} /></button> : null}
           </div>
           {capturedPreview ? <img alt="Vùng vừa chọn để OCR" className="visual-captured-preview" src={capturedPreview} /> : null}
           <form className="visual-query-form" onSubmit={handleTextSearch}>
@@ -557,7 +708,7 @@ export function VisualResourceSearch() {
             <div className="visual-result-list">
               <div className="visual-result-count"><strong>{results.length} tài liệu phù hợp</strong><span>Chỉ hiển thị nguồn tương tự, không giải câu hỏi.</span></div>
               {results.map((result) => (
-                <Link href={`/documents/${result.documentId}?chunk=${result.chunkId}#matched-chunk`} key={result.chunkId}>
+                <Link href={`/documents/${result.documentId}?chunk=${result.chunkId}&from=search&mode=visual#matched-chunk`} key={result.chunkId}>
                   <div className="visual-result-title"><span>{result.fileType}</span><strong>{result.title}</strong><ArrowUpRight size={15} /></div>
                   <p>{result.content.slice(0, 240)}{result.content.length > 240 ? "…" : ""}</p>
                   <div className="result-tags">
@@ -565,6 +716,13 @@ export function VisualResourceSearch() {
                     {result.primaryTopic ? <span>{result.primaryTopic}</span> : null}
                     {result.difficulty ? <span>{formatDifficulty(result.difficulty)}</span> : null}
                   </div>
+                  {result.matchReasons.length ? (
+                    <div className="result-suitability">
+                      <strong>Vì sao được gợi ý</strong>
+                      <span>{result.matchReasons.join(" · ")}</span>
+                    </div>
+                  ) : null}
+                  <small className="result-citation">Nguồn: {result.title}{result.sourceLabel ? ` · ${result.sourceLabel}` : ""}</small>
                 </Link>
               ))}
             </div>

@@ -79,10 +79,10 @@ export async function POST(request: Request) {
       },
       {
         role: "user",
-        content: `Người dùng hỏi: ${parsed.data.query}
+        content: `Người dùng cần tìm: ${parsed.data.query}
 
 Hãy đọc các kết quả semantic search bên dưới và phân loại từng kết quả vào đúng 1 nhóm:
-- READ_FIRST: nên đọc trước vì trả lời trực tiếp câu hỏi.
+- READ_FIRST: nên đọc trước vì phù hợp trực tiếp nhu cầu tìm kiếm.
 - READ_LATER: có liên quan nhưng chỉ nên đọc thêm nếu cần.
 - SKIP: có thể bỏ qua vì chỉ giống ngữ nghĩa hoặc lệch nhu cầu.
 

@@ -15,6 +15,25 @@ function isSafePathSegment(value: string) {
   );
 }
 
+const WINDOWS_RESERVED_FILE_NAME = /^(con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i;
+
+/** Keep the user's name readable while making it safe on desktop file systems. */
+export function sanitizeUploadFileName(originalFileName: string) {
+  const leafName = originalFileName.replaceAll("\\", "/").split("/").at(-1) ?? originalFileName;
+  const cleaned = leafName
+    .replace(/[<>:"/\\|?*\u0000-\u001f]/g, "_")
+    .replace(/[. ]+$/g, "")
+    .trim();
+  const safeName = !cleaned || WINDOWS_RESERVED_FILE_NAME.test(cleaned)
+    ? `document_${cleaned || "file"}`
+    : cleaned;
+  if (safeName.length <= 180) return safeName;
+
+  const extension = path.extname(safeName).slice(0, 20);
+  const baseName = safeName.slice(0, Math.max(1, 180 - extension.length)).replace(/[. ]+$/g, "");
+  return `${baseName}${extension}`;
+}
+
 /**
  * Resolve ScholarFlow's writable data directory.
  *
@@ -75,6 +94,29 @@ export function createUploadStorageLocation(
     absolutePath,
     directory,
     storedPath: [UPLOADS_DIRECTORY, storedFileName].join("/"),
+  };
+}
+
+export function createNamedUploadStorageLocation(
+  storageId: string,
+  originalFileName: string,
+): UploadStorageLocation {
+  const safeFileName = sanitizeUploadFileName(originalFileName);
+  if (!isSafePathSegment(storageId) || !isSafePathSegment(safeFileName)) {
+    throw new Error("Invalid named upload path");
+  }
+
+  const uploadsRoot = getUploadsRoot();
+  const directory = path.resolve(uploadsRoot, storageId);
+  const absolutePath = path.resolve(directory, safeFileName);
+  if (!isPathInside(uploadsRoot, absolutePath) || absolutePath === uploadsRoot) {
+    throw new Error("Invalid named upload path");
+  }
+
+  return {
+    absolutePath,
+    directory,
+    storedPath: [UPLOADS_DIRECTORY, storageId, safeFileName].join("/"),
   };
 }
 

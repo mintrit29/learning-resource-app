@@ -491,8 +491,7 @@ function createMainWindow() {
     }
   });
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-    if (isAllowedAppUrl(url)) void mainWindow.loadURL(url);
-    else openExternalUrl(url);
+    if (!isAllowedAppUrl(url)) openExternalUrl(url);
     return { action: "deny" };
   });
   mainWindow.once("ready-to-show", () => mainWindow?.show());
@@ -504,6 +503,37 @@ function createMainWindow() {
     ? Object.values(componentManager.getQuickStatuses()).some((component) => component.status !== "ready")
     : false;
   void mainWindow.loadURL(`${serverUrl}${needsSetup ? "/setup/components" : ""}`);
+}
+
+async function requestUploadFileMigration(url, healthToken) {
+  return new Promise((resolve) => {
+    const request = http.request(
+      `${url}/api/desktop/migrate-upload-files`,
+      {
+        method: "POST",
+        timeout: 10_000,
+        headers: { "x-scholarflow-health-token": healthToken },
+      },
+      (response) => {
+        let body = "";
+        response.setEncoding("utf8");
+        response.on("data", (chunk) => {
+          body += chunk;
+          if (body.length > 10_000) response.destroy();
+        });
+        response.on("end", () => {
+          try {
+            resolve(response.statusCode === 200 ? JSON.parse(body) : null);
+          } catch {
+            resolve(null);
+          }
+        });
+      },
+    );
+    request.once("timeout", () => request.destroy());
+    request.once("error", () => resolve(null));
+    request.end();
+  });
 }
 
 async function restartEmbeddingService() {
@@ -580,6 +610,43 @@ function registerVisualSearchIpc() {
   });
 }
 
+async function getDocumentStorageLocation(documentId) {
+  if (!serverUrl || !serverHealthToken || typeof documentId !== "string" || documentId.length > 128) {
+    return null;
+  }
+  const response = await fetch(`${serverUrl}/api/desktop/document-location/${encodeURIComponent(documentId)}`, {
+    headers: { "x-scholarflow-health-token": serverHealthToken },
+    signal: AbortSignal.timeout(3_000),
+  }).catch(() => null);
+  if (!response?.ok) return null;
+  const body = await response.json().catch(() => null);
+  return body && typeof body.filePath === "string" ? body.filePath : null;
+}
+
+function registerDocumentIpc() {
+  ipcMain.handle("documents:reveal-in-folder", async (event, documentId) => {
+    if (!mainWindow || mainWindow.isDestroyed() || event.sender !== mainWindow.webContents) {
+      throw new Error("Không thể mở thư mục tài liệu từ cửa sổ này.");
+    }
+    const storedPath = await getDocumentStorageLocation(documentId);
+    const dataRoot = path.resolve(app.getPath("userData"), "data");
+    const uploadsRoot = path.resolve(dataRoot, "uploads");
+    const segments = storedPath?.replaceAll("\\", "/").split("/") ?? [];
+    const absolutePath = path.resolve(dataRoot, ...segments);
+    if (
+      segments[0] !== "uploads"
+      || segments.some((segment) => !segment || segment === "." || segment === "..")
+      || absolutePath === uploadsRoot
+      || !absolutePath.startsWith(`${uploadsRoot}${path.sep}`)
+      || !existsSync(absolutePath)
+    ) {
+      throw new Error("File lưu trong ScholarFlow không còn tồn tại.");
+    }
+    shell.showItemInFolder(absolutePath);
+    return true;
+  });
+}
+
 function waitForProcessExit(child, timeoutMs) {
   if (child.exitCode !== null) return Promise.resolve(true);
   return new Promise((resolve) => {
@@ -644,6 +711,7 @@ async function bootstrap() {
   resetImportedFilesForLocalLibrary();
   registerComponentIpc();
   registerVisualSearchIpc();
+  registerDocumentIpc();
   embeddingPort = await findFreePort();
   startEmbeddingService(embeddingPort);
 
@@ -654,6 +722,10 @@ async function bootstrap() {
   writeLog(`Khởi động ScholarFlow tại ${serverUrl}`);
   startNextServer(port, healthToken, embeddingUrl);
   await Promise.all([waitForServer(serverUrl, healthToken), waitForEmbeddingServer(embeddingUrl)]);
+  const uploadMigration = await requestUploadFileMigration(serverUrl, healthToken);
+  if (uploadMigration?.migrated) {
+    writeLog(`Đã đổi tên ${uploadMigration.migrated} file tài liệu cũ sang tên dễ đọc.`);
+  }
   const recovery = await requestProcessingRecovery(serverUrl, healthToken);
   if (recovery?.scheduled) {
     writeLog(`Đã xếp lại ${recovery.scheduled} tài liệu bị gián đoạn.`);

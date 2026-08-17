@@ -20,16 +20,12 @@ import {
   SUPPORTED_UPLOAD_EXTENSIONS,
   SUPPORTED_UPLOAD_LABEL,
 } from "@/lib/documents/upload-policy";
-
-type UploadStatus = "ready" | "uploading" | "uploaded" | "error";
-
-type UploadItem = {
-  id: string;
-  file: File;
-  status: UploadStatus;
-  message?: string;
-  documentId?: string;
-};
+import {
+  clearUploadDraft,
+  readUploadDraft,
+  saveUploadDraft,
+  type UploadDraftItem as UploadItem,
+} from "@/lib/documents/upload-draft";
 
 function formatFileSize(bytes: number) {
   return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
@@ -50,7 +46,7 @@ export function UploadForm() {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const folderInputRef = useRef<HTMLInputElement>(null);
-  const [items, setItems] = useState<UploadItem[]>([]);
+  const [items, setItems] = useState<UploadItem[]>(readUploadDraft);
   const [error, setError] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -59,6 +55,15 @@ export function UploadForm() {
   useEffect(() => {
     folderInputRef.current?.setAttribute("webkitdirectory", "");
   }, []);
+
+  useEffect(() => {
+    saveUploadDraft(items);
+    const hasUnfinishedWork = items.some((item) => item.status !== "uploaded");
+    if (!hasUnfinishedWork) return;
+    const warnBeforeLeaving = (event: BeforeUnloadEvent) => event.preventDefault();
+    window.addEventListener("beforeunload", warnBeforeLeaving);
+    return () => window.removeEventListener("beforeunload", warnBeforeLeaving);
+  }, [items]);
 
   function chooseFiles(candidates: File[]) {
     setError("");
@@ -159,6 +164,8 @@ export function UploadForm() {
       router.refresh();
       return;
     }
+    setItems([]);
+    clearUploadDraft();
     if (uploadedCount === 1 && firstDocumentId && items.length === 1) {
       router.push(`/documents/${firstDocumentId}`);
     } else if (uploadedCount > 0) {
@@ -224,10 +231,14 @@ export function UploadForm() {
               </button>
               <button className="secondary-button compact" onClick={() => folderInputRef.current?.click()} type="button">
                 <FolderOpen size={18} />
-                Chọn thư mục
+                Quét thư mục
               </button>
             </div>
             <small>Hỗ trợ: {SUPPORTED_UPLOAD_LABEL}</small>
+            <small className="folder-picker-note">
+              Khi quét thư mục, cửa sổ Windows chỉ hiện thư mục và ẩn các file bên trong. Chọn thư mục rồi bấm Upload;
+              app sẽ tự lấy {SUPPORTED_UPLOAD_LABEL}.
+            </small>
           </>
         ) : (
           <div className="selected-files-panel">
@@ -241,10 +252,13 @@ export function UploadForm() {
                   <FileText size={16} /> Thêm file
                 </button>
                 <button className="secondary-button compact" disabled={isUploading} onClick={() => folderInputRef.current?.click()} type="button">
-                  <FolderOpen size={16} /> Thêm thư mục
+                  <FolderOpen size={16} /> Quét thêm thư mục
                 </button>
               </div>
             </div>
+            <small className="folder-picker-note selected-files-folder-note">
+              Windows ẩn file trong cửa sổ chọn thư mục; app sẽ tự quét {SUPPORTED_UPLOAD_LABEL} sau khi bạn bấm Upload.
+            </small>
             <div className="selected-files-list">
               {items.map((item) => (
                 <div className={`selected-file status-${item.status}`} key={item.id}>

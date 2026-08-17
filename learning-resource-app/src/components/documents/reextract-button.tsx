@@ -4,6 +4,7 @@ import { useState } from "react";
 import { FileScan, LoaderCircle, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { dismissFromBackdrop, useDismissableDialog } from "@/lib/dismissable-dialog";
 
 export function ReextractButton({
   documentId,
@@ -17,6 +18,7 @@ export function ReextractButton({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [setupUrl, setSetupUrl] = useState("");
+  useDismissableDialog(isOpen, loading, () => setIsOpen(false));
 
   async function reextract() {
     setLoading(true);
@@ -45,7 +47,7 @@ export function ReextractButton({
         <FileScan size={14} />Trích xuất lại
       </button>
       {isOpen ? (
-        <div className="modal-backdrop" role="presentation">
+        <div className="modal-backdrop" onMouseDown={(event) => dismissFromBackdrop(event, loading, () => setIsOpen(false))} role="presentation">
           <section aria-labelledby="reextract-title" aria-modal="true" className="confirm-dialog" role="dialog">
             <div className="dialog-heading">
               <div><p className="eyebrow">Xác nhận xử lý lại</p><h2 id="reextract-title">Trích xuất lại bằng Docling?</h2></div>

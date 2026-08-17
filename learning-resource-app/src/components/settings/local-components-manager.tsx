@@ -63,6 +63,14 @@ export function LocalComponentsManager({ onboarding = false }: { onboarding?: bo
     if (action === "remove" && !window.confirm("Xóa thành phần này? Bạn có thể tải lại bất kỳ lúc nào và dữ liệu tài liệu sẽ không bị xóa.")) return;
     setBusy(id);
     setError("");
+    if (action === "verify") {
+      setResponse((current) => current ? {
+        ...current,
+        components: current.components.map((component) => component.id === id
+          ? { ...component, status: "verifying", error: null }
+          : component),
+      } : current);
+    }
     try {
       if (action === "install") await desktop.installComponent(id);
       if (action === "verify") await desktop.verifyComponent(id);

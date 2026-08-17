@@ -1,12 +1,14 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Download, ExternalLink, FileText, LocateFixed } from "lucide-react";
+import { ArrowLeft, Download, FileText, LocateFixed } from "lucide-react";
 import { DeleteDocumentButton } from "@/components/documents/delete-document-button";
 import { EditAnalysisButton } from "@/components/documents/edit-analysis-button";
+import { ExtractedTextDisclosure } from "@/components/documents/extracted-text-disclosure";
 import { ProcessingEstimate } from "@/components/documents/processing-estimate";
 import { ProcessingRefresh } from "@/components/documents/processing-refresh";
 import { ReanalyzeButton } from "@/components/documents/reanalyze-button";
 import { ReextractButton } from "@/components/documents/reextract-button";
+import { RevealDocumentButton } from "@/components/documents/reveal-document-button";
 import { RetryJobButton } from "@/components/documents/retry-job-button";
 import { db } from "@/lib/db";
 import { getDocumentDisplayStatus } from "@/lib/documents/display-status";
@@ -46,12 +48,14 @@ export default async function DocumentDetailPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ chunk?: string; fullText?: string }>;
+  searchParams: Promise<{ chunk?: string; from?: string; mode?: string }>;
 }) {
   await ensureCurriculumTopics();
   const { id } = await params;
-  const { chunk: matchedChunkId, fullText } = await searchParams;
-  const shouldShowFullText = fullText === "1";
+  const { chunk: matchedChunkId, from, mode } = await searchParams;
+  const cameFromSearch = from === "search";
+  const searchMode = mode === "visual" ? "visual" : "text";
+  const backHref = cameFromSearch ? `/search${searchMode === "visual" ? "?mode=visual" : ""}` : "/documents";
   const document = await db.document.findFirst({
     where: { id },
     include: {
@@ -73,10 +77,6 @@ export default async function DocumentDetailPage({
     }),
   ]);
 
-  const textContent = document.textContent ?? "";
-  const previewLimit = 15000;
-  const preview = shouldShowFullText ? textContent : textContent.slice(0, previewLimit);
-  const hiddenCharacterCount = Math.max(0, textContent.length - preview.length);
   const matchedChunk = document.chunks[0];
   const isProcessing = document.jobs.some((job) =>
     job.status === "PENDING" || job.status === "PROCESSING"
@@ -87,16 +87,11 @@ export default async function DocumentDetailPage({
   const originalFileHref = `/api/documents/${document.id}/file`;
   const originalFileDownloadHref = `${originalFileHref}?download=1`;
   const extractedTextDownloadHref = `/api/documents/${document.id}/text`;
-  const textViewParams = new URLSearchParams();
-  if (matchedChunkId) textViewParams.set("chunk", matchedChunkId);
-  if (!shouldShowFullText) textViewParams.set("fullText", "1");
-  const textViewHref = `/documents/${document.id}${textViewParams.size ? `?${textViewParams.toString()}` : ""}#extracted-text`;
   const isPdf = document.fileType === "PDF";
   const matchedPdfPage = isPdf && matchedChunk?.pageNumber ? matchedChunk.pageNumber : null;
   const originalFilePreviewHref = isPdf
     ? matchedPdfPage ? `${originalFileHref}#page=${matchedPdfPage}` : originalFileHref
     : `/api/documents/${document.id}/preview`;
-  const originalFileActionLabel = "Mở bản xem";
   const embeddingDevice = (process.env.EMBEDDING_DEVICE ?? "cpu").toLowerCase();
   const latestJobsByType = new Map<string, (typeof document.jobs)[number]>();
   for (const job of document.jobs) latestJobsByType.set(job.type, job);
@@ -114,7 +109,7 @@ export default async function DocumentDetailPage({
   return (
     <div className="page-wrap document-detail-page">
       <ProcessingRefresh active={isProcessing} />
-      <Link className="back-link" href="/documents"><ArrowLeft size={17} />Quay lại thư viện</Link>
+      <Link className="back-link" href={backHref}><ArrowLeft size={17} />{cameFromSearch ? "Quay lại kết quả tìm kiếm" : "Quay lại thư viện"}</Link>
       <header className="document-detail-header">
         <div className="document-file-icon"><FileText size={26} /></div>
         <div><p className="eyebrow">Tài liệu {document.fileType}</p><h1>{document.title}</h1><p>{document.originalFileName}</p></div>
@@ -145,8 +140,8 @@ export default async function DocumentDetailPage({
         <div><span>Ngôn ngữ</span><strong>{document.language ?? "Chưa nhận diện"}</strong></div>
       </section>
 
-      <section className="processing-section">
-        <div className="processing-heading">
+      <details className="processing-section document-disclosure" open={isProcessing}>
+        <summary className="processing-heading">
           <div><h2>Tiến trình xử lý</h2><p>{document._count.chunks.toLocaleString("vi-VN")} đoạn đã được tạo.</p></div>
           <div className="processing-side">
             {embeddingJob?.status === "PROCESSING" ? (
@@ -162,7 +157,7 @@ export default async function DocumentDetailPage({
             ) : null}
             {isProcessing ? <span className="processing-live"><i />Đang chạy</span> : null}
           </div>
-        </div>
+        </summary>
         <div className="job-list">
           {processingSteps.map((type) => {
             const job = latestJobsByType.get(type);
@@ -176,7 +171,7 @@ export default async function DocumentDetailPage({
             );
           })}
         </div>
-      </section>
+      </details>
 
       {matchedChunk ? (
         <section className="matched-chunk" id="matched-chunk">
@@ -201,11 +196,9 @@ export default async function DocumentDetailPage({
             </p>
           </div>
           <div className="original-file-actions">
-            <a className="secondary-button compact" href={originalFilePreviewHref} target="_blank" rel="noreferrer">
-              {matchedPdfPage ? `Mở trang ${matchedPdfPage}` : "Mở bản xem riêng"} <ExternalLink size={15} />
-            </a>
+            <RevealDocumentButton documentId={document.id} />
             <a className="secondary-button compact" href={originalFileDownloadHref}>
-              Tải file <Download size={15} />
+              Lưu bản sao <Download size={15} />
             </a>
           </div>
         </div>
@@ -224,43 +217,16 @@ export default async function DocumentDetailPage({
               <strong>Không thể trích xuất nội dung</strong>
               <p>{document.analysisReason ?? "File có thể không chứa text hoặc định dạng không hợp lệ."}</p>
             </div>
-            <a
-              className="secondary-button compact"
-              href={originalFilePreviewHref}
-              target="_blank"
-              rel="noreferrer"
-            >
-              {originalFileActionLabel} <ExternalLink size={15} />
-            </a>
+            <RevealDocumentButton documentId={document.id} />
           </div>
         </section>
       ) : (
-        <section className="text-preview-section" id="extracted-text">
-          <div className="text-preview-heading">
-            <div>
-              <h2>Nội dung đã trích xuất</h2>
-              <p>
-                {document.textContent
-                  ? shouldShowFullText
-                    ? `Đang hiển thị toàn bộ ${document.textContent.length.toLocaleString("vi-VN")} ký tự để bạn kiểm tra nội dung bị miss.`
-                    : `Đang xem nhanh ${preview.length.toLocaleString("vi-VN")} / ${document.textContent.length.toLocaleString("vi-VN")} ký tự.`
-                  : "Nội dung đang được xử lý..."}
-              </p>
-            </div>
-            {document.textContent ? (
-              <div className="original-file-actions">
-                <Link className="secondary-button compact" href={textViewHref}>
-                  {shouldShowFullText ? "Thu gọn" : "Xem toàn bộ"}
-                </Link>
-                <a className="secondary-button compact" href={extractedTextDownloadHref}>
-                  Tải .txt <Download size={15} />
-                </a>
-              </div>
-            ) : null}
-          </div>
-          <pre>{preview || "Nội dung đang được xử lý..."}</pre>
-          {hiddenCharacterCount > 0 ? <small>Còn {hiddenCharacterCount.toLocaleString("vi-VN")} ký tự chưa hiển thị.</small> : null}
-        </section>
+        <ExtractedTextDisclosure
+          characterCount={document.textContent?.length ?? 0}
+          documentId={document.id}
+          downloadHref={extractedTextDownloadHref}
+          hasText={Boolean(document.textContent)}
+        />
       )}
     </div>
   );

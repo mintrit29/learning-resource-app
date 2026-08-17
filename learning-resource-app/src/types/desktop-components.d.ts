@@ -35,6 +35,7 @@ interface Window {
     platform: string;
     electronVersion: string;
     captureSearchRegion(rectangle: DesktopCaptureRectangle): Promise<DesktopCaptureResult>;
+    revealDocumentInFolder(documentId: string): Promise<boolean>;
     getComponentStatus(): Promise<LocalComponentsResponse>;
     installComponent(id: LocalComponentId): Promise<LocalComponentStatus>;
     cancelComponentInstall(id: LocalComponentId): Promise<boolean>;

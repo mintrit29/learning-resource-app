@@ -14,8 +14,7 @@ export default async function AiProvidersPage() {
           <p className="eyebrow">Kết nối AI</p>
           <h1>Chọn model để phân tích tài liệu</h1>
           <p>
-            Kết nối mặc định được dùng để tóm tắt, phân loại tài liệu và trả lời câu hỏi
-            từ các đoạn có dẫn nguồn.
+            Kết nối mặc định được dùng để tóm tắt và phân loại tài liệu nhằm hỗ trợ tìm kiếm.
           </p>
         </div>
       </header>

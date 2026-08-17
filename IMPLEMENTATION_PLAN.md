@@ -147,6 +147,25 @@ Viewer + ROI overlay
 - Chuẩn hóa tọa độ vùng chọn độc lập với zoom/DPI.
 - Không ghi ảnh crop vào thư viện hoặc database.
 
+### 5.5 Hoàn thiện UX sau kiểm thử thực tế
+
+- Giữ ảnh/file, vùng chọn, OCR và kết quả trong RAM tối đa 15 phút khi mở kết quả, đổi chế độ hoặc chuyển trang rồi quay lại; đóng app vẫn xóa toàn bộ dữ liệu tạm.
+- Link kết quả ghi lại nguồn mở để nút quay lại trở về đúng chế độ tìm kiếm thay vì luôn về thư viện.
+- Tìm bằng mô tả tự chạy sau debounce, tự hủy yêu cầu cũ và tự xóa kết quả khi query bị xóa; nút xóa nằm ngay trong ô nhập.
+- Danh sách file chờ nhập thư viện được giữ trong RAM tối đa 30 phút khi chuyển trang; cảnh báo trước khi đóng app nếu còn file chưa xử lý.
+- Sửa truy vấn SQLite làm trang `/documents?q=...` lỗi trên desktop.
+- Modal hỗ trợ Escape, bấm nền để đóng và trả focus về nút đã mở; thao tác xóa provider và phân tích lại có xác nhận.
+- Trang môn học có tìm nhanh; phần tiến trình và text trích xuất dài trên trang chi tiết được thu gọn.
+- Trạng thái kiểm tra BGE-M3/Docling phản hồi ngay; kết quả dò cấu hình Local AI được cache ngắn để giảm giật khi chuyển trang cài đặt.
+- Vòng kiểm tra UX ngày 17/08/2026: lint, toàn bộ unit test và production build đạt; kiểm thử local xác nhận tìm tự động/xóa, giữ state khi đổi/chuyển trang, lọc môn, Escape modal và truy vấn thư viện không còn lỗi.
+- Bỏ bản preview mở riêng gây thay thế cửa sổ Electron; trang chi tiết chỉ preview trong app, có `Hiện file trong thư mục` để Explorer chọn bản sao do ScholarFlow quản lý và `Lưu bản sao` khi cần xuất file.
+- Kết quả tìm bằng ảnh/file hiển thị cùng lý do phù hợp và nguồn như tìm bằng mô tả.
+- Khi mở kết quả rồi quay lại, giữ nguyên vùng chọn/OCR/kết quả trong RAM và không tự OCR lại cho tới khi người dùng thật sự kéo hoặc resize vùng.
+- Viewer dùng hai chế độ rõ ràng: `Chọn vùng` để khoanh/di chuyển/resize vùng OCR và `Kéo để xem` để pan nội dung khi đã zoom; đổi chế độ không làm mất vùng chọn hoặc kết quả.
+- Zoom từ mức `Vừa khung` đến 200%, giữ đúng tỉ lệ ảnh, giữ vị trí logic của vùng chọn và hỗ trợ `Ctrl + lăn chuột`; PDF tiếp tục dùng điều khiển native của Chromium.
+- Nội dung trích xuất mặc định thu gọn và chỉ tải toàn bộ text khi người dùng mở disclosure; bỏ nút điều hướng `Xem toàn bộ` gây tải lại trang.
+- File ScholarFlow quản lý được lưu theo `uploads/<document-id>/<tên-gốc-an-toàn>`; file UUID cũ được migrate idempotent lúc app khởi động để Explorer hiển thị tên dễ đọc.
+
 ## 6. Thứ tự thực hiện tiếp theo
 
 ### Giai đoạn A — Hoàn tất local-only

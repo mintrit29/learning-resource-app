@@ -47,8 +47,8 @@ export default async function DocumentsPage({
     ...(q
       ? {
           OR: [
-            { title: { contains: q, mode: "insensitive" as const } },
-            { originalFileName: { contains: q, mode: "insensitive" as const } },
+            { title: { contains: q } },
+            { originalFileName: { contains: q } },
           ],
         }
       : {}),
@@ -183,7 +183,7 @@ export default async function DocumentsPage({
           <EmptyState
             icon={FileStack}
             title="Bạn chưa có tài liệu nào"
-            description="Thêm PDF, DOCX, PPTX hoặc EPUB. ScholarFlow sẽ đọc nội dung, tạo dữ liệu tìm kiếm và phân tích để bạn hỏi lại sau."
+            description="Thêm PDF, DOCX, PPTX hoặc EPUB. ScholarFlow sẽ đọc nội dung, tạo dữ liệu tìm kiếm và phân loại để bạn tìm lại sau."
             actionHref="/upload"
             actionLabel="Thêm tài liệu đầu tiên"
           />

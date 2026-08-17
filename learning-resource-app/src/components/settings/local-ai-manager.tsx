@@ -73,6 +73,9 @@ type DownloadState = {
 
 type Notice = { kind: "ok" | "error"; text: string };
 
+const STATUS_CACHE_TTL_MS = 30_000;
+let statusCache: { providerId: string; value: LocalAiStatus; savedAt: number } | null = null;
+
 function formatBytes(value: number | null, digits = 1) {
   if (value === null || !Number.isFinite(value)) return "Không xác định";
   if (value >= 1024 ** 3) return `${(value / 1024 ** 3).toFixed(digits)} GB`;
@@ -92,14 +95,20 @@ async function responseData<T extends object>(response: Response): Promise<Parti
   }
 }
 
-async function fetchLocalAiStatus(providerId?: string) {
+async function fetchLocalAiStatus(providerId?: string, force = false) {
+  const cacheKey = providerId ?? "";
+  if (!force && statusCache?.providerId === cacheKey && Date.now() - statusCache.savedAt < STATUS_CACHE_TTL_MS) {
+    return statusCache.value;
+  }
   const query = providerId ? `?providerId=${encodeURIComponent(providerId)}` : "";
   const response = await fetch(`/api/local-ai/status${query}`, { cache: "no-store" });
   const data = await responseData<LocalAiStatus & { message: string }>(response);
   if (!response.ok || !data.system || !data.recommendations || !data.ollama) {
     throw new Error(typeof data.message === "string" ? data.message : "Không thể đọc cấu hình máy.");
   }
-  return data as LocalAiStatus;
+  const value = data as LocalAiStatus;
+  statusCache = { providerId: cacheKey, value, savedAt: Date.now() };
+  return value;
 }
 
 export function LocalAiManager({
@@ -136,7 +145,7 @@ export function LocalAiManager({
   async function loadStatus(quiet = false) {
     if (!quiet) setLoading(true);
     try {
-      applyStatus(await fetchLocalAiStatus(provider?.id));
+      applyStatus(await fetchLocalAiStatus(provider?.id, true));
     } catch (error) {
       if (!quiet) {
         onNotice({

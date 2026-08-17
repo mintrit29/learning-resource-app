@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { LocalAiManager } from "@/components/settings/local-ai-manager";
 import { isLoopbackUrl } from "@/lib/ai/local-ollama";
+import { dismissFromBackdrop, useDismissableDialog } from "@/lib/dismissable-dialog";
 
 type Provider = {
   id: string;
@@ -100,6 +101,7 @@ export function AiProviderManager({ initialProviders }: { initialProviders: Prov
   const [chatModel, setChatModel] = useState<string>(choices.OPENROUTER.model);
   const [availableModels, setAvailableModels] = useState<string[]>([]);
   const [notice, setNotice] = useState<{ kind: "ok" | "error"; text: string } | null>(null);
+  useDismissableDialog(isOpen, Boolean(busyId), () => setIsOpen(false));
 
   function openCreate(initialType: ProviderType = "OPENROUTER") {
     setEditing(null);
@@ -210,6 +212,10 @@ export function AiProviderManager({ initialProviders }: { initialProviders: Prov
   }
 
   async function runAction(id: string, action: "test" | "activate" | "delete") {
+    if (action === "delete") {
+      const provider = providers.find((item) => item.id === id);
+      if (!window.confirm(`Xóa kết nối “${provider?.displayName ?? "AI"}”? Bạn sẽ phải nhập lại cấu hình nếu muốn sử dụng sau này.`)) return;
+    }
     setBusyId(`${action}:${id}`);
     setNotice(null);
     try {
@@ -402,7 +408,7 @@ export function AiProviderManager({ initialProviders }: { initialProviders: Prov
       </section>
 
       {isOpen ? (
-        <div className="modal-backdrop" role="presentation">
+        <div className="modal-backdrop" onMouseDown={(event) => dismissFromBackdrop(event, Boolean(busyId), () => setIsOpen(false))} role="presentation">
           <section aria-modal="true" className="provider-dialog" role="dialog">
             <div className="dialog-heading">
               <div>

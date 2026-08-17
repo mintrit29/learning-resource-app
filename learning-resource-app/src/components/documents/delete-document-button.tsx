@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { LoaderCircle, Trash2, X } from "lucide-react";
+import { dismissFromBackdrop, useDismissableDialog } from "@/lib/dismissable-dialog";
 
 export function DeleteDocumentButton({
   documentId,
@@ -15,6 +16,7 @@ export function DeleteDocumentButton({
   const [isOpen, setIsOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState("");
+  useDismissableDialog(isOpen, isDeleting, () => setIsOpen(false));
 
   async function deleteDocument() {
     setError("");
@@ -40,7 +42,7 @@ export function DeleteDocumentButton({
         <Trash2 size={17} />Xóa tài liệu
       </button>
       {isOpen ? (
-        <div className="modal-backdrop" role="presentation">
+        <div className="modal-backdrop" onMouseDown={(event) => dismissFromBackdrop(event, isDeleting, () => setIsOpen(false))} role="presentation">
           <section aria-labelledby="delete-title" aria-modal="true" className="confirm-dialog" role="dialog">
             <div className="dialog-heading">
               <div><p className="eyebrow">Xác nhận thao tác</p><h2 id="delete-title">Xóa tài liệu?</h2></div>

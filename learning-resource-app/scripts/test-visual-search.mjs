@@ -4,6 +4,8 @@ import { decodeSearchRegionDataUrl } from "../src/lib/search/visual-search-input
 import { mergeRecognizedText, normalizeVisualQueryText } from "../src/lib/search/visual-query.ts";
 import { normalizeVietnameseOcrText } from "../src/lib/documents/vietnamese-ocr.ts";
 import { createVisualPreviewSession, getVisualPreviewSession, removeVisualPreviewSession } from "../src/lib/search/visual-preview-sessions.ts";
+import { clearVisualSearchDraft, readVisualSearchDraft, saveVisualSearchDraft } from "../src/lib/search/visual-search-draft.ts";
+import { clearUploadDraft, readUploadDraft, saveUploadDraft } from "../src/lib/documents/upload-draft.ts";
 
 const require = createRequire(import.meta.url);
 const { normalizeCaptureRectangle, targetOcrSize } = require("../electron/visual-search.cjs");
@@ -25,8 +27,9 @@ assert.deepEqual(targetOcrSize(1600, 900), { width: 1600, height: 900 });
 assert.deepEqual(targetOcrSize(100, 50), { width: 300, height: 150 });
 assert.throws(() => targetOcrSize(0, 100), /không hợp lệ/);
 assert.equal(normalizeVisualQueryText("  khóa   chính\nkhóa ngoại "), "khóa chính khóa ngoại");
-assert.equal(mergeRecognizedText("He quan tri co so du lieu", "Hệ quản trị cơ sở dữ liệu"), "Hệ quản trị cơ sở dữ liệu");
-assert.equal(mergeRecognizedText("formula-not-decoded", "f(x) = x² + 1"), "f(x) = x² + 1\n\nformula-not-decoded");
+assert.equal(mergeRecognizedText("Hệ quản trị cơ sở dữ liệu", "Hệ quản trị cơ sở dữ liệu"), "Hệ quản trị cơ sở dữ liệu");
+assert.equal(mergeRecognizedText("đoạn mới được OCR", "đoạn cũ nằm ngoài vùng"), "đoạn mới được OCR");
+assert.equal(mergeRecognizedText("", "text thật dùng dự phòng"), "text thật dùng dự phòng");
 assert.equal(
   normalizeVietnameseOcrText("Câu 4. Đồ thị có cạnh âm?\nII —............................\n"),
   "Câu 4. Đồ thị có cạnh âm?",
@@ -36,5 +39,31 @@ const previewSession = createVisualPreviewSession(Buffer.from("temporary preview
 assert.equal(getVisualPreviewSession(previewSession.id)?.title, "test.pptx");
 assert.equal(removeVisualPreviewSession(previewSession.id), true);
 assert.equal(getVisualPreviewSession(previewSession.id), null);
+
+const localFile = { name: "de-thi.pdf", size: 1024 };
+saveVisualSearchDraft({
+  file: localFile,
+  previewHtml: "<p>Câu hỏi</p>",
+  previewItemCount: 2,
+  currentPreviewItem: 1,
+  previewSessionId: "preview-1",
+  zoom: 1,
+  viewerMode: "select",
+  selection: { x: 10, y: 10, width: 100, height: 50 },
+  query: "câu hỏi được chọn",
+  capturedPreview: "data:image/png;base64,test",
+  results: [],
+  searchStatus: "NO_RELEVANT_RESULTS",
+});
+assert.equal(readVisualSearchDraft()?.file, localFile);
+assert.equal(readVisualSearchDraft()?.query, "câu hỏi được chọn");
+clearVisualSearchDraft();
+assert.equal(readVisualSearchDraft(), null);
+
+saveUploadDraft([{ id: "draft-1", file: localFile, status: "uploading" }]);
+assert.equal(readUploadDraft()[0]?.status, "ready");
+assert.equal(readUploadDraft()[0]?.file, localFile);
+clearUploadDraft();
+assert.deepEqual(readUploadDraft(), []);
 
 console.log("Visual search input tests passed.");

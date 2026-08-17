@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { LoaderCircle, Pencil, Save, X } from "lucide-react";
+import { dismissFromBackdrop, useDismissableDialog } from "@/lib/dismissable-dialog";
 
 type Analysis = {
   topicId: string;
@@ -28,6 +29,7 @@ export function EditAnalysisButton({
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
   const [form, setForm] = useState({ ...initial });
+  useDismissableDialog(isOpen, isSaving, () => setIsOpen(false));
 
   async function save(event: React.FormEvent) {
     event.preventDefault();
@@ -47,7 +49,7 @@ export function EditAnalysisButton({
 
   return <>
     <button className="secondary-button compact" onClick={() => setIsOpen(true)} type="button"><Pencil size={16} />Chỉnh sửa</button>
-    {isOpen ? <div className="modal-backdrop" role="presentation">
+    {isOpen ? <div className="modal-backdrop" onMouseDown={(event) => dismissFromBackdrop(event, isSaving, () => setIsOpen(false))} role="presentation">
       <section aria-labelledby="edit-analysis-title" aria-modal="true" className="analysis-dialog" role="dialog">
         <div className="dialog-heading"><div><p className="eyebrow">Kết quả phân tích</p><h2 id="edit-analysis-title">Chỉnh sửa phân loại</h2></div><button aria-label="Đóng" className="icon-button" disabled={isSaving} onClick={() => setIsOpen(false)} type="button"><X size={19} /></button></div>
         <form className="analysis-form" onSubmit={save}>

@@ -9,6 +9,8 @@ contextBridge.exposeInMainWorld(
     platform: process.platform,
     electronVersion: process.versions.electron,
     captureSearchRegion: (rectangle) => ipcRenderer.invoke("visual-search:capture-region", rectangle),
+    revealDocumentInFolder: (documentId) => ipcRenderer.invoke("documents:reveal-in-folder", documentId),
+    revealDocumentInFolder: (documentId) => ipcRenderer.invoke("documents:reveal-in-folder", documentId),
     getComponentStatus: () => ipcRenderer.invoke("components:status"),
     installComponent: (id) => ipcRenderer.invoke("components:install", id),
     cancelComponentInstall: (id) => ipcRenderer.invoke("components:cancel", id),

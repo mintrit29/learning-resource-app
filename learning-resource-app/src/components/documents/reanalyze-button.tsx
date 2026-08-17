@@ -10,6 +10,7 @@ export function ReanalyzeButton({ documentId }: { documentId: string }) {
   const [error, setError] = useState("");
 
   async function reanalyze() {
+    if (!window.confirm("Phân tích AI lại tài liệu này? Tóm tắt và phân loại hiện tại có thể được thay thế.")) return;
     setLoading(true);
     setError("");
     try {

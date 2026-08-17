@@ -4,8 +4,13 @@ import { ensureCurriculumTopics } from "@/lib/taxonomy/curriculum-topics";
 
 export const dynamic = "force-dynamic";
 
-export default async function SearchPage() {
+export default async function SearchPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ mode?: string }>;
+}) {
   await ensureCurriculumTopics();
+  const { mode } = await searchParams;
   const topicRows = await db.tag.findMany({
     where: { isClassificationEnabled: true },
     orderBy: { name: "asc" },
@@ -24,7 +29,7 @@ export default async function SearchPage() {
           </p>
         </div>
       </header>
-      <ResourceSearch topics={topics} />
+      <ResourceSearch initialMode={mode === "visual" ? "visual" : "text"} topics={topics} />
     </div>
   );
 }

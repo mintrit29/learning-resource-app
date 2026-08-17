@@ -68,8 +68,8 @@ export function getDocumentDisplayStatus(document: DocumentLike, jobs: JobLike[]
   }
 
   if (analysisJob?.status === JobStatus.FAILED) {
-    return { label: "Hỏi được, AI lỗi", className: "warning", isReadyToAsk: true };
+    return { label: "Tìm được, phân tích AI lỗi", className: "warning", isReadyToAsk: true };
   }
 
-  return { label: "Sẵn sàng để hỏi", className: "ready", isReadyToAsk: true };
+  return { label: "Sẵn sàng để tìm kiếm", className: "ready", isReadyToAsk: true };
 }

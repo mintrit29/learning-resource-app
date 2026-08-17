@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useEffect, useState } from "react";
-import { ArrowUpRight, FileImage, FileSearch, LoaderCircle, Search } from "lucide-react";
+import { FormEvent, useEffect, useRef, useState } from "react";
+import { ArrowUpRight, FileImage, FileSearch, LoaderCircle, Search, X } from "lucide-react";
 import { formatDifficulty } from "@/lib/labels";
 import { VisualResourceSearch } from "@/components/search/visual-resource-search";
 
@@ -70,8 +70,11 @@ function buildSuitabilityReasons(result: SearchResult, filters: SearchFilters) {
   return [...reasons];
 }
 
-export function ResourceSearch({ topics }: { topics: string[] }) {
-  const [searchMode, setSearchMode] = useState<"text" | "visual">("text");
+export function ResourceSearch({ topics, initialMode = "text" }: { topics: string[]; initialMode?: "text" | "visual" }) {
+  const [searchMode, setSearchMode] = useState<"text" | "visual">(initialMode);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const requestRef = useRef<AbortController | null>(null);
+  const lastSearchSignatureRef = useRef("");
   const [query, setQuery] = useState("");
   const [filters, setFilters] = useState<SearchFilters>(EMPTY_FILTERS);
   const [appliedFilters, setAppliedFilters] = useState<SearchFilters>(EMPTY_FILTERS);
@@ -80,6 +83,7 @@ export function ResourceSearch({ topics }: { topics: string[] }) {
   const [error, setError] = useState("");
   const [searchStatus, setSearchStatus] = useState<SearchStatus | null>(null);
   const [isSearching, setIsSearching] = useState(false);
+  const [hasRestoredSearch, setHasRestoredSearch] = useState(false);
 
   useEffect(() => {
     const restoreTimer = window.setTimeout(() => {
@@ -91,15 +95,26 @@ export function ResourceSearch({ topics }: { topics: string[] }) {
         setSearchedQuery(savedSearch.results?.length ? savedSearch.query : "");
         setResults(savedSearch.results ?? []);
         setSearchStatus(savedSearch.status ?? null);
+        if (savedSearch.results?.length || savedSearch.status) {
+          lastSearchSignatureRef.current = JSON.stringify([savedSearch.query, savedSearch.filters ?? EMPTY_FILTERS]);
+        }
       }
       LEGACY_SEARCH_STORAGE_KEYS.forEach((key) => window.sessionStorage.removeItem(key));
+      setHasRestoredSearch(true);
     }, 0);
-    return () => window.clearTimeout(restoreTimer);
+    return () => {
+      window.clearTimeout(restoreTimer);
+      requestRef.current?.abort();
+    };
   }, []);
 
-  async function runSearch(normalizedQuery: string) {
+  async function runSearch(normalizedQuery: string, activeFilters = filters) {
     if (normalizedQuery.length < 2) return;
 
+    requestRef.current?.abort();
+    const controller = new AbortController();
+    requestRef.current = controller;
+    const signature = JSON.stringify([normalizedQuery, activeFilters]);
     setIsSearching(true);
     setError("");
     setSearchStatus(null);
@@ -110,10 +125,11 @@ export function ResourceSearch({ topics }: { topics: string[] }) {
         body: JSON.stringify({
           query: normalizedQuery,
           chunksPerDocument: 1,
-          topic: filters.topic || undefined,
-          difficulty: filters.difficulty || undefined,
-          fileType: filters.fileType || undefined,
+          topic: activeFilters.topic || undefined,
+          difficulty: activeFilters.difficulty || undefined,
+          fileType: activeFilters.fileType || undefined,
         }),
+        signal: controller.signal,
       });
       const data = (await response.json()) as {
         message?: string;
@@ -131,15 +147,40 @@ export function ResourceSearch({ topics }: { topics: string[] }) {
       setResults(nextResults);
       setSearchStatus(nextStatus);
       setSearchedQuery(normalizedQuery);
-      setAppliedFilters(filters);
-      saveSearch({ query: normalizedQuery, filters, appliedFilters: filters, results: nextResults, status: nextStatus });
-    } catch {
+      setAppliedFilters(activeFilters);
+      lastSearchSignatureRef.current = signature;
+      saveSearch({ query: normalizedQuery, filters: activeFilters, appliedFilters: activeFilters, results: nextResults, status: nextStatus });
+    } catch (caught) {
+      if (caught instanceof DOMException && caught.name === "AbortError") return;
       setError("Không thể kết nối tới máy chủ.");
       setResults([]);
     } finally {
-      setIsSearching(false);
+      if (requestRef.current === controller) setIsSearching(false);
     }
   }
+
+  useEffect(() => {
+    if (!hasRestoredSearch) return;
+    const normalizedQuery = query.trim().slice(0, 500);
+    if (normalizedQuery.length < 2) {
+      requestRef.current?.abort();
+      lastSearchSignatureRef.current = "";
+      const clearTimer = window.setTimeout(() => {
+        setResults([]);
+        setSearchedQuery("");
+        setSearchStatus(null);
+        setError("");
+        setIsSearching(false);
+      }, 0);
+      return () => window.clearTimeout(clearTimer);
+    }
+    const signature = JSON.stringify([normalizedQuery, filters]);
+    if (signature === lastSearchSignatureRef.current) return;
+    const timer = window.setTimeout(() => void runSearch(normalizedQuery, filters), 500);
+    return () => window.clearTimeout(timer);
+    // runSearch only reads the query and filters passed above.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query, filters, hasRestoredSearch]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -153,11 +194,25 @@ export function ResourceSearch({ topics }: { topics: string[] }) {
   }
 
   function handleClearSearch() {
+    requestRef.current?.abort();
+    lastSearchSignatureRef.current = "";
+    setQuery("");
+    setFilters(EMPTY_FILTERS);
+    setAppliedFilters(EMPTY_FILTERS);
     setResults([]);
     setSearchedQuery("");
     setError("");
     setSearchStatus(null);
-    saveSearch({ query, filters, appliedFilters: filters, results: [], status: null });
+    window.sessionStorage.removeItem(SEARCH_STORAGE_KEY);
+    window.setTimeout(() => inputRef.current?.focus(), 0);
+  }
+
+  function changeSearchMode(mode: "text" | "visual") {
+    setSearchMode(mode);
+    const url = new URL(window.location.href);
+    if (mode === "visual") url.searchParams.set("mode", "visual");
+    else url.searchParams.delete("mode");
+    window.history.replaceState(window.history.state, "", `${url.pathname}${url.search}`);
   }
 
   const uniqueResults = results.filter(
@@ -167,23 +222,26 @@ export function ResourceSearch({ topics }: { topics: string[] }) {
   return (
     <div>
       <div className="search-mode-tabs" aria-label="Cách tìm tài liệu">
-        <button className={searchMode === "text" ? "active" : ""} onClick={() => setSearchMode("text")} type="button"><Search size={17} /> Nhập mô tả</button>
-        <button className={searchMode === "visual" ? "active" : ""} onClick={() => setSearchMode("visual")} type="button"><FileImage size={17} /> Ảnh hoặc file</button>
+        <button className={searchMode === "text" ? "active" : ""} onClick={() => changeSearchMode("text")} type="button"><Search size={17} /> Nhập mô tả</button>
+        <button className={searchMode === "visual" ? "active" : ""} onClick={() => changeSearchMode("visual")} type="button"><FileImage size={17} /> Ảnh hoặc file</button>
       </div>
 
-      {searchMode === "visual" ? <VisualResourceSearch /> : <>
+      <div hidden={searchMode !== "visual"}><VisualResourceSearch /></div>
+      <div hidden={searchMode !== "text"}>
       <form onSubmit={handleSubmit}>
         <div className="search-bar active-search resource-search-bar">
           <Search size={20} />
           <input
             aria-label="Mô tả tài liệu cần tìm"
+            ref={inputRef}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Ví dụ: tài liệu nền tảng về database cho người mới..."
             value={query}
           />
+          {query ? <button aria-label="Xóa nội dung tìm kiếm" className="search-input-clear" onClick={handleClearSearch} type="button"><X size={16} /></button> : null}
           <button disabled={isSearching || query.trim().length < 2} type="submit">
             {isSearching ? <LoaderCircle className="spin" size={17} /> : null}
-            {isSearching ? "Đang tìm" : "Tìm tài liệu"}
+            {isSearching ? "Đang tìm" : "Tìm ngay"}
           </button>
         </div>
 
@@ -248,13 +306,13 @@ export function ResourceSearch({ topics }: { topics: string[] }) {
               <span>{uniqueResults.length} tài liệu phù hợp</span>
             </div>
             <button className="search-clear-button" disabled={isSearching} onClick={handleClearSearch} type="button">
-              Xóa kết quả
+              Tìm nội dung khác
             </button>
           </div>
           {uniqueResults.map((result) => {
             const suitabilityReasons = buildSuitabilityReasons(result, appliedFilters);
             return (
-              <Link href={`/documents/${result.documentId}?chunk=${result.chunkId}#matched-chunk`} key={result.chunkId}>
+              <Link href={`/documents/${result.documentId}?chunk=${result.chunkId}&from=search&mode=text#matched-chunk`} key={result.chunkId}>
                 <div className="result-main">
                   <div className="result-title"><span>{result.fileType}</span><h3>{result.title}</h3></div>
                   <p>{result.content.slice(0, 360)}{result.content.length > 360 ? "..." : ""}</p>
@@ -277,7 +335,7 @@ export function ResourceSearch({ topics }: { topics: string[] }) {
           })}
         </section>
       ) : null}
-      </>}
+      </div>
     </div>
   );
 }

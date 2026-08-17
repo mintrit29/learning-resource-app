@@ -7,7 +7,7 @@ function textFileName(originalFileName: string) {
 }
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
@@ -23,13 +23,18 @@ export async function GET(
     return NextResponse.json({ message: "Tài liệu chưa có nội dung trích xuất" }, { status: 404 });
   }
 
-  const body = `# Extracted text from: ${document.originalFileName}\n\n${document.textContent}`;
+  const inline = new URL(request.url).searchParams.get("inline") === "1";
+  const body = inline
+    ? document.textContent
+    : `# Extracted text from: ${document.originalFileName}\n\n${document.textContent}`;
 
   return new Response(body, {
     headers: {
       "Content-Type": "text/plain; charset=utf-8",
-      "Content-Disposition": `attachment; filename*=UTF-8''${encodeURIComponent(textFileName(document.originalFileName))}`,
-      "Cache-Control": "private, max-age=300",
+      ...(inline ? {} : {
+        "Content-Disposition": `attachment; filename*=UTF-8''${encodeURIComponent(textFileName(document.originalFileName))}`,
+      }),
+      "Cache-Control": inline ? "private, no-store" : "private, max-age=300",
     },
   });
 }

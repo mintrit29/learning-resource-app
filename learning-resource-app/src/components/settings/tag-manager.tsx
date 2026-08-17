@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { LoaderCircle, Pencil, Plus, Tags, Trash2, X } from "lucide-react";
+import { LoaderCircle, Pencil, Plus, Search, Tags, Trash2, X } from "lucide-react";
+import { dismissFromBackdrop, useDismissableDialog } from "@/lib/dismissable-dialog";
 
 type TagItem = {
   id: string;
@@ -23,6 +24,9 @@ export function TagManager({ initialTags }: { initialTags: TagItem[] }) {
   const [expandedAliases, setExpandedAliases] = useState<Set<string>>(new Set());
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
+  const [tagQuery, setTagQuery] = useState("");
+  useDismissableDialog(editing !== undefined, busy === "save", () => setEditing(undefined));
+  useDismissableDialog(isMerging, busy === "merge", () => setIsMerging(false));
 
   function open(tag: TagItem | null) {
     setEditing(tag);
@@ -85,6 +89,12 @@ export function TagManager({ initialTags }: { initialTags: TagItem[] }) {
   const targetOptions = initialTags.filter((tag) => tag.id !== mergeForm.sourceTagId);
   const enabledCount = initialTags.filter((tag) => tag.isClassificationEnabled).length;
   const legacyCount = initialTags.length - enabledCount;
+  const visibleTags = useMemo(() => {
+    const query = tagQuery.trim().toLocaleLowerCase("vi");
+    if (!query) return initialTags;
+    return initialTags.filter((tag) => [tag.name, tag.description ?? "", ...tag.aliases.map((alias) => alias.alias)]
+      .some((value) => value.toLocaleLowerCase("vi").includes(query)));
+  }, [initialTags, tagQuery]);
   const visibleAliasLimit = 6;
 
   function toggleAliases(tagId: string) {
@@ -120,11 +130,17 @@ export function TagManager({ initialTags }: { initialTags: TagItem[] }) {
         </div>
       </div>
 
+      <label className="tag-search">
+        <Search size={17} />
+        <input aria-label="Tìm môn học" onChange={(event) => setTagQuery(event.target.value)} placeholder="Tìm theo tên môn hoặc tên gọi khác…" value={tagQuery} />
+        {tagQuery ? <button aria-label="Xóa tìm kiếm môn học" onClick={() => setTagQuery("")} type="button"><X size={16} /></button> : null}
+      </label>
+
       {error && editing === undefined ? <p className="tag-error">{error}</p> : null}
 
-      {initialTags.length ? (
+      {visibleTags.length ? (
         <div className="tag-table">
-          {initialTags.map((tag) => (
+          {visibleTags.map((tag) => (
             <article key={tag.id}>
               <span className="provider-icon">
                 <Tags size={19} />
@@ -172,13 +188,13 @@ export function TagManager({ initialTags }: { initialTags: TagItem[] }) {
       ) : (
         <div className="provider-empty">
           <Tags size={28} />
-          <strong>Chưa có môn học</strong>
-          <p>Hãy thêm ít nhất một môn học để AI có thể phân loại tài liệu.</p>
+          <strong>{initialTags.length ? "Không có môn học phù hợp" : "Chưa có môn học"}</strong>
+          <p>{initialTags.length ? "Thử tên môn hoặc tên gọi khác." : "Hãy thêm ít nhất một môn học để AI có thể phân loại tài liệu."}</p>
         </div>
       )}
 
       {editing !== undefined ? (
-        <div className="modal-backdrop" role="presentation">
+        <div className="modal-backdrop" onMouseDown={(event) => dismissFromBackdrop(event, busy === "save", () => setEditing(undefined))} role="presentation">
           <section aria-modal="true" className="confirm-dialog tag-dialog" role="dialog">
             <div className="dialog-heading">
               <div>
@@ -214,7 +230,7 @@ export function TagManager({ initialTags }: { initialTags: TagItem[] }) {
       ) : null}
 
       {isMerging ? (
-        <div className="modal-backdrop" role="presentation">
+        <div className="modal-backdrop" onMouseDown={(event) => dismissFromBackdrop(event, busy === "merge", () => setIsMerging(false))} role="presentation">
           <section aria-modal="true" className="confirm-dialog tag-dialog" role="dialog">
             <div className="dialog-heading">
               <div>

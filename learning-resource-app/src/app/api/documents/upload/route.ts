@@ -11,7 +11,7 @@ import {
   MAX_UPLOAD_FILE_SIZE_MB,
   SUPPORTED_UPLOAD_LABEL,
 } from "@/lib/documents/upload-policy";
-import { createUploadStorageLocation } from "@/lib/storage/local-storage";
+import { createNamedUploadStorageLocation } from "@/lib/storage/local-storage";
 import { DOCLING_MISSING_MESSAGE, isDoclingReady } from "@/lib/desktop/component-availability";
 
 export const runtime = "nodejs";
@@ -67,8 +67,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const storedName = `${randomUUID()}.${extension}`;
-  const storageLocation = createUploadStorageLocation(storedName);
+  const storageLocation = createNamedUploadStorageLocation(randomUUID(), file.name);
   await mkdir(storageLocation.directory, { recursive: true });
   await writeFile(storageLocation.absolutePath, buffer, { flag: "wx" });
 
