@@ -5,6 +5,8 @@ const DOCLING_REQUIRED_FILES = [
   "models/layout_heron.onnx",
   "models/ocr_rec.onnx",
   "models/ppocr_keys_v1.txt",
+  "models/tesseract/vie.traineddata",
+  "models/tesseract/eng.traineddata",
   "models/tableformer/encoder.onnx",
   "models/tableformer/decoder.onnx",
   "models/tableformer/bbox.onnx",

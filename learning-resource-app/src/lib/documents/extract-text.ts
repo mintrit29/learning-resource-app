@@ -7,8 +7,13 @@ import {
   convertFileAsync,
   type Chunk,
 } from "docling.rs";
-import { recognizeVietnameseImage } from "./vietnamese-ocr.ts";
+import { recognizeVietnameseImageDetailed } from "./vietnamese-ocr.ts";
 import { extractScannedPdfSections } from "./pdf-scan-ocr.ts";
+import { extractPdfEmbeddedImages } from "./pdf-embedded-images.ts";
+import {
+  analyzeVisualOcrImage,
+  chooseVisualOcrRoute,
+} from "./visual-ocr-routing.ts";
 
 const MIN_EXTRACTED_TEXT_LENGTH = 20;
 const DOCLING_OCR_LANG = process.env.DOCLING_OCR_LANG ?? "ch";
@@ -158,8 +163,6 @@ async function extractEmbeddedImageSections(
   document: DoclingDocument,
   extension: SupportedExtension,
 ) {
-  if (extension === "pdf") return [];
-
   const sections: ExtractedSection[] = [];
   const seenImages = new Set<string>();
   const pictures = (document.pictures ?? []).slice(0, Math.max(0, MAX_EMBEDDED_IMAGES));
@@ -172,19 +175,52 @@ async function extractEmbeddedImageSections(
     if (seenImages.has(fingerprint)) continue;
     seenImages.add(fingerprint);
 
-    const text = normalizeExtractedText(await recognizeVietnameseImage(decoded.data));
-    if (text.length < MIN_EXTRACTED_TEXT_LENGTH) continue;
+    const recognized = await recognizeVietnameseImageDetailed(decoded.data);
+    const text = normalizeExtractedText(recognized.text);
+    const route = chooseVisualOcrRoute(text, await analyzeVisualOcrImage(decoded.data));
+    const meaningfulCharacters = text.match(/[\p{L}\p{N}]/gu)?.length ?? 0;
+    const usableFormula = route === "formula" && meaningfulCharacters >= 2;
+    if (
+      route === "reject"
+      || (route !== "formula" && recognized.confidence < 25)
+      || (!usableFormula && text.length < MIN_EXTRACTED_TEXT_LENGTH)
+    ) continue;
 
     const pageNumber = pageNumberFromItem(picture);
+    const contentKind = route === "formula" ? "Công thức ảnh" : "Hình";
     sections.push({
       text,
       pageNumber,
       sourceLabel: pageNumber
-        ? `${defaultSourceLabel(extension, pageNumber)} · Hình ${index + 1} (OCR tiếng Việt)`
-        : `Hình ${index + 1} (OCR tiếng Việt)`,
+        ? `${defaultSourceLabel(extension, pageNumber)} · ${contentKind} ${index + 1} (OCR Việt–Anh)`
+        : `${contentKind} ${index + 1} (OCR Việt–Anh)`,
     });
   }
 
+  return sections;
+}
+
+async function extractPdfEmbeddedImageSections(buffer: Buffer, skippedPages: Set<number>) {
+  const sections: ExtractedSection[] = [];
+  for (const image of await extractPdfEmbeddedImages(buffer)) {
+    if (skippedPages.has(image.pageNumber)) continue;
+    const recognized = await recognizeVietnameseImageDetailed(image.data);
+    const text = normalizeExtractedText(recognized.text);
+    const route = chooseVisualOcrRoute(text, await analyzeVisualOcrImage(image.data));
+    const meaningfulCharacters = text.match(/[\p{L}\p{N}]/gu)?.length ?? 0;
+    const usableFormula = route === "formula" && meaningfulCharacters >= 2;
+    if (
+      route === "reject"
+      || (route !== "formula" && recognized.confidence < 25)
+      || (!usableFormula && text.length < MIN_EXTRACTED_TEXT_LENGTH)
+    ) continue;
+    const contentKind = route === "formula" ? "Công thức ảnh" : "Hình";
+    sections.push({
+      text,
+      pageNumber: image.pageNumber,
+      sourceLabel: `Trang ${image.pageNumber} · ${contentKind} ${image.index} (OCR Việt–Anh)`,
+    });
+  }
   return sections;
 }
 
@@ -232,14 +268,16 @@ export async function extractDocumentText(
   const textSections = structuredSections.length
     ? structuredSections
     : fallbackSectionsFromDocument(document, extension);
-  const imageSections = await extractEmbeddedImageSections(document, extension);
   const scannedPdfSections = extension === "pdf"
     ? await extractScannedPdfSections(buffer)
     : [];
   const scannedPages = new Set(scannedPdfSections.map((section) => section.pageNumber));
+  const imageSections = extension === "pdf"
+    ? await extractPdfEmbeddedImageSections(buffer, scannedPages)
+    : await extractEmbeddedImageSections(document, extension);
   const sections = [
     ...textSections.filter((section) => !section.pageNumber || !scannedPages.has(section.pageNumber)),
-    ...imageSections,
+    ...imageSections.filter((section) => !section.pageNumber || !scannedPages.has(section.pageNumber)),
     ...scannedPdfSections,
   ];
   const text = normalizeExtractedText(sections.map((section) => section.text).join("\n\n"));

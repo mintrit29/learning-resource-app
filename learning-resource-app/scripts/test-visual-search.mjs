@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import { createRequire } from "node:module";
 import { decodeSearchRegionDataUrl } from "../src/lib/search/visual-search-input.ts";
+import { mapSelectionToImageCrop } from "../src/lib/search/visual-image-crop.ts";
+import { removeLongGridLines } from "../src/lib/search/visual-grid-cleanup.ts";
 import { mergeRecognizedText, normalizeVisualQueryText } from "../src/lib/search/visual-query.ts";
 import { normalizeVietnameseOcrText } from "../src/lib/documents/vietnamese-ocr.ts";
 import { createVisualPreviewSession, getVisualPreviewSession, removeVisualPreviewSession } from "../src/lib/search/visual-preview-sessions.ts";
@@ -26,6 +28,35 @@ assert.deepEqual(targetOcrSize(400, 150), { width: 1200, height: 450 });
 assert.deepEqual(targetOcrSize(1600, 900), { width: 1600, height: 900 });
 assert.deepEqual(targetOcrSize(100, 50), { width: 300, height: 150 });
 assert.throws(() => targetOcrSize(0, 100), /không hợp lệ/);
+assert.deepEqual(
+  mapSelectionToImageCrop(
+    { x: 100, y: 175, width: 300, height: 150 },
+    { width: 800, height: 600 },
+    { width: 1600, height: 900 },
+  ),
+  { x: 200, y: 200, width: 600, height: 300 },
+);
+assert.equal(
+  mapSelectionToImageCrop(
+    { x: 0, y: 0, width: 50, height: 50 },
+    { width: 800, height: 600 },
+    { width: 1600, height: 900 },
+  ),
+  null,
+);
+const gridPixels = new Uint8ClampedArray(100 * 100 * 4).fill(255);
+const darken = (x, y) => {
+  const offset = (y * 100 + x) * 4;
+  gridPixels[offset] = 0;
+  gridPixels[offset + 1] = 0;
+  gridPixels[offset + 2] = 0;
+};
+for (const y of [20, 60]) for (let x = 0; x < 100; x += 1) darken(x, y);
+for (const x of [20, 60]) for (let y = 0; y < 100; y += 1) darken(x, y);
+darken(40, 40);
+assert.equal(removeLongGridLines(gridPixels, 100, 100), true);
+assert.equal(gridPixels[(20 * 100 + 50) * 4], 255);
+assert.equal(gridPixels[(40 * 100 + 40) * 4], 0);
 assert.equal(normalizeVisualQueryText("  khóa   chính\nkhóa ngoại "), "khóa chính khóa ngoại");
 assert.equal(mergeRecognizedText("Hệ quản trị cơ sở dữ liệu", "Hệ quản trị cơ sở dữ liệu"), "Hệ quản trị cơ sở dữ liệu");
 assert.equal(mergeRecognizedText("đoạn mới được OCR", "đoạn cũ nằm ngoài vùng"), "đoạn mới được OCR");

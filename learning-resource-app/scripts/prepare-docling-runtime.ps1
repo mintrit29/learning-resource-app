@@ -81,6 +81,12 @@ $vietnameseOcrHash = (Get-FileHash -LiteralPath $vietnameseOcrModel -Algorithm S
 if ($vietnameseOcrHash -ne "79df64caf7bcfb2a27df5042ecb6121e196eada34da774956995747636d5bfa1") {
   throw "Checksum model OCR tiếng Việt không đúng"
 }
+$englishOcrModel = Join-Path $tesseractRoot "eng.traineddata"
+Get-RuntimeAsset -Url "https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/4.1.0/eng.traineddata" -Destination $englishOcrModel
+$englishOcrHash = (Get-FileHash -LiteralPath $englishOcrModel -Algorithm SHA256).Hash.ToLowerInvariant()
+if ($englishOcrHash -ne "7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2") {
+  throw "Checksum model OCR tiếng Anh/kỹ thuật không đúng"
+}
 
 $optionalAssets = @(
   @("encoder.onnx.data", (Join-Path $tableFormerRoot "encoder.onnx.data")),

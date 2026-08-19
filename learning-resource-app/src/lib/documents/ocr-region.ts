@@ -1,5 +1,9 @@
 import { checkDependencies } from "docling.rs";
-import { recognizeVietnameseImage } from "./vietnamese-ocr.ts";
+import { recognizeVietnameseImageDetailed } from "./vietnamese-ocr.ts";
+import {
+  analyzeVisualOcrImage,
+  chooseVisualOcrRoute,
+} from "./visual-ocr-routing.ts";
 
 const MIN_OCR_TEXT_LENGTH = 2;
 
@@ -51,9 +55,21 @@ export async function recognizeSearchRegion(image: Buffer) {
     if (shared.scholarFlowLatestOcrGeneration !== generation) {
       throw new Error("Vùng chọn này đã được thay thế bởi vùng mới hơn.");
     }
-    const text = normalizeOcrText(await recognizeVietnameseImage(image));
+    const result = await recognizeVietnameseImageDetailed(image);
+    const text = normalizeOcrText(result.text);
+    const route = chooseVisualOcrRoute(text, await analyzeVisualOcrImage(image));
     if (text.length < MIN_OCR_TEXT_LENGTH) {
       throw new Error("Không nhận ra đủ chữ. Hãy chọn rộng hơn và gồm cả nhãn hoặc chú thích.");
+    }
+    const meaningfulCharacters = text.match(/[\p{L}\p{N}]/gu)?.length ?? 0;
+    const wordCharacters = text.match(/\p{L}{2,}/gu)?.join("").length ?? 0;
+    const usableFormula = route === "formula" && meaningfulCharacters >= 2;
+    if (
+      route === "reject"
+      || (route !== "formula" && result.confidence < 25)
+      || (!usableFormula && (meaningfulCharacters < 4 || wordCharacters < 3))
+    ) {
+      throw new Error("Không nhận dạng đủ chắc chắn. Hãy khoanh phần chữ, nhãn hoặc chú thích rõ hơn.");
     }
     return text;
   });

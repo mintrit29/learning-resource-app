@@ -1,0 +1,201 @@
+{
+  "version": 1,
+  "fixtures": [
+    {
+      "id": "formula_01_quadratic",
+      "file": "formula_01_quadratic.png",
+      "expectedRoute": "formula",
+      "expectedMarkers": [
+        "x",
+        "b",
+        "sqrt",
+        "4",
+        "a",
+        "c",
+        "2"
+      ],
+      "description": "Công thức bậc hai một dòng, ký hiệu căn và cộng trừ."
+    },
+    {
+      "id": "formula_02_gaussian",
+      "file": "formula_02_gaussian.png",
+      "expectedRoute": "formula",
+      "expectedMarkers": [
+        "int",
+        "infty",
+        "e",
+        "x",
+        "sqrt",
+        "pi",
+        "2"
+      ],
+      "description": "Tích phân Gaussian có cận, số mũ âm và căn."
+    },
+    {
+      "id": "formula_03_bayes",
+      "file": "formula_03_bayes.png",
+      "expectedRoute": "formula",
+      "expectedMarkers": [
+        "P",
+        "A",
+        "B"
+      ],
+      "description": "Định lý Bayes dạng phân số hai tầng."
+    },
+    {
+      "id": "formula_04_ols",
+      "file": "formula_04_ols.png",
+      "expectedRoute": "formula",
+      "expectedMarkers": [
+        "beta",
+        "X",
+        "R",
+        "SS"
+      ],
+      "description": "Hai công thức hồi quy, gồm chỉ số trên và phân số."
+    },
+    {
+      "id": "formula_05_vector",
+      "file": "formula_05_vector.png",
+      "expectedRoute": "formula",
+      "expectedMarkers": [
+        "nabla",
+        "E",
+        "rho",
+        "varepsilon"
+      ],
+      "description": "Công thức vector ngắn với ký tự Hy Lạp."
+    },
+    {
+      "id": "formula_06_with_caption",
+      "file": "formula_06_with_caption.png",
+      "expectedRoute": "formula",
+      "expectedMarkers": [
+        "sum",
+        "p",
+        "log"
+      ],
+      "description": "Công thức có câu chú thích tiếng Việt phía trên."
+    },
+    {
+      "id": "text_01_vietnamese",
+      "file": "text_01_vietnamese.png",
+      "expectedRoute": "ocr",
+      "expectedMarkers": [
+        "Mã hóa dữ liệu",
+        "tính bí mật",
+        "toàn vẹn",
+        "xác thực"
+      ],
+      "description": "Đoạn văn tiếng Việt có đầy đủ dấu."
+    },
+    {
+      "id": "text_02_english",
+      "file": "text_02_english.png",
+      "expectedRoute": "ocr",
+      "expectedMarkers": [
+        "Semantic search",
+        "retrieves",
+        "relevant",
+        "documents"
+      ],
+      "description": "Đoạn văn tiếng Anh rõ nét."
+    },
+    {
+      "id": "table_01_vietnamese",
+      "file": "table_01_vietnamese.png",
+      "expectedRoute": "ocr",
+      "expectedMarkers": [
+        "Thuật toán",
+        "Cấu trúc",
+        "Cạnh âm",
+        "Dijkstra",
+        "Không hỗ trợ"
+      ],
+      "description": "Bảng dạng ảnh có đường lưới và dấu tiếng Việt."
+    },
+    {
+      "id": "chart_01_line",
+      "file": "chart_01_line.png",
+      "expectedRoute": "ocr",
+      "expectedMarkers": [
+        "Độ chính xác",
+        "Tháng 1",
+        "Tháng 2",
+        "82",
+        "91"
+      ],
+      "description": "Biểu đồ đường tiếng Việt, không được gửi sang model công thức."
+    },
+    {
+      "id": "diagram_01_network",
+      "file": "diagram_01_network.png",
+      "expectedRoute": "ocr",
+      "expectedMarkers": [
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "OSPF"
+      ],
+      "description": "Sơ đồ mạng có nhãn ngắn, dễ bị nhầm với biểu thức."
+    },
+    {
+      "id": "code_01_snippet",
+      "file": "code_01_snippet.png",
+      "expectedRoute": "ocr",
+      "expectedMarkers": [
+        "for",
+        "distance",
+        "Infinity",
+        "return"
+      ],
+      "description": "Đoạn mã có nhiều ký hiệu nhưng không phải công thức."
+    },
+    {
+      "id": "noise_01_symbols",
+      "file": "noise_01_symbols.png",
+      "expectedRoute": "reject",
+      "expectedMarkers": [],
+      "description": "Trang trí ít tương phản, không có query hữu ích."
+    },
+    {
+      "id": "formula_06a_entropy_crop",
+      "file": "formula_06a_entropy_crop.png",
+      "expectedRoute": "formula",
+      "expectedMarkers": [
+        "H",
+        "sum",
+        "p",
+        "log"
+      ],
+      "description": "Loại câu chú thích, chỉ giữ vùng công thức entropy."
+    },
+    {
+      "id": "formula_04b_ols_r2_crop",
+      "file": "formula_04b_ols_r2_crop.png",
+      "expectedRoute": "formula",
+      "expectedMarkers": [
+        "R",
+        "2",
+        "1",
+        "SSres",
+        "SStot"
+      ],
+      "description": "Crop riêng phương trình R² và phân số SSres/SStot."
+    },
+    {
+      "id": "formula_04a_ols_beta_crop",
+      "file": "formula_04a_ols_beta_crop.png",
+      "expectedRoute": "formula",
+      "expectedMarkers": [
+        "beta",
+        "X",
+        "T",
+        "-1",
+        "y"
+      ],
+      "description": "Crop riêng phương trình beta để đo ảnh hưởng của tách dòng công thức."
+    }
+  ]
+}

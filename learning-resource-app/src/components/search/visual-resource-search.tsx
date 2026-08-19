@@ -6,7 +6,12 @@ import Link from "next/link";
 import { ArrowLeft, ArrowRight, ArrowUpRight, FileImage, FileSearch, Hand, LoaderCircle, Minus, MousePointer2, Plus, RotateCcw, Search, Upload } from "lucide-react";
 import { ChangeEvent, FormEvent, PointerEvent, WheelEvent, useEffect, useRef, useState } from "react";
 import { formatDifficulty } from "@/lib/labels";
-import { mergeRecognizedText, normalizeVisualQueryText } from "@/lib/search/visual-query";
+import { mapSelectionToImageCrop } from "@/lib/search/visual-image-crop";
+import { removeLongGridLines } from "@/lib/search/visual-grid-cleanup";
+import {
+  mergeRecognizedText,
+  normalizeVisualQueryText,
+} from "@/lib/search/visual-query";
 import {
   readVisualSearchDraft,
   saveVisualSearchDraft,
@@ -34,9 +39,17 @@ export function VisualResourceSearch() {
   const [restoredDraft] = useState(() => readVisualSearchDraft());
   const inputRef = useRef<HTMLInputElement>(null);
   const viewerRef = useRef<HTMLDivElement>(null);
+  const previewImageRef = useRef<HTMLImageElement>(null);
   const previewFrameRef = useRef<HTMLIFrameElement>(null);
   const dragStartRef = useRef<{ x: number; y: number } | null>(null);
-  const panStartRef = useRef<{ clientX: number; clientY: number; scrollLeft: number; scrollTop: number } | null>(null);
+  const panStartRef = useRef<{
+    clientX: number;
+    clientY: number;
+    frameScrollLeft: number;
+    frameScrollTop: number;
+    scrollLeft: number;
+    scrollTop: number;
+  } | null>(null);
   const resizeRef = useRef<{ corner: ResizeCorner; clientX: number; clientY: number; original: Selection } | null>(null);
   const resizeDraftRef = useRef<Selection | null>(null);
   const moveSelectionRef = useRef<{ clientX: number; clientY: number; original: Selection } | null>(null);
@@ -171,7 +184,7 @@ export function VisualResourceSearch() {
   async function recognizeSelection(region: Selection) {
     const desktop = window.scholarFlowDesktop;
     const viewer = viewerRef.current;
-    if (!desktop || !viewer) {
+    if (!viewer || (!desktop && !previewImageRef.current)) {
       setError("Tìm bằng vùng chọn chỉ hoạt động trong ứng dụng ScholarFlow desktop.");
       return;
     }
@@ -184,8 +197,9 @@ export function VisualResourceSearch() {
       const nativeText = extractNativeText(region);
       await nextAnimationFrame();
       await nextAnimationFrame();
+      const originalImageCapture = captureOriginalImageRegion(region);
       const bounds = viewer.getBoundingClientRect();
-      const capture = await desktop.captureSearchRegion({
+      const capture = originalImageCapture ?? await desktop!.captureSearchRegion({
         x: bounds.left + region.x - viewer.scrollLeft,
         y: bounds.top + region.y - viewer.scrollTop,
         width: region.width,
@@ -199,16 +213,22 @@ export function VisualResourceSearch() {
       const ocrController = new AbortController();
       ocrAbortRef.current = ocrController;
       ocrTimeout = window.setTimeout(() => ocrController.abort(), 90_000);
-      const response = await fetch("/api/search/visual/ocr", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ imageDataUrl: capture.dataUrl }),
-        signal: ocrController.signal,
-      });
-      const data = (await response.json()) as { text?: string; message?: string };
+      const recognizeImage = async (imageDataUrl: string) => {
+        const response = await fetch("/api/search/visual/ocr", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ imageDataUrl }),
+          signal: ocrController.signal,
+        });
+        const data = (await response.json()) as { text?: string; message?: string };
+        if (!response.ok || !data.text) {
+          throw new Error(data.message ?? "Không nhận ra chữ trong vùng chọn.");
+        }
+        return data.text;
+      };
+      const recognizedText = await recognizeImage(capture.dataUrl);
       if (sequence !== requestSequenceRef.current) return;
-      if (!response.ok || !data.text) throw new Error(data.message ?? "Không nhận ra chữ trong vùng chọn.");
-      setQuery(mergeRecognizedText(data.text, nativeText));
+      setQuery(mergeRecognizedText(recognizedText, nativeText));
       setIsRecognizing(false);
     } catch (caught) {
       if (caught instanceof DOMException && caught.name === "AbortError") {
@@ -224,6 +244,37 @@ export function VisualResourceSearch() {
         setIsRecognizing(false);
       }
     }
+  }
+
+  function captureOriginalImageRegion(region: Selection) {
+    const image = previewImageRef.current;
+    if (!image?.naturalWidth || !image.naturalHeight) return null;
+    const crop = mapSelectionToImageCrop(
+      region,
+      { width: image.clientWidth, height: image.clientHeight },
+      { width: image.naturalWidth, height: image.naturalHeight },
+    );
+    if (!crop || crop.width < 2 || crop.height < 2) return null;
+
+    const maxScale = Math.min(
+      1,
+      4096 / crop.width,
+      4096 / crop.height,
+      Math.sqrt(8_000_000 / (crop.width * crop.height)),
+    );
+    const width = Math.max(1, Math.round(crop.width * maxScale));
+    const height = Math.max(1, Math.round(crop.height * maxScale));
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const context = canvas.getContext("2d");
+    if (!context) return null;
+    context.drawImage(image, crop.x, crop.y, crop.width, crop.height, 0, 0, width, height);
+    const imageData = context.getImageData(0, 0, width, height);
+    if (removeLongGridLines(imageData.data, width, height)) {
+      context.putImageData(imageData, 0, 0);
+    }
+    return { dataUrl: canvas.toDataURL("image/jpeg", .95), width, height };
   }
 
   function extractNativeText(region: Selection) {
@@ -394,9 +445,14 @@ export function VisualResourceSearch() {
       if (extension === "pdf") return;
       event.preventDefault();
       event.currentTarget.setPointerCapture(event.pointerId);
+      const frameWindow = HTML_PREVIEW_EXTENSIONS.has(extension)
+        ? previewFrameRef.current?.contentWindow
+        : null;
       panStartRef.current = {
         clientX: event.clientX,
         clientY: event.clientY,
+        frameScrollLeft: frameWindow?.scrollX ?? 0,
+        frameScrollTop: frameWindow?.scrollY ?? 0,
         scrollLeft: event.currentTarget.scrollLeft,
         scrollTop: event.currentTarget.scrollTop,
       };
@@ -414,8 +470,20 @@ export function VisualResourceSearch() {
   function handlePointerMove(event: PointerEvent<HTMLDivElement>) {
     const pan = panStartRef.current;
     if (pan) {
-      event.currentTarget.scrollLeft = pan.scrollLeft - (event.clientX - pan.clientX);
-      event.currentTarget.scrollTop = pan.scrollTop - (event.clientY - pan.clientY);
+      const deltaX = pan.clientX - event.clientX;
+      const deltaY = pan.clientY - event.clientY;
+      const maxScrollLeft = Math.max(0, event.currentTarget.scrollWidth - event.currentTarget.clientWidth);
+      const maxScrollTop = Math.max(0, event.currentTarget.scrollHeight - event.currentTarget.clientHeight);
+      const nextScrollLeft = Math.max(0, Math.min(maxScrollLeft, pan.scrollLeft + deltaX));
+      const nextScrollTop = Math.max(0, Math.min(maxScrollTop, pan.scrollTop + deltaY));
+      event.currentTarget.scrollLeft = nextScrollLeft;
+      event.currentTarget.scrollTop = nextScrollTop;
+      if (HTML_PREVIEW_EXTENSIONS.has(extension)) {
+        previewFrameRef.current?.contentWindow?.scrollTo({
+          left: pan.frameScrollLeft + (deltaX - (nextScrollLeft - pan.scrollLeft)) / zoom,
+          top: pan.frameScrollTop + (deltaY - (nextScrollTop - pan.scrollTop)) / zoom,
+        });
+      }
       return;
     }
     const movingSelection = moveSelectionRef.current;
@@ -610,12 +678,29 @@ export function VisualResourceSearch() {
   }
 
   function handleWheel(event: WheelEvent<HTMLDivElement>) {
-    if (!event.ctrlKey || extension === "pdf") return;
+    if (event.ctrlKey && extension !== "pdf") {
+      event.preventDefault();
+      const bounds = event.currentTarget.getBoundingClientRect();
+      changeZoom(zoom + (event.deltaY < 0 ? .1 : -.1), {
+        x: event.clientX - bounds.left,
+        y: event.clientY - bounds.top,
+      });
+      return;
+    }
+    if (!HTML_PREVIEW_EXTENSIONS.has(extension)) return;
     event.preventDefault();
-    const bounds = event.currentTarget.getBoundingClientRect();
-    changeZoom(zoom + (event.deltaY < 0 ? .1 : -.1), {
-      x: event.clientX - bounds.left,
-      y: event.clientY - bounds.top,
+    const viewer = event.currentTarget;
+    const maxLeft = Math.max(0, viewer.scrollWidth - viewer.clientWidth);
+    const maxTop = Math.max(0, viewer.scrollHeight - viewer.clientHeight);
+    const nextLeft = Math.max(0, Math.min(maxLeft, viewer.scrollLeft + event.deltaX));
+    const nextTop = Math.max(0, Math.min(maxTop, viewer.scrollTop + event.deltaY));
+    const remainingX = event.deltaX - (nextLeft - viewer.scrollLeft);
+    const remainingY = event.deltaY - (nextTop - viewer.scrollTop);
+    viewer.scrollLeft = nextLeft;
+    viewer.scrollTop = nextTop;
+    previewFrameRef.current?.contentWindow?.scrollBy({
+      left: remainingX / zoom,
+      top: remainingY / zoom,
     });
   }
 
@@ -664,7 +749,7 @@ export function VisualResourceSearch() {
                   width: canvasBaseSize.width ? `${canvasBaseSize.width * zoom}px` : "100%",
                   height: canvasBaseSize.height ? `${canvasBaseSize.height * zoom}px` : "100%",
                 }}>
-                {IMAGE_EXTENSIONS.has(extension) && previewUrl ? <img alt={file.name} draggable={false} src={previewUrl} /> : null}
+                {IMAGE_EXTENSIONS.has(extension) && previewUrl ? <img alt={file.name} draggable={false} ref={previewImageRef} src={previewUrl} /> : null}
                 {extension === "pdf" && previewUrl ? <iframe aria-label={`Xem ${file.name}`} className="visual-pdf-frame" src={previewUrl} title={file.name} /> : null}
                 {HTML_PREVIEW_EXTENSIONS.has(extension) && previewHtml ? <iframe aria-label={`Xem ${file.name}`} ref={previewFrameRef} sandbox="allow-same-origin" srcDoc={previewHtml} style={{ width: `${100 / zoom}%`, height: `${100 / zoom}%`, transform: `scale(${zoom})`, transformOrigin: "top left" }} title={file.name} /> : null}
                 {activeSelection && !isCapturing ? (

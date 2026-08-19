@@ -137,7 +137,13 @@
 - [x] Thêm điều hướng trước/sau và chỉ mục số thu gọn cho PPTX/EPUB; PDF dùng viewer Chromium, DOCX cuộn liên tục. Không tạo thumbnail ảnh ở v1.
 - [x] Thêm ROI overlay hỗ trợ kéo, resize và zoom; smoke test tọa độ đạt ở DPI 100%/150% với zoom 80%/100%/125%.
 - [x] Đổi viewer sang pan thật khi `Kéo để xem`, giữ vùng chọn khi đổi chế độ, cho kéo cả khung chọn, giữ đúng tỉ lệ ảnh và đưa zoom về `Vừa khung` bằng một nút.
-- [x] Render vùng chọn vào buffer ảnh trong RAM qua Electron `capturePage`; không tạo file crop.
+- [x] Chuyển tiếp con lăn/kéo vào iframe preview DOCX/PPTX/EPUB khi vùng cuộn ngoài chạm biên; kiểm thử local xác nhận DOCX nhiều trang cuộn được ở cả hai chế độ.
+- [x] Với ảnh đầu vào, crop vùng chọn từ ảnh gốc ở độ phân giải native; các định dạng còn lại dùng Electron `capturePage`. Tất cả chỉ tồn tại trong RAM, không tạo file crop.
+- [x] Dùng sparse-text segmentation cho ROI OCR để nhận nhãn rời trong bảng/biểu đồ; regression test gồm ảnh bảng nguyên gốc và ảnh mô phỏng bị thu nhỏ trên màn hình.
+- [x] Bổ sung model tiếng Anh fast đã pin/checksum vào thành phần Docling; ghép lượt OCR Việt–Anh để sửa công thức/mã kỹ thuật mà vẫn ưu tiên dấu tiếng Việt.
+- [x] Phát hiện và bỏ đường lưới dài trên bản sao RAM trước lượt OCR thứ hai; regression test xác nhận đủ `Thuật toán`, `Cấu trúc`, `Cạnh âm`, `Độ phức tạp` và toàn bộ ba hàng dữ liệu.
+- [x] Bỏ ghép atlas/mã kỹ thuật tự động sau khi test thực tế cho thấy có thể sinh chữ rác; chặn query khi OCR có độ tin cậy hoặc lượng chữ hữu ích quá thấp.
+- [x] Dùng chung bước cắt viền trắng/phóng vùng nhỏ cho OCR tìm kiếm và OCR ảnh nhúng; bật OCR ảnh nhúng trong PDF thay vì bỏ qua PDF có text layer.
 - [x] Tạo Docling warm pipeline/worker cho OCR lặp lại nhanh.
 - [x] Thêm debounce, request id và bỏ kết quả OCR/search đã lỗi thời.
 - [x] Chuẩn hóa OCR text thành một query; giữ Markdown cho công thức/bảng Docling nhận ra.
@@ -156,7 +162,24 @@
 - [ ] Ảnh thường và ảnh scan tiếng Việt.
 - [ ] PDF text và PDF scan.
 - [ ] DOCX, PPTX và EPUB nhiều trang/phần.
-- [ ] Công thức, bảng, hình có nhãn và vùng không có chữ.
+- [ ] Công thức toán phức tạp dạng ảnh (Tesseract hiện vẫn đọc sai; cần tích hợp CodeFormulaV2 qua runtime/binding hỗ trợ formula enrichment).
+- [x] Probe CodeFormulaV2 INT8 trực tiếp trên ba fixture thực tế: Gaussian, OLS/R² và Bayes/entropy đều trả LaTeX đúng; xác định blocker là ảnh nhúng bị layout phân loại thành `picture` nên enrichment toàn tài liệu không gọi model cho chúng.
+- [x] Benchmark CodeFormulaV2 trên 12 công thức tổng hợp: 10 đúng ý nghĩa, Fourier sai cận/số mũ, phép tích sinh thừa ký tự; kiểm tra thêm 3 ảnh thực tế đều đúng.
+- [x] Đối chứng PP-FormulaNet_plus-S trên cùng 15 ảnh: chỉ đúng ý nghĩa 8/15 dù nhanh hơn nhiều (0,59–1,25 giây/công thức, nạp 5,96 giây); loại khỏi hướng tích hợp do sai công thức quan trọng và sinh LaTeX rác khi nhận nhầm biểu đồ.
+- [x] Đối chứng RapidOCR PP-OCRv6 small trên chữ Việt/Anh, bảng, công thức, hai biểu đồ và ảnh trắng: biểu đồ Anh đạt 18/18 marker nhưng ảnh Việt đạt 0/5 marker nghiêm ngặt, công thức không ổn định và ảnh trắng sinh chữ rác; giữ Tesseract Việt–Anh làm OCR chính.
+- [x] Tạo regression suite hybrid gồm 16 ảnh ground-truth, ba crop chẩn đoán và DOCX stress chứa 11 ảnh nhúng; có script tạo lại, test router, so sánh PSM và test extractor tài liệu.
+- [x] Router thử nghiệm đạt 24/24 trên fixture mới + ảnh thực tế; Tesseract đạt 24/32 marker OCR, RapidOCR bù 6 marker nhưng còn mất `documents`/`Cạnh âm` và không an toàn với tiếng Việt/ảnh trắng.
+- [x] CodeFormula trên sáu công thức mới: 4 đúng, OLS sai phân số, ảnh có chú thích timeout >3 phút; crop entropy đúng nhưng hai crop OLS vẫn chưa đúng hoàn toàn. DOCX stress đạt 8/8 marker native nhưng chỉ 1/6 nhóm công thức ảnh.
+- [x] Chuyển router đã đạt 24/24 từ benchmark vào mã app; tìm bằng vùng chọn nhận công thức ngắn theo tín hiệu toán học, vẫn chặn vùng trắng/rác và giữ nguyên Tesseract làm kết quả chính.
+- [x] Chạy lại CodeFormula trực tiếp trên ba crop đại diện: bậc hai và entropy đúng (~18 giây/crop), R² sai phân số dù mất >30 giây; xác nhận không thể bật tự động chỉ với timeout/validation cú pháp.
+- [x] Áp dụng pipeline không-model-mới: giữ 6/6 ảnh công thức trong DOCX fixture thành section tìm kiếm, loại đúng vùng rác; độ chính xác marker công thức đầy đủ hiện 2/6 (Bayes và entropy).
+- [x] Trích trực tiếp ảnh nhúng PDF bằng PDF.js với giới hạn 100 ảnh/20 MP; stress PDF thực tế tăng từ 2 lên 5 OCR section và Bayes/entropy từ không tìm được thành tìm được; tránh OCR đôi trên PDF scan toàn trang.
+- [x] Ghép OCR Việt–Anh giữ đúng thêm `documents` và `Infinity`; marker OCR tăng 24/32 → 26/32, còn hạn chế ở một ô bảng, một nhãn biểu đồ và bốn node sơ đồ.
+- [ ] Sửa merge Tesseract Việt/Anh theo dòng hoặc bbox để giữ bản tiếng Anh đúng (`documents`, `Infinity`) mà không nhân đôi text; thêm regression cho nhãn ngắn trong sơ đồ.
+- [ ] Thiết kế formula crop/segmentation và timeout cứng trước khi gọi CodeFormula; validate LaTeX, fallback OCR và cho người dùng sửa, không chạy trực tiếp toàn ảnh có chú thích.
+- [x] Đối chiếu pipeline toàn file: fixture PDF chính thức nhận đúng formula 1/1; bốn stress-test PDF/DOCX/PPTX/EPUB đều có 0 item `formula`, xác nhận enrichment hiện tại không xử lý các ảnh công thức nhúng. Tesseract trong app bỏ Gaussian, làm hỏng OLS và chỉ đọc gần đúng Bayes/entropy.
+- [ ] Tích hợp CodeFormulaV2 cho crop vùng chọn và ảnh nhúng nghi là công thức, có giới hạn thời gian/tài nguyên và fallback Tesseract; không chạy model nặng cho mọi ảnh.
+- [x] Bảng, hình có nhãn và vùng không có chữ bằng fixture tự động; vùng ít chữ/độ tin cậy thấp không được gửi làm query.
 - [x] OCR chỉ xử lý vùng chọn trong viewport/slide/chương đang xem; không OCR toàn bộ file truy vấn.
 - [ ] Query tạm được xóa và file gốc không thay đổi.
 - [ ] Kết quả dưới ngưỡng trả no-result.

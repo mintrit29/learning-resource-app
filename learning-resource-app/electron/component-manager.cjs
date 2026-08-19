@@ -46,7 +46,7 @@ const COMPONENT_MANIFESTS = Object.freeze({
   docling: Object.freeze({
     id: "docling",
     name: "Docling",
-    version: `${DOCLING_RELEASE}+vie-${TESSDATA_RELEASE}+pdfium-${PDFIUM_RELEASE}`,
+    version: `${DOCLING_RELEASE}+vie-eng-${TESSDATA_RELEASE}+pdfium-${PDFIUM_RELEASE}`,
     relativeRoot: path.join("runtimes", "docling"),
     files: [
       ["models/layout_heron.onnx", 172208540, "2e5d4dd812c46b742a031611ab7ba061bf66937a56fdee266ada4fe1e3073764", "layout_heron.onnx"],
@@ -55,6 +55,7 @@ const COMPONENT_MANIFESTS = Object.freeze({
       ["models/picture_classifier.onnx", 16940439, "27ffc48c27ae4e12c99b6f6de0dd730005245e47b70dd0c1339e62cbac3ec4c0", "picture_classifier.onnx"],
       ["models/ppocr_keys_v1.txt", 26250, "a1c84d9bdb9ab29043c58896224d32941783eb821629618416dcb08f12886492", "ppocr_keys_v1.txt"],
       ["models/tesseract/vie.traineddata", 531275, "79df64caf7bcfb2a27df5042ecb6121e196eada34da774956995747636d5bfa1", null, `${TESSDATA_BASE}/vie.traineddata`],
+      ["models/tesseract/eng.traineddata", 4113088, "7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2", null, `${TESSDATA_BASE}/eng.traineddata`],
       ["models/tableformer/bbox.onnx", 52110, "65247bba792830762c89baa5f2e5f06c8df7720181e4d0088107f7d88b06f915", "bbox.onnx"],
       ["models/tableformer/bbox.onnx.data", 39649280, "7610e2593bfaecd72a535370f06e8c2468f9bf208bd2abe46cc727dda0a11392", "bbox.onnx.data"],
       ["models/tableformer/decoder.onnx", 432917, "40e9fc2f2878cfbf25ede41e5557eeb9ef091c43c0d7176baa54d01c0b477c34", "decoder.onnx"],
