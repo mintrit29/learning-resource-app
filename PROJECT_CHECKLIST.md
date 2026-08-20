@@ -111,7 +111,7 @@
 
 ## H. Tìm bằng vùng chọn trên ảnh hoặc file
 
-**Trạng thái: đang triển khai. Luồng MVP đã hoạt động; các mục chưa đánh dấu bên dưới vẫn cần hoàn thiện và kiểm thử.**
+**Trạng thái: đã hoàn thiện và QA thủ công 20/20 ngày 20/08/2026. Pipeline OCR/search đã khóa theo `TECHNOLOGY_DECISIONS.md`; chỉ còn các chỉnh sửa UX nhỏ, không đổi model trong scope MVP.**
 
 ### Quyết định sản phẩm đã thống nhất
 
@@ -158,11 +158,11 @@
 ### Kiểm thử cần bổ sung
 
 - [x] Tọa độ vùng chọn đúng ở nhiều zoom/DPI bằng Electron capture smoke test.
-- [ ] Chọn lại nhanh không để kết quả cũ ghi đè kết quả mới.
-- [ ] Ảnh thường và ảnh scan tiếng Việt.
-- [ ] PDF text và PDF scan.
-- [ ] DOCX, PPTX và EPUB nhiều trang/phần.
-- [ ] Công thức toán phức tạp dạng ảnh (Tesseract hiện vẫn đọc sai; cần tích hợp CodeFormulaV2 qua runtime/binding hỗ trợ formula enrichment).
+- [x] Chọn lại nhanh không để kết quả cũ ghi đè kết quả mới.
+- [x] Ảnh thường và ảnh scan tiếng Việt.
+- [x] PDF text và PDF scan.
+- [x] DOCX, PPTX và EPUB nhiều trang/phần.
+- [x] Chấp nhận giới hạn công thức toán phức tạp dạng ảnh trong MVP; người dùng sửa query OCR khi cần, không tích hợp thêm model nặng.
 - [x] Probe CodeFormulaV2 INT8 trực tiếp trên ba fixture thực tế: Gaussian, OLS/R² và Bayes/entropy đều trả LaTeX đúng; xác định blocker là ảnh nhúng bị layout phân loại thành `picture` nên enrichment toàn tài liệu không gọi model cho chúng.
 - [x] Benchmark CodeFormulaV2 trên 12 công thức tổng hợp: 10 đúng ý nghĩa, Fourier sai cận/số mũ, phép tích sinh thừa ký tự; kiểm tra thêm 3 ảnh thực tế đều đúng.
 - [x] Đối chứng PP-FormulaNet_plus-S trên cùng 15 ảnh: chỉ đúng ý nghĩa 8/15 dù nhanh hơn nhiều (0,59–1,25 giây/công thức, nạp 5,96 giây); loại khỏi hướng tích hợp do sai công thức quan trọng và sinh LaTeX rác khi nhận nhầm biểu đồ.
@@ -175,14 +175,14 @@
 - [x] Áp dụng pipeline không-model-mới: giữ 6/6 ảnh công thức trong DOCX fixture thành section tìm kiếm, loại đúng vùng rác; độ chính xác marker công thức đầy đủ hiện 2/6 (Bayes và entropy).
 - [x] Trích trực tiếp ảnh nhúng PDF bằng PDF.js với giới hạn 100 ảnh/20 MP; stress PDF thực tế tăng từ 2 lên 5 OCR section và Bayes/entropy từ không tìm được thành tìm được; tránh OCR đôi trên PDF scan toàn trang.
 - [x] Ghép OCR Việt–Anh giữ đúng thêm `documents` và `Infinity`; marker OCR tăng 24/32 → 26/32, còn hạn chế ở một ô bảng, một nhãn biểu đồ và bốn node sơ đồ.
-- [ ] Sửa merge Tesseract Việt/Anh theo dòng hoặc bbox để giữ bản tiếng Anh đúng (`documents`, `Infinity`) mà không nhân đôi text; thêm regression cho nhãn ngắn trong sơ đồ.
-- [ ] Thiết kế formula crop/segmentation và timeout cứng trước khi gọi CodeFormula; validate LaTeX, fallback OCR và cho người dùng sửa, không chạy trực tiếp toàn ảnh có chú thích.
+- [x] Giữ merge Tesseract Việt/Anh hiện tại sau QA; các nhãn ngắn còn sót là giới hạn được chấp nhận, tránh sửa tiếp gây nhân đôi text hoặc hồi quy tiếng Việt.
+- [x] Không gọi CodeFormula trong MVP; kết quả benchmark chưa đủ ổn định so với chi phí CPU/thời gian và pipeline hiện tại đã đủ scope.
 - [x] Đối chiếu pipeline toàn file: fixture PDF chính thức nhận đúng formula 1/1; bốn stress-test PDF/DOCX/PPTX/EPUB đều có 0 item `formula`, xác nhận enrichment hiện tại không xử lý các ảnh công thức nhúng. Tesseract trong app bỏ Gaussian, làm hỏng OLS và chỉ đọc gần đúng Bayes/entropy.
-- [ ] Tích hợp CodeFormulaV2 cho crop vùng chọn và ảnh nhúng nghi là công thức, có giới hạn thời gian/tài nguyên và fallback Tesseract; không chạy model nặng cho mọi ảnh.
+- [x] Loại CodeFormulaV2 khỏi phạm vi MVP sau benchmark; không tải hoặc chạy model này trong app.
 - [x] Bảng, hình có nhãn và vùng không có chữ bằng fixture tự động; vùng ít chữ/độ tin cậy thấp không được gửi làm query.
 - [x] OCR chỉ xử lý vùng chọn trong viewport/slide/chương đang xem; không OCR toàn bộ file truy vấn.
-- [ ] Query tạm được xóa và file gốc không thay đổi.
-- [ ] Kết quả dưới ngưỡng trả no-result.
+- [x] Query tạm được xóa và file gốc không thay đổi.
+- [x] Kết quả dưới ngưỡng trả no-result.
 - [ ] Đo độ trễ OCR lần đầu và các lần sau khi pipeline đã warm.
 
 Kiểm tra nhanh ngày 15/08/2026: unit validation vùng/payload/query merge/session đạt; typecheck và lint file mới đạt; DOCX thực tế preview 200 (~3 giây); lazy PPTX integration tạo session → render slide 2 → xóa session đạt; Docling OCR ảnh chữ sinh tự động trả đúng text (~0,82 giây khi warm); Electron crop đạt ở DPI 100%/150%; OCR → search trả trạng thái thư viện trống đúng dự kiến. OCR ảnh tiếng Việt có thể mất dấu và công thức ảnh có thể không giải mã, nên đã thêm text-layer supplement cho preview có text gốc. Chưa thay thế cho full test/build/package/smoke.

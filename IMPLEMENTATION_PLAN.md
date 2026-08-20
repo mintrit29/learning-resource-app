@@ -96,7 +96,7 @@ Next.js chỉ là lớp giao diện/API nội bộ của ứng dụng desktop. T
 
 ## 5. Tính năng đang triển khai: tìm bằng vùng chọn trên ảnh hoặc file
 
-**Trạng thái:** đã hoàn thiện vòng triển khai kỹ thuật. Luồng ảnh/file → chọn/resize vùng → Docling OCR → hybrid search, zoom, lazy preview nhiều phần và crop nhiều DPI đã có; full lint/unit/build/standalone/package smoke đều đạt. Còn QA thủ công với bộ tài liệu/ảnh thực tế trước khi cập nhật PRD và phát hành.
+**Trạng thái:** đã hoàn thiện và QA thủ công ngày 20/08/2026. Luồng ảnh/file → chọn/resize vùng → OCR Việt–Anh → hybrid search, zoom, lazy preview nhiều phần và crop nhiều DPI đã có; full lint/unit/build/standalone/package smoke đều đạt. Checklist thủ công đạt 20/20. Pipeline OCR/search hiện tại đã khóa trong `TECHNOLOGY_DECISIONS.md`; không tiếp tục đổi model trong scope MVP.
 
 ### 5.1 Mục tiêu
 
