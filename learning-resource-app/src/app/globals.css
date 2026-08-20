@@ -436,7 +436,7 @@ svg { flex-shrink: 0; stroke-width: 1.8; }
 .retry-job-button { min-height: 30px; display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); border-radius: 6px; background: white; padding: 0 9px; color: var(--teal); font-size: 12px; font-weight: 700; cursor: pointer; }
 .retry-job-button:hover { border-color: var(--teal); background: #f3fbf9; }
 .retry-job-button:disabled { cursor: not-allowed; opacity: .5; }
-.matched-chunk { scroll-margin-top: 24px; border: 1px solid #8fcfc3; background: #f4fcfa; margin-bottom: 22px; padding: 20px; box-shadow: inset 4px 0 0 var(--teal); }
+.matched-chunk { scroll-margin-top: 92px; border: 1px solid #8fcfc3; background: #f4fcfa; margin-bottom: 22px; padding: 20px; box-shadow: inset 4px 0 0 var(--teal); }
 .matched-chunk-heading { display: grid; grid-template-columns: 42px minmax(0,1fr) auto; align-items: center; gap: 12px; }
 .matched-chunk-heading > span { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 50%; background: var(--mint); color: var(--teal); }
 .matched-chunk-heading h2 { margin: 0; font-size: 17px; }

@@ -4,7 +4,7 @@
 
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, ArrowUpRight, FileImage, FileSearch, Hand, LoaderCircle, Minus, MousePointer2, Plus, RotateCcw, Search, Upload } from "lucide-react";
-import { ChangeEvent, FormEvent, PointerEvent, WheelEvent, useEffect, useRef, useState } from "react";
+import { ChangeEvent, FormEvent, PointerEvent, WheelEvent, useCallback, useEffect, useRef, useState } from "react";
 import { formatDifficulty } from "@/lib/labels";
 import { mapSelectionToImageCrop } from "@/lib/search/visual-image-crop";
 import { removeLongGridLines } from "@/lib/search/visual-grid-cleanup";
@@ -85,6 +85,25 @@ export function VisualResourceSearch() {
   const [isPanning, setIsPanning] = useState(false);
   const [error, setError] = useState("");
 
+  const syncPreviewCanvasSize = useCallback(() => {
+    const viewer = viewerRef.current;
+    const shell = viewer?.parentElement;
+    if (!viewer || !shell) return;
+    const extension = file ? extensionOf(file) : "";
+    const frameDocument = previewFrameRef.current?.contentDocument;
+    const contentHeight = HTML_PREVIEW_EXTENSIONS.has(extension) && frameDocument
+      ? Math.max(
+          shell.clientHeight,
+          frameDocument.body?.scrollHeight ?? 0,
+          frameDocument.documentElement?.scrollHeight ?? 0,
+        )
+      : shell.clientHeight;
+    setCanvasBaseSize((current) => {
+      const next = { width: shell.clientWidth, height: contentHeight };
+      return current.width === next.width && current.height === next.height ? current : next;
+    });
+  }, [file]);
+
   useEffect(() => () => {
     ocrAbortRef.current?.abort();
     searchAbortRef.current?.abort();
@@ -120,14 +139,12 @@ export function VisualResourceSearch() {
     const viewer = viewerRef.current;
     const shell = viewer?.parentElement;
     if (!viewer || !shell) return;
-    const updateSize = () => {
-      setCanvasBaseSize({ width: shell.clientWidth, height: shell.clientHeight });
-    };
+    const updateSize = () => syncPreviewCanvasSize();
     updateSize();
     const observer = new ResizeObserver(updateSize);
     observer.observe(shell);
     return () => observer.disconnect();
-  }, [file, isPreparing]);
+  }, [file, isPreparing, previewHtml, syncPreviewCanvasSize]);
 
   useEffect(() => {
     saveVisualSearchDraft({
@@ -751,7 +768,7 @@ export function VisualResourceSearch() {
                 }}>
                 {IMAGE_EXTENSIONS.has(extension) && previewUrl ? <img alt={file.name} draggable={false} ref={previewImageRef} src={previewUrl} /> : null}
                 {extension === "pdf" && previewUrl ? <iframe aria-label={`Xem ${file.name}`} className="visual-pdf-frame" src={previewUrl} title={file.name} /> : null}
-                {HTML_PREVIEW_EXTENSIONS.has(extension) && previewHtml ? <iframe aria-label={`Xem ${file.name}`} ref={previewFrameRef} sandbox="allow-same-origin" srcDoc={previewHtml} style={{ width: `${100 / zoom}%`, height: `${100 / zoom}%`, transform: `scale(${zoom})`, transformOrigin: "top left" }} title={file.name} /> : null}
+                {HTML_PREVIEW_EXTENSIONS.has(extension) && previewHtml ? <iframe aria-label={`Xem ${file.name}`} onLoad={syncPreviewCanvasSize} ref={previewFrameRef} sandbox="allow-same-origin" srcDoc={previewHtml} style={{ width: `${100 / zoom}%`, height: `${100 / zoom}%`, transform: `scale(${zoom})`, transformOrigin: "top left" }} title={file.name} /> : null}
                 {activeSelection && !isCapturing ? (
                   <div className="visual-selection" onPointerDown={startMoveSelection} style={{ left: activeSelection.x, top: activeSelection.y, width: activeSelection.width, height: activeSelection.height }}>
                     {(["nw", "ne", "sw", "se"] as ResizeCorner[]).map((corner) => (

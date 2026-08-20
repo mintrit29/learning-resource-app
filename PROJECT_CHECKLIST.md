@@ -213,6 +213,7 @@ Kiểm tra nhanh ngày 15/08/2026: unit validation vùng/payload/query merge/ses
 - [x] Đồng nhất lý do phù hợp và trích dẫn nguồn giữa tìm mô tả với tìm ảnh/file.
 - [x] Khi quay lại kết quả ảnh/file, phục hồi OCR và kết quả đã lưu mà không tự chụp lại bằng tọa độ màn hình cũ.
 - [x] Khi quay lại tìm bằng mô tả, chờ phục hồi session hoàn tất trước khi chạy logic tự tìm/xóa để không làm mất kết quả cũ.
+- [x] Sửa vòng QA thủ công 20/08/2026: tự cuộn tới chunk phù hợp, mở đúng slide/phần khi có vị trí, bỏ nút tìm lại thừa, làm rõ hộp xóa, co font PPTX và đưa cuộn DOCX ra scrollbar viewer.
 
 ## J. Kiểm thử, Git và phát hành
 

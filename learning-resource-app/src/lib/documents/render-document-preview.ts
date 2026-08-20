@@ -33,7 +33,7 @@ img { max-width: 100%; height: auto; }
 .slides-canvas { display: grid; gap: 28px; width: min(1040px, calc(100% - 28px)); margin: 18px auto 32px; }
 .slide-card { display: grid; gap: 8px; }
 .slide-label { margin: 0; color: #52615d; font-size: 12px; font-weight: 750; }
-.ppt-slide { position: relative; width: 100%; aspect-ratio: var(--slide-ratio, 16 / 9); overflow: hidden; border: 1px solid #cbd6d2; background: var(--slide-background, white); box-shadow: 0 12px 30px rgba(23,33,31,.14); }
+.ppt-slide { position: relative; width: 100%; aspect-ratio: var(--slide-ratio, 16 / 9); overflow: hidden; container-type: inline-size; border: 1px solid #cbd6d2; background: var(--slide-background, white); box-shadow: 0 12px 30px rgba(23,33,31,.14); }
 .ppt-element { position: absolute; overflow: hidden; }
 .ppt-text { display: flex; flex-direction: column; justify-content: center; padding: .35%; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.15; }
 .ppt-text p { margin: 0 0 .3em; }
@@ -215,7 +215,7 @@ async function renderEpub(buffer: Buffer, title: string, itemNumber?: number): P
     ? `<main class="document-canvas epub-document">${chapters.join("")}</main>`
     : `<main class="empty-preview">Không tìm thấy chương có thể hiển thị trong file EPUB.</main>`;
   return {
-    html: htmlDocument(title, `${chapters.length} chương · Bản xem nhanh EPUB`, body),
+    html: htmlDocument(title, itemNumber === undefined ? `${chapters.length} chương · Bản xem nhanh EPUB` : `Phần ${itemNumber}/${spineIds.length} · Bản xem nhanh EPUB`, body),
     itemCount: itemNumber === undefined ? chapters.length : spineIds.length,
   };
 }
@@ -314,11 +314,12 @@ async function renderPptx(buffer: Buffer, title: string, itemNumber?: number): P
         fallbackText.push(...paragraphs);
         return;
       }
-      const fontSize = Math.max(9, Math.min(54, Number(node.find("a\\:rPr").first().attr("sz")) / 100 || 18));
+      const fontSize = Math.max(9, Math.min(54, Number(node.find("a\\:rPr[sz], a\\:defRPr[sz], a\\:endParaRPr[sz]").first().attr("sz")) / 100 || 18));
+      const responsiveFontSize = Math.max(.7, (fontSize * 12_700 / slideWidth) * 100);
       const color = readHexColor(node.find("p\\:txBody").first()) ?? "#17211f";
       const background = readHexColor(node.find("p\\:spPr").first());
       const paragraphHtml = paragraphs.map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join("");
-      elements.push(`<div class="ppt-element ppt-text" style="${positionStyle(position)}font-size:${fontSize}px;color:${color};${background ? `background:${background};` : ""}">${paragraphHtml}</div>`);
+      elements.push(`<div class="ppt-element ppt-text" style="${positionStyle(position)}font-size:clamp(7px,${responsiveFontSize.toFixed(3)}cqw,${fontSize}px);color:${color};${background ? `background:${background};` : ""}">${paragraphHtml}</div>`);
     });
 
     const pictures = $("p\\:pic").toArray();
@@ -350,7 +351,7 @@ async function renderPptx(buffer: Buffer, title: string, itemNumber?: number): P
     ? `<main class="slides-canvas">${slides.join("")}</main>`
     : `<main class="empty-preview">Không tìm thấy slide có thể hiển thị trong file PPTX.</main>`;
   return {
-    html: htmlDocument(title, `${slides.length} slide · Bản xem nhanh PPTX`, body, "pptx-preview"),
+    html: htmlDocument(title, itemNumber === undefined ? `${slides.length} slide · Bản xem nhanh PPTX` : `Slide ${itemNumber}/${slidePaths.length} · Bản xem nhanh PPTX`, body, "pptx-preview"),
     itemCount: itemNumber === undefined ? slides.length : slidePaths.length,
   };
 }

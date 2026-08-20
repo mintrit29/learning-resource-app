@@ -62,6 +62,19 @@ for (const [fileType, buffer, expectedText, expectedItems] of fixtures) {
   console.log(`PASS ${fileType}: in-app preview generated`);
 }
 
+const focusedPptx = await renderDocumentPreview(await createPptx(), "PPTX", "Focused PPTX", 2);
+assert.equal(focusedPptx.itemCount, 2);
+assert.match(focusedPptx.html, /Slide 2\/2 · Bản xem nhanh PPTX/);
+assert.match(focusedPptx.html, /font-size:clamp\(7px,[\d.]+cqw,18px\)/);
+assert.doesNotMatch(focusedPptx.html, /ScholarFlow PPTX embedded preview/);
+assert.match(focusedPptx.html, /Second slide/);
+
+const focusedEpub = await renderDocumentPreview(await createEpub(), "EPUB", "Focused EPUB", 2);
+assert.equal(focusedEpub.itemCount, 2);
+assert.match(focusedEpub.html, /Phần 2\/2 · Bản xem nhanh EPUB/);
+assert.doesNotMatch(focusedEpub.html, /ScholarFlow EPUB embedded preview/);
+assert.match(focusedEpub.html, /Second chapter/);
+
 await assert.rejects(
   renderDocumentPreview(await createOversizedPptx(), "PPTX", "Too many slides"),
   /quá 200 slide/,

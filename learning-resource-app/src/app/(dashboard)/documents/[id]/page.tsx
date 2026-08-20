@@ -10,6 +10,7 @@ import { ReanalyzeButton } from "@/components/documents/reanalyze-button";
 import { ReextractButton } from "@/components/documents/reextract-button";
 import { RevealDocumentButton } from "@/components/documents/reveal-document-button";
 import { RetryJobButton } from "@/components/documents/retry-job-button";
+import { ScrollToMatchedChunk } from "@/components/documents/scroll-to-matched-chunk";
 import { db } from "@/lib/db";
 import { getDocumentDisplayStatus } from "@/lib/documents/display-status";
 import { estimateProcessingRemaining } from "@/lib/documents/processing-estimate";
@@ -89,9 +90,14 @@ export default async function DocumentDetailPage({
   const extractedTextDownloadHref = `/api/documents/${document.id}/text`;
   const isPdf = document.fileType === "PDF";
   const matchedPdfPage = isPdf && matchedChunk?.pageNumber ? matchedChunk.pageNumber : null;
+  const matchedPreviewItem = !isPdf
+    && (document.fileType === "PPTX" || document.fileType === "EPUB")
+    && matchedChunk?.pageNumber
+    ? matchedChunk.pageNumber
+    : null;
   const originalFilePreviewHref = isPdf
     ? matchedPdfPage ? `${originalFileHref}#page=${matchedPdfPage}` : originalFileHref
-    : `/api/documents/${document.id}/preview`;
+    : `/api/documents/${document.id}/preview${matchedPreviewItem ? `?item=${matchedPreviewItem}` : ""}`;
   const embeddingDevice = (process.env.EMBEDDING_DEVICE ?? "cpu").toLowerCase();
   const latestJobsByType = new Map<string, (typeof document.jobs)[number]>();
   for (const job of document.jobs) latestJobsByType.set(job.type, job);
@@ -175,6 +181,7 @@ export default async function DocumentDetailPage({
 
       {matchedChunk ? (
         <section className="matched-chunk" id="matched-chunk">
+          <ScrollToMatchedChunk enabled={cameFromSearch} />
           <div className="matched-chunk-heading">
             <span><LocateFixed size={21} /></span>
             <div><p className="eyebrow">Đoạn khớp với tìm kiếm</p><h2>{matchedChunk.sourceLabel ?? "Vị trí chưa xác định"}</h2></div>

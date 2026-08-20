@@ -30,10 +30,15 @@ function previewHeaders(cacheControl = "private, max-age=3600") {
 }
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
+  const itemValue = new URL(request.url).searchParams.get("item");
+  const itemNumber = itemValue && /^\d{1,3}$/.test(itemValue) ? Number(itemValue) : undefined;
+  if (itemNumber !== undefined && (itemNumber < 1 || itemNumber > 200)) {
+    return errorPage("Vị trí xem trước không hợp lệ.", 400);
+  }
   const document = await db.document.findFirst({
     where: { id },
     select: { filePath: true, fileType: true, originalFileName: true },
@@ -53,6 +58,7 @@ export async function GET(
       file,
       document.fileType as PreviewFileType,
       document.originalFileName,
+      document.fileType === "PPTX" || document.fileType === "EPUB" ? itemNumber : undefined,
     );
     return new Response(preview.html, { headers: previewHeaders() });
   } catch (error) {

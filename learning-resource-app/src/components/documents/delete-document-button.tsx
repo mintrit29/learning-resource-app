@@ -49,7 +49,7 @@ export function DeleteDocumentButton({
               <button aria-label="Đóng" className="icon-button" disabled={isDeleting} onClick={() => setIsOpen(false)} type="button"><X size={19} /></button>
             </div>
             <p>
-              <strong>{documentTitle}</strong> cùng file gốc và dữ liệu đã trích xuất sẽ bị xóa vĩnh viễn.
+              <strong>{documentTitle}</strong>, bản sao trong thư viện ScholarFlow và dữ liệu đã trích xuất sẽ bị xóa. File nguồn bên ngoài máy của bạn vẫn được giữ nguyên.
             </p>
             {error ? <p className="form-error">{error}</p> : null}
             <div className="dialog-actions">

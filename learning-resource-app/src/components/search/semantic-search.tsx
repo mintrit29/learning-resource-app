@@ -305,9 +305,6 @@ export function ResourceSearch({ topics, initialMode = "text" }: { topics: strin
               <h2>Nguồn tham khảo cho “{searchedQuery}”</h2>
               <span>{uniqueResults.length} tài liệu phù hợp</span>
             </div>
-            <button className="search-clear-button" disabled={isSearching} onClick={handleClearSearch} type="button">
-              Tìm nội dung khác
-            </button>
           </div>
           {uniqueResults.map((result) => {
             const suitabilityReasons = buildSuitabilityReasons(result, appliedFilters);
@@ -329,7 +326,7 @@ export function ResourceSearch({ topics, initialMode = "text" }: { topics: strin
                   ) : null}
                   <small className="result-citation">Nguồn: {result.title}{result.sourceLabel ? ` · ${result.sourceLabel}` : ""}</small>
                 </div>
-                <div className="result-open-action"><span>Mở đoạn liên quan</span><ArrowUpRight size={17} /></div>
+                <div className="result-open-action"><span>Xem đoạn phù hợp</span><ArrowUpRight size={17} /></div>
               </Link>
             );
           })}
