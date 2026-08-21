@@ -1,8 +1,8 @@
 # PRD — ScholarFlow Desktop
 
 **Phiên bản:** 1.0
-**Cập nhật:** 10/08/2026
-**Trạng thái:** MVP desktop đang hoàn thiện để báo cáo đồ án
+**Cập nhật:** 21/08/2026
+**Trạng thái:** MVP desktop local-only đã hoàn thiện chức năng, đang xác nhận bản đóng gói cuối
 
 ## 1. Tổng quan
 
@@ -27,20 +27,15 @@ Phiên bản thống nhất của dự án là ứng dụng Windows desktop. Kh�
 - Tìm nhanh đoạn phù hợp cho bài tập, báo cáo hoặc ôn tập.
 - Lọc tài liệu theo môn học, độ khó và định dạng.
 
-### Quản trị viên cục bộ — giai đoạn tiếp theo
-
-- Quản lý tài khoản được tạo trên cùng thiết bị.
-- Xem số lượng và trạng thái tài khoản.
-- Thêm, sửa, khóa hoặc xóa tài khoản theo phân quyền.
-
-Dashboard quản trị phải nằm trong ứng dụng desktop nếu được triển khai; không tạo thêm một sản phẩm web admin riêng.
+Ứng dụng phục vụ một thư viện cục bộ trên máy đang dùng. MVP không có tài khoản, đăng nhập, phân quyền hoặc dashboard quản trị.
 
 ## 4. Phạm vi MVP hiện tại
 
-### 4.1 Tài khoản
+### 4.1 Thư viện local-only
 
-- Đăng ký, đăng nhập và đăng xuất.
-- Cô lập tài liệu, danh sách môn học, cấu hình AI và lịch sử tìm kiếm theo tài khoản cục bộ.
+- Mở thẳng vào ứng dụng, không đăng ký hoặc đăng nhập.
+- Tài liệu, môn học, cấu hình AI và lịch sử tìm kiếm thuộc một thư viện duy nhất trên máy.
+- File gốc bên ngoài ScholarFlow không bị sửa hoặc xóa; ứng dụng chỉ quản lý bản sao đã nhập.
 
 ### 4.2 Quản lý tài liệu
 
@@ -65,7 +60,7 @@ Thêm file
 
 Mỗi bước có trạng thái `PENDING`, `PROCESSING`, `COMPLETED` hoặc `FAILED`. Lỗi phải được rút gọn thành thông báo dễ hiểu, không đưa stack trace, HTML hoặc mã nguồn lên giao diện.
 
-Khi có nhiều tài liệu, toàn bộ pipeline chạy tuần tự theo hàng đợi cục bộ. PDF có text layer dùng bộ trích xuất native; PDF scan/ảnh mới dùng Docling OCR để giảm thời gian và mức dùng CPU không cần thiết.
+Khi có nhiều tài liệu, toàn bộ pipeline chạy tuần tự theo hàng đợi cục bộ. PDF, DOCX, PPTX và EPUB đều đi qua Docling.rs; text native được giữ và ảnh nhúng/PDF scan được bổ sung OCR Việt–Anh theo pipeline ổn định của ứng dụng.
 
 ### 4.4 AI phân tích tài liệu
 
@@ -90,9 +85,11 @@ AI phân tích metadata là tùy chọn. Embedding tìm kiếm luôn dùng BGE-M
 
 Tìm kiếm hiện tại là tìm nguồn tham khảo, không phải chatbot sinh câu trả lời thay cho tài liệu.
 
+Ngoài truy vấn chữ, người dùng có thể mở ảnh, PDF, DOCX, PPTX hoặc EPUB, khoanh trực tiếp một vùng và dùng nội dung OCR có thể chỉnh sửa làm truy vấn. Ứng dụng giữ vùng chọn, OCR và kết quả tạm thời khi mở nguồn rồi quay lại; không nhập file truy vấn vào thư viện và không tự giải bài tập.
+
 ### 4.6 Môn học và phân loại
 
-- Mỗi tài khoản được khởi tạo một lần với 27 môn chuyên ngành CNTT của Trường Đại học Nguyễn Tất Thành, từ học kỳ 2 đến học kỳ 12.
+- Thư viện được khởi tạo một lần với 27 môn chuyên ngành CNTT của Trường Đại học Nguyễn Tất Thành, từ học kỳ 2 đến học kỳ 12.
 - Danh sách không bao gồm tiếng Anh và các học phần đại cương hoặc không liên quan trực tiếp đến ngành CNTT.
 - Người dùng có toàn quyền thêm, đổi tên, thêm tên gọi khác, xóa và gộp môn học.
 - AI chỉ được chọn trong danh sách môn học đang được người dùng cho phép phân loại, không được tự tạo tên mới.
@@ -139,10 +136,11 @@ Tìm kiếm hiện tại là tìm nguồn tham khảo, không phải chatbot sin
 - Hỗ trợ Windows 10/11 x64 trong MVP.
 - Phát hành bằng bộ cài NSIS trên GitHub Releases.
 - Người dùng cuối không cần Node.js, Docker, PostgreSQL hoặc Python.
+- BGE-M3 và Docling không nằm trong installer; app cho phép tải, kiểm tra, tải lại hoặc xóa từ nguồn/version cố định có kiểm tra SHA-256.
 
 ## 6. Kiến trúc dữ liệu
 
-- SQLite lưu tài khoản cục bộ, metadata, nội dung trích xuất, chunks, jobs, tags và cấu hình AI.
+- SQLite lưu metadata, nội dung trích xuất, chunks, jobs, tags, lịch sử tìm kiếm và cấu hình AI; không lưu tài khoản hoặc mật khẩu.
 - sqlite-vec lập chỉ mục vector 1.024 chiều.
 - File tải lên, database, model cache và log nằm dưới `%APPDATA%\ScholarFlow`.
 - BGE-M3 chạy qua Transformers.js và ONNX Runtime trong tiến trình con do Electron quản lý.
@@ -153,12 +151,13 @@ Tìm kiếm hiện tại là tìm nguồn tham khảo, không phải chatbot sin
 - Docker, PostgreSQL, pgvector hoặc Python embedding service.
 - Đồng bộ tài liệu và vector giữa nhiều thiết bị.
 - Chatbot tạo câu trả lời dài từ nhiều tài liệu.
-- Dashboard quản trị và phân quyền hoàn chỉnh; đây là hạng mục ưu tiên của giai đoạn tiếp theo.
+- Tài khoản, đăng nhập, dashboard quản trị và phân quyền.
 
 ## 8. Tiêu chí nghiệm thu MVP
 
 - Cài và mở ScholarFlow trên Windows mà không cài thêm dịch vụ nền.
 - Thêm và xử lý được ít nhất một file thuộc mỗi định dạng hỗ trợ.
+- Khoanh vùng trên ảnh/file, nhận OCR có thể sửa và tìm được nguồn tương tự hoặc no-result trung thực.
 - Tạo được vector BGE-M3 1.024 chiều khi các dịch vụ cũ đã dừng/gỡ bỏ.
 - Tìm được tài liệu liên quan bằng truy vấn tự nhiên và mở đúng vị trí nguồn.
 - Kết nối, sửa và kiểm tra được ít nhất một nhà cung cấp AI.
@@ -173,4 +172,4 @@ Tìm kiếm hiện tại là tìm nguồn tham khảo, không phải chatbot sin
 - Lần đầu cần tải model khoảng 2,1 GB và phụ thuộc tốc độ mạng.
 - OCR tiếng Việt/Anh trên bản scan mờ, công thức viết tay hoặc biểu đồ phức tạp có thể chưa chính xác hoàn toàn.
 - OpenRouter và Custom API có thể phát sinh chi phí hoặc giới hạn theo nhà cung cấp.
-- Quản lý nhiều người dùng trên nhiều máy cần một kiến trúc đồng bộ khác và chưa thuộc phạm vi desktop local hiện tại.
+- OCR bảng, nhãn biểu đồ và công thức ảnh phức tạp có thể chưa hoàn hảo; MVP cho phép sửa query trước khi tìm và không tích hợp model công thức thử nghiệm thiếu ổn định.

@@ -18,24 +18,33 @@ const pageSchema = z.object({
 });
 
 export async function POST(request: Request) {
-  const form = await request.formData().catch(() => null);
-  const file = form?.get("file");
-  if (!(file instanceof File)) {
+  const encodedFileName = request.headers.get("x-scholarflow-file-name") ?? "";
+  let fileName = "";
+  try {
+    fileName = decodeURIComponent(encodedFileName);
+  } catch {
+    fileName = "";
+  }
+  if (!fileName) {
     return NextResponse.json({ message: "Chưa chọn file để xem." }, { status: 400 });
   }
-  if (file.size <= 0 || file.size > MAX_PREVIEW_BYTES) {
+  const declaredSize = Number(request.headers.get("content-length") ?? 0);
+  if (declaredSize > MAX_PREVIEW_BYTES) {
     return NextResponse.json({ message: "File phải nhỏ hơn 40 MB." }, { status: 413 });
   }
-  const fileType = PREVIEW_TYPES.get(path.extname(file.name).toLowerCase());
+  const fileType = PREVIEW_TYPES.get(path.extname(fileName).toLowerCase());
   if (!fileType) {
     return NextResponse.json({ message: "Định dạng xem trước không được hỗ trợ." }, { status: 415 });
   }
 
   try {
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const preview = await renderDocumentPreview(buffer, fileType, file.name, 1);
+    const buffer = Buffer.from(await request.arrayBuffer());
+    if (buffer.length <= 0 || buffer.length > MAX_PREVIEW_BYTES) {
+      return NextResponse.json({ message: "File phải nhỏ hơn 40 MB." }, { status: 413 });
+    }
+    const preview = await renderDocumentPreview(buffer, fileType, fileName, 1);
     const session = preview.itemCount > 1
-      ? createVisualPreviewSession(buffer, fileType, file.name)
+      ? createVisualPreviewSession(buffer, fileType, fileName)
       : null;
     return NextResponse.json({ ...preview, sessionId: session?.id ?? null });
   } catch (error) {

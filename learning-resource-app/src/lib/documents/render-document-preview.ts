@@ -39,6 +39,7 @@ img { max-width: 100%; height: auto; }
 .ppt-text p { margin: 0 0 .3em; }
 .ppt-image { object-fit: contain; }
 .ppt-fallback { position: absolute; inset: 8%; display: grid; place-content: center; gap: 12px; padding: 5%; color: #24312e; font-size: clamp(14px, 2.6vw, 30px); text-align: center; white-space: pre-wrap; }
+#matched-preview { scroll-margin-top: 76px; outline: 3px solid #0b8f7f; outline-offset: 4px; background: #dff7f1 !important; }
 .empty-preview { display: grid; min-height: 55vh; place-content: center; padding: 32px; color: #5f6f6a; text-align: center; }
 @media (max-width: 640px) {
   .preview-toolbar { align-items: flex-start; flex-direction: column; }
@@ -71,6 +72,42 @@ function htmlDocument(title: string, label: string, content: string, bodyClass =
   ${content}
 </body>
 </html>`;
+}
+
+function normalizeMatchText(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+function highlightPreviewMatch(html: string, matchText?: string) {
+  const normalizedMatch = normalizeMatchText(matchText ?? "");
+  if (!normalizedMatch) return html;
+  const matchTokens = [...new Set(normalizedMatch.split(" ").filter((token) => token.length >= 3))];
+  if (!matchTokens.length) return html;
+
+  const $ = cheerio.load(html);
+  let bestMatch = $("__scholarflow_no_match__");
+  let bestScore = 0;
+  $("p, h1, h2, h3, h4, h5, h6, li, td, th, tr, table, pre, .ppt-text, .ppt-fallback").each((_, element) => {
+    const candidate = normalizeMatchText($(element).text());
+    if (!candidate) return;
+    const score = matchTokens.reduce(
+      (total, token) => total + (candidate.includes(token) ? Math.min(token.length, 12) : 0),
+      0,
+    );
+    if (score > bestScore) {
+      bestScore = score;
+      bestMatch = $(element);
+    }
+  });
+
+  if (!bestMatch.length || bestScore < 6) return html;
+  bestMatch.attr("id", "matched-preview").addClass("matched-preview");
+  return $.html();
 }
 
 function safeImageDataUrl(contentType: string, base64: string) {
@@ -361,10 +398,13 @@ export async function renderDocumentPreview(
   fileType: PreviewFileType,
   title: string,
   itemNumber?: number,
+  matchText?: string,
 ): Promise<RenderedDocumentPreview> {
+  let preview: RenderedDocumentPreview;
   switch (fileType) {
-    case "DOCX": return renderDocx(buffer, title);
-    case "PPTX": return renderPptx(buffer, title, itemNumber);
-    case "EPUB": return renderEpub(buffer, title, itemNumber);
+    case "DOCX": preview = await renderDocx(buffer, title); break;
+    case "PPTX": preview = await renderPptx(buffer, title, itemNumber); break;
+    case "EPUB": preview = await renderEpub(buffer, title, itemNumber); break;
   }
+  return { ...preview, html: highlightPreviewMatch(preview.html, matchText) };
 }

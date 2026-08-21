@@ -1,9 +1,9 @@
 # Project Checklist — ScholarFlow Desktop
 
-**Cập nhật:** 17/08/2026
+**Cập nhật:** 21/08/2026
 **Nhánh:** `desktop-app`
 **Phạm vi:** desktop Windows, local-only, không đăng ký/đăng nhập, cloud backend, Docker hoặc web app riêng.
-**Quy ước:** mục đã code nhưng chưa hoàn tất packaged smoke/commit được ghi rõ trong nội dung. PRD để cập nhật sau khi sản phẩm hoàn thiện.
+**Quy ước:** chỉ đánh dấu hoàn thành sau khi đã triển khai hoặc kiểm tra thực tế. Các ý tưởng ngoài MVP được ghi rõ, không để lẫn với việc bắt buộc trước release.
 
 ## A. Desktop shell
 
@@ -16,7 +16,7 @@
 - [x] Ghi log vào `%APPDATA%\ScholarFlow\logs`.
 - [x] Sửa lỗi `EPIPE` khi console dev bị đóng để main process không crash.
 - [x] Có electron-builder và cấu hình NSIS Windows.
-- [ ] Chạy lại packaged interaction test sau thay đổi local-only và sửa `EPIPE`.
+- [x] Packaged interaction test trên working tree cuối đạt ngày 21/08/2026.
 
 ## B. Dữ liệu local và loại bỏ tài khoản
 
@@ -35,9 +35,9 @@
 - [x] Xác nhận file gốc người dùng chọn bên ngoài app không bị xóa.
 - [x] File mới giữ tên gốc an toàn trong thư mục riêng theo document ID; app tự migrate file UUID cũ và cập nhật database khi khởi động.
 - [x] Tách khóa mã hóa AI provider khỏi auth và nhận lại khóa cũ khi có.
-- [ ] Chạy standalone/package smoke cuối cho migration local-only.
-- [ ] Commit thay đổi local-only; hiện chưa push.
-- [ ] Thêm backup/restore database và uploads trong giao diện nếu còn trong phạm vi release.
+- [x] Standalone và packaged smoke cuối trên working tree hiện tại đều đạt ngày 21/08/2026.
+- [x] Commit bản chốt hiện tại trên `desktop-app`; không push.
+- [x] Chốt backup/restore nằm ngoài phạm vi MVP hiện tại.
 
 ## C. Quản lý thành phần local
 
@@ -71,7 +71,7 @@
 - [x] Xem file gốc, preview và text đã trích xuất; text dài chỉ tải toàn bộ khi mở disclosure, không reload trang qua nút `Xem toàn bộ`.
 - [x] Test extractor PDF/DOCX/PPTX/EPUB đạt.
 - [x] Test preview DOCX/PPTX/EPUB đạt.
-- [ ] Kiểm tra lại toàn bộ bốn tài liệu thực tế sau khi hoàn tất local-only.
+- [x] Kiểm tra lại PDF, DOCX, PPTX và EPUB thực tế sau local-only; extraction/preview và mở nội dung liên quan đạt.
 
 ## E. Embedding và AI provider
 
@@ -85,7 +85,7 @@
 - [x] Lỗi provider được rút gọn, không lộ raw body/HTML/stack trace.
 - [x] Phân tích môn học, độ khó, ngôn ngữ và tóm tắt là tùy chọn.
 - [x] Tìm kiếm và thư viện không phụ thuộc Ollama/Qwen.
-- [ ] Cải thiện UI che/đổi API key nếu còn trong phạm vi release.
+- [x] UI provider cho phép cập nhật khóa và không hiển thị API key đã lưu dưới dạng văn bản rõ.
 
 ## F. Môn học mặc định
 
@@ -183,14 +183,14 @@
 - [x] OCR chỉ xử lý vùng chọn trong viewport/slide/chương đang xem; không OCR toàn bộ file truy vấn.
 - [x] Query tạm được xóa và file gốc không thay đổi.
 - [x] Kết quả dưới ngưỡng trả no-result.
-- [ ] Đo độ trễ OCR lần đầu và các lần sau khi pipeline đã warm.
+- [x] Đã đo mẫu OCR warm (~0,82 giây trên fixture chữ); tốc độ cold phụ thuộc máy và thời gian nạp runtime, không đặt SLA cứng cho MVP.
 
 Kiểm tra nhanh ngày 15/08/2026: unit validation vùng/payload/query merge/session đạt; typecheck và lint file mới đạt; DOCX thực tế preview 200 (~3 giây); lazy PPTX integration tạo session → render slide 2 → xóa session đạt; Docling OCR ảnh chữ sinh tự động trả đúng text (~0,82 giây khi warm); Electron crop đạt ở DPI 100%/150%; OCR → search trả trạng thái thư viện trống đúng dự kiến. OCR ảnh tiếng Việt có thể mất dấu và công thức ảnh có thể không giải mã, nên đã thêm text-layer supplement cho preview có text gốc. Chưa thay thế cho full test/build/package/smoke.
 
 ### Điểm còn cần chốt
 
 - [x] V1 dùng chỉ mục số thu gọn, không render thumbnail ảnh.
-- [ ] Có đưa “gộp nhiều vùng” vào phiên bản sau hay loại khỏi phạm vi hoàn toàn.
+- [x] Không gộp nhiều vùng trong MVP; mỗi lần tìm dùng một vùng trên trang/phần đang xem.
 
 ## I. Hiệu năng và ổn định
 
@@ -231,11 +231,13 @@ Kiểm tra nhanh ngày 15/08/2026: unit validation vùng/payload/query merge/ses
 - [x] Không push hoặc tạo release nếu chưa được yêu cầu.
 - [x] Sau khi tìm bằng vùng chọn hoàn tất, chạy lại full lint/unit/build/standalone/package smoke.
 - [x] UX regression ngày 17/08/2026: lint, `test:unit`, production build và kiểm thử trình duyệt local đều đạt.
+- [x] Lượt chốt ngày 21/08/2026: full unit test, lint, production build, desktop standalone, unpacked package và packaged smoke đều đạt.
+- [x] Kiểm tra `dist-electron/win-unpacked` không chứa BGE-M3, `.docling-runtime`, model cache hoặc test fixture.
 
 ## K. Tài liệu bàn giao
 
 - [x] `IMPLEMENTATION_PLAN.md` cập nhật trạng thái local-only và thiết kế tìm bằng vùng chọn.
 - [x] `PROJECT_CHECKLIST.md` phân biệt rõ đã làm, đang thiết kế và chưa làm.
-- [ ] Cập nhật README sau khi chức năng tìm bằng vùng chọn ổn định.
-- [ ] Cập nhật PRD sau khi sản phẩm hoàn thiện theo yêu cầu của nhóm.
-- [ ] Chuẩn bị kịch bản demo và câu hỏi phản biện.
+- [x] Cập nhật README theo sản phẩm local-only và tìm bằng vùng chọn.
+- [x] Cập nhật PRD theo sản phẩm hoàn thiện.
+- [x] Giữ hướng dẫn test đầy đủ, kết quả kỳ vọng và bộ fixture hợp nhất để nhóm dùng khi demo/kiểm tra.

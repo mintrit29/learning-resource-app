@@ -2,19 +2,21 @@
 
 ScholarFlow là ứng dụng desktop Windows giúp sinh viên lưu trữ, phân loại và tìm lại học liệu bằng tìm kiếm ngữ nghĩa. Ứng dụng hỗ trợ PDF, DOCX, PPTX và EPUB; tự trích xuất nội dung, chia đoạn, tạo vector BGE-M3 và cho phép tìm nguồn phù hợp bằng câu hỏi tự nhiên.
 
-> Đây là nhánh `desktop-app`, dùng Electron, SQLite và local runtime. Phiên bản web/Docker cũ vẫn được giữ riêng trên nhánh `main` và `archive/web-docker-before-desktop-2026-08-08`. Không merge trực tiếp `desktop-app` vào nhánh Docker vì hai bản dùng kiến trúc database và embedding khác nhau.
+> Đây là nhánh `desktop-app`, dùng Electron, SQLite và các runtime cục bộ. ScholarFlow hiện là ứng dụng thuần local: không có tài khoản, không dùng Supabase và không tải tài liệu của người dùng lên cloud.
 
 ## Chức năng chính
 
-- Đăng ký, đăng nhập và quản lý thư viện cục bộ.
+- Mở thẳng vào thư viện cục bộ, không cần đăng ký hoặc đăng nhập.
 - Thêm một hoặc nhiều tài liệu PDF, DOCX, PPTX và EPUB; có thể chọn cả thư mục.
 - Xử lý nhiều tài liệu theo hàng đợi tuần tự để không làm quá tải máy.
 - Dùng Docling thống nhất để trích xuất cấu trúc, bảng, công thức và vị trí nguồn từ PDF, DOCX, PPTX và EPUB.
-- Dùng Docling OCR cho PDF scan và ảnh nhúng trong DOCX, PPTX, EPUB.
+- Dùng pipeline OCR Việt–Anh cục bộ cho PDF scan và ảnh nhúng; kết hợp xử lý riêng cho chữ thường, bảng, code và công thức.
 - Chia nội dung thành các đoạn và tạo vector BGE-M3 1.024 chiều trên máy.
 - Phân loại tài liệu vào danh sách môn học cố định, đồng thời phân tích độ khó, ngôn ngữ và tóm tắt bằng OpenRouter, Ollama hoặc Custom API.
 - Tìm kiếm kết hợp ngữ nghĩa, từ khóa và bộ lọc metadata.
+- Tìm bằng ảnh hoặc file theo cách chọn trực tiếp một vùng; OCR vùng chọn rồi dùng nội dung đó làm truy vấn, không tự giải bài tập.
 - Hiển thị đoạn phù hợp nhất, lý do phù hợp và vị trí để mở lại nguồn.
+- Khi mở kết quả, app giữ trạng thái tìm kiếm và đưa bản xem file tới đúng trang, slide, chương hoặc vùng nội dung liên quan.
 - Khởi tạo 27 môn chuyên ngành CNTT của Trường Đại học Nguyễn Tất Thành; người dùng có thể thêm, sửa, xóa hoặc gộp môn học.
 - AI chỉ được chọn một môn học đang có. Tài liệu không đủ phù hợp được giữ ở trạng thái “Chưa phân loại”, AI không tự tạo môn mới.
 - Header, footer và mục “Về dự án” hiển thị thông tin đề tài, nhóm TH67, giảng viên hướng dẫn và kênh liên hệ.
@@ -27,7 +29,7 @@ Electron Desktop
   ├─ Next.js chạy nội bộ trên 127.0.0.1
   ├─ SQLite + sqlite-vec
   ├─ BGE-M3 qua Transformers.js/ONNX Runtime
-  ├─ Docling cho trích xuất tài liệu và OCR ảnh
+  ├─ Docling + OCR Việt–Anh cho trích xuất tài liệu và ảnh
   └─ OpenRouter / Ollama / Custom API (tùy chọn cho phân tích AI)
 ```
 
@@ -39,10 +41,11 @@ Theo mặc định, ScholarFlow lưu dữ liệu trong `%APPDATA%\ScholarFlow`:
 
 - `data\scholarflow.db`: cơ sở dữ liệu SQLite.
 - `data\uploads`: tài liệu đã thêm.
-- `models`: bộ nhớ đệm mô hình BGE-M3.
+- `models\BAAI\bge-m3`: mô hình embedding BGE-M3.
+- `runtimes\docling`: model Docling và PDFium.
 - `logs\desktop.log`: nhật ký chẩn đoán.
 
-API key và dữ liệu cá nhân không được commit vào Git. Lần tạo embedding đầu tiên cần Internet để tải BGE-M3, dung lượng bộ nhớ đệm hiện khoảng 2,1 GB. Sau khi đã tải, tạo embedding và tìm kiếm có thể chạy cục bộ.
+API key, database và tài liệu cá nhân không được commit vào Git. BGE-M3 và Docling được tải, kiểm tra, tải lại hoặc xóa trong **Cài đặt → Thành phần cục bộ**. Bộ cài không chứa các model lớn; sau khi thiết lập xong, trích xuất và tìm kiếm hoạt động cục bộ.
 
 ## Chạy mã nguồn
 
@@ -54,22 +57,13 @@ Yêu cầu phát triển:
 ```powershell
 cd learning-resource-app
 npm ci
-npm run docling:prepare
 cd embedding-runtime
 npm ci
 cd ..
 npm run dev
 ```
 
-Lệnh `npm run dev` mở cửa sổ Electron, không mở một sản phẩm web độc lập.
-
-Pipeline trích xuất chỉ dùng Docling. Tải PDFium và các model layout/OCR/TableFormer một lần trước khi thêm tài liệu:
-
-```powershell
-npm run docling:prepare
-```
-
-Bộ model nằm trong `.docling-runtime` và không được commit. Nếu runtime thiếu, ScholarFlow báo lỗi rõ ràng và không quay về parser cũ. Các lệnh đóng gói tự chạy bước chuẩn bị này và đưa runtime vào bộ cài.
+Lệnh `npm run dev` mở cửa sổ Electron, không mở một sản phẩm web độc lập. Khi BGE-M3 hoặc Docling chưa có, app mở trang thiết lập thành phần; người dùng có thể tải trong giao diện hoặc chọn dùng tạm chế độ giới hạn. `npm run docling:prepare` chỉ còn phục vụ CI/test tương thích cũ, không phải bước bắt buộc để đóng gói và không đưa model vào installer.
 
 ## Kiểm thử
 
@@ -87,6 +81,8 @@ npm run desktop:package:dir
 npm run test:desktop-packaged
 ```
 
+Kiểm thử thủ công đầy đủ nằm trong `learning-resource-app\test-fixtures\scholarflow`. Bắt đầu từ `HUONG_DAN_TEST_FULL_SCHOLARFLOW.md`; đây là bộ test cố định của dự án và không được xóa khi dọn file tạm.
+
 ## Đóng gói bộ cài Windows
 
 ```powershell
@@ -99,17 +95,12 @@ Bộ cài được tạo trong `learning-resource-app\dist-electron`. Thư mục
 
 - Tài liệu lớn có thể tạo embedding chậm khi chỉ dùng CPU.
 - OCR tài liệu scan chạy trên CPU nên chậm hơn PDF có text; chất lượng công thức và biểu đồ phụ thuộc độ nét của bản scan.
+- OCR bảng/công thức/biểu đồ ưu tiên trích xuất chữ và ký hiệu để tìm kiếm, không diễn giải quan hệ thị giác hoặc giải bài tập.
 - Phân tích metadata cần một kết nối AI hợp lệ; thư viện và tìm kiếm vẫn dùng dữ liệu đã xử lý cục bộ.
 - Chưa có đồng bộ dữ liệu giữa nhiều máy.
-- Dashboard quản trị tài khoản trong desktop là hạng mục ưu tiên tiếp theo và chưa nằm trong bản MVP hiện tại.
 
 Chi tiết phạm vi sản phẩm nằm trong [PRD.md](PRD.md), tiến độ trong [PROJECT_CHECKLIST.md](PROJECT_CHECKLIST.md) và kế hoạch kỹ thuật trong [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md).
 
-## Làm việc cùng phiên bản Docker
+## Phiên bản Docker cũ
 
-- `desktop-app`: Electron + SQLite + sqlite-vec + BGE-M3 local.
-- `main`: web/Docker + PostgreSQL/pgvector + embedding service riêng.
-- Không dùng nút **Merge** để nhập toàn bộ `desktop-app` vào `main`. Git có thể merge sạch nhưng đồng thời xóa Dockerfile, compose và Python embedding service.
-- Muốn đưa một tính năng giao diện sang Docker, hãy tạo branch mới từ `main` rồi chuyển thủ công đúng component/API cần thiết và giữ nguyên tầng database của Docker.
-
-Xem danh sách xung đột kiến trúc và cách xử lý tại [DOCKER_COMPATIBILITY.md](DOCKER_COMPATIBILITY.md).
+Kiến trúc web/Docker cũ không còn được dùng bởi desktop app. Mã và lịch sử của phiên bản đó vẫn có thể lấy lại từ Git, đặc biệt ở nhánh/tag lưu trữ được ghi trong [DOCKER_COMPATIBILITY.md](DOCKER_COMPATIBILITY.md); không cần giữ Python embedding service hoặc model Docker cũ trong working tree hiện tại.

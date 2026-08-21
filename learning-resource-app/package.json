@@ -39,6 +39,7 @@
     "test:visual-search": "node --experimental-strip-types scripts/test-visual-search.mjs",
     "test:vietnamese-ocr": "node --experimental-strip-types scripts/test-vietnamese-ocr.mjs",
     "fixtures:hybrid-ocr": "node scripts/generate-hybrid-ocr-fixtures.mjs",
+    "fixtures:manual-large-file": "node scripts/generate-manual-large-file.mjs",
     "test:hybrid-ocr-routing": "node --experimental-strip-types scripts/test-hybrid-ocr-routing.mjs",
     "test:hybrid-document-extraction": "node --experimental-strip-types scripts/test-hybrid-document-extraction.mjs",
     "test:technical-ocr-modes": "node --experimental-strip-types scripts/test-technical-ocr-modes.mjs",

@@ -3,7 +3,7 @@ import path from "node:path";
 import { createWorker, OEM, PSM } from "tesseract.js";
 
 const projectRoot = process.cwd();
-const fixtureRoot = path.join(projectRoot, "test-fixtures", "scholarflow-hybrid-ocr");
+const fixtureRoot = path.join(projectRoot, "test-fixtures", "scholarflow", "05_ocr_regression");
 const tessdataRoot = process.env.SCHOLARFLOW_TESSDATA_PATH
   || path.join(process.env.DOCLING_RS_HOME || path.join(projectRoot, ".docling-runtime"), "models", "tesseract");
 const cases = [

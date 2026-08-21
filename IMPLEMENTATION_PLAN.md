@@ -1,9 +1,9 @@
 # Implementation Plan — ScholarFlow Desktop
 
-**Cập nhật:** 15/08/2026
+**Cập nhật:** 21/08/2026
 **Nhánh thực hiện:** `desktop-app`
 **Phạm vi:** ứng dụng desktop Windows chạy local, không có tài khoản, cloud backend, Docker hoặc bản web độc lập.
-**Lưu ý tài liệu:** PRD chưa cập nhật ở giai đoạn này; chỉ cập nhật khi sản phẩm hoàn thiện theo yêu cầu của nhóm.
+**Lưu ý tài liệu:** PRD đã được đồng bộ với sản phẩm local-only và phạm vi MVP cuối.
 
 ## 1. Kiến trúc đích
 
@@ -80,9 +80,9 @@ Next.js chỉ là lớp giao diện/API nội bộ của ứng dụng desktop. T
 - Thời gian đo trong dev giảm từ khoảng 520–620 ms xuống 210–225 ms cho Dashboard và từ 470–510 ms xuống 180–186 ms cho Tài liệu.
 - Production build đã đạt sau thay đổi.
 
-## 4. Công việc đang thực hiện: chuyển hoàn toàn sang local-only
+## 4. Phần đã hoàn thành: chuyển hoàn toàn sang local-only
 
-**Trạng thái:** code đã triển khai trong working tree, đã qua lint, TypeScript, unit test và production build; chưa commit/push.
+**Trạng thái:** đã triển khai, migration và unit test đạt; không còn auth/user/Supabase trong runtime hiện tại.
 
 - Xóa giao diện/API đăng ký và đăng nhập.
 - Xóa NextAuth, adapter auth, bcrypt và các type/validation liên quan.
@@ -92,9 +92,9 @@ Next.js chỉ là lớp giao diện/API nội bộ của ứng dụng desktop. T
 - Lần mở đầu sau nâng cấp chỉ dọn đúng `%APPDATA%\ScholarFlow\data\uploads`; file gốc bên ngoài app không bị đụng tới.
 - Khóa mã hóa API provider được tách khỏi auth secret và có thể nhận khóa cũ để không làm mất cấu hình provider.
 - Test migration xác nhận tài liệu/tài khoản bị xóa nhưng tag và cấu hình Ollama vẫn còn.
-- Còn phải chạy lại desktop standalone/package/smoke trên bản local-only cuối cùng trước khi commit.
+- Bản đóng gói cuối được kiểm tra lại sau mỗi nhóm thay đổi trước khi commit; không push nếu chưa được yêu cầu.
 
-## 5. Tính năng đang triển khai: tìm bằng vùng chọn trên ảnh hoặc file
+## 5. Tính năng đã hoàn thành: tìm bằng vùng chọn trên ảnh hoặc file
 
 **Trạng thái:** đã hoàn thiện và QA thủ công ngày 20/08/2026. Luồng ảnh/file → chọn/resize vùng → OCR Việt–Anh → hybrid search, zoom, lazy preview nhiều phần và crop nhiều DPI đã có; full lint/unit/build/standalone/package smoke đều đạt. Checklist thủ công đạt 20/20. Pipeline OCR/search hiện tại đã khóa trong `TECHNOLOGY_DECISIONS.md`; không tiếp tục đổi model trong scope MVP.
 
@@ -168,11 +168,11 @@ Viewer + ROI overlay
 - OCR vùng chọn dùng hai model Tesseract local Việt–Anh: tiếng Việt giữ dấu và văn bản chính, tiếng Anh sửa các dòng công thức/mã kỹ thuật khi có cấu trúc đáng tin cậy hơn. Ảnh có lưới dài được tạo thêm một bản sao RAM đã bỏ đường kẻ để OCR đủ tiêu đề và ô bảng; ảnh gốc không bị thay đổi.
 - Không tự ghép mã/nhãn từ các tile nhỏ của sơ đồ vào query vì thử nghiệm thực tế sinh chữ rác và làm sai kết quả. Vùng OCR có độ tin cậy hoặc lượng chữ hữu ích quá thấp được yêu cầu chọn lại thay vì tự tìm.
 - Pipeline OCR dùng chung bước cắt viền trắng và phóng vùng nhỏ trước khi nhận dạng. Khi nhập tài liệu, ảnh nhúng trong PDF cũng được OCR như DOCX/PPTX/EPUB; text layer gốc vẫn được giữ.
-- Tesseract Việt–Anh hiện đọc tốt chữ thường, bảng và nhãn biểu đồ nhưng chưa đáng tin cậy với công thức toán phức tạp dạng ảnh. CodeFormulaV2 là hướng tiếp theo, nhưng binding Node của `docling.rs` đang dùng chưa công khai tùy chọn formula enrichment nên chưa thể chỉ tải model rồi bật lên.
+- Tesseract Việt–Anh hiện đọc tốt chữ thường, bảng và nhãn biểu đồ nhưng chưa đáng tin cậy với công thức toán phức tạp dạng ảnh. Các mục CodeFormulaV2 và PP-FormulaNet bên dưới chỉ là lịch sử benchmark ngày 18/08/2026, không phải thành phần hoặc hướng tích hợp đã chốt của MVP.
 - Probe ngày 18/08/2026 với `docling.rs` CLI 1.12 và CodeFormulaV2 INT8 xác nhận model đọc đúng cả ba fixture công thức Gaussian, hồi quy tuyến tính và Bayes/entropy thành LaTeX (khoảng 18–37 giây/ảnh trên CPU, gồm thời gian nạp model của tiến trình thử). Pipeline tài liệu mặc định vẫn bỏ sót vì layout gắn ảnh công thức nhúng là `picture`, không phải `formula`; hướng tích hợp phải gọi CodeFormula trực tiếp cho crop/vùng ảnh phù hợp hoặc mở API tương ứng trong Node binding, không chỉ bật `--enrich-formula` toàn tài liệu.
 - Benchmark mở rộng ngày 18/08/2026: CodeFormulaV2 giữ đúng ý nghĩa 10/12 công thức tổng hợp và đúng 3/3 ảnh công thức thực tế; hai lỗi là công thức Fourier bị sai cận/số mũ và phép tích sinh thừa ký tự. Fixture PDF chính thức được enrichment đúng 1/1, nhưng bốn file stress-test thực tế đều trả `0` item `formula`: DOCX/PPTX/EPUB giữ ảnh dưới dạng `picture`, còn PDF bỏ qua ba ảnh công thức và chỉ giữ hai biểu đồ. Pipeline app dùng Tesseract cho ảnh nhúng chỉ đọc gần đúng Bayes/entropy, làm hỏng OLS và bỏ mất Gaussian, nên chưa đạt tiêu chí trích xuất công thức ảnh đầy đủ.
 - Thử nghiệm đối chứng ngày 18/08/2026 bác bỏ việc thay toàn bộ OCR bằng RapidOCR PP-OCRv6 small: model đọc đúng 18/18 marker tiếng Anh ở hai biểu đồ và chạy khoảng 0,94–2,06 giây/ảnh, nhưng chỉ khớp nghiêm ngặt 0/5 marker ở ảnh câu hỏi tiếng Việt, làm rơi nhiều dấu dù confidence gần 0,98 và sinh `O Q O O` trên ảnh trắng. Tesseract Việt–Anh hiện tại tiếp tục là OCR chữ chính; RapidOCR chưa được thêm vào thành phần phát hành.
-- PP-FormulaNet_plus-S (247,6 MiB) chạy nhanh, nạp khoảng 5,96 giây và nhận từng công thức trong 0,59–1,25 giây, nhưng chỉ đúng ý nghĩa 8/15 ảnh cùng bộ test so với CodeFormulaV2 13/15. Model sai Gaussian/chuỗi/ma trận/Fourier, sai ít nhất một thành phần quan trọng ở cả ba ảnh thực tế và sinh LaTeX rác dài khi nhận nhầm biểu đồ. Vì vậy kiến trúc chốt là Docling cho layout/text/bảng native, Tesseract cho OCR chữ/bảng/nhãn và CodeFormulaV2 chỉ cho ROI hoặc ảnh nhúng đã qua phát hiện công thức; không chạy formula model cho mọi ảnh.
+- PP-FormulaNet_plus-S (247,6 MiB) chạy nhanh, nạp khoảng 5,96 giây và nhận từng công thức trong 0,59–1,25 giây, nhưng chỉ đúng ý nghĩa 8/15 ảnh cùng bộ test so với CodeFormulaV2 13/15. Model sai Gaussian/chuỗi/ma trận/Fourier, sai ít nhất một thành phần quan trọng ở cả ba ảnh thực tế và sinh LaTeX rác dài khi nhận nhầm biểu đồ. Kết luận cuối: không tích hợp cả PP-FormulaNet lẫn CodeFormulaV2; MVP giữ Docling cho layout/text/bảng native và Tesseract Việt–Anh cho OCR chữ, bảng, nhãn cùng query có thể sửa thủ công.
 - Regression suite bổ sung ngày 18/08/2026 tạo 16 ảnh có ground truth và một DOCX chứa text/bảng native cùng 11 ảnh nhúng; cộng tám ảnh thực tế cục bộ thành 24 ca routing. Router thử nghiệm phân đúng 24/24, nhưng Tesseract chính chỉ giữ 24/32 marker OCR: thiếu một từ Anh, một tiêu đề bảng, một nhãn tháng, bốn node trong sơ đồ và `Infinity`. RapidOCR bù 6/8 marker còn thiếu nhưng tiếp tục mất dấu Việt/sinh rác trên ảnh trắng; Tesseract tiếng Anh raw đã đọc đúng `documents` và `Infinity`, cho thấy ưu tiên sửa merge theo dòng/vị trí trước khi thêm runtime OCR mới.
 - CodeFormula trên sáu ảnh công thức mới chỉ đúng bốn ảnh nguyên vẹn: OLS sai phân số và ảnh entropy có chú thích không trả kết quả sau hơn ba phút. Bỏ chú thích giúp entropy đúng, nhưng tách OLS thành hai crop vẫn làm sai phân số và biến `y` thành chỉ số dưới `Y`. DOCX stress giữ đủ 8/8 marker native nhưng năm trong sáu nhóm công thức ảnh không đạt. Vì vậy hướng hybrid là khả thi có điều kiện, chưa đủ để tích hợp tự động: cần crop/segmentation, timeout cứng, validation/fallback và UI cho sửa kết quả; không được coi LaTeX của model là ground truth.
 - Kiểm tra end-to-end bổ sung ngày 18/08/2026 trên ba ca đại diện xác nhận crop bậc hai đúng sau 18 giây, crop entropy đúng sau 18 giây, còn crop R² mất hơn 30 giây và vẫn biến phân số thành căn. Do lỗi R² tạo ra LaTeX hợp lệ, validation cú pháp không thể phát hiện sai nghĩa; CodeFormula chưa được bật tự động. Router 24/24 đã được chuyển từ script thử nghiệm vào mã app và dùng để chấp nhận query công thức ngắn, đồng thời vẫn chặn vùng trắng/rác. Tesseract tiếp tục là fallback và không bị ghi đè.
@@ -180,35 +180,24 @@ Viewer + ROI overlay
 - Nội dung trích xuất mặc định thu gọn và chỉ tải toàn bộ text khi người dùng mở disclosure; bỏ nút điều hướng `Xem toàn bộ` gây tải lại trang.
 - File ScholarFlow quản lý được lưu theo `uploads/<document-id>/<tên-gốc-an-toàn>`; file UUID cũ được migrate idempotent lúc app khởi động để Explorer hiển thị tên dễ đọc.
 
-## 6. Thứ tự thực hiện tiếp theo
+## 6. Trạng thái chốt và công việc phát hành
 
-### Giai đoạn A — Hoàn tất local-only
+### Đã hoàn thành trong MVP
 
-1. Chạy lại lint, toàn bộ unit test và production build trên working tree cuối.
-2. Chạy desktop standalone smoke test.
-3. Tạo unpacked/package mới và chạy packaged smoke test.
-4. Kiểm tra installer không chứa model và không còn auth dependency/route.
-5. Commit thay đổi local-only + sửa ổn định/hiệu năng; không push nếu chưa được yêu cầu.
+1. Chuyển toàn bộ ứng dụng sang local-only và migration bỏ dữ liệu tài khoản/tài liệu cũ theo phạm vi đã chốt.
+2. Hoàn thiện quản lý BGE-M3/Docling, extraction bốn định dạng, tìm kiếm chữ và tìm bằng vùng chọn.
+3. Hoàn thiện viewer, OCR Việt–Anh, mở đúng nội dung liên quan, giữ state quay lại và các sửa lỗi UX đã kiểm tra thủ công.
+4. Gộp bộ dữ liệu regression/manual test vào `learning-resource-app/test-fixtures/scholarflow` và giữ file giả 40 MB có thể tạo lại.
+5. Đồng bộ README, PRD, Plan và Checklist với sản phẩm cuối.
 
-### Giai đoạn B — Tìm bằng vùng chọn
+### Mỗi bản chốt/commit
 
-1. Tạo viewer thống nhất và adapter render cho ảnh/PDF/DOCX/PPTX/EPUB.
-2. Thêm điều hướng lazy cho file nhiều trang.
-3. Thêm ROI overlay với kéo, resize, zoom và chuẩn hóa tọa độ.
-4. Tạo OCR endpoint/worker nhận buffer vùng chọn trong RAM.
-5. Dùng Docling warm pipeline và cơ chế hủy kết quả cũ.
-6. Nối text OCR với hybrid search hiện tại.
-7. Hoàn thiện panel kết quả, trạng thái loading/no-result và chỉnh sửa OCR.
-8. Kiểm tra cleanup file tạm, giới hạn dung lượng/trang và path containment.
-9. Thêm unit, integration và desktop interaction tests.
+1. Chạy lint, toàn bộ unit test và production build.
+2. Tạo lại unpacked package và chạy packaged smoke test.
+3. Kiểm tra installer/package không chứa model lớn, cache hoặc dữ liệu người dùng.
+4. Commit trên `desktop-app`; không push hoặc tạo release nếu chưa được yêu cầu.
 
-### Giai đoạn C — Hoàn thiện sản phẩm
-
-1. Kiểm thử với tài liệu thực tế và ảnh câu hỏi tiếng Việt.
-2. Đo độ trễ OCR lần đầu/lần sau và chất lượng relevance gate.
-3. Hoàn thiện backup/restore nếu còn trong phạm vi release.
-4. Cập nhật README, PRD và tài liệu bàn giao sau khi chức năng cuối ổn định.
-5. Package, smoke test, tạo commit/release theo yêu cầu nhóm.
+Backup/restore, gộp nhiều vùng và OCR công thức ảnh bằng model chuyên dụng đều nằm ngoài phạm vi MVP hiện tại.
 
 ## 7. Chiến lược kiểm thử
 
@@ -240,9 +229,17 @@ Viewer + ROI overlay
 
 - `main`: phiên bản đã được nhóm duyệt.
 - `archive/web-docker-before-desktop-2026-08-08`: lịch sử bản web/Docker cũ.
-- `desktop-app`: nhánh phát triển desktop, hiện đang trước `origin/desktop-app` ba commit.
-- Ba commit local gần nhất: chuyển toàn bộ extraction sang Docling, thêm trích xuất lại, quản lý BGE-M3/Docling.
-- Thay đổi local-only, sửa `EPIPE`, tối ưu chuyển trang và hai tài liệu kế hoạch hiện chưa commit/push.
+- `desktop-app`: nhánh phát triển desktop; lịch sử local được giữ và không tự push lên GitHub.
+- Các thay đổi mới nhất về preview, tìm kiếm, tài liệu và bộ test hợp nhất đã qua full unit test, lint, build, standalone/package smoke trước khi commit cục bộ.
+
+## 8.1 Kết quả xác nhận bản chốt 21/08/2026
+
+- Full unit test và ESLint đạt.
+- Next.js production build và TypeScript đạt.
+- Desktop standalone smoke đạt trên SQLite migration mới.
+- Unpacked Windows package được tạo lại; packaged smoke đạt local-only startup, database không credential và embedding auto-restart.
+- Package không chứa BGE-M3, `.docling-runtime`, model cache hoặc test fixture.
+- Bộ fixture chỉ còn một thư mục `learning-resource-app/test-fixtures/scholarflow`, giữ hướng dẫn test và file giả 40 MB.
 
 ## 9. Điều kiện hoàn thành sản phẩm
 

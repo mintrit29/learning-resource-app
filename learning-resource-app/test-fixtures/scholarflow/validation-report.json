@@ -1,0 +1,21 @@
+{
+  "status": "passed_with_known_ocr_limitations",
+  "extraction": {
+    "DOCX": { "status": "pass", "characters": 1552, "sections": 9, "milliseconds": 3447, "embeddedImageOcr": true },
+    "PDF": { "status": "pass", "characters": 1360, "sections": 6, "milliseconds": 4565 },
+    "PPTX": { "status": "pass", "characters": 1309, "sections": 24, "milliseconds": 20 },
+    "EPUB": { "status": "pass", "characters": 580, "sections": 6, "milliseconds": 29 }
+  },
+  "preview": {
+    "DOCX": { "status": "pass", "items": 1 },
+    "PPTX": { "status": "pass", "items": 3 },
+    "EPUB": { "status": "pass", "items": 3 }
+  },
+  "ocr": [
+    { "region": "OSPF image", "status": "pass", "keyword": "OSPF", "milliseconds": 2757 },
+    { "region": "3NF image", "status": "pass", "keyword": "3NF", "milliseconds": 942 },
+    { "region": "Dijkstra scan", "status": "pass", "keyword": "Dijkstra", "milliseconds": 720 },
+    { "region": "Dijkstra formula/table", "status": "pass", "keyword": "Dijkstra", "milliseconds": 2093, "knownLimitation": "Formula OCR may omit symbols" },
+    { "region": "No text", "status": "pass", "expected": "rejected" }
+  ]
+}

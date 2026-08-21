@@ -6,11 +6,11 @@ const projectRoot = process.cwd();
 process.env.DOCLING_RS_HOME ||= path.join(projectRoot, ".docling-runtime");
 process.env.PDFIUM_DYNAMIC_LIB_PATH ||= path.join(process.env.DOCLING_RS_HOME, "pdfium", "lib");
 
-const fixtureRoot = path.join(projectRoot, "test-fixtures", "scholarflow-hybrid-ocr");
+const fixtureRoot = path.join(projectRoot, "test-fixtures", "scholarflow", "05_ocr_regression");
 const reportPath = path.join(fixtureRoot, "routing-report.json");
 const manifest = JSON.parse(await readFile(path.join(fixtureRoot, "manifest.json"), "utf8"));
 const legacyFormulaRoot = path.join(projectRoot, ".tmp-codeformula-inputs", "word", "media");
-const visualQueryRoot = path.join(projectRoot, "test-fixtures", "scholarflow-visual-search", "queries");
+const visualQueryRoot = path.join(projectRoot, "test-fixtures", "scholarflow", "02_visual_queries");
 const validationFixtures = [
   { id: "actual_formula_gaussian", filePath: path.join(legacyFormulaRoot, "image1.png"), expectedRoute: "formula", expectedMarkers: ["int", "sqrt"], description: "Ảnh công thức Gaussian từ stress file thực tế." },
   { id: "actual_formula_ols", filePath: path.join(legacyFormulaRoot, "image2.png"), expectedRoute: "formula", expectedMarkers: ["beta", "R", "SS"], description: "Ảnh OLS/R² từ stress file thực tế." },

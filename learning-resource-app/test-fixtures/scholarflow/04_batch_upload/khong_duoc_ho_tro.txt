@@ -1,0 +1,1 @@
+File này dùng để xác nhận Quét thư mục bỏ qua định dạng không hỗ trợ.

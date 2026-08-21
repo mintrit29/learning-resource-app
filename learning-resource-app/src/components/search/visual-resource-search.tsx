@@ -35,6 +35,18 @@ function nextAnimationFrame() {
   return new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
 }
 
+async function readJsonResponse<T>(response: Response, fallbackMessage: string): Promise<T> {
+  const contentType = response.headers.get("content-type")?.toLowerCase() ?? "";
+  if (!contentType.includes("application/json")) {
+    throw new Error(fallbackMessage);
+  }
+  try {
+    return (await response.json()) as T;
+  } catch {
+    throw new Error(fallbackMessage);
+  }
+}
+
 export function VisualResourceSearch() {
   const [restoredDraft] = useState(() => readVisualSearchDraft());
   const inputRef = useRef<HTMLInputElement>(null);
@@ -180,7 +192,11 @@ export function VisualResourceSearch() {
         body: JSON.stringify({ query: normalizedQuery, chunksPerDocument: 1 }),
         signal: searchController.signal,
       });
-      const data = (await response.json()) as { message?: string; status?: SearchStatus; results?: SearchResult[] };
+      const data = await readJsonResponse<{
+        message?: string;
+        status?: SearchStatus;
+        results?: SearchResult[];
+      }>(response, "Dịch vụ tìm kiếm phản hồi không hợp lệ. Hãy thử đóng và mở lại ứng dụng.");
       if (sequence !== requestSequenceRef.current) return;
       if (!response.ok) throw new Error(data.message ?? "Không thể tìm trong tài liệu.");
       setResults(data.results ?? []);
@@ -237,7 +253,10 @@ export function VisualResourceSearch() {
           body: JSON.stringify({ imageDataUrl }),
           signal: ocrController.signal,
         });
-        const data = (await response.json()) as { text?: string; message?: string };
+        const data = await readJsonResponse<{ text?: string; message?: string }>(
+          response,
+          "Dịch vụ nhận dạng chưa sẵn sàng. Hãy thử đóng và mở lại ứng dụng.",
+        );
         if (!response.ok || !data.text) {
           throw new Error(data.message ?? "Không nhận ra chữ trong vùng chọn.");
         }
@@ -410,10 +429,21 @@ export function VisualResourceSearch() {
     previewAbortRef.current = previewController;
     const previewTimeout = window.setTimeout(() => previewController.abort(), 30_000);
     try {
-      const form = new FormData();
-      form.set("file", nextFile);
-      const response = await fetch("/api/search/visual/preview", { method: "POST", body: form, signal: previewController.signal });
-      const data = (await response.json()) as { html?: string; itemCount?: number; sessionId?: string | null; message?: string };
+      const response = await fetch("/api/search/visual/preview", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/octet-stream",
+          "x-scholarflow-file-name": encodeURIComponent(nextFile.name),
+        },
+        body: nextFile,
+        signal: previewController.signal,
+      });
+      const data = await readJsonResponse<{
+        html?: string;
+        itemCount?: number;
+        sessionId?: string | null;
+        message?: string;
+      }>(response, "Không thể xem trước file. Hãy thử đóng và mở lại ứng dụng.");
       if (sequence !== requestSequenceRef.current) return;
       if (!response.ok || !data.html) throw new Error(data.message ?? "Không thể xem trước file.");
       setPreviewHtml(data.html);
@@ -644,7 +674,10 @@ export function VisualResourceSearch() {
         body: JSON.stringify({ sessionId, item: normalizedItem }),
         signal: controller.signal,
       });
-      const data = (await response.json()) as { html?: string; itemCount?: number; message?: string };
+      const data = await readJsonResponse<{ html?: string; itemCount?: number; message?: string }>(
+        response,
+        "Không thể chuyển trang xem trước. Hãy thử đóng và mở lại ứng dụng.",
+      );
       if (!response.ok || !data.html) throw new Error(data.message ?? "Không thể chuyển trang xem trước.");
       if (previewSessionRef.current !== sessionId) return;
       setPreviewHtml(data.html);

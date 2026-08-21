@@ -2,7 +2,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { createCanvas, loadImage } from "@napi-rs/canvas";
 
-const outputDir = path.join(process.cwd(), "test-fixtures", "scholarflow-hybrid-ocr");
+const outputDir = path.join(process.cwd(), "test-fixtures", "scholarflow", "05_ocr_regression");
 await mkdir(outputDir, { recursive: true });
 
 const fixtures = [];

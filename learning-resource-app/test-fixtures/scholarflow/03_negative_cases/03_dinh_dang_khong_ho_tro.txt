@@ -1,0 +1,1 @@
+ScholarFlow chỉ nhận PDF, DOCX, PPTX và EPUB khi thêm vào thư viện.

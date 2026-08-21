@@ -34,14 +34,23 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
-  const itemValue = new URL(request.url).searchParams.get("item");
+  const searchParams = new URL(request.url).searchParams;
+  const itemValue = searchParams.get("item");
+  const matchedChunkId = searchParams.get("chunk");
   const itemNumber = itemValue && /^\d{1,3}$/.test(itemValue) ? Number(itemValue) : undefined;
   if (itemNumber !== undefined && (itemNumber < 1 || itemNumber > 200)) {
     return errorPage("Vị trí xem trước không hợp lệ.", 400);
   }
   const document = await db.document.findFirst({
     where: { id },
-    select: { filePath: true, fileType: true, originalFileName: true },
+    select: {
+      filePath: true,
+      fileType: true,
+      originalFileName: true,
+      chunks: matchedChunkId
+        ? { where: { id: matchedChunkId }, select: { content: true }, take: 1 }
+        : { where: { id: "__none__" }, select: { content: true }, take: 1 },
+    },
   });
   if (!document) return errorPage("Không tìm thấy tài liệu.", 404);
   if (!previewableTypes.has(document.fileType as PreviewFileType)) {
@@ -59,6 +68,7 @@ export async function GET(
       document.fileType as PreviewFileType,
       document.originalFileName,
       document.fileType === "PPTX" || document.fileType === "EPUB" ? itemNumber : undefined,
+      document.chunks[0]?.content,
     );
     return new Response(preview.html, { headers: previewHeaders() });
   } catch (error) {

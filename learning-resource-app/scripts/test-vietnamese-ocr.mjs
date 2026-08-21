@@ -6,7 +6,7 @@ import { createCanvas, loadImage } from "@napi-rs/canvas";
 const projectRoot = process.cwd();
 process.env.DOCLING_RS_HOME ||= path.join(projectRoot, ".docling-runtime");
 process.env.PDFIUM_DYNAMIC_LIB_PATH ||= path.join(process.env.DOCLING_RS_HOME, "pdfium", "lib");
-const fixtureRoot = path.join(projectRoot, "test-fixtures", "scholarflow-visual-search", "queries");
+const fixtureRoot = path.join(projectRoot, "test-fixtures", "scholarflow", "02_visual_queries");
 const {
   mergeVietnameseAndTechnicalOcrText,
   recognizeVietnameseImage,

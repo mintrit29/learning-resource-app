@@ -75,6 +75,36 @@ assert.match(focusedEpub.html, /Phần 2\/2 · Bản xem nhanh EPUB/);
 assert.doesNotMatch(focusedEpub.html, /ScholarFlow EPUB embedded preview/);
 assert.match(focusedEpub.html, /Second chapter/);
 
+const matchedDocx = await renderDocumentPreview(
+  await createDocx(),
+  "DOCX",
+  "Matched DOCX",
+  undefined,
+  "ScholarFlow DOCX embedded preview",
+);
+assert.match(matchedDocx.html, /id="matched-preview"/);
+assert.match(matchedDocx.html, /class="matched-preview"/);
+
+const matchedPptx = await renderDocumentPreview(
+  await createPptx(),
+  "PPTX",
+  "Matched PPTX",
+  undefined,
+  "Second slide",
+);
+assert.match(matchedPptx.html, /id="matched-preview"/);
+assert.match(matchedPptx.html, /Second slide/);
+
+const matchedEpub = await renderDocumentPreview(
+  await createEpub(),
+  "EPUB",
+  "Matched EPUB",
+  undefined,
+  "More learning resources",
+);
+assert.match(matchedEpub.html, /id="matched-preview"/);
+assert.match(matchedEpub.html, /More learning resources/);
+
 await assert.rejects(
   renderDocumentPreview(await createOversizedPptx(), "PPTX", "Too many slides"),
   /quá 200 slide/,

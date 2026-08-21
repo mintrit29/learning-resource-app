@@ -6,7 +6,7 @@ const projectRoot = process.cwd();
 process.env.DOCLING_RS_HOME ||= path.join(projectRoot, ".docling-runtime");
 process.env.PDFIUM_DYNAMIC_LIB_PATH ||= path.join(process.env.DOCLING_RS_HOME, "pdfium", "lib");
 
-const fixtureRoot = path.join(projectRoot, "test-fixtures", "scholarflow-hybrid-ocr");
+const fixtureRoot = path.join(projectRoot, "test-fixtures", "scholarflow", "05_ocr_regression");
 const inputPath = path.join(fixtureRoot, "hybrid_content_stress.docx");
 const reportPath = path.join(fixtureRoot, "document-extraction-report.json");
 const { extractDocumentText } = await import("../src/lib/documents/extract-text.ts");

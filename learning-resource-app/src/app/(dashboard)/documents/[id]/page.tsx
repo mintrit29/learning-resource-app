@@ -97,7 +97,10 @@ export default async function DocumentDetailPage({
     : null;
   const originalFilePreviewHref = isPdf
     ? matchedPdfPage ? `${originalFileHref}#page=${matchedPdfPage}` : originalFileHref
-    : `/api/documents/${document.id}/preview${matchedPreviewItem ? `?item=${matchedPreviewItem}` : ""}`;
+    : `/api/documents/${document.id}/preview?${new URLSearchParams({
+        ...(matchedPreviewItem ? { item: String(matchedPreviewItem) } : {}),
+        ...(matchedChunk ? { chunk: matchedChunk.id } : {}),
+      }).toString()}${matchedChunk ? "#matched-preview" : ""}`;
   const embeddingDevice = (process.env.EMBEDDING_DEVICE ?? "cpu").toLowerCase();
   const latestJobsByType = new Map<string, (typeof document.jobs)[number]>();
   for (const job of document.jobs) latestJobsByType.set(job.type, job);
