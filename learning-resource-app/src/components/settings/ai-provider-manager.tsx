@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Bot,
   Check,
@@ -90,6 +91,7 @@ function responseMessage(value: unknown, fallback: string) {
 }
 
 export function AiProviderManager({ initialProviders }: { initialProviders: Provider[] }) {
+  const router = useRouter();
   const [providers, setProviders] = useState(initialProviders);
   const [isOpen, setIsOpen] = useState(false);
   const [type, setType] = useState<ProviderType>("OPENROUTER");
@@ -180,6 +182,7 @@ export function AiProviderManager({ initialProviders }: { initialProviders: Prov
       });
       setIsOpen(false);
       setEditing(null);
+      router.refresh();
     } catch {
       setNotice({ kind: "error", text: "Ứng dụng không phản hồi. Hãy thử lại." });
     } finally {
@@ -238,6 +241,7 @@ export function AiProviderManager({ initialProviders }: { initialProviders: Prov
       if (action === "test") {
         setProviders((items) => items.map((item) => (item.id === id ? { ...item, authStatus: "CONNECTED" } : item)));
       }
+      router.refresh();
       setNotice({ kind: "ok", text: responseMessage(data.message, "Thao tác thành công.") });
     } catch {
       setNotice({ kind: "error", text: "Ứng dụng không phản hồi. Hãy thử lại." });

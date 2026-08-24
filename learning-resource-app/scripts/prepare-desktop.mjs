@@ -1,4 +1,4 @@
-import { cp, mkdir, rm, stat } from "node:fs/promises";
+import { cp, mkdir, readFile, rm, stat } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -10,6 +10,26 @@ async function requireDirectory(directory, label) {
   const info = await stat(directory).catch(() => null);
   if (!info?.isDirectory()) {
     throw new Error(`${label} chưa tồn tại: ${directory}`);
+  }
+}
+
+const copiedDependencies = new Set();
+
+async function copyDependencyTree(dependency) {
+  if (copiedDependencies.has(dependency)) return;
+  copiedDependencies.add(dependency);
+
+  const dependencyRoot = path.join(projectRoot, "node_modules", dependency);
+  await requireDirectory(dependencyRoot, dependency);
+  await cp(
+    dependencyRoot,
+    path.join(standaloneRoot, "node_modules", dependency),
+    { recursive: true, force: true },
+  );
+
+  const manifest = JSON.parse(await readFile(path.join(dependencyRoot, "package.json"), "utf8"));
+  for (const childDependency of Object.keys(manifest.dependencies ?? {})) {
+    await copyDependencyTree(childDependency);
   }
 }
 
@@ -48,13 +68,7 @@ for (const dependency of [
   "tesseract.js",
   "tesseract.js-core",
 ]) {
-  const dependencyRoot = path.join(projectRoot, "node_modules", dependency);
-  await requireDirectory(dependencyRoot, dependency);
-  await cp(
-    dependencyRoot,
-    path.join(standaloneRoot, "node_modules", dependency),
-    { recursive: true, force: true },
-  );
+  await copyDependencyTree(dependency);
 }
 
 const publicDirectory = path.join(projectRoot, "public");

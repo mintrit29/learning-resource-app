@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { spawn, spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
@@ -9,6 +9,7 @@ import Database from "better-sqlite3";
 
 const executable = path.resolve("dist-electron", "win-unpacked", "ScholarFlow.exe");
 assert.ok(existsSync(executable), "Package the desktop app before this smoke test");
+const packagedAppRoot = path.resolve("dist-electron", "win-unpacked", "resources", "app");
 const packagedTransformers = path.resolve(
   "dist-electron",
   "win-unpacked",
@@ -78,6 +79,52 @@ function readEmbeddingOrigin() {
   return [...log.matchAll(/local BGE-M3 tại (http:\/\/127\.0\.0\.1:\d+)/g)].at(-1)?.[1] ?? null;
 }
 
+async function verifyPackagedTesseractDependencies() {
+  const probePath = path.join(userDataRoot, "probe-tesseract.cjs");
+  const setImagePath = path.join(
+    packagedAppRoot,
+    "node_modules",
+    "tesseract.js",
+    "src",
+    "worker-script",
+    "utils",
+    "setImage.js",
+  );
+  assert.ok(existsSync(setImagePath), "Packaged app must include the Tesseract worker");
+  await writeFile(probePath, `require(${JSON.stringify(setImagePath)});\n`, "utf8");
+  const probe = spawnSync(executable, [probePath], {
+    env: { ...process.env, ELECTRON_RUN_AS_NODE: "1" },
+    encoding: "utf8",
+    windowsHide: true,
+  });
+  assert.equal(
+    probe.status,
+    0,
+    `Packaged Tesseract dependency probe failed:\n${probe.stdout}\n${probe.stderr}`,
+  );
+}
+
+async function verifyProviderPersistence(origin) {
+  const providerName = "Packaged Custom API";
+  const response = await fetch(`${origin}/api/ai-providers`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      type: "CUSTOM",
+      displayName: providerName,
+      baseUrl: "http://127.0.0.1:39999/v1",
+      apiKey: "packaged-test-key",
+      defaultChatModel: "packaged-test-model",
+      isActive: true,
+    }),
+  });
+  assert.equal(response.status, 201, await response.text());
+  const settings = await fetch(`${origin}/settings/ai-providers`);
+  const html = await settings.text();
+  assert.equal(settings.status, 200, html);
+  assert.match(html, new RegExp(providerName), "Saved Custom API must remain visible after reopening settings");
+}
+
 function findListeningProcessId(origin) {
   const port = new URL(origin).port;
   const result = spawnSync("netstat.exe", ["-ano", "-p", "tcp"], {
@@ -126,6 +173,8 @@ try {
 
   const dashboard = await fetch(`${origin}/dashboard`);
   assert.equal(dashboard.status, 200, await dashboard.text());
+  await verifyPackagedTesseractDependencies();
+  await verifyProviderPersistence(origin);
 
   const databasePath = path.join(userDataRoot, "data", "scholarflow.db");
   const database = new Database(databasePath, { readonly: true });
@@ -139,7 +188,7 @@ try {
   await verifyEmbeddingAutoRestart();
   assert.equal(child.exitCode, null, "Desktop main process must survive an embedding restart");
 
-  console.log("PASS packaged desktop: local-only startup, credential-free database and embedding auto-restart");
+  console.log("PASS packaged desktop: startup, provider persistence, Tesseract dependencies and embedding auto-restart");
 } finally {
   stopApplication();
   // Windows may keep Chromium cache files locked briefly after taskkill returns.

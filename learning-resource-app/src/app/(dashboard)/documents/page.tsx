@@ -7,6 +7,8 @@ import { db } from "@/lib/db";
 import { getDocumentDisplayStatus } from "@/lib/documents/display-status";
 import { ensureCurriculumTopics } from "@/lib/taxonomy/curriculum-topics";
 
+export const dynamic = "force-dynamic";
+
 const UNCLASSIFIED_FILTER = "__unclassified__";
 
 const statusOptions = [

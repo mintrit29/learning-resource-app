@@ -2,6 +2,8 @@ import { TagManager } from "@/components/settings/tag-manager";
 import { db } from "@/lib/db";
 import { ensureCurriculumTopics } from "@/lib/taxonomy/curriculum-topics";
 
+export const dynamic = "force-dynamic";
+
 export default async function TopicsPage() {
   await ensureCurriculumTopics();
   const tags = await db.tag.findMany({

@@ -17,6 +17,8 @@ import { estimateProcessingRemaining } from "@/lib/documents/processing-estimate
 import { formatDifficulty } from "@/lib/labels";
 import { ensureCurriculumTopics } from "@/lib/taxonomy/curriculum-topics";
 
+export const dynamic = "force-dynamic";
+
 const jobLabels: Record<string, string> = {
   EXTRACT_TEXT: "Trích xuất nội dung",
   CHUNK_DOCUMENT: "Chia nội dung thành đoạn",

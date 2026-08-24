@@ -2,6 +2,8 @@ import { AiProviderManager } from "@/components/settings/ai-provider-manager";
 import { publicProvider } from "@/lib/ai/provider-config";
 import { db } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 export default async function AiProvidersPage() {
   const providers = await db.aiProvider.findMany({
     orderBy: [{ isActive: "desc" }, { createdAt: "desc" }],
