@@ -8,7 +8,7 @@ export const PROJECT_INFO = {
   email: "lamnhachoa123@gmail.com",
   githubUrl: "https://github.com/mintrit29",
   githubLabel: "github.com/mintrit29",
-  version: "0.1.0",
+  version: "0.1.1",
   year: 2026,
   members: [
     { name: "Lâm Nhạc Hoa", studentId: "2200009882" },
