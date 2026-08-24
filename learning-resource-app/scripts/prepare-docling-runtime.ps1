@@ -44,6 +44,22 @@ function Get-RuntimeAsset {
   Move-Item -LiteralPath $downloadPath -Destination $Destination -Force
 }
 
+function Get-Sha256Hex {
+  param(
+    [Parameter(Mandatory = $true)][string]$Path
+  )
+
+  $stream = [System.IO.File]::OpenRead($Path)
+  $sha256 = [System.Security.Cryptography.SHA256]::Create()
+  try {
+    $hashBytes = $sha256.ComputeHash($stream)
+    return [System.BitConverter]::ToString($hashBytes).Replace("-", "").ToLowerInvariant()
+  } finally {
+    $sha256.Dispose()
+    $stream.Dispose()
+  }
+}
+
 $pdfiumDll = Join-Path $pdfiumRoot "pdfium.dll"
 if (-not (Test-Path -LiteralPath $pdfiumDll) -or $Force) {
   $archivePath = Join-Path $env:TEMP "scholarflow-pdfium-win-x64.tgz"
@@ -77,13 +93,13 @@ foreach ($asset in $requiredAssets) {
 
 $vietnameseOcrModel = Join-Path $tesseractRoot "vie.traineddata"
 Get-RuntimeAsset -Url "https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/4.1.0/vie.traineddata" -Destination $vietnameseOcrModel
-$vietnameseOcrHash = (Get-FileHash -LiteralPath $vietnameseOcrModel -Algorithm SHA256).Hash.ToLowerInvariant()
+$vietnameseOcrHash = Get-Sha256Hex -Path $vietnameseOcrModel
 if ($vietnameseOcrHash -ne "79df64caf7bcfb2a27df5042ecb6121e196eada34da774956995747636d5bfa1") {
   throw "Checksum model OCR tiếng Việt không đúng"
 }
 $englishOcrModel = Join-Path $tesseractRoot "eng.traineddata"
 Get-RuntimeAsset -Url "https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/4.1.0/eng.traineddata" -Destination $englishOcrModel
-$englishOcrHash = (Get-FileHash -LiteralPath $englishOcrModel -Algorithm SHA256).Hash.ToLowerInvariant()
+$englishOcrHash = Get-Sha256Hex -Path $englishOcrModel
 if ($englishOcrHash -ne "7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2") {
   throw "Checksum model OCR tiếng Anh/kỹ thuật không đúng"
 }
