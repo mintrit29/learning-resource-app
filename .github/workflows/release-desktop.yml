@@ -1,0 +1,54 @@
+name: Release desktop
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing desktop release tag
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  package-and-release:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: learning-resource-app
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.tag }}
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: learning-resource-app/package-lock.json
+      - run: npm ci
+      - run: npm run desktop:package
+      - name: Resolve release asset
+        id: asset
+        shell: pwsh
+        run: |
+          $package = Get-Content -LiteralPath package.json -Raw | ConvertFrom-Json
+          $asset = "dist-electron/ScholarFlow-Setup-$($package.version).exe"
+          if (-not (Test-Path -LiteralPath $asset)) {
+            throw "Không tìm thấy installer: $asset"
+          }
+          "path=$asset" >> $env:GITHUB_OUTPUT
+          "version=$($package.version)" >> $env:GITHUB_OUTPUT
+      - name: Publish GitHub release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.tag }}
+          RELEASE_ASSET: ${{ steps.asset.outputs.path }}
+          RELEASE_VERSION: ${{ steps.asset.outputs.version }}
+        run: |
+          gh release create $env:RELEASE_TAG $env:RELEASE_ASSET `
+            --verify-tag `
+            --title "ScholarFlow Desktop $env:RELEASE_VERSION" `
+            --generate-notes `
+            --prerelease
