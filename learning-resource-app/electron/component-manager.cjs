@@ -22,6 +22,7 @@ const path = require("node:path");
 const BGE_REVISION = "6a3fd5fa10d7c4e4fabeace29e36b2bfa76d45d5";
 const DOCLING_RELEASE = "models-v1";
 const PDFIUM_RELEASE = "152.0.7961.0";
+const PDFIUM_REVISION = "7961";
 const TESSDATA_RELEASE = "4.1.0";
 const HF_BASE = `https://huggingface.co/BAAI/bge-m3/resolve/${BGE_REVISION}`;
 const DOCLING_BASE = `https://github.com/docling-project/docling.rs/releases/download/${DOCLING_RELEASE}`;
@@ -67,10 +68,10 @@ const COMPONENT_MANIFESTS = Object.freeze({
       relativePath, size, sha256, url: sourceUrl || `${DOCLING_BASE}/${sourceName}`,
     })),
     archive: {
-      url: `https://github.com/bblanchon/pdfium-binaries/releases/download/chromium%2F${PDFIUM_RELEASE}/pdfium-win-x64.tgz`,
+      url: `https://github.com/bblanchon/pdfium-binaries/releases/download/chromium%2F${PDFIUM_REVISION}/pdfium-win-x64.tgz`,
       relativePath: "pdfium/lib/pdfium.dll",
-      size: 7260672,
-      sha256: "fb898a1f5ace57805834f390407500bdb6ef93eff326a252ad334a8aae809d8e",
+      size: 7220736,
+      sha256: "d3d9f4b7c9dabe3363f30779c5c3c715c47332749fa590e4b4a2b8b6780cb1c4",
     },
   }),
 });
@@ -325,7 +326,10 @@ class ComponentManager {
       offset = 0;
       return this.downloadFile(url, destination, expected, signal, progress);
     }
-    if (![200, 206].includes(response.statusCode)) throw new Error(`Máy chủ tải xuống trả về HTTP ${response.statusCode}`);
+    if (![200, 206].includes(response.statusCode)) {
+      const assetName = new URL(url).pathname.split("/").pop() || "thành phần";
+      throw new Error(`Máy chủ tải xuống trả về HTTP ${response.statusCode} khi tải ${assetName}`);
+    }
     await new Promise((resolve, reject) => {
       const output = createWriteStream(partial, { flags: offset ? "a" : "w" });
       let downloaded = offset;

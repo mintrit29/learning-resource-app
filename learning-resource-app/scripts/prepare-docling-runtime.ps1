@@ -14,7 +14,7 @@ $modelsBaseUrl = if ($env:DOCLING_RS_MODELS_URL) {
 } else {
   "https://github.com/docling-project/docling.rs/releases/download/models-v1"
 }
-$pdfiumUrl = "https://github.com/bblanchon/pdfium-binaries/releases/latest/download/pdfium-win-x64.tgz"
+$pdfiumUrl = "https://github.com/bblanchon/pdfium-binaries/releases/download/chromium%2F7961/pdfium-win-x64.tgz"
 
 New-Item -ItemType Directory -Force -Path $modelsRoot, $tableFormerRoot, $tesseractRoot, $pdfiumRoot | Out-Null
 

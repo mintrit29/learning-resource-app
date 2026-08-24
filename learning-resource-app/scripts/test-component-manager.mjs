@@ -45,6 +45,12 @@ const origin = `http://127.0.0.1:${address.port}`;
 try {
   assert.deepEqual(Object.keys(COMPONENT_MANIFESTS).sort(), ["bge-m3", "docling"]);
   assert.equal(COMPONENT_MANIFESTS["bge-m3"].files.length, 5);
+  assert.equal(
+    COMPONENT_MANIFESTS.docling.archive.url,
+    "https://github.com/bblanchon/pdfium-binaries/releases/download/chromium%2F7961/pdfium-win-x64.tgz",
+  );
+  assert.equal(COMPONENT_MANIFESTS.docling.archive.size, 7220736);
+  assert.equal(COMPONENT_MANIFESTS.docling.archive.sha256, "d3d9f4b7c9dabe3363f30779c5c3c715c47332749fa590e4b4a2b8b6780cb1c4");
   assert.throws(() => safeJoin(temporary, "../outside"), /ngoài vùng dữ liệu/);
 
   const manager = new ComponentManager({ userDataRoot: temporary });
