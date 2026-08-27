@@ -242,7 +242,7 @@ Kiểm tra nhanh ngày 15/08/2026: unit validation vùng/payload/query merge/ses
 - [x] Test SQLite migration/local storage đạt.
 - [x] Production build đạt.
 - [x] Nhánh lưu trữ web/Docker cũ đã tồn tại.
-- [x] Nhánh `desktop-app` giữ toàn bộ commit local, chưa push lên `origin/desktop-app`.
+- [x] Lịch sử phát triển desktop đã được hợp nhất vào `main`; bản mới được push và phát hành theo yêu cầu người dùng.
 - [x] Chạy standalone smoke sau thay đổi local-only.
 - [x] Tạo bản `dist-electron/win-unpacked` mới sau thay đổi tìm bằng vùng chọn.
 - [x] Chạy packaged smoke: startup local-only, 27 chủ đề mặc định, không còn bảng credential và embedding auto-restart đều đạt.
@@ -260,8 +260,9 @@ Kiểm tra nhanh ngày 15/08/2026: unit validation vùng/payload/query merge/ses
 - [x] Hiển thị ảnh nhúng PNG/JPEG/WebP; OCR dùng runtime hiện có và gắn đúng nhánh/sơ đồ.
 - [x] Test JSON/XML, Việt/Anh/công thức mẫu, ảnh trắng/hỏng/thiếu, đường dẫn và giới hạn giải nén.
 - [x] Giữ fixture 09/10 và hướng dẫn `TEST_ANH_NHUNG_XMIND.md` cho nhóm.
-- [ ] Windows GitHub-hosted runner cài EXE, tải model thật, kiểm pipeline và hồi quy GUI.
-- [ ] Phát hành đúng installer đã kiểm (SHA-256 khớp), không build lại sau kiểm thử.
+- [x] Windows GitHub-hosted runner cài EXE, tải model thật, kiểm pipeline và hồi quy GUI.
+- [x] Phát hành đúng installer đã kiểm (SHA-256 khớp), không build lại sau kiểm thử: `v0.1.4-desktop`, commit `f0f32c4`.
+- Báo cáo ngày 28/08: [KET_QUA_EXE_0.1.4.md](learning-resource-app/test-fixtures/scholarflow/06_mindmap_audio/KET_QUA_EXE_0.1.4.md). Có ghi phạm vi kiểm thử, timeout từng xuất hiện và cảnh báo dependency chưa xử lý.
 
 - [x] `IMPLEMENTATION_PLAN.md` cập nhật trạng thái local-only và thiết kế tìm bằng vùng chọn.
 - [x] `PROJECT_CHECKLIST.md` phân biệt rõ đã làm, đang thiết kế và chưa làm.

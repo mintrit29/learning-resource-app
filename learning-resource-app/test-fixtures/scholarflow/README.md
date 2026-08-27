@@ -13,4 +13,5 @@
 - Kết quả sửa viewer và hồi quy Electron ngày 27/08: [KET_QUA_SAU_SUA_VIEWER.md](06_mindmap_audio/KET_QUA_SAU_SUA_VIEWER.md), có ghi rõ giới hạn bố cục XMind, OCR và audio.
 - Không xóa thư mục này khi dọn cache, benchmark, build output hoặc file tạm.
 - Ảnh nhúng XMind mới: file 09/10 và [TEST_ANH_NHUNG_XMIND.md](06_mindmap_audio/TEST_ANH_NHUNG_XMIND.md).
+- Kết quả cài và kiểm thử EXE 0.1.4 trên máy Windows riêng của GitHub: [KET_QUA_EXE_0.1.4.md](06_mindmap_audio/KET_QUA_EXE_0.1.4.md).
 - File kiểm tra vượt 40 MB được giữ sẵn. Chạy `npm run fixtures:manual-large-file` chỉ khi cần tạo lại file đó.

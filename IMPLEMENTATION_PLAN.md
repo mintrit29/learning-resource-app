@@ -239,7 +239,7 @@ Backup/restore, gộp nhiều vùng và OCR công thức ảnh bằng model chuy
 
 - `main`: phiên bản đã được nhóm duyệt.
 - `archive/web-docker-before-desktop-2026-08-08`: lịch sử bản web/Docker cũ.
-- `desktop-app`: nhánh phát triển desktop; lịch sử local được giữ và không tự push lên GitHub.
+- `desktop-app`: tên nhánh phát triển desktop trước đây; bản phát hành hiện tại dùng `main` và chỉ push/release khi người dùng yêu cầu.
 - Các thay đổi mới nhất về preview, tìm kiếm, tài liệu và bộ test hợp nhất đã qua full unit test, lint, build, standalone/package smoke trước khi commit cục bộ.
 
 ## 8.1 Kết quả xác nhận bản chốt 21/08/2026
@@ -272,7 +272,7 @@ Backup/restore, gộp nhiều vùng và OCR công thức ảnh bằng model chuy
 
 Đã thêm đọc ảnh nội bộ ZIP an toàn, hiển thị trong nhánh, OCR Việt–Anh khi upload và chỉ OCR vùng ảnh khi tìm kiếm. Chữ nhánh luôn lấy native. Ảnh không đọc được có cảnh báo, không mất phần chữ khác. Bộ test mới đo được lỗi dấu `tuyến` → `tuyên`; không cam kết OCR hoàn hảo.
 
-Đang kiểm bản cài trên máy Windows GitHub-hosted riêng: NSIS → khởi động chưa có model → cài Docling/BGE-M3/Whisper → upload đa định dạng → vector thật/tìm kiếm → reextract → lưu Custom API → GUI XMind/PDF và Back → restart. Chỉ publish artifact đã qua toàn bộ CI, kèm checksum và báo cáo. Không mở/điều khiển desktop người dùng.
+Đã kiểm bản cài trên máy Windows GitHub-hosted riêng: NSIS → khởi động chưa có model → cài Docling/BGE-M3/Whisper → upload 12 file → vector thật/tìm kiếm → reextract → lưu Custom API bằng GUI → GUI XMind/PDF và Back → restart. Đã phát hành `v0.1.4-desktop` từ commit `f0f32c4`, sử dụng đúng artifact qua CI, kèm checksum và báo cáo; không build lại sau kiểm thử. Không mở/điều khiển desktop người dùng. Kết quả và phần chưa xác minh: [báo cáo EXE 0.1.4](learning-resource-app/test-fixtures/scholarflow/06_mindmap_audio/KET_QUA_EXE_0.1.4.md).
 
 - App không còn auth/user/Supabase/Docker/PostgreSQL/Python runtime cũ.
 - Docling và BGE-M3 được cài, kiểm tra, tải lại và xóa an toàn trong app.
