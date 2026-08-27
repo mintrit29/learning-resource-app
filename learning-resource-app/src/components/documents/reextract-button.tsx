@@ -50,11 +50,11 @@ export function ReextractButton({
         <div className="modal-backdrop" onMouseDown={(event) => dismissFromBackdrop(event, loading, () => setIsOpen(false))} role="presentation">
           <section aria-labelledby="reextract-title" aria-modal="true" className="confirm-dialog" role="dialog">
             <div className="dialog-heading">
-              <div><p className="eyebrow">Xác nhận xử lý lại</p><h2 id="reextract-title">Trích xuất lại bằng Docling?</h2></div>
+              <div><p className="eyebrow">Xác nhận xử lý lại</p><h2 id="reextract-title">Trích xuất lại nội dung?</h2></div>
               <button aria-label="Đóng" className="icon-button" disabled={loading} onClick={() => setIsOpen(false)} type="button"><X size={19} /></button>
             </div>
             <p>
-              ScholarFlow sẽ đọc lại <strong>{documentTitle}</strong>, tạo lại các đoạn, embedding và kết quả phân tích AI. Bản hiện tại được giữ cho tới khi Docling trích xuất thành công.
+              ScholarFlow sẽ đọc lại <strong>{documentTitle}</strong> bằng bộ xử lý phù hợp, tạo lại các đoạn, embedding và kết quả phân tích AI. Bản hiện tại được giữ cho tới khi trích xuất thành công.
             </p>
             {error ? <p className="form-error">{error}</p> : null}
             {setupUrl ? <p><Link href={setupUrl}>Mở Thành phần cục bộ</Link></p> : null}

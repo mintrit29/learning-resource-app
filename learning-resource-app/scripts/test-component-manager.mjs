@@ -43,8 +43,11 @@ const address = server.address();
 const origin = `http://127.0.0.1:${address.port}`;
 
 try {
-  assert.deepEqual(Object.keys(COMPONENT_MANIFESTS).sort(), ["bge-m3", "docling"]);
+  assert.deepEqual(Object.keys(COMPONENT_MANIFESTS).sort(), ["bge-m3", "docling", "whisper"]);
   assert.equal(COMPONENT_MANIFESTS["bge-m3"].files.length, 5);
+  assert.equal(COMPONENT_MANIFESTS.whisper.optional, true);
+  assert.equal(COMPONENT_MANIFESTS.whisper.files.length, 12);
+  assert.equal(COMPONENT_MANIFESTS.whisper.version, "1846881");
   assert.equal(
     COMPONENT_MANIFESTS.docling.archive.url,
     "https://github.com/bblanchon/pdfium-binaries/releases/download/chromium%2F7961/pdfium-win-x64.tgz",

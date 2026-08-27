@@ -8,6 +8,8 @@ import {
 } from "../src/lib/search/ranking.ts";
 
 assert.equal(normalizeSearchText("  Tìm hiểu Cơ sở DỮ LIỆU! "), "tim hieu co so du lieu");
+assert.equal(inferSearchCriteria("xmind định tuyến OSPF").fileType, "XMIND");
+assert.equal(inferSearchCriteria("mind map định tuyến OSPF").fileType, null, "Mind maps can be PDF, XMind or images; do not force IMAGE");
 assert.deepEqual(extractKeywordTerms("Tìm tài liệu về transaction trong database"), ["transaction", "database"]);
 assert.deepEqual(extractKeywordGroups("cơ sở dữ liệu cho người mới"), [
   ["co so du lieu", "database", "databases"],

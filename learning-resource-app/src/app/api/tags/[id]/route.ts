@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { embedTexts } from "@/lib/embedding/client";
-import { findExactTagOrAlias } from "@/lib/taxonomy/canonical-tags";
+import { findExactCanonicalTag } from "@/lib/taxonomy/canonical-tags";
 import { normalizeTagName } from "@/lib/taxonomy/normalize-tag";
 import { toSqliteVectorBlob } from "@/lib/vector/sqlite-vector-store";
 
@@ -14,8 +14,8 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if (!current) return NextResponse.json({ message: "Không tìm thấy môn học" }, { status: 404 });
   const parsed = updateSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ message: parsed.error.issues[0]?.message ?? "Dữ liệu không hợp lệ" }, { status: 400 });
-  const duplicate = await findExactTagOrAlias(parsed.data.name);
-  if (duplicate && duplicate.id !== current.id) return NextResponse.json({ message: "Tên môn học hoặc tên gọi khác này đã tồn tại" }, { status: 409 });
+  const duplicate = await findExactCanonicalTag(parsed.data.name);
+  if (duplicate && duplicate.id !== current.id) return NextResponse.json({ message: "Tên môn học này đã tồn tại" }, { status: 409 });
 
   try {
     const text = parsed.data.description ? `${parsed.data.name}: ${parsed.data.description}` : parsed.data.name;

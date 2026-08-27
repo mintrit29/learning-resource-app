@@ -7,7 +7,6 @@ import {
   Search,
   ServerCog,
   Sparkles,
-  Upload,
 } from "lucide-react";
 import { ProcessingRefresh } from "@/components/documents/processing-refresh";
 import { DocumentStatus, JobStatus } from "@/generated/prisma/enums";
@@ -136,28 +135,20 @@ export default async function DashboardPage() {
 
   const nextAction = !providerStatus.isConnected
     ? {
-        href: "/settings/ai-providers",
         label: activeProvider ? "Kiểm tra kết nối AI" : "Kết nối AI",
         helper: activeProvider
           ? "Kết nối AI mặc định chưa ổn. Hãy kiểm tra lại hoặc sửa cấu hình."
           : "Cần provider để app tóm tắt, phân loại và gợi ý tài liệu.",
-        icon: ServerCog,
       }
     : documentCount === 0
       ? {
-          href: "/upload",
           label: "Thêm tài liệu đầu tiên",
-          helper: "Tải PDF, DOCX, PPTX hoặc EPUB để bắt đầu xây thư viện.",
-          icon: Upload,
+      helper: "Tải tài liệu, ảnh mind map hoặc âm thanh để bắt đầu xây thư viện.",
         }
       : {
-          href: "/search",
           label: "Tìm tài liệu",
           helper: "Mô tả nhu cầu, ví dụ: “tài liệu nền tảng về SQL cho người mới”.",
-          icon: Search,
         };
-
-  const NextIcon = nextAction.icon;
   const metrics = [
     {
       label: "Tài liệu",
@@ -191,10 +182,6 @@ export default async function DashboardPage() {
             bằng nhu cầu học tập hoặc Research Project của bạn.
           </p>
         </div>
-        <Link className="primary-button compact" href={nextAction.href}>
-          <NextIcon size={18} />
-          {nextAction.label}
-        </Link>
       </header>
 
       <section className="onboarding-card">
@@ -216,7 +203,7 @@ export default async function DashboardPage() {
             <span>{documentCount > 0 ? <CheckCircle2 size={17} /> : "2"}</span>
             <div>
               <strong>Thêm tài liệu</strong>
-              <small>{documentCount > 0 ? `${documentCount} tài liệu trong thư viện` : "PDF, PPTX, DOCX hoặc EPUB."}</small>
+              <small>{documentCount > 0 ? `${documentCount} tài liệu trong thư viện` : "Tài liệu, ảnh mind map hoặc âm thanh."}</small>
             </div>
             {documentCount === 0 ? <Link href="/upload">Thêm file</Link> : null}
           </li>

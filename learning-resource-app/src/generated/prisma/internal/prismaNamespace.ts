@@ -16,10 +16,10 @@
  */
 
 import * as runtime from "@prisma/client/runtime/client"
-import type * as Prisma from "../models"
-import { type PrismaClient } from "./class"
+import type * as Prisma from "../models.ts"
+import { type PrismaClient } from "./class.ts"
 
-export type * from '../models'
+export type * from '../models.ts'
 
 export type DMMF = typeof runtime.DMMF
 
@@ -399,7 +399,6 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 export const ModelName = {
   Document: 'Document',
   Tag: 'Tag',
-  TagAlias: 'TagAlias',
   DocumentTag: 'DocumentTag',
   AnalysisJob: 'AnalysisJob',
   DocumentChunk: 'DocumentChunk',
@@ -420,7 +419,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "document" | "tag" | "tagAlias" | "documentTag" | "analysisJob" | "documentChunk" | "aiProvider" | "searchLog"
+    modelProps: "document" | "tag" | "documentTag" | "analysisJob" | "documentChunk" | "aiProvider" | "searchLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -569,80 +568,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.TagCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.TagCountAggregateOutputType> | number
-        }
-      }
-    }
-    TagAlias: {
-      payload: Prisma.$TagAliasPayload<ExtArgs>
-      fields: Prisma.TagAliasFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.TagAliasFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagAliasPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.TagAliasFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagAliasPayload>
-        }
-        findFirst: {
-          args: Prisma.TagAliasFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagAliasPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.TagAliasFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagAliasPayload>
-        }
-        findMany: {
-          args: Prisma.TagAliasFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagAliasPayload>[]
-        }
-        create: {
-          args: Prisma.TagAliasCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagAliasPayload>
-        }
-        createMany: {
-          args: Prisma.TagAliasCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.TagAliasCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagAliasPayload>[]
-        }
-        delete: {
-          args: Prisma.TagAliasDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagAliasPayload>
-        }
-        update: {
-          args: Prisma.TagAliasUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagAliasPayload>
-        }
-        deleteMany: {
-          args: Prisma.TagAliasDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.TagAliasUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.TagAliasUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagAliasPayload>[]
-        }
-        upsert: {
-          args: Prisma.TagAliasUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagAliasPayload>
-        }
-        aggregate: {
-          args: Prisma.TagAliasAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateTagAlias>
-        }
-        groupBy: {
-          args: Prisma.TagAliasGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.TagAliasGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.TagAliasCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.TagAliasCountAggregateOutputType> | number
         }
       }
     }
@@ -1087,17 +1012,6 @@ export const TagScalarFieldEnum = {
 export type TagScalarFieldEnum = (typeof TagScalarFieldEnum)[keyof typeof TagScalarFieldEnum]
 
 
-export const TagAliasScalarFieldEnum = {
-  id: 'id',
-  tagId: 'tagId',
-  alias: 'alias',
-  normalizedAlias: 'normalizedAlias',
-  createdAt: 'createdAt'
-} as const
-
-export type TagAliasScalarFieldEnum = (typeof TagAliasScalarFieldEnum)[keyof typeof TagAliasScalarFieldEnum]
-
-
 export const DocumentTagScalarFieldEnum = {
   documentId: 'documentId',
   tagId: 'tagId',
@@ -1275,7 +1189,7 @@ export type BytesFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, '
  * Reference to a field of type 'Boolean'
  */
 export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
-
+    
 
 
 /**
@@ -1422,13 +1336,13 @@ export interface PrismaClientBaseOptions {
 
 /**
  * `PrismaClient` options for connecting to your database through Prisma Accelerate instead of a driver adapter.
- *
+ * 
  * Learn more: https://pris.ly/d/accelerate
  */
 export interface PrismaClientOptionsWithAccelerateUrl extends PrismaClientBaseOptions {
   /**
    * The Prisma Accelerate connection URL. Use this option to connect to your database through Prisma Accelerate instead of using a driver adapter to connect directly.
-   *
+   * 
    * Learn more: https://pris.ly/d/accelerate
    */
   accelerateUrl: string
@@ -1437,22 +1351,22 @@ export interface PrismaClientOptionsWithAccelerateUrl extends PrismaClientBaseOp
 
 /**
  * `PrismaClient` options for connecting to your database through a driver adapter. This is the common case in Prisma 7.
- *
+ * 
  * Learn more: https://pris.ly/d/driver-adapters
  */
 export interface PrismaClientOptionsWithAdapter extends PrismaClientBaseOptions {
   /**
    * A driver adapter that PrismaClient uses to connect to your database, such as the ones provided by `@prisma/adapter-pg`, `@prisma/adapter-libsql`, `@prisma/adapter-planetscale`, etc.
-   *
+   * 
    * A driver adapter is **required** unless you connect to your database through Prisma Accelerate (in which case use `accelerateUrl` instead).
-   *
+   * 
    * Learn more: https://pris.ly/d/driver-adapters
-   *
+   * 
    * @example
    * ```ts
    * import { PrismaPg } from '@prisma/adapter-pg'
    * import { PrismaClient } from './generated/prisma/client'
-   *
+   * 
    * const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL })
    * const prisma = new PrismaClient({ adapter })
    * ```
@@ -1463,16 +1377,15 @@ export interface PrismaClientOptionsWithAdapter extends PrismaClientBaseOptions 
 
 /**
  * Options passed to the `PrismaClient` constructor.
- *
+ * 
  * A driver adapter (or, alternatively, a Prisma Accelerate URL) is **required**. See {@link PrismaClientOptionsWithAdapter} and {@link PrismaClientOptionsWithAccelerateUrl} for the two variants. All other properties live in {@link PrismaClientBaseOptions} and are optional.
- *
+ * 
  * Learn more about driver adapters: https://pris.ly/d/driver-adapters
  */
 export type PrismaClientOptions = PrismaClientOptionsWithAccelerateUrl | PrismaClientOptionsWithAdapter
 export type GlobalOmitConfig = {
   document?: Prisma.DocumentOmit
   tag?: Prisma.TagOmit
-  tagAlias?: Prisma.TagAliasOmit
   documentTag?: Prisma.DocumentTagOmit
   analysisJob?: Prisma.AnalysisJobOmit
   documentChunk?: Prisma.DocumentChunkOmit
@@ -1540,3 +1453,4 @@ export type PrismaAction =
  * `PrismaClient` proxy available in interactive transactions.
  */
 export type TransactionClient = Omit<DefaultPrismaClient, runtime.ITXClientDenyList>
+

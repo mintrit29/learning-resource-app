@@ -9,7 +9,7 @@ const searchSchema = z.object({
   chunksPerDocument: z.number().int().min(1).max(5).default(1),
   topic: z.string().trim().max(120).optional(),
   difficulty: z.enum(["BEGINNER", "INTERMEDIATE", "ADVANCED"]).optional(),
-  fileType: z.enum(["PDF", "PPTX", "DOCX", "EPUB"]).optional(),
+  fileType: z.enum(["PDF", "PPTX", "DOCX", "EPUB", "IMAGE", "AUDIO", "XMIND"]).optional(),
   documentId: z.string().trim().optional(),
   dateFrom: z.string().trim().optional(),
   dateTo: z.string().trim().optional(),

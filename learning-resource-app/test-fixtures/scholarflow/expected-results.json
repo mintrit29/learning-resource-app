@@ -1,11 +1,33 @@
 {
-  "version": 1,
+  "version": 2,
   "libraryImportOrder": [
     "01_library/01_mang_may_tinh_ospf.docx",
     "01_library/02_co_so_du_lieu_text.pdf",
     "01_library/03_thuat_toan_do_thi.pptx",
     "01_library/04_an_toan_thong_tin.epub"
   ],
+  "mediaImportOrder": [
+    "06_mindmap_audio/01_mindmap_mang_may_tinh.png",
+    "06_mindmap_audio/02_audio_tieng_viet.mp3",
+    "06_mindmap_audio/03_audio_tieng_anh.wav"
+  ],
+  "mediaExpectedText": {
+    "06_mindmap_audio/01_mindmap_mang_may_tinh.png": ["MẠNG MÁY TÍNH", "OSPF", "Định tuyến trạng thái liên kết"],
+    "06_mindmap_audio/02_audio_tieng_viet.mp3": ["tài liệu học tập", "mạng máy tính", "cơ sở dữ liệu"],
+    "06_mindmap_audio/03_audio_tieng_anh.wav": ["learning resources", "computer networks", "databases"]
+  },
+  "mindmapPdfXmind": {
+    "guide": "06_mindmap_audio/TEST_PDF_XMIND.md",
+    "validFiles": ["06_mindmap_audio/04_mindmap_text.pdf", "06_mindmap_audio/05_mindmap_scan.pdf", "06_mindmap_audio/06_mindmap_hien_dai.xmind", "06_mindmap_audio/07_mindmap_legacy.xmind"],
+    "invalidFile": "06_mindmap_audio/08_xmind_hong_KHONG_UPLOAD_THANH_CONG.xmind",
+    "pdfPages": 2,
+    "nativePdfPhraseChecks": { "passed": 26, "total": 26 },
+    "scanPdfPhraseChecks": { "passed": 24, "total": 26, "knownAccentErrors": ["chi phí -> chỉ phí", "vận chuyển -> vận chuyền"] },
+    "xmindSheets": 2,
+    "xmindNodes": 12,
+    "query": "SF-XM-3NF-73",
+    "expectedSource": "Sơ đồ 2 · Cơ sở dữ liệu > Ôn tập dữ liệu > Chuẩn hóa 3NF"
+  },
   "queries": [
     {
       "file": "02_visual_queries/01_anh_cau_hoi_ospf.png",

@@ -28,6 +28,9 @@ export type VisualSearchDraft = {
   capturedPreview: string;
   results: VisualSearchResult[];
   searchStatus: VisualSearchStatus | null;
+  viewport?: { left: number; top: number; pageTop: number; resultsTop: number };
+  canvasBaseSize?: { width: number; height: number };
+  frameSize?: { width: number; height: number };
   savedAt: number;
 };
 

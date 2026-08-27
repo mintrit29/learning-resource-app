@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { spawn, spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdtemp, readdir, rm } from "node:fs/promises";
 import net from "node:net";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -18,6 +18,9 @@ const runtimeBinary = process.env.SCHOLARFLOW_RUNTIME_BINARY
   : process.execPath;
 const serverEntry = path.join(standaloneRoot, "server.js");
 assert.ok(existsSync(serverEntry), "Run npm run desktop:build before this smoke test");
+const expectedMigrationCount = (await readdir(path.join(projectRoot, "prisma", "migrations"), { withFileTypes: true }))
+  .filter((entry) => entry.isDirectory())
+  .length;
 
 const dataRoot = await mkdtemp(path.join(tmpdir(), "scholarflow-desktop-runtime-"));
 const databasePath = path.join(dataRoot, "scholarflow.db");
@@ -90,6 +93,10 @@ try {
   child.stderr.on("data", (chunk) => logs.push(String(chunk).trimEnd()));
 
   await waitUntilReady(origin);
+  const pdfWorker = await fetch(`${origin}/api/pdf-worker`);
+  assert.equal(pdfWorker.status, 200, 'PDF worker must be present in standalone output');
+  assert.match(pdfWorker.headers.get('content-type') || '', /javascript/);
+  assert.ok((await pdfWorker.text()).length > 100000, 'PDF worker must not be a HTML error page');
   const dashboard = await fetch(`${origin}/dashboard`);
   assert.equal(dashboard.status, 200, await dashboard.text());
 
@@ -108,7 +115,7 @@ try {
     );
     assert.equal(
       database.prepare('SELECT count(*) AS count FROM "_ScholarFlowMigration"').get().count,
-      3,
+      expectedMigrationCount,
     );
   } finally {
     database.close();

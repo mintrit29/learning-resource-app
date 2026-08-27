@@ -13,11 +13,7 @@ export default async function TopicsPage() {
       normalizedName: true,
       description: true,
       isClassificationEnabled: true,
-      aliases: {
-        select: { id: true, alias: true },
-        orderBy: { alias: "asc" },
-      },
-      _count: { select: { aliases: true, documents: true } },
+      _count: { select: { documents: true } },
     },
     orderBy: { name: "asc" },
   });
@@ -27,7 +23,7 @@ export default async function TopicsPage() {
         <div>
           <p className="eyebrow">Môn học</p>
           <h1>Danh sách môn học ngành CNTT</h1>
-          <p>AI chỉ được phân loại tài liệu vào một môn có trong danh sách này. Bạn là người duy nhất có quyền thêm, sửa, xóa hoặc gộp môn.</p>
+          <p>AI chỉ được phân loại tài liệu vào một môn có trong danh sách này. Bạn có thể thêm, sửa hoặc xóa môn học.</p>
         </div>
       </header>
       <section className="content-section tag-section">

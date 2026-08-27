@@ -88,7 +88,7 @@ Next.js chỉ là lớp giao diện/API nội bộ của ứng dụng desktop. T
 - Xóa NextAuth, adapter auth, bcrypt và các type/validation liên quan.
 - Xóa các bảng `User`, `Account`, `Session`, `VerificationToken` và toàn bộ `userId` khỏi schema mới.
 - Chuyển document, tag, AI provider và search log sang phạm vi một thư viện local duy nhất.
-- Migration xóa tài liệu đã nhập và dữ liệu tài khoản cũ nhưng giữ môn học/tag, alias, AI provider và cài đặt khác.
+- Migration xóa tài liệu đã nhập và dữ liệu tài khoản cũ nhưng giữ môn học/tag, AI provider và cài đặt khác.
 - Lần mở đầu sau nâng cấp chỉ dọn đúng `%APPDATA%\ScholarFlow\data\uploads`; file gốc bên ngoài app không bị đụng tới.
 - Khóa mã hóa API provider được tách khỏi auth secret và có thể nhận khóa cũ để không làm mất cấu hình provider.
 - Test migration xác nhận tài liệu/tài khoản bị xóa nhưng tag và cấu hình Ollama vẫn còn.
@@ -180,12 +180,22 @@ Viewer + ROI overlay
 - Nội dung trích xuất mặc định thu gọn và chỉ tải toàn bộ text khi người dùng mở disclosure; bỏ nút điều hướng `Xem toàn bộ` gây tải lại trang.
 - File ScholarFlow quản lý được lưu theo `uploads/<document-id>/<tên-gốc-an-toàn>`; file UUID cũ được migrate idempotent lúc app khởi động để Explorer hiển thị tên dễ đọc.
 
+### 5.1 Mở rộng nguồn mind map và âm thanh (26/08/2026)
+
+Bổ sung 27/08: XMind JSON/XML đọc trực tiếp, giữ đường dẫn nhánh/ghi chú/nhãn, hiển thị sơ đồ nhánh tự sắp xếp và vị trí sơ đồ trong kết quả tìm kiếm. Vùng chọn XMind dùng chữ gốc đúng vùng. PDF dùng viewer trang do app kiểm soát, worker PDF.js cục bộ; giữ trang, zoom, pan, vùng chọn khi quay lại. PDF mind map có bộ test riêng: chữ native và scan, mỗi file 2 trang. Giữ tiêu đề Docling đọc được nhưng chunker bỏ sót. Không thêm model hoặc thay pipeline OCR. Xem giới hạn và hướng dẫn tại `learning-resource-app/test-fixtures/scholarflow/06_mindmap_audio/TEST_PDF_XMIND.md`.
+
+- Ảnh mind map PNG/JPG/JPEG/WebP dùng pipeline OCR Việt–Anh hiện có; mind map dạng PDF tiếp tục đi qua Docling. Kết quả vẫn là text/chunk/BGE-M3 giống tài liệu khác, không dùng vision model để tự diễn giải quan hệ nhánh.
+- Audio MP3/WAV/M4A được FFmpeg giải mã về mono 16 kHz và Whisper Base chép lời cục bộ. Mỗi đoạn giữ mốc thời gian trong `sourceLabel`, sau đó đi chung pipeline chunk, embedding và tìm kiếm.
+- Whisper là thành phần tùy chọn trong Cài đặt, pin revision và SHA-256 cố định; không nằm trong installer, không chặn onboarding và chỉ chặn upload/trích xuất lại file audio khi còn thiếu.
+- Runtime thử ngôn ngữ Việt/Anh trên đoạn đầu rồi chọn kết quả phù hợp; người dùng cần chấp nhận giới hạn với tên riêng, giọng nhiễu và hội thoại chồng tiếng.
+- Thêm fixture mind map, audio Việt/Anh và test extractor media; kiểm tra runtime thực tế đã đạt WAV, MP3 và M4A.
+
 ## 6. Trạng thái chốt và công việc phát hành
 
 ### Đã hoàn thành trong MVP
 
 1. Chuyển toàn bộ ứng dụng sang local-only và migration bỏ dữ liệu tài khoản/tài liệu cũ theo phạm vi đã chốt.
-2. Hoàn thiện quản lý BGE-M3/Docling, extraction bốn định dạng, tìm kiếm chữ và tìm bằng vùng chọn.
+2. Hoàn thiện quản lý BGE-M3/Docling/Whisper, extraction tài liệu, ảnh mind map và audio, tìm kiếm chữ và tìm bằng vùng chọn.
 3. Hoàn thiện viewer, OCR Việt–Anh, mở đúng nội dung liên quan, giữ state quay lại và các sửa lỗi UX đã kiểm tra thủ công.
 4. Gộp bộ dữ liệu regression/manual test vào `learning-resource-app/test-fixtures/scholarflow` và giữ file giả 40 MB có thể tạo lại.
 5. Đồng bộ README, PRD, Plan và Checklist với sản phẩm cuối.
@@ -241,7 +251,28 @@ Backup/restore, gộp nhiều vùng và OCR công thức ảnh bằng model chuy
 - Package không chứa BGE-M3, `.docling-runtime`, model cache hoặc test fixture.
 - Bộ fixture chỉ còn một thư mục `learning-resource-app/test-fixtures/scholarflow`, giữ hướng dẫn test và file giả 40 MB.
 
+## 8.2 Kết quả mở rộng mind map/audio 26/08/2026
+
+- Full unit test, ESLint, production build và desktop standalone smoke đạt.
+- Unpacked Windows package và packaged smoke đạt; package có FFmpeg nhưng không chứa BGE-M3, Docling hoặc Whisper model.
+- Runtime Whisper thực tế đạt WAV, MP3, M4A tiếng Anh và MP3 tiếng Việt; tên thương hiệu trong mẫu Việt có thể bị phiên âm sai nhưng nội dung học thuật chính được giữ.
+- `npm audit` còn bốn cảnh báo high từ Transformers.js/ONNX Runtime/Sharp và upstream chưa có bản sửa; app không dùng đường ZIP/Sharp bị ảnh hưởng cho dữ liệu audio người dùng.
+
+## 8.3 Hoàn thiện viewer XMind/PDF — 27/08/2026
+
+- Sơ đồ XMind tự sắp xếp, giữ nhánh/ghi chú/nhãn và nhánh rời; vùng chọn lấy chữ gốc.
+- GUI Electron đã kiểm lại Back, đổi tab, trang/sơ đồ, zoom, pan, OCR PDF scan và kéo DOCX. MM-01–MM-06 trong báo cáo cũ đã sửa.
+- Upload thật XMind JSON/XML và audio Việt/Anh qua extraction/chunk/embedding/search đạt trên thư viện QA riêng.
+- Full unit, lint, TypeScript, desktop build và standalone smoke (gồm PDF worker) đạt. Chưa tạo EXE/phát hành mới trong đợt này.
+- Báo cáo và giới hạn: `learning-resource-app/test-fixtures/scholarflow/06_mindmap_audio/KET_QUA_SAU_SUA_VIEWER.md`.
+
 ## 9. Điều kiện hoàn thành sản phẩm
+
+### Bổ sung ảnh XMind và phát hành 0.1.4 (27/08)
+
+Đã thêm đọc ảnh nội bộ ZIP an toàn, hiển thị trong nhánh, OCR Việt–Anh khi upload và chỉ OCR vùng ảnh khi tìm kiếm. Chữ nhánh luôn lấy native. Ảnh không đọc được có cảnh báo, không mất phần chữ khác. Bộ test mới đo được lỗi dấu `tuyến` → `tuyên`; không cam kết OCR hoàn hảo.
+
+Đang kiểm bản cài trên máy Windows GitHub-hosted riêng: NSIS → khởi động chưa có model → cài Docling/BGE-M3/Whisper → upload đa định dạng → vector thật/tìm kiếm → reextract → lưu Custom API → GUI XMind/PDF và Back → restart. Chỉ publish artifact đã qua toàn bộ CI, kèm checksum và báo cáo. Không mở/điều khiển desktop người dùng.
 
 - App không còn auth/user/Supabase/Docker/PostgreSQL/Python runtime cũ.
 - Docling và BGE-M3 được cài, kiểm tra, tải lại và xóa an toàn trong app.

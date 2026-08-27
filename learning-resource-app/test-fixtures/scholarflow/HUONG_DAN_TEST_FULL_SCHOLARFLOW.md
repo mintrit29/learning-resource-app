@@ -199,6 +199,19 @@ Sai một vài ký hiệu công thức, chữ cực nhỏ trong bảng/biểu đ
 
 Lưu ý: file dùng làm truy vấn chỉ để tìm, không được tự xuất hiện trong thư viện.
 
+## 5.1 Thêm mind map và âm thanh — 8 đến 15 phút
+
+1. Vào **Cài đặt → Thành phần cục bộ**. Cài **Whisper Base** nếu chưa có; thành phần này là tùy chọn và chỉ cần cho audio.
+2. Vào **Thêm tài liệu**, chọn cả ba file trong `06_mindmap_audio` rồi thêm vào thư viện.
+3. `01_mindmap_mang_may_tinh.png` phải trích xuất được ít nhất `MẠNG MÁY TÍNH`, `OSPF` và `Định tuyến trạng thái liên kết`.
+4. `02_audio_tieng_viet.mp3` phải có bản ghi chứa các ý `tài liệu học tập`, `mạng máy tính`, `cơ sở dữ liệu` và vị trí nguồn dạng mốc thời gian.
+5. `03_audio_tieng_anh.wav` phải có `learning resources`, `computer networks`, `databases` và mốc thời gian.
+6. Tìm mô tả `định tuyến trạng thái liên kết` và `computer networks databases`; kết quả tương ứng phải xuất hiện nếu embedding đã hoàn tất.
+7. Mở kết quả audio: app phải phát/mở được file gốc và vẫn hiển thị nội dung đã chép lời. Quay lại không được mất truy vấn.
+8. Có thể xóa Whisper để kiểm tra chế độ giới hạn: tài liệu/ảnh vẫn thêm được, riêng audio phải bị chặn với liên kết tới Cài đặt. Cài lại Whisper sau ca này.
+
+Chấp nhận: Whisper Base có thể viết sai tên riêng hoặc thương hiệu. Không chấp nhận: bản ghi rỗng, báo hoàn tất với `0 ký tự`, mất timestamp, treo ở bước đọc nội dung hoặc làm các định dạng khác ngừng hoạt động.
+
 ## 6. Xử lý file lỗi — 5 phút
 
 Vào **Thêm tài liệu** và dùng thư mục `03_negative_cases`:
@@ -221,7 +234,7 @@ Vào **Thêm tài liệu** và dùng thư mục `03_negative_cases`:
 App có thể chốt khi:
 
 - Không có hộp lỗi JavaScript/EPIPE, màn hình trắng, app tự thoát hoặc thao tác quay vô hạn.
-- Bốn định dạng thêm/xem/trích xuất/tìm được.
+- Bốn định dạng tài liệu, ảnh mind map và audio thêm/xem/trích xuất/tìm được.
 - Tìm mô tả trả đúng nhóm tài liệu; tìm ảnh/file giữ trạng thái khi mở kết quả rồi quay lại.
 - OCR chữ thường và tiếng Việt đủ dùng; trường hợp bảng/công thức/biểu đồ có giới hạn nhưng không phá luồng sử dụng.
 - File lỗi, file quá dung lượng và file không hỗ trợ đều được chặn/báo rõ.
@@ -234,3 +247,7 @@ Nếu chỉ có 15 phút, hãy làm các mục **1.1, 2, 4, sáu ca bắt buộc
 Toàn bộ thư mục `learning-resource-app/test-fixtures/scholarflow` là bộ kiểm thử cố định duy nhất của dự án. Không xóa thư mục này khi dọn cache, benchmark, output build hoặc file tạm.
 
 File `03_negative_cases/02_file_qua_40mb.pdf` được giữ sẵn cùng bộ test để thành viên khác có thể kiểm tra ngay. Lệnh `npm run fixtures:manual-large-file` chỉ dùng để tạo lại file nếu nó bị hỏng hoặc mất.
+
+## 10. Phần bổ sung PDF mind map và XMind - 27/08/2026
+
+Chạy thêm [TEST_PDF_XMIND.md](06_mindmap_audio/TEST_PDF_XMIND.md) sau bộ test bên trên. Có sẵn 4 file hợp lệ và 1 file hỏng trong `06_mindmap_audio`, hướng dẫn tên file, thao tác và kết quả mong đợi cụ thể.

@@ -50,7 +50,7 @@ export function UploadForm() {
   const [error, setError] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
-  const [needsDocling, setNeedsDocling] = useState(false);
+  const [needsComponent, setNeedsComponent] = useState(false);
 
   useEffect(() => {
     folderInputRef.current?.setAttribute("webkitdirectory", "");
@@ -114,7 +114,7 @@ export function UploadForm() {
     if (!pendingItems.length) return;
 
     setError("");
-    setNeedsDocling(false);
+    setNeedsComponent(false);
     setIsUploading(true);
     let uploadedCount = 0;
     let failedCount = 0;
@@ -141,7 +141,7 @@ export function UploadForm() {
             status: "error",
             message: data.message ?? "Không thể thêm tài liệu.",
           });
-          if (data.setupUrl) setNeedsDocling(true);
+          if (data.setupUrl) setNeedsComponent(true);
           continue;
         }
 
@@ -290,7 +290,7 @@ export function UploadForm() {
         )}
       </div>
       {error ? <p className="upload-error">{error}</p> : null}
-      {needsDocling ? <p className="foundation-note"><Link href="/settings/components">Mở Thành phần cục bộ để tải Docling</Link></p> : null}
+      {needsComponent ? <p className="foundation-note"><Link href="/settings/components">Mở Thành phần cục bộ để tải thành phần còn thiếu</Link></p> : null}
       {items.length ? (
         <div className="upload-actions">
           <p>

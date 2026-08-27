@@ -2,8 +2,9 @@ import path from "node:path";
 import * as cheerio from "cheerio";
 import JSZip from "jszip";
 import mammoth from "mammoth";
+import { mindmapStyles, renderXmindDiagram } from "./render-xmind.ts";
 
-export type PreviewFileType = "DOCX" | "PPTX" | "EPUB";
+export type PreviewFileType = "DOCX" | "PPTX" | "EPUB" | "XMIND";
 
 export type RenderedDocumentPreview = {
   html: string;
@@ -13,6 +14,7 @@ export type RenderedDocumentPreview = {
 const MAX_PREVIEW_ITEMS = 200;
 
 const previewStyles = `
+${mindmapStyles}
 :root { color-scheme: light; font-family: "Segoe UI", Arial, sans-serif; }
 * { box-sizing: border-box; }
 html { min-height: 100%; background: #e9efed; }
@@ -92,8 +94,10 @@ function highlightPreviewMatch(html: string, matchText?: string) {
   const $ = cheerio.load(html);
   let bestMatch = $("__scholarflow_no_match__");
   let bestScore = 0;
-  $("p, h1, h2, h3, h4, h5, h6, li, td, th, tr, table, pre, .ppt-text, .ppt-fallback").each((_, element) => {
-    const candidate = normalizeMatchText($(element).text());
+  if ($(".mindmap-tree").length) scoreCandidates(".mindmap-node");
+  else scoreCandidates("p, h1, h2, h3, h4, h5, h6, li, td, th, tr, table, pre, .ppt-text, .ppt-fallback");
+  function scoreCandidates(selector: string) { $(selector).each((_, element) => {
+    const candidate = normalizeMatchText(`${$(element).attr("data-path") ?? ""} ${$(element).text()}`);
     if (!candidate) return;
     const score = matchTokens.reduce(
       (total, token) => total + (candidate.includes(token) ? Math.min(token.length, 12) : 0),
@@ -103,7 +107,7 @@ function highlightPreviewMatch(html: string, matchText?: string) {
       bestScore = score;
       bestMatch = $(element);
     }
-  });
+  }); }
 
   if (!bestMatch.length || bestScore < 6) return html;
   bestMatch.attr("id", "matched-preview").addClass("matched-preview");
@@ -402,6 +406,11 @@ export async function renderDocumentPreview(
 ): Promise<RenderedDocumentPreview> {
   let preview: RenderedDocumentPreview;
   switch (fileType) {
+    case "XMIND": {
+      const diagram = await renderXmindDiagram(buffer, itemNumber);
+      preview = { html: htmlDocument(title, "XMind · Sơ đồ nhánh (bố cục tự sắp xếp)", diagram.body), itemCount: diagram.itemCount };
+      break;
+    }
     case "DOCX": preview = await renderDocx(buffer, title); break;
     case "PPTX": preview = await renderPptx(buffer, title, itemNumber); break;
     case "EPUB": preview = await renderEpub(buffer, title, itemNumber); break;

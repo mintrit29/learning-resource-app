@@ -1,6 +1,8 @@
 name: Release desktop
 
 on:
+  push:
+    tags: ['v*-desktop']
   workflow_dispatch:
     inputs:
       tag:
@@ -10,48 +12,39 @@ on:
 
 permissions:
   contents: write
+  actions: read
 
 jobs:
-  package-and-release:
+  publish-tested-installer:
     runs-on: windows-latest
-    defaults:
-      run:
-        working-directory: learning-resource-app
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6
         with:
-          ref: ${{ inputs.tag }}
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 24
-          cache: npm
-          cache-dependency-path: learning-resource-app/package-lock.json
-      - run: npm ci
-      - name: Install embedding runtime dependencies
-        run: npm ci
-        working-directory: learning-resource-app/embedding-runtime
-      - run: npm run desktop:package
-      - name: Resolve release asset
-        id: asset
-        shell: pwsh
-        run: |
-          $package = Get-Content -LiteralPath package.json -Raw | ConvertFrom-Json
-          $asset = "dist-electron/ScholarFlow-Setup-$($package.version).exe"
-          if (-not (Test-Path -LiteralPath $asset)) {
-            throw "Không tìm thấy installer: $asset"
-          }
-          "path=$asset" >> $env:GITHUB_OUTPUT
-          "version=$($package.version)" >> $env:GITHUB_OUTPUT
-      - name: Publish GitHub release
+          ref: ${{ inputs.tag || github.ref_name }}
+      - name: Download exact installer already installed and tested by CI
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: ${{ inputs.tag }}
-          RELEASE_ASSET: ${{ steps.asset.outputs.path }}
-          RELEASE_VERSION: ${{ steps.asset.outputs.version }}
         run: |
-          gh release create $env:RELEASE_TAG $env:RELEASE_ASSET `
-            --verify-tag `
-            --title "ScholarFlow Desktop $env:RELEASE_VERSION" `
-            --generate-notes `
-            --prerelease
+          $sha = git rev-parse HEAD
+          $runs = gh run list --workflow ci.yml --commit $sha --branch main --status success --json databaseId --limit 1 | ConvertFrom-Json
+          if ($LASTEXITCODE -ne 0 -or @($runs).Count -ne 1) { throw 'No successful installed-EXE CI for this exact commit; release blocked.' }
+          gh run download $runs[0].databaseId --name windows-release-tested --dir tested-release
+          if ($LASTEXITCODE -ne 0) { throw 'Cannot download tested installer' }
+      - name: Verify checksum and publish
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          $version = (Get-Content learning-resource-app/package.json -Raw | ConvertFrom-Json).version
+          if ($env:RELEASE_TAG -ne "v$version-desktop") { throw 'Tag does not match app version' }
+          $asset = @(Get-ChildItem tested-release -Recurse -Filter "ScholarFlow-Setup-$version.exe")
+          $checksum = @(Get-ChildItem tested-release -Recurse -Filter SHA256SUMS.txt)
+          $report = @(Get-ChildItem tested-release -Recurse -Filter release-report.md)
+          if ($asset.Count -ne 1 -or $checksum.Count -ne 1 -or $report.Count -ne 1) { throw 'Incomplete tested release artifact' }
+          $expected = ((Get-Content $checksum[0].FullName -Raw).Trim() -split '\s+')[0]
+          if ((Get-FileHash $asset[0].FullName -Algorithm SHA256).Hash -ne $expected) { throw 'Installer checksum mismatch' }
+          gh release create $env:RELEASE_TAG $asset[0].FullName $checksum[0].FullName $report[0].FullName --verify-tag --title "ScholarFlow Desktop $version" --notes-file $report[0].FullName --prerelease
+          if ($LASTEXITCODE -ne 0) { throw 'Release publication failed' }

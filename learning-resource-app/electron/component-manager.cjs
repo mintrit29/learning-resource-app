@@ -24,7 +24,9 @@ const DOCLING_RELEASE = "models-v1";
 const PDFIUM_RELEASE = "152.0.7961.0";
 const PDFIUM_REVISION = "7961";
 const TESSDATA_RELEASE = "4.1.0";
+const WHISPER_REVISION = "1846881b6b3a3024392c1eea3ad983695bc23925";
 const HF_BASE = `https://huggingface.co/BAAI/bge-m3/resolve/${BGE_REVISION}`;
+const WHISPER_BASE = `https://huggingface.co/onnx-community/whisper-base/resolve/${WHISPER_REVISION}`;
 const DOCLING_BASE = `https://github.com/docling-project/docling.rs/releases/download/${DOCLING_RELEASE}`;
 const TESSDATA_BASE = `https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/${TESSDATA_RELEASE}`;
 
@@ -74,6 +76,29 @@ const COMPONENT_MANIFESTS = Object.freeze({
       sha256: "d3d9f4b7c9dabe3363f30779c5c3c715c47332749fa590e4b4a2b8b6780cb1c4",
     },
   }),
+  whisper: Object.freeze({
+    id: "whisper",
+    name: "Whisper Base",
+    version: WHISPER_REVISION.slice(0, 7),
+    optional: true,
+    relativeRoot: path.join("models", "onnx-community", "whisper-base"),
+    files: [
+      ["added_tokens.json", 34604, "9715fd2243b6f06a5858b5e32950d2853f73dd5bc201aafcf76f5082a2d8acd1"],
+      ["config.json", 2243, "f4d0608f7d918166da7edb3e188de5ef1bfe70d9802e785d271fd88111e9cf4b"],
+      ["generation_config.json", 3832, "61070cf8de25b1e9256e8e102ded49d8d24a8369ed36ef84fdf21549e68125a0"],
+      ["merges.txt", 493869, "2df2990a395e35e8dfbc7511e08c12d56018d8d04691e0133e5d63b21e154dc6"],
+      ["normalizer.json", 52666, "bf1c507dc8724ca9cf9903640dacfb69dae2f00edee4f21ceba106a7392f26dd"],
+      ["preprocessor_config.json", 339, "a6a76d28c93edb273669eb9e0b0636a2bddbb1272c3261e47b7ca6dfdbac1b8d"],
+      ["special_tokens_map.json", 2194, "e67ae3a0aaa99abcd9f187138e12db1f65c16a14761c50ef10eef2c174a7a691"],
+      ["tokenizer.json", 2480466, "27fc476bfe7f17299480be2273fc0608e4d5a99aba2ab5dec5374b4482d1a566"],
+      ["tokenizer_config.json", 282682, "2e036e4dbacfdeb7242c7d4ec4149f4a16e86026048f94d1637e3a8ee9c6a573"],
+      ["vocab.json", 1036584, "50d6a919f0a0601d56a04eb583c780d18553aa388254ba3158eb6a00f13e2c1a"],
+      ["onnx/decoder_model_merged_quantized.onnx", 53693315, "fa3ef9902734ce5ae6f9ef2bdb2ba9a6c4b5785b09f4f420ce036573dc9d090b"],
+      ["onnx/encoder_model_quantized.onnx", 23201314, "5862993336bf33acd23736071aae2b32261d3b1b2f37780194460d4ef974dd46"],
+    ].map(([relativePath, size, sha256]) => ({
+      relativePath, size, sha256, url: `${WHISPER_BASE}/${relativePath}`,
+    })),
+  }),
 });
 
 function assertComponentId(id) {
@@ -116,11 +141,11 @@ function copyTree(source, destination) {
 }
 
 class ComponentManager {
-  constructor({ userDataRoot, legacyDoclingRoots = [], onProgress = () => {}, onBgeChanged = async () => {}, canRemove = async () => true }) {
+  constructor({ userDataRoot, legacyDoclingRoots = [], onProgress = () => {}, onModelChanged = async () => {}, onBgeChanged, canRemove = async () => true }) {
     this.userDataRoot = path.resolve(userDataRoot);
     this.legacyDoclingRoots = legacyDoclingRoots.map((candidate) => path.resolve(candidate));
     this.onProgress = onProgress;
-    this.onBgeChanged = onBgeChanged;
+    this.onModelChanged = onBgeChanged || onModelChanged;
     this.canRemove = canRemove;
     this.operations = new Map();
     mkdirSync(this.userDataRoot, { recursive: true });
@@ -153,7 +178,7 @@ class ComponentManager {
     if (this.operations.has(id)) return this.operations.get(id).snapshot;
     if (existsSync(this.corruptMarkerFor(id))) {
       return {
-        id, name: manifest.name, version: manifest.version, status: "corrupt",
+        id, name: manifest.name, version: manifest.version, optional: Boolean(manifest.optional), status: "corrupt",
         error: "Checksum thành phần không hợp lệ", downloadedBytes: 0,
         totalBytes: this.totalBytes(manifest),
       };
@@ -171,7 +196,7 @@ class ComponentManager {
       error = "Thiếu file hoặc kích thước file không đúng";
     }
     return {
-      id, name: manifest.name, version: manifest.version, status, error,
+      id, name: manifest.name, version: manifest.version, optional: Boolean(manifest.optional), status, error,
       downloadedBytes: status === "ready" ? this.totalBytes(manifest) : 0,
       totalBytes: this.totalBytes(manifest),
     };
@@ -278,7 +303,7 @@ class ComponentManager {
         rmSync(archivePath, { force: true });
       }
       await this.verify(id);
-      if (id === "bge-m3") await this.onBgeChanged();
+      if (id === "bge-m3" || id === "whisper") await this.onModelChanged(id);
       return this.quickState(id);
     } catch (error) {
       const cancelled = operation.controller.signal.aborted;
@@ -302,7 +327,7 @@ class ComponentManager {
     if (!await this.canRemove()) throw new Error("Không thể xóa khi tài liệu đang được xử lý");
     const root = this.rootFor(id);
     rmSync(root, { recursive: true, force: true });
-    if (id === "bge-m3") await this.onBgeChanged();
+    if (id === "bge-m3" || id === "whisper") await this.onModelChanged(id);
     return this.quickState(id);
   }
 

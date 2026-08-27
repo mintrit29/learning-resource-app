@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { ArrowUpRight, FileImage, FileSearch, LoaderCircle, Search, X } from "lucide-react";
-import { formatDifficulty } from "@/lib/labels";
+import { formatDifficulty, formatFileType } from "@/lib/labels";
 import { VisualResourceSearch } from "@/components/search/visual-resource-search";
 
 type SearchResult = {
@@ -23,7 +23,7 @@ type SearchStatus = "OK" | "NO_RELEVANT_RESULTS" | "EMPTY_LIBRARY";
 type SearchFilters = {
   topic: string;
   difficulty: "" | "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
-  fileType: "" | "PDF" | "PPTX" | "DOCX" | "EPUB";
+  fileType: "" | "PDF" | "PPTX" | "DOCX" | "EPUB" | "IMAGE" | "AUDIO" | "XMIND";
 };
 
 type SavedSearchState = {
@@ -226,7 +226,7 @@ export function ResourceSearch({ topics, initialMode = "text" }: { topics: strin
         <button className={searchMode === "visual" ? "active" : ""} onClick={() => changeSearchMode("visual")} type="button"><FileImage size={17} /> Ảnh hoặc file</button>
       </div>
 
-      <div hidden={searchMode !== "visual"}><VisualResourceSearch /></div>
+      {searchMode === "visual" ? <VisualResourceSearch /> : null}
       <div hidden={searchMode !== "text"}>
       <form onSubmit={handleSubmit}>
         <div className="search-bar active-search resource-search-bar">
@@ -269,7 +269,10 @@ export function ResourceSearch({ topics, initialMode = "text" }: { topics: strin
               <option value="PDF">PDF</option>
               <option value="PPTX">PPTX</option>
               <option value="DOCX">DOCX</option>
-              <option value="EPUB">EPUB</option>
+                <option value="EPUB">EPUB</option>
+                <option value="IMAGE">Ảnh mind map</option>
+                <option value="AUDIO">Âm thanh</option>
+                <option value="XMIND">XMind</option>
             </select>
           </label>
         </div>
@@ -311,7 +314,7 @@ export function ResourceSearch({ topics, initialMode = "text" }: { topics: strin
             return (
               <Link href={`/documents/${result.documentId}?chunk=${result.chunkId}&from=search&mode=text#matched-chunk`} key={result.chunkId}>
                 <div className="result-main">
-                  <div className="result-title"><span>{result.fileType}</span><h3>{result.title}</h3></div>
+                <div className="result-title"><span>{formatFileType(result.fileType)}</span><h3>{result.title}</h3></div>
                   <p>{result.content.slice(0, 360)}{result.content.length > 360 ? "..." : ""}</p>
                   <div className="result-tags">
                     {result.sourceLabel ? <span className="source-tag">{result.sourceLabel}</span> : null}

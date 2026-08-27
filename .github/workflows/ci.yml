@@ -8,6 +8,7 @@ on:
 jobs:
   desktop-quality:
     runs-on: windows-latest
+    timeout-minutes: 75
     defaults:
       run:
         working-directory: learning-resource-app
@@ -19,8 +20,33 @@ jobs:
           cache: npm
           cache-dependency-path: learning-resource-app/package-lock.json
       - run: npm ci
+      - run: npm ci
+        working-directory: learning-resource-app/embedding-runtime
       - run: npm run docling:prepare
       - run: npm run lint
       - run: npm run test:unit
-      - run: npm run build
+      - run: npm run desktop:package
       - run: npm run test:desktop-runtime
+      - name: Install and test real EXE on isolated Windows runner
+        run: npm run test:installed-release
+      - name: Record installer checksum
+        shell: pwsh
+        run: |
+          $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          $file = "dist-electron/ScholarFlow-Setup-$version.exe"
+          $hash = (Get-FileHash -LiteralPath $file -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  ScholarFlow-Setup-$version.exe" | Set-Content release-test-results/SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: installed-exe-diagnostics
+          path: learning-resource-app/release-test-results/
+          retention-days: 14
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-release-tested
+          path: |
+            learning-resource-app/dist-electron/ScholarFlow-Setup-*.exe
+            learning-resource-app/release-test-results/SHA256SUMS.txt
+            learning-resource-app/release-test-results/release-report.md
+          retention-days: 30

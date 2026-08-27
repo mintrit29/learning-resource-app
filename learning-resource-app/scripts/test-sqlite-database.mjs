@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdtemp, readdir, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
@@ -13,6 +13,9 @@ const databasePath = path.join(tempDirectory, "scholarflow.db");
 const databaseUrl = `file:${databasePath.replaceAll("\\", "/")}`;
 const legacyDatabasePath = path.join(tempDirectory, "legacy.db");
 const migrationsRoot = path.resolve("prisma", "migrations");
+const expectedMigrationCount = (await readdir(migrationsRoot, { withFileTypes: true }))
+  .filter((entry) => entry.isDirectory())
+  .length;
 
 try {
   initializeSqliteDatabase(databaseUrl, migrationsRoot);
@@ -28,6 +31,7 @@ try {
     assert.ok(tables.includes("Document"));
     assert.ok(tables.includes("DocumentChunk"));
     assert.ok(tables.includes("_ScholarFlowMigration"));
+    assert.equal(tables.includes("TagAlias"), false);
     assert.equal(tables.includes("Account"), false);
     assert.equal(tables.includes("Session"), false);
     assert.equal(tables.includes("VerificationToken"), false);
@@ -36,7 +40,7 @@ try {
     const migrationCount = database
       .prepare('SELECT count(*) AS count FROM "_ScholarFlowMigration"')
       .get().count;
-    assert.equal(migrationCount, 3, "Every migration must be applied exactly once");
+    assert.equal(migrationCount, expectedMigrationCount, "Every migration must be applied exactly once");
   } finally {
     database.close();
   }

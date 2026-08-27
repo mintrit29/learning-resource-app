@@ -8,7 +8,7 @@ import { resolveStoredUploadPath } from "@/lib/storage/local-storage";
 
 export const runtime = "nodejs";
 
-const previewableTypes = new Set<PreviewFileType>(["DOCX", "PPTX", "EPUB"]);
+const previewableTypes = new Set<PreviewFileType>(["DOCX", "PPTX", "EPUB", "XMIND"]);
 
 function errorPage(message: string, status: number) {
   const safeMessage = message.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
@@ -67,7 +67,7 @@ export async function GET(
       file,
       document.fileType as PreviewFileType,
       document.originalFileName,
-      document.fileType === "PPTX" || document.fileType === "EPUB" ? itemNumber : undefined,
+      ["PPTX", "EPUB", "XMIND"].includes(document.fileType) ? itemNumber : undefined,
       document.chunks[0]?.content,
     );
     return new Response(preview.html, { headers: previewHeaders() });

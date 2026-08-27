@@ -8,6 +8,19 @@ const contentTypes: Record<string, string> = {
   PPTX: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
   DOCX: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   EPUB: "application/epub+zip",
+  IMAGE: "application/octet-stream",
+  AUDIO: "application/octet-stream",
+  XMIND: "application/vnd.xmind.workbook",
+};
+
+const extensionContentTypes: Record<string, string> = {
+  png: "image/png",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  webp: "image/webp",
+  mp3: "audio/mpeg",
+  wav: "audio/wav",
+  m4a: "audio/mp4",
 };
 
 export async function GET(
@@ -38,7 +51,7 @@ export async function GET(
 
   return new Response(file, {
     headers: {
-      "Content-Type": contentTypes[document.fileType],
+      "Content-Type": extensionContentTypes[document.originalFileName.split(".").pop()?.toLowerCase() ?? ""] ?? contentTypes[document.fileType],
       "Content-Length": String(file.byteLength),
       "Content-Disposition": `${disposition}; filename*=UTF-8''${encodeURIComponent(document.originalFileName)}`,
       "Cache-Control": "private, max-age=3600",

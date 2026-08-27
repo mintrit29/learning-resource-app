@@ -14,7 +14,7 @@ export default function SettingsPage() {
       <div className="settings-list">
         <Link href="/settings/components">
           <span><HardDrive size={21} /></span>
-          <div><strong>Thành phần cục bộ</strong><p>Tải và quản lý Docling cùng BGE-M3 trên máy.</p></div>
+          <div><strong>Thành phần cục bộ</strong><p>Tải và quản lý Docling, BGE-M3 cùng Whisper trên máy.</p></div>
           <ChevronRight size={18} />
         </Link>
         <Link href="/settings/ai-providers">
@@ -23,7 +23,7 @@ export default function SettingsPage() {
           </span>
           <div>
             <strong>Kết nối AI</strong>
-            <p>Thêm OpenRouter, Ollama hoặc Custom API để phân tích tài liệu.</p>
+            <p>Dùng Qwen cục bộ hoặc kết nối OpenRouter và Custom API.</p>
           </div>
           <ChevronRight size={18} />
         </Link>

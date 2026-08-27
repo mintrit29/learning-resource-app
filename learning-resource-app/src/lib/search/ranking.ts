@@ -118,7 +118,9 @@ export function inferSearchCriteria(query: string) {
       : normalized.match(/\b(trung binh|trung cap|intermediate)\b/)
         ? "INTERMEDIATE"
         : null;
-  const fileType = normalized.match(/\b(pdf)\b/)
+  const fileType = normalized.match(/\bxmind\b/)
+    ? "XMIND"
+    : normalized.match(/\b(pdf)\b/)
     ? "PDF"
     : normalized.match(/\b(slide|slides|ppt|pptx)\b/)
       ? "PPTX"
@@ -126,7 +128,11 @@ export function inferSearchCriteria(query: string) {
         ? "DOCX"
         : normalized.match(/\b(epub|ebook)\b/)
           ? "EPUB"
-          : null;
+          : normalized.match(/\b(audio|am thanh|ghi am|mp3|wav|m4a)\b/)
+            ? "AUDIO"
+            : normalized.match(/\b(hinh anh|image|png|jpe?g|webp)\b/)
+              ? "IMAGE"
+              : null;
 
   const keywordGroups = extractKeywordGroups(query);
   return { difficulty, fileType, keywords: [...new Set(keywordGroups.flat())], keywordGroups };

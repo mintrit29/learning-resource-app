@@ -12,7 +12,7 @@ import { getSqliteVectorStore } from "@/lib/vector/sqlite-vector-store";
 export type SearchFilters = {
   topic?: string;
   difficulty?: "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
-  fileType?: "PDF" | "PPTX" | "DOCX" | "EPUB";
+  fileType?: "PDF" | "PPTX" | "DOCX" | "EPUB" | "IMAGE" | "AUDIO" | "XMIND";
   documentId?: string;
   dateFrom?: string;
   dateTo?: string;

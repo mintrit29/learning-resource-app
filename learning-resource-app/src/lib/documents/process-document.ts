@@ -1,4 +1,5 @@
 import { readFile } from "node:fs/promises";
+import path from "node:path";
 import {
   DocumentStatus,
   FileType,
@@ -25,12 +26,24 @@ export type PipelineInput = {
   preserveExistingOnExtractionFailure?: boolean;
 };
 
-const extensions: Record<FileType, SupportedExtension> = {
+const extensions: Partial<Record<FileType, SupportedExtension>> = {
   [FileType.PDF]: "pdf",
   [FileType.PPTX]: "pptx",
   [FileType.DOCX]: "docx",
   [FileType.EPUB]: "epub",
+  [FileType.XMIND]: "xmind",
 };
+
+function extensionForDocument(fileType: FileType, originalFileName: string): SupportedExtension {
+  const fixed = extensions[fileType];
+  if (fixed) return fixed;
+  const extension = path.extname(originalFileName).slice(1).toLowerCase();
+  const allowed = fileType === FileType.IMAGE
+    ? ["png", "jpg", "jpeg", "webp"]
+    : ["mp3", "wav", "m4a"];
+  if (!allowed.includes(extension)) throw new Error("Định dạng file gốc không hợp lệ");
+  return extension as SupportedExtension;
+}
 
 async function failJob(jobId: string, message: string) {
   await db.analysisJob.update({
@@ -50,7 +63,7 @@ export async function processDocumentPipeline(input: PipelineInput) {
   try {
     const document = await db.document.findUniqueOrThrow({
       where: { id: input.documentId },
-      select: { id: true, filePath: true, fileType: true },
+      select: { id: true, filePath: true, fileType: true, originalFileName: true },
     });
 
     await Promise.all([
@@ -67,12 +80,20 @@ export async function processDocumentPipeline(input: PipelineInput) {
     const absolutePath = resolveStoredUploadPath(document.filePath);
     if (!absolutePath) throw new Error("Invalid document file path");
     const buffer = await readFile(absolutePath);
-    const result = await extractDocumentText(buffer, extensions[document.fileType]);
-    if (result.text.length < 20) {
+    const extension = extensionForDocument(document.fileType, document.originalFileName);
+    const result = await extractDocumentText(buffer, extension);
+    const minimumTextLength = document.fileType === FileType.IMAGE ? 4 : 20;
+    if (result.text.length < minimumTextLength) {
       if (document.fileType === FileType.PDF && (result.pageCount ?? 0) > 0) {
         throw new Error(
           "Tài liệu có vẻ là PDF scan/ảnh nhưng OCR không đọc được đủ nội dung. Hãy thử bản scan rõ hơn.",
         );
+      }
+      if (document.fileType === FileType.IMAGE) {
+        throw new Error("Không nhận dạng được chữ trong ảnh mind map. Hãy thử ảnh rõ hoặc có độ phân giải cao hơn.");
+      }
+      if (document.fileType === FileType.AUDIO) {
+        throw new Error("Không nhận dạng được đủ lời nói trong file âm thanh.");
       }
       throw new Error("Không tìm thấy đủ nội dung dạng text trong tài liệu");
     }
@@ -99,7 +120,7 @@ export async function processDocumentPipeline(input: PipelineInput) {
       }),
       db.analysisJob.update({
         where: { id: input.extractionJobId },
-        data: { status: JobStatus.COMPLETED, progress: 100, finishedAt: new Date() },
+        data: { status: JobStatus.COMPLETED, progress: 100, finishedAt: new Date(), errorMessage: result.warnings?.length ? `Lưu ý (${result.warnings.length}): ${result.warnings.join("; ").slice(0, 1500)}` : null },
       }),
     ]);
     extractionCompleted = true;

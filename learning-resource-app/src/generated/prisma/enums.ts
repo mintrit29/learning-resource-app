@@ -34,7 +34,10 @@ export const FileType = {
   PDF: 'PDF',
   PPTX: 'PPTX',
   DOCX: 'DOCX',
-  EPUB: 'EPUB'
+  EPUB: 'EPUB',
+  IMAGE: 'IMAGE',
+  AUDIO: 'AUDIO',
+  XMIND: 'XMIND'
 } as const
 
 export type FileType = (typeof FileType)[keyof typeof FileType]

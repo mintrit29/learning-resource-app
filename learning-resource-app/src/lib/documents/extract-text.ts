@@ -1,6 +1,7 @@
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { extractXmind } from "./extract-xmind.ts";
 import {
   checkDependencies,
   chunkDocumentAsync,
@@ -14,15 +15,23 @@ import {
   analyzeVisualOcrImage,
   chooseVisualOcrRoute,
 } from "./visual-ocr-routing.ts";
+import {
+  formatTranscriptTimestamp,
+  transcribeAudio,
+  type SupportedAudioExtension,
+} from "./transcribe-audio.ts";
 
 const MIN_EXTRACTED_TEXT_LENGTH = 20;
 const DOCLING_OCR_LANG = process.env.DOCLING_OCR_LANG ?? "ch";
 const DOCLING_FORCE_FULL_PAGE_OCR = process.env.DOCLING_FORCE_FULL_PAGE_OCR === "1";
 const MAX_EMBEDDED_IMAGES = Number(process.env.DOCLING_MAX_EMBEDDED_IMAGES ?? 100);
 
-export type SupportedExtension = "pdf" | "pptx" | "docx" | "epub";
+export type SupportedImageExtension = "png" | "jpg" | "jpeg" | "webp";
+export type SupportedExtension = "pdf" | "pptx" | "docx" | "epub" | "xmind" | SupportedImageExtension | SupportedAudioExtension;
+type DoclingExtension = Exclude<SupportedExtension, SupportedImageExtension | SupportedAudioExtension | "xmind">;
 
 export type ExtractionResult = {
+  warnings?: string[];
   text: string;
   pageCount?: number;
   sections: ExtractedSection[];
@@ -115,7 +124,7 @@ function pageNumberFromItem(item: DoclingItem | undefined) {
     : undefined;
 }
 
-function defaultSourceLabel(extension: SupportedExtension, pageNumber?: number) {
+function defaultSourceLabel(extension: DoclingExtension, pageNumber?: number) {
   if (extension === "pdf" && pageNumber) return `Trang ${pageNumber}`;
   if (extension === "pptx") return "Nội dung trình chiếu";
   if (extension === "epub") return "Nội dung sách";
@@ -125,7 +134,7 @@ function defaultSourceLabel(extension: SupportedExtension, pageNumber?: number) 
 function sectionsFromDoclingChunks(
   chunks: Chunk[],
   document: DoclingDocument,
-  extension: SupportedExtension,
+  extension: DoclingExtension,
 ) {
   const itemsByReference = new Map(
     allDocumentItems(document).flatMap((item) => item.self_ref ? [[item.self_ref, item] as const] : []),
@@ -161,7 +170,7 @@ function decodeDataImage(image: DoclingImage | undefined) {
 
 async function extractEmbeddedImageSections(
   document: DoclingDocument,
-  extension: SupportedExtension,
+  extension: DoclingExtension,
 ) {
   const sections: ExtractedSection[] = [];
   const seenImages = new Set<string>();
@@ -226,7 +235,7 @@ async function extractPdfEmbeddedImageSections(buffer: Buffer, skippedPages: Set
 
 function fallbackSectionsFromDocument(
   document: DoclingDocument,
-  extension: SupportedExtension,
+  extension: DoclingExtension,
 ) {
   return (document.texts ?? []).flatMap((item) => {
     const text = normalizeExtractedText(item.text || item.orig || "");
@@ -240,7 +249,34 @@ export async function extractDocumentText(
   buffer: Buffer,
   extension: SupportedExtension,
 ): Promise<ExtractionResult> {
+  if (extension === "xmind") return extractXmind(buffer);
+  if (["png", "jpg", "jpeg", "webp"].includes(extension)) {
+    const recognized = await recognizeVietnameseImageDetailed(buffer);
+    const text = normalizeExtractedText(recognized.text);
+    return {
+      text,
+      pageCount: 1,
+      sections: text ? [{ text, pageNumber: 1, sourceLabel: "Sơ đồ tư duy hoặc ảnh · OCR Việt–Anh" }] : [],
+    };
+  }
+
+  if (["mp3", "wav", "m4a"].includes(extension)) {
+    const transcript = await transcribeAudio(buffer, extension as SupportedAudioExtension);
+    const sections = transcript.chunks.length
+      ? transcript.chunks.map((chunk) => ({
+          text: normalizeExtractedText(chunk.text),
+          sourceLabel: `Bản ghi âm · ${formatTranscriptTimestamp(chunk.start)}${chunk.end === null ? "" : `–${formatTranscriptTimestamp(chunk.end)}`}`,
+        })).filter((section) => section.text)
+      : [{ text: normalizeExtractedText(transcript.text), sourceLabel: "Bản ghi âm" }].filter((section) => section.text);
+    return {
+      text: normalizeExtractedText(sections.map((section) => section.text).join("\n\n")),
+      sections,
+    };
+  }
+
   requireDoclingRuntime();
+
+  const doclingExtension = extension as DoclingExtension;
 
   const workDirectory = await mkdtemp(path.join(os.tmpdir(), "scholarflow-docling-"));
   const documentPath = path.join(workDirectory, `document.${extension}`);
@@ -253,7 +289,7 @@ export async function extractDocumentText(
       imageMode: "embedded",
       fetchImages: extension === "epub",
       ocrLang: DOCLING_OCR_LANG,
-      forceFullPageOcr: extension === "pdf" && DOCLING_FORCE_FULL_PAGE_OCR,
+      forceFullPageOcr: doclingExtension === "pdf" && DOCLING_FORCE_FULL_PAGE_OCR,
     });
   } finally {
     await rm(workDirectory, { recursive: true, force: true });
@@ -264,17 +300,36 @@ export async function extractDocumentText(
 
   const document = parseDoclingDocument(result.content);
   const chunks = await chunkDocumentAsync(result.content, { chunker: "hierarchical" });
-  const structuredSections = sectionsFromDoclingChunks(chunks, document, extension);
+  const structuredSections = sectionsFromDoclingChunks(chunks, document, doclingExtension);
   const textSections = structuredSections.length
     ? structuredSections
-    : fallbackSectionsFromDocument(document, extension);
-  const scannedPdfSections = extension === "pdf"
+    : fallbackSectionsFromDocument(document, doclingExtension);
+  // Hierarchical chunking can omit standalone headings (e.g. a mind map's
+  // central topic). Preserve them from Docling's own output, without OCR or
+  // duplicating headings already contextualized into another chunk.
+  const normalizedPageText = new Map<number | undefined, string>();
+  for (const section of textSections) {
+    normalizedPageText.set(section.pageNumber,
+      `${normalizedPageText.get(section.pageNumber) ?? ""} ${section.text}`.normalize("NFC").replace(/\s+/g, " "));
+  }
+  for (const item of document.texts ?? []) {
+    if (!["section_header", "title"].includes(item.label ?? "")) continue;
+    const text = normalizeExtractedText(item.text || item.orig || "");
+    const pageNumber = pageNumberFromItem(item);
+    const normalized = text.normalize("NFC").replace(/\s+/g, " ");
+    const existing = normalizedPageText.get(pageNumber) ?? "";
+    if (normalized && !existing.includes(normalized)) {
+      textSections.push({ text, pageNumber, sourceLabel: defaultSourceLabel(doclingExtension, pageNumber) });
+      normalizedPageText.set(pageNumber, `${existing} ${normalized}`);
+    }
+  }
+  const scannedPdfSections = doclingExtension === "pdf"
     ? await extractScannedPdfSections(buffer)
     : [];
   const scannedPages = new Set(scannedPdfSections.map((section) => section.pageNumber));
-  const imageSections = extension === "pdf"
+  const imageSections = doclingExtension === "pdf"
     ? await extractPdfEmbeddedImageSections(buffer, scannedPages)
-    : await extractEmbeddedImageSections(document, extension);
+    : await extractEmbeddedImageSections(document, doclingExtension);
   const sections = [
     ...textSections.filter((section) => !section.pageNumber || !scannedPages.has(section.pageNumber)),
     ...imageSections.filter((section) => !section.pageNumber || !scannedPages.has(section.pageNumber)),

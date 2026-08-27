@@ -11,6 +11,7 @@ const PREVIEW_TYPES = new Map<string, PreviewFileType>([
   [".docx", "DOCX"],
   [".pptx", "PPTX"],
   [".epub", "EPUB"],
+  [".xmind", "XMIND"],
 ]);
 const pageSchema = z.object({
   sessionId: z.string().uuid(),

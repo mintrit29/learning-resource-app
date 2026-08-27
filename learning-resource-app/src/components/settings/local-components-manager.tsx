@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { CheckCircle2, Download, HardDrive, LoaderCircle, RefreshCw, ShieldCheck, Trash2, X } from "lucide-react";
 
 const labels: Record<LocalComponentState, string> = {
@@ -52,9 +52,11 @@ export function LocalComponentsManager({ onboarding = false }: { onboarding?: bo
     };
   }, []);
 
-  const allReady = response?.components.every((component) => component.status === "ready") ?? false;
-  const totalBytes = useMemo(() => response?.components.reduce((sum, component) => sum + component.totalBytes, 0) ?? 0, [response]);
-  const downloadedBytes = useMemo(() => response?.components.reduce((sum, component) => sum + component.downloadedBytes, 0) ?? 0, [response]);
+  const requiredComponents = response?.components.filter((component) => !component.optional) ?? [];
+  const allReady = requiredComponents.every((component) => component.status === "ready");
+  const summaryComponents = onboarding ? requiredComponents : response?.components ?? [];
+  const totalBytes = summaryComponents.reduce((sum, component) => sum + component.totalBytes, 0);
+  const downloadedBytes = summaryComponents.reduce((sum, component) => sum + component.downloadedBytes, 0);
   const progress = totalBytes ? Math.min(100, Math.round(downloadedBytes / totalBytes * 100)) : 0;
 
   async function run(id: LocalComponentId, action: "install" | "verify" | "remove") {
@@ -86,7 +88,7 @@ export function LocalComponentsManager({ onboarding = false }: { onboarding?: bo
   async function installMissing() {
     if (!response) return;
     for (const component of response.components) {
-      if (component.status !== "ready") await run(component.id, "install");
+      if (!component.optional && component.status !== "ready") await run(component.id, "install");
     }
   }
 
@@ -102,16 +104,20 @@ export function LocalComponentsManager({ onboarding = false }: { onboarding?: bo
       </div>
       {onboarding ? <div className="component-total-progress"><span style={{ width: `${progress}%` }} /></div> : null}
       <div className="component-grid">
-        {response?.components.map((component) => {
+        {response?.components.filter((component) => !onboarding || !component.optional).map((component) => {
           const active = component.status === "downloading" || component.status === "verifying";
           const itemProgress = component.totalBytes ? Math.round(component.downloadedBytes / component.totalBytes * 100) : 0;
           return (
             <article className="component-card" key={component.id}>
               <div className="component-card-heading">
                 <span className={`component-state state-${component.status}`}>{component.status === "ready" ? <CheckCircle2 size={20} /> : active ? <LoaderCircle className="spin" size={20} /> : <HardDrive size={20} />}</span>
-                <div><h2>{component.name}</h2><p>{labels[component.status]} · {component.version}</p></div>
+                <div><h2>{component.name}</h2><p>{labels[component.status]} · {component.version}{component.optional ? " · Tùy chọn" : ""}</p></div>
               </div>
-              <p>{component.id === "docling" ? "Đọc PDF, DOCX, PPTX, EPUB và OCR hình ảnh." : "Tạo vector 1.024 chiều cho tìm kiếm ngữ nghĩa và dẫn nguồn."}</p>
+              <p>{component.id === "docling"
+                ? "Đọc PDF, DOCX, PPTX, EPUB và OCR hình ảnh."
+                : component.id === "whisper"
+                ? "Chuyển giọng nói tiếng Việt và tiếng Anh trong MP3, WAV, M4A thành nội dung tìm kiếm."
+                : "Tạo vector 1.024 chiều cho tìm kiếm ngữ nghĩa và dẫn nguồn."}</p>
               {active ? <div className="component-progress"><span style={{ width: `${itemProgress}%` }} /></div> : null}
               {component.error ? <p className="form-error">{component.error}</p> : null}
               <div className="component-actions">

@@ -5,6 +5,7 @@ import { ProcessingRefresh } from "@/components/documents/processing-refresh";
 import { Difficulty, FileType, JobStatus } from "@/generated/prisma/enums";
 import { db } from "@/lib/db";
 import { getDocumentDisplayStatus } from "@/lib/documents/display-status";
+import { formatFileType } from "@/lib/labels";
 import { ensureCurriculumTopics } from "@/lib/taxonomy/curriculum-topics";
 
 export const dynamic = "force-dynamic";
@@ -151,7 +152,7 @@ export default async function DocumentsPage({
               <option value="">Tất cả</option>
               {Object.values(FileType).map((item) => (
                 <option value={item} key={item}>
-                  {item}
+                  {formatFileType(item)}
                 </option>
               ))}
             </select>
@@ -185,7 +186,7 @@ export default async function DocumentsPage({
           <EmptyState
             icon={FileStack}
             title="Bạn chưa có tài liệu nào"
-            description="Thêm PDF, DOCX, PPTX hoặc EPUB. ScholarFlow sẽ đọc nội dung, tạo dữ liệu tìm kiếm và phân loại để bạn tìm lại sau."
+        description="Thêm tài liệu, ảnh mind map hoặc âm thanh. ScholarFlow sẽ chuyển thành nội dung, tạo dữ liệu tìm kiếm và phân loại để bạn tìm lại sau."
             actionHref="/upload"
             actionLabel="Thêm tài liệu đầu tiên"
           />
@@ -216,7 +217,7 @@ export default async function DocumentsPage({
               return (
                 <Link className="document-row" href={`/documents/${document.id}`} key={document.id}>
                   <div className="document-name">
-                    <span>{document.fileType}</span>
+                    <span>{formatFileType(document.fileType)}</span>
                     <div>
                       <strong>{document.title}</strong>
                       <small>
@@ -224,7 +225,7 @@ export default async function DocumentsPage({
                       </small>
                     </div>
                   </div>
-                  <span>{document.fileType}</span>
+                  <span>{formatFileType(document.fileType)}</span>
                   <span>{document.primaryTopic ?? "Chưa phân loại"}</span>
                   <span>{document.difficulty ? difficultyLabels[document.difficulty] : "Chưa rõ"}</span>
                   <span>

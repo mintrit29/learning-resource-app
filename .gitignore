@@ -13,6 +13,8 @@
 **/build/
 **/dist-electron/
 **/coverage/
+**/release-test-results/
+**/release-test-results/
 **/.pnp
 **/.pnp.*
 **/.yarn/*

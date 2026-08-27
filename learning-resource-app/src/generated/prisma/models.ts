@@ -8,12 +8,11 @@
  *
  * 🟢 You can import this file directly.
  */
-export type * from './models/Document'
-export type * from './models/Tag'
-export type * from './models/TagAlias'
-export type * from './models/DocumentTag'
-export type * from './models/AnalysisJob'
-export type * from './models/DocumentChunk'
-export type * from './models/AiProvider'
-export type * from './models/SearchLog'
-export type * from './commonInputTypes'
+export type * from './models/Document.ts'
+export type * from './models/Tag.ts'
+export type * from './models/DocumentTag.ts'
+export type * from './models/AnalysisJob.ts'
+export type * from './models/DocumentChunk.ts'
+export type * from './models/AiProvider.ts'
+export type * from './models/SearchLog.ts'
+export type * from './commonInputTypes.ts'

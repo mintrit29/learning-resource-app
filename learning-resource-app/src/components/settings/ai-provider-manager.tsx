@@ -18,7 +18,6 @@ import {
   X,
 } from "lucide-react";
 import { LocalAiManager } from "@/components/settings/local-ai-manager";
-import { isLoopbackUrl } from "@/lib/ai/local-ollama";
 import { dismissFromBackdrop, useDismissableDialog } from "@/lib/dismissable-dialog";
 
 type Provider = {
@@ -72,7 +71,7 @@ function connectionLabel(status: string) {
 }
 
 function isLocalProvider(provider: Provider) {
-  return (provider.type === "OLLAMA" || provider.type === "CUSTOM") && isLoopbackUrl(provider.baseUrl);
+  return provider.type === "OLLAMA";
 }
 
 async function readApiResponse<T extends object>(response: Response): Promise<Partial<T>> {
@@ -345,10 +344,6 @@ export function AiProviderManager({ initialProviders }: { initialProviders: Prov
           <h2>Chọn nơi AI hoạt động</h2>
           <p>Dùng AI trên thiết bị để ưu tiên riêng tư, hoặc kết nối dịch vụ trực tuyến khi cần.</p>
         </div>
-        <button className="primary-button compact" onClick={() => openCreate()} type="button">
-          <Plus size={17} />
-          Thêm kết nối AI
-        </button>
       </div>
 
       {notice ? (
@@ -363,10 +358,10 @@ export function AiProviderManager({ initialProviders }: { initialProviders: Prov
           <span className="provider-group-icon"><Cpu size={22} /></span>
           <div>
             <div className="provider-group-title">
-              <h2>AI chạy trên thiết bị</h2>
+              <h2>Qwen cục bộ</h2>
               <span className="provider-kind-badge local">Local · riêng tư</span>
             </div>
-            <p>Model chạy bằng Ollama trên máy của bạn; nội dung phân tích không cần gửi lên cloud.</p>
+            <p>Ollama là chương trình chạy AI; Qwen là model được tải vào Ollama để phân tích tài liệu.</p>
           </div>
         </header>
 
@@ -393,10 +388,10 @@ export function AiProviderManager({ initialProviders }: { initialProviders: Prov
           <span className="provider-group-icon cloud"><Cloud size={22} /></span>
           <div>
             <div className="provider-group-title">
-              <h2>AI trực tuyến hoặc qua mạng</h2>
+              <h2>AI trực tuyến</h2>
               <span className="provider-kind-badge online">Cloud · API</span>
             </div>
-            <p>OpenRouter, máy chủ Ollama từ xa hoặc Custom API do bạn cấu hình.</p>
+            <p>Kết nối OpenRouter hoặc một Custom API do bạn cấu hình.</p>
           </div>
           <button className="secondary-button compact" onClick={() => openCreate("OPENROUTER")} type="button">
             <Plus size={16} /> Thêm kết nối
@@ -426,13 +421,7 @@ export function AiProviderManager({ initialProviders }: { initialProviders: Prov
 
             <div className="provider-choice-sections">
               <div>
-                <span className="provider-choice-label">Trên thiết bị</span>
-                <div className="provider-choices local-choice">
-                  {renderProviderChoice("OLLAMA")}
-                </div>
-              </div>
-              <div>
-                <span className="provider-choice-label">Trực tuyến hoặc tùy chỉnh</span>
+                <span className="provider-choice-label">Chọn dịch vụ trực tuyến</span>
                 <div className="provider-choices online-choice">
                   {renderProviderChoice("OPENROUTER")}
                   {renderProviderChoice("CUSTOM")}

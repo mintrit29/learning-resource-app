@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { readXmind } from "@/lib/documents/extract-xmind";
 import { after, NextResponse } from "next/server";
 import { DocumentStatus, FileType, JobType } from "@/generated/prisma/enums";
 import { db } from "@/lib/db";
@@ -12,7 +13,12 @@ import {
   SUPPORTED_UPLOAD_LABEL,
 } from "@/lib/documents/upload-policy";
 import { createNamedUploadStorageLocation } from "@/lib/storage/local-storage";
-import { DOCLING_MISSING_MESSAGE, isDoclingReady } from "@/lib/desktop/component-availability";
+import {
+  DOCLING_MISSING_MESSAGE,
+  isDoclingReady,
+  isWhisperReady,
+  WHISPER_MISSING_MESSAGE,
+} from "@/lib/desktop/component-availability";
 
 export const runtime = "nodejs";
 
@@ -21,6 +27,14 @@ const FILE_TYPES: Record<SupportedExtension, FileType> = {
   pptx: FileType.PPTX,
   docx: FileType.DOCX,
   epub: FileType.EPUB,
+  xmind: FileType.XMIND,
+  png: FileType.IMAGE,
+  jpg: FileType.IMAGE,
+  jpeg: FileType.IMAGE,
+  webp: FileType.IMAGE,
+  mp3: FileType.AUDIO,
+  wav: FileType.AUDIO,
+  m4a: FileType.AUDIO,
 };
 
 function getExtension(fileName: string): SupportedExtension | null {
@@ -30,14 +44,21 @@ function getExtension(fileName: string): SupportedExtension | null {
 
 function hasExpectedSignature(buffer: Buffer, extension: SupportedExtension) {
   if (extension === "pdf") return buffer.subarray(0, 5).toString("utf8") === "%PDF-";
-  return buffer.length >= 4 && buffer[0] === 0x50 && buffer[1] === 0x4b;
+  if (["pptx", "docx", "epub", "xmind"].includes(extension)) {
+    return buffer.length >= 4 && buffer[0] === 0x50 && buffer[1] === 0x4b;
+  }
+  if (extension === "png") return buffer.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]));
+  if (extension === "jpg" || extension === "jpeg") return buffer[0] === 0xff && buffer[1] === 0xd8;
+  if (extension === "webp") return buffer.subarray(0, 4).toString("ascii") === "RIFF" && buffer.subarray(8, 12).toString("ascii") === "WEBP";
+  if (extension === "wav") return buffer.subarray(0, 4).toString("ascii") === "RIFF" && buffer.subarray(8, 12).toString("ascii") === "WAVE";
+  if (extension === "m4a") return buffer.subarray(4, 8).toString("ascii") === "ftyp";
+  if (extension === "mp3") {
+    return buffer.subarray(0, 3).toString("ascii") === "ID3" || (buffer[0] === 0xff && (buffer[1] & 0xe0) === 0xe0);
+  }
+  return false;
 }
 
 export async function POST(request: Request) {
-  if (!await isDoclingReady()) {
-    return NextResponse.json({ message: DOCLING_MISSING_MESSAGE, setupUrl: "/settings/components" }, { status: 503 });
-  }
-
   const formData = await request.formData();
   const file = formData.get("file");
   if (!(file instanceof File)) {
@@ -50,6 +71,14 @@ export async function POST(request: Request) {
       { message: `Chỉ hỗ trợ ${SUPPORTED_UPLOAD_LABEL}` },
       { status: 415 },
     );
+  }
+
+  const isAudio = ["mp3", "wav", "m4a"].includes(extension);
+  if (extension !== "xmind" && (isAudio ? !await isWhisperReady() : !await isDoclingReady())) {
+    return NextResponse.json({
+      message: isAudio ? WHISPER_MISSING_MESSAGE : DOCLING_MISSING_MESSAGE,
+      setupUrl: "/settings/components",
+    }, { status: 503 });
   }
 
   if (file.size === 0 || file.size > MAX_UPLOAD_FILE_SIZE_BYTES) {
@@ -67,6 +96,12 @@ export async function POST(request: Request) {
     );
   }
 
+  if (extension === "xmind") {
+    try { await readXmind(buffer); }
+    catch (error) {
+      return NextResponse.json({ message: error instanceof Error ? error.message : "Không đọc được XMind." }, { status: 422 });
+    }
+  }
   const storageLocation = createNamedUploadStorageLocation(randomUUID(), file.name);
   await mkdir(storageLocation.directory, { recursive: true });
   await writeFile(storageLocation.absolutePath, buffer, { flag: "wx" });

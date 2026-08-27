@@ -1,10 +1,11 @@
-type LocalComponentId = "bge-m3" | "docling";
+type LocalComponentId = "bge-m3" | "docling" | "whisper";
 type LocalComponentState = "missing" | "downloading" | "verifying" | "ready" | "corrupt" | "error";
 
 type LocalComponentStatus = {
   id: LocalComponentId;
   name: string;
   version: string;
+  optional: boolean;
   status: LocalComponentState;
   error: string | null;
   downloadedBytes: number;

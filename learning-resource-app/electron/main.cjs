@@ -134,9 +134,11 @@ function getDesktopDataEnvironment(resolvedEmbeddingUrl) {
     ? path.join(process.resourcesPath, "app")
     : path.resolve(__dirname, "..");
   const documentRuntimeRoot = path.join(app.getPath("userData"), "runtimes", "docling");
+  const modelCache = path.join(app.getPath("userData"), "models");
 
   return {
     SCHOLARFLOW_DATA_ROOT: dataRoot,
+    SCHOLARFLOW_MODEL_CACHE: modelCache,
     DATABASE_URL: `file:${databasePath}`,
     EMBEDDING_SERVICE_URL: resolvedEmbeddingUrl,
     EMBEDDING_DEVICE: "cpu",
@@ -500,7 +502,7 @@ function createMainWindow() {
   });
 
   const needsSetup = componentManager
-    ? Object.values(componentManager.getQuickStatuses()).some((component) => component.status !== "ready")
+    ? Object.values(componentManager.getQuickStatuses()).some((component) => !component.optional && component.status !== "ready")
     : false;
   void mainWindow.loadURL(`${serverUrl}${needsSetup ? "/setup/components" : ""}`);
 }
@@ -579,7 +581,7 @@ function registerComponentIpc() {
     userDataRoot: app.getPath("userData"),
     legacyDoclingRoots: legacyRoots,
     onProgress: sendProgress,
-    onBgeChanged: restartEmbeddingService,
+    onModelChanged: restartEmbeddingService,
     canRemove: async () => !(await hasActiveDocumentJobs()),
   });
   ipcMain.handle("components:status", () => componentManager.getStatuses());

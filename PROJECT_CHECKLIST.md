@@ -29,7 +29,7 @@
 - [x] Xóa NextAuth, adapter auth, bcrypt và type/validation liên quan trong working tree.
 - [x] Xóa `User`, `Account`, `Session`, `VerificationToken` và các trường `userId` khỏi schema mới.
 - [x] Chuyển document, tag, provider và search log sang một thư viện local duy nhất.
-- [x] Tạo migration xóa tài liệu/tài khoản cũ nhưng giữ tag, alias, AI provider và cài đặt khác.
+- [x] Tạo migration xóa tài liệu/tài khoản cũ nhưng giữ tag, AI provider và cài đặt khác.
 - [x] Test migration xác nhận tag và cấu hình Ollama được giữ lại.
 - [x] Chỉ dọn bản sao tài liệu trong đúng `%APPDATA%\ScholarFlow\data\uploads` khi chuyển phiên bản.
 - [x] Xác nhận file gốc người dùng chọn bên ngoài app không bị xóa.
@@ -73,6 +73,24 @@
 - [x] Test preview DOCX/PPTX/EPUB đạt.
 - [x] Kiểm tra lại PDF, DOCX, PPTX và EPUB thực tế sau local-only; extraction/preview và mở nội dung liên quan đạt.
 
+### D.1 Mind map và âm thanh
+
+- [x] XMind JSON/XML: upload, trích xuất nhánh/ghi chú/nhãn, chunk có đường dẫn và số sơ đồ, xem sơ đồ nhánh tự sắp xếp, bộ lọc và tìm bằng chữ gốc trong vùng chọn.
+- [x] Hồi quy GUI 27/08: PDF giữ trang/zoom/pan/vùng chọn khi Back; XMind giữ viewport khi Back và đổi tab; DOCX kéo được; tiêu đề chi tiết không bị ép thành cột chữ.
+- [x] Upload thật XMind JSON/XML, MP3 Việt, WAV Anh → text/chunk/vector 1.024 chiều → tìm lại tài liệu. Giữ báo cáo và fixture trong `06_mindmap_audio`.
+- [x] Thêm bộ PDF mind map chữ/scan 2 trang, XMind 2 sơ đồ, XMind hỏng và hướng dẫn test cụ thể trong bộ fixture chung.
+- [x] Sửa mất tiêu đề mind map ở bước chia đoạn Docling; PDF chữ đạt 26/26 cụm, scan 24/26 với 2 lỗi dấu đã ghi rõ.
+
+- [x] Nhận ảnh PNG/JPG/JPEG/WebP và âm thanh MP3/WAV/M4A vào thư viện.
+- [x] OCR mind map bằng pipeline Việt–Anh; PDF mind map dùng Docling.
+- [x] Thêm Whisper Base là thành phần local tùy chọn, pin revision và checksum.
+- [x] Dùng FFmpeg đóng kèm runtime để giải mã audio về mono 16 kHz.
+- [x] Chép lời Việt/Anh, giữ timestamp và đưa qua chung pipeline chunk/BGE-M3/search.
+- [x] Thiếu Whisper chỉ chặn file audio, không chặn tài liệu/ảnh hoặc onboarding.
+- [x] Test extractor mind map và audio bằng fixture cố định.
+- [x] Test runtime thật với WAV, MP3, M4A tiếng Anh và MP3 tiếng Việt.
+- [x] Chạy lại full unit test, production build, desktop standalone và packaged smoke sau khi hoàn thiện tính năng.
+
 ## E. Embedding và AI provider
 
 - [x] BGE-M3 chạy local bằng Transformers.js + ONNX Runtime.
@@ -93,7 +111,7 @@
 - [x] AI chỉ chọn môn hiện có hoặc để “Chưa phân loại”.
 - [x] Áp dụng ngưỡng tin cậy 75% ở server.
 - [x] Không cho AI tự tạo môn học mới.
-- [x] Cho phép thêm, đổi tên, alias, xóa và gộp môn học.
+- [x] Cho phép thêm, đổi tên và xóa môn học.
 - [x] Chuyển tài liệu về “Chưa phân loại” khi môn bị xóa.
 - [x] Bỏ giao diện/API/bảng đề xuất gộp chủ đề.
 - [x] Tối ưu để chỉ đồng bộ danh mục mặc định một lần trong mỗi phiên app.
@@ -103,6 +121,7 @@
 - [x] Tìm bằng truy vấn tự nhiên tiếng Việt và tiếng Anh.
 - [x] Kết hợp vector BGE-M3, từ khóa và metadata.
 - [x] Lọc theo môn học, độ khó và định dạng.
+- [x] Bộ lọc hiển thị tên thân thiện cho ảnh mind map và âm thanh.
 - [x] Có relevance gate loại kết quả yếu.
 - [x] Hiển thị lý do phù hợp, chunk và vị trí nguồn.
 - [x] Trả trạng thái thư viện trống/no-result rõ ràng.
@@ -235,6 +254,14 @@ Kiểm tra nhanh ngày 15/08/2026: unit validation vùng/payload/query merge/ses
 - [x] Kiểm tra `dist-electron/win-unpacked` không chứa BGE-M3, `.docling-runtime`, model cache hoặc test fixture.
 
 ## K. Tài liệu bàn giao
+
+### Bổ sung ảnh XMind / EXE 0.1.4 — 27/08/2026
+
+- [x] Hiển thị ảnh nhúng PNG/JPEG/WebP; OCR dùng runtime hiện có và gắn đúng nhánh/sơ đồ.
+- [x] Test JSON/XML, Việt/Anh/công thức mẫu, ảnh trắng/hỏng/thiếu, đường dẫn và giới hạn giải nén.
+- [x] Giữ fixture 09/10 và hướng dẫn `TEST_ANH_NHUNG_XMIND.md` cho nhóm.
+- [ ] Windows GitHub-hosted runner cài EXE, tải model thật, kiểm pipeline và hồi quy GUI.
+- [ ] Phát hành đúng installer đã kiểm (SHA-256 khớp), không build lại sau kiểm thử.
 
 - [x] `IMPLEMENTATION_PLAN.md` cập nhật trạng thái local-only và thiết kế tìm bằng vùng chọn.
 - [x] `PROJECT_CHECKLIST.md` phân biệt rõ đã làm, đang thiết kế và chưa làm.

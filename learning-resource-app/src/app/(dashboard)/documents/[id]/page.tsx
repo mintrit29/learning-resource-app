@@ -14,7 +14,7 @@ import { ScrollToMatchedChunk } from "@/components/documents/scroll-to-matched-c
 import { db } from "@/lib/db";
 import { getDocumentDisplayStatus } from "@/lib/documents/display-status";
 import { estimateProcessingRemaining } from "@/lib/documents/processing-estimate";
-import { formatDifficulty } from "@/lib/labels";
+import { formatDifficulty, formatFileType } from "@/lib/labels";
 import { ensureCurriculumTopics } from "@/lib/taxonomy/curriculum-topics";
 
 export const dynamic = "force-dynamic";
@@ -91,13 +91,14 @@ export default async function DocumentDetailPage({
   const originalFileDownloadHref = `${originalFileHref}?download=1`;
   const extractedTextDownloadHref = `/api/documents/${document.id}/text`;
   const isPdf = document.fileType === "PDF";
+  const isDirectPreview = isPdf || document.fileType === "IMAGE" || document.fileType === "AUDIO";
   const matchedPdfPage = isPdf && matchedChunk?.pageNumber ? matchedChunk.pageNumber : null;
   const matchedPreviewItem = !isPdf
-    && (document.fileType === "PPTX" || document.fileType === "EPUB")
+    && ["PPTX", "EPUB", "XMIND"].includes(document.fileType)
     && matchedChunk?.pageNumber
     ? matchedChunk.pageNumber
     : null;
-  const originalFilePreviewHref = isPdf
+  const originalFilePreviewHref = isDirectPreview
     ? matchedPdfPage ? `${originalFileHref}#page=${matchedPdfPage}` : originalFileHref
     : `/api/documents/${document.id}/preview?${new URLSearchParams({
         ...(matchedPreviewItem ? { item: String(matchedPreviewItem) } : {}),
@@ -123,7 +124,7 @@ export default async function DocumentDetailPage({
       <Link className="back-link" href={backHref}><ArrowLeft size={17} />{cameFromSearch ? "Quay lại kết quả tìm kiếm" : "Quay lại thư viện"}</Link>
       <header className="document-detail-header">
         <div className="document-file-icon"><FileText size={26} /></div>
-        <div><p className="eyebrow">Tài liệu {document.fileType}</p><h1>{document.title}</h1><p>{document.originalFileName}</p></div>
+        <div><p className="eyebrow">Tài liệu {formatFileType(document.fileType)}</p><h1>{document.title}</h1><p>{document.originalFileName}</p></div>
         <div className="document-header-actions">
           {!isProcessing && needsProcessing ? <RetryJobButton documentId={document.id} /> : null}
           {!isProcessing ? <ReextractButton documentId={document.id} documentTitle={document.title} /> : null}
@@ -202,8 +203,10 @@ export default async function DocumentDetailPage({
             <p>
               {matchedPdfPage
                 ? `PDF đang mở sẵn trang ${matchedPdfPage}, trùng với đoạn khớp phía trên.`
-                : isPdf
-                ? "PDF có thể xem trực tiếp trong app. Nếu muốn kiểm tra bằng tab riêng, bấm mở file gốc."
+                : isDirectPreview
+                ? `${document.fileType === "AUDIO" ? "Âm thanh" : document.fileType === "IMAGE" ? "Ảnh mind map" : "PDF"} có thể xem trực tiếp trong app.`
+                : document.fileType === "XMIND"
+                ? "XMind hiển thị sơ đồ nhánh, ghi chú và nhãn. Bố cục được tự sắp xếp; ảnh đính kèm và liên kết chéo chưa được hiển thị. File gốc vẫn được giữ nguyên."
                 : `${document.fileType} được chuyển thành bản xem nhanh và hiển thị ngay trong app. Bố cục phức tạp có thể khác nhẹ so với phần mềm gốc.`}
             </p>
           </div>
@@ -216,7 +219,7 @@ export default async function DocumentDetailPage({
         </div>
         <iframe
           className={`document-preview-frame ${document.fileType.toLowerCase()}`}
-          sandbox={isPdf ? undefined : ""}
+          sandbox={isDirectPreview ? undefined : ""}
           src={originalFilePreviewHref}
           title={`Bản xem: ${document.originalFileName}`}
         />

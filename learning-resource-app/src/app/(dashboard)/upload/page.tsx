@@ -9,7 +9,7 @@ export default function UploadPage() {
           <p className="eyebrow">Thêm tài liệu</p>
           <h1>Đưa tài liệu vào ScholarFlow</h1>
           <p>
-            Tải PDF, DOCX, PPTX hoặc EPUB lên. App sẽ tự đọc nội dung, chia thành
+          Tải tài liệu, ảnh mind map hoặc file âm thanh lên. App sẽ tự chuyển thành nội dung, chia thành
             đoạn nhỏ, tạo dữ liệu tìm kiếm và phân tích bằng AI nếu bạn đã kết nối provider.
           </p>
         </div>

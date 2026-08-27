@@ -27,6 +27,9 @@ enum FileType {
   PPTX
   DOCX
   EPUB
+  IMAGE
+  AUDIO
+  XMIND
 }
 
 enum JobType {
@@ -81,25 +84,12 @@ model Tag {
   description             String?
   embedding               Bytes?
   isClassificationEnabled Boolean       @default(false)
-  aliases                 TagAlias[]
   documents               DocumentTag[]
   createdAt               DateTime      @default(now())
   updatedAt               DateTime      @updatedAt
 
   @@index([normalizedName])
   @@index([name])
-}
-
-model TagAlias {
-  id              String   @id @default(cuid())
-  tagId           String
-  alias           String
-  normalizedAlias String
-  tag             Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
-  createdAt       DateTime @default(now())
-
-  @@unique([tagId, normalizedAlias])
-  @@index([normalizedAlias])
 }
 
 model DocumentTag {

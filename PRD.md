@@ -12,7 +12,7 @@ Phiên bản thống nhất của dự án là ứng dụng Windows desktop. Kh�
 
 ## 2. Mục tiêu
 
-- Tập trung học liệu PDF, DOCX, PPTX và EPUB vào một thư viện.
+- Tập trung học liệu PDF, DOCX, PPTX, EPUB, XMind, ảnh mind map và audio vào một thư viện.
 - Tự động trích xuất, chia đoạn và lập chỉ mục nội dung.
 - Hỗ trợ tìm nguồn theo ý nghĩa, không chỉ theo từ khóa chính xác.
 - Tự động gợi ý metadata để giảm thao tác phân loại thủ công.
@@ -39,7 +39,7 @@ Phiên bản thống nhất của dự án là ứng dụng Windows desktop. Kh�
 
 ### 4.2 Quản lý tài liệu
 
-- Nhận file PDF, DOCX, PPTX và EPUB.
+- Nhận file PDF, DOCX, PPTX, EPUB, XMind JSON/XML, ảnh PNG/JPG/JPEG/WebP và âm thanh MP3/WAV/M4A.
 - Nhận nhiều file hoặc một thư mục trong cùng lượt; bỏ qua file sai định dạng và báo trạng thái riêng từng file.
 - Kiểm tra loại file, kích thước và tên file trước khi lưu.
 - Hiển thị thư viện, chi tiết, trạng thái và tiến trình xử lý.
@@ -60,7 +60,7 @@ Thêm file
 
 Mỗi bước có trạng thái `PENDING`, `PROCESSING`, `COMPLETED` hoặc `FAILED`. Lỗi phải được rút gọn thành thông báo dễ hiểu, không đưa stack trace, HTML hoặc mã nguồn lên giao diện.
 
-Khi có nhiều tài liệu, toàn bộ pipeline chạy tuần tự theo hàng đợi cục bộ. PDF, DOCX, PPTX và EPUB đều đi qua Docling.rs; text native được giữ và ảnh nhúng/PDF scan được bổ sung OCR Việt–Anh theo pipeline ổn định của ứng dụng.
+Khi có nhiều tài liệu, toàn bộ pipeline chạy tuần tự theo hàng đợi cục bộ. PDF, DOCX, PPTX và EPUB đều đi qua Docling.rs; text native được giữ và ảnh nhúng/PDF scan được bổ sung OCR Việt–Anh theo pipeline ổn định của ứng dụng. Ảnh mind map dùng OCR Việt–Anh; audio được FFmpeg giải mã và Whisper Base chép lời Việt/Anh kèm mốc thời gian. Tất cả đầu vào sau đó dùng chung pipeline chunk và BGE-M3.
 
 ### 4.4 AI phân tích tài liệu
 
@@ -91,7 +91,7 @@ Ngoài truy vấn chữ, người dùng có thể mở ảnh, PDF, DOCX, PPTX ho
 
 - Thư viện được khởi tạo một lần với 27 môn chuyên ngành CNTT của Trường Đại học Nguyễn Tất Thành, từ học kỳ 2 đến học kỳ 12.
 - Danh sách không bao gồm tiếng Anh và các học phần đại cương hoặc không liên quan trực tiếp đến ngành CNTT.
-- Người dùng có toàn quyền thêm, đổi tên, thêm tên gọi khác, xóa và gộp môn học.
+- Người dùng có toàn quyền thêm, đổi tên và xóa môn học.
 - AI chỉ được chọn trong danh sách môn học đang được người dùng cho phép phân loại, không được tự tạo tên mới.
 - Tài liệu không đạt ngưỡng phù hợp được giữ ở trạng thái “Chưa phân loại” để người dùng xem và gắn thủ công.
 - Khi xóa một môn học, tài liệu đang thuộc môn đó không bị xóa mà chuyển về “Chưa phân loại”.
@@ -136,7 +136,7 @@ Ngoài truy vấn chữ, người dùng có thể mở ảnh, PDF, DOCX, PPTX ho
 - Hỗ trợ Windows 10/11 x64 trong MVP.
 - Phát hành bằng bộ cài NSIS trên GitHub Releases.
 - Người dùng cuối không cần Node.js, Docker, PostgreSQL hoặc Python.
-- BGE-M3 và Docling không nằm trong installer; app cho phép tải, kiểm tra, tải lại hoặc xóa từ nguồn/version cố định có kiểm tra SHA-256.
+- BGE-M3, Docling và Whisper không nằm trong installer; app cho phép tải, kiểm tra, tải lại hoặc xóa từ nguồn/version cố định có kiểm tra SHA-256. Whisper là tùy chọn và chỉ cần cho audio.
 
 ## 6. Kiến trúc dữ liệu
 
@@ -144,6 +144,7 @@ Ngoài truy vấn chữ, người dùng có thể mở ảnh, PDF, DOCX, PPTX ho
 - sqlite-vec lập chỉ mục vector 1.024 chiều.
 - File tải lên, database, model cache và log nằm dưới `%APPDATA%\ScholarFlow`.
 - BGE-M3 chạy qua Transformers.js và ONNX Runtime trong tiến trình con do Electron quản lý.
+- Whisper Base chạy trong cùng runtime model cục bộ; FFmpeg nằm trong package để giải mã audio mà không yêu cầu người dùng cài riêng.
 
 ## 7. Ngoài phạm vi MVP
 
@@ -171,5 +172,6 @@ Ngoài truy vấn chữ, người dùng có thể mở ảnh, PDF, DOCX, PPTX ho
 - BGE-M3 chạy CPU có thể chậm với tài liệu rất lớn.
 - Lần đầu cần tải model khoảng 2,1 GB và phụ thuộc tốc độ mạng.
 - OCR tiếng Việt/Anh trên bản scan mờ, công thức viết tay hoặc biểu đồ phức tạp có thể chưa chính xác hoàn toàn.
+- OCR mind map ảnh/PDF chỉ lập chỉ mục phần chữ, chưa suy luận đường nối. XMind đọc cây cha-con có sẵn, ghi chú và nhãn; xem trước dạng cây, chưa đọc ảnh/tập tin đính kèm, liên kết chéo hoặc file có mật khẩu. Giới hạn XMind: 25 MB, 200 sơ đồ, 5.000 nhánh, 64 cấp và 8 MB chữ sau giải nén. Whisper Base có thể sai tên riêng, thương hiệu, giọng nhiễu hoặc nhiều người nói; audio giới hạn 25 MB và 60 phút.
 - OpenRouter và Custom API có thể phát sinh chi phí hoặc giới hạn theo nhà cung cấp.
 - OCR bảng, nhãn biểu đồ và công thức ảnh phức tạp có thể chưa hoàn hảo; MVP cho phép sửa query trước khi tìm và không tích hợp model công thức thử nghiệm thiếu ổn định.

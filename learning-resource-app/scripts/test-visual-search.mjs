@@ -8,6 +8,7 @@ import { normalizeVietnameseOcrText } from "../src/lib/documents/vietnamese-ocr.
 import { createVisualPreviewSession, getVisualPreviewSession, removeVisualPreviewSession } from "../src/lib/search/visual-preview-sessions.ts";
 import { clearVisualSearchDraft, readVisualSearchDraft, saveVisualSearchDraft } from "../src/lib/search/visual-search-draft.ts";
 import { clearUploadDraft, readUploadDraft, saveUploadDraft } from "../src/lib/documents/upload-draft.ts";
+import { containsCharacterCenter } from "../src/lib/search/region-native-text.ts";
 
 const require = createRequire(import.meta.url);
 const { normalizeCaptureRectangle, targetOcrSize } = require("../electron/visual-search.cjs");
@@ -85,9 +86,19 @@ saveVisualSearchDraft({
   capturedPreview: "data:image/png;base64,test",
   results: [],
   searchStatus: "NO_RELEVANT_RESULTS",
+  viewport: { left: 37, top: 294, pageTop: 218, resultsTop: 19 },
+  canvasBaseSize: { width: 640, height: 900 },
+  frameSize: { width: 870, height: 1224 },
 });
 assert.equal(readVisualSearchDraft()?.file, localFile);
 assert.equal(readVisualSearchDraft()?.query, "câu hỏi được chọn");
+assert.equal(readVisualSearchDraft()?.viewport.top, 294);
+assert.equal(readVisualSearchDraft()?.viewport.pageTop, 218);
+assert.equal(readVisualSearchDraft()?.frameSize.width, 870);
+const region = { left: 10, top: 10, right: 50, bottom: 30 };
+assert.equal(containsCharacterCenter(region, { left: 12, top: 12, right: 20, bottom: 24 }), true);
+assert.equal(containsCharacterCenter(region, { left: 12, top: 31, right: 20, bottom: 45 }), false, 'Do not include next unselected line');
+assert.equal(containsCharacterCenter(region, { left: 49, top: 12, right: 60, bottom: 24 }), false, 'Do not include characters barely touching the region');
 clearVisualSearchDraft();
 assert.equal(readVisualSearchDraft(), null);
 

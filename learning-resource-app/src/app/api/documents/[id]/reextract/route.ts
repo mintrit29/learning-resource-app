@@ -5,20 +5,22 @@ import { db } from "@/lib/db";
 import { enqueueDocumentPipeline } from "@/lib/documents/document-processing-queue";
 import { resetDocumentJob } from "@/lib/documents/processing-jobs";
 import { resolveStoredUploadPath } from "@/lib/storage/local-storage";
-import { DOCLING_MISSING_MESSAGE, isDoclingReady } from "@/lib/desktop/component-availability";
+import {
+  DOCLING_MISSING_MESSAGE,
+  isDoclingReady,
+  isWhisperReady,
+  WHISPER_MISSING_MESSAGE,
+} from "@/lib/desktop/component-availability";
 
 export const runtime = "nodejs";
 
 export async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {
-  if (!await isDoclingReady()) {
-    return NextResponse.json({ message: DOCLING_MISSING_MESSAGE, setupUrl: "/settings/components" }, { status: 503 });
-  }
-
   const { id } = await params;
   const document = await db.document.findFirst({
     where: { id },
     select: {
       id: true,
+      fileType: true,
       filePath: true,
       textContent: true,
       _count: { select: { chunks: true } },
@@ -26,6 +28,13 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
   });
   if (!document) {
     return NextResponse.json({ message: "Không tìm thấy tài liệu" }, { status: 404 });
+  }
+  const isAudio = document.fileType === "AUDIO";
+  if (document.fileType !== "XMIND" && (isAudio ? !await isWhisperReady() : !await isDoclingReady())) {
+    return NextResponse.json({
+      message: isAudio ? WHISPER_MISSING_MESSAGE : DOCLING_MISSING_MESSAGE,
+      setupUrl: "/settings/components",
+    }, { status: 503 });
   }
   const originalFilePath = resolveStoredUploadPath(document.filePath);
   if (!originalFilePath || !await access(originalFilePath).then(() => true).catch(() => false)) {
@@ -57,5 +66,5 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
   });
   after(() => processing);
 
-  return NextResponse.json({ message: "Đã bắt đầu trích xuất lại bằng Docling" }, { status: 202 });
+  return NextResponse.json({ message: `Đã bắt đầu trích xuất lại bằng ${document.fileType === "XMIND" ? "bộ đọc XMind" : isAudio ? "Whisper" : "Docling/OCR"}` }, { status: 202 });
 }

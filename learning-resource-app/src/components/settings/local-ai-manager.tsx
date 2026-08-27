@@ -342,6 +342,23 @@ export function LocalAiManager({
 
   return (
     <div className="local-ai-manager">
+      <div className={`ollama-status ${status.ollama.connected ? "connected" : "offline"}`}>
+        {status.ollama.connected ? <Check size={18} /> : <CircleAlert size={18} />}
+        <div>
+          <strong>{status.ollama.connected ? "Bước 1 · Ollama đang chạy" : "Bước 1 · Cài và mở Ollama"}</strong>
+          <small>
+            {status.ollama.connected
+              ? `Ollama là bộ máy chạy Qwen. Đã nhận ${status.ollama.installedModels.length} model trên máy.`
+              : "ScholarFlow cần Ollama để tải và chạy Qwen cục bộ. Cài xong, hãy mở Ollama rồi bấm kiểm tra lại."}
+          </small>
+        </div>
+        {!status.ollama.connected ? (
+          <a className="secondary-button compact" href="https://ollama.com/download/windows" rel="noreferrer" target="_blank">
+            <ExternalLink size={16} /> Cài Ollama
+          </a>
+        ) : null}
+      </div>
+
       <div className="local-system-card">
         <div className="local-system-heading">
           <span className="provider-icon"><Gauge size={21} /></span>
@@ -359,6 +376,11 @@ export function LocalAiManager({
           <span><HardDrive size={16} />Trống {formatBytes(status.system.freeDiskBytes, 0)}</span>
           <span title={gpu?.name || "Không nhận diện được GPU"}><Gauge size={16} />{gpu ? `${gpu.name}${gpu.memoryBytes ? ` · ${formatBytes(gpu.memoryBytes, 0)}` : ""}` : "Chưa nhận diện GPU"}</span>
         </div>
+      </div>
+
+      <div className="local-model-step">
+        <strong>Bước 2 · Chọn model Qwen</strong>
+        <p>ScholarFlow đã dựa vào cấu hình máy để đánh dấu model phù hợp. Chọn một bản rồi tải xuống và sử dụng.</p>
       </div>
 
       <div className="local-model-grid">
@@ -383,19 +405,6 @@ export function LocalAiManager({
             </button>
           );
         })}
-      </div>
-
-      <div className={`ollama-status ${status.ollama.connected ? "connected" : "offline"}`}>
-        {status.ollama.connected ? <Check size={18} /> : <CircleAlert size={18} />}
-        <div>
-          <strong>{status.ollama.connected ? "Ollama đã sẵn sàng" : "Chưa phát hiện Ollama"}</strong>
-          <small>{status.ollama.connectionMessage} {status.ollama.connected ? `${status.ollama.installedModels.length} model đã cài.` : ""}</small>
-        </div>
-        {!status.ollama.connected ? (
-          <a className="secondary-button compact" href="https://ollama.com/download/windows" rel="noreferrer" target="_blank">
-            <ExternalLink size={16} /> Tải Ollama
-          </a>
-        ) : null}
       </div>
 
       {download ? (
