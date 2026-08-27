@@ -37,15 +37,20 @@ async function launch() {
   return new URL(page.url()).origin;
 }
 async function upload(origin,file) {
+  record(`Start ${path.basename(file)}`);
   const form=new FormData(); form.append('file',new Blob([await readFile(file)]),path.basename(file));
   const res=await fetch(`${origin}/api/documents/upload`,{method:'POST',body:form});
   assert.equal(res.status,202,await res.clone().text());
   const {documentId}=await res.json();
-  await until(()=>{
+  try { await until(()=>{
     const jobs=db.prepare('SELECT type,status,errorMessage FROM AnalysisJob WHERE documentId=?').all(documentId).filter(j=>j.type!=='ANALYZE_DOCUMENT');
     const failed=jobs.find(j=>j.status==='FAILED'); if(failed) throw new Error(`${path.basename(file)}: ${failed.errorMessage}`);
     return jobs.length>=3 && jobs.every(j=>j.status==='COMPLETED');
-  },240000);
+  },240000); } catch(error) {
+    // Report only fixture name and job metadata, never application logs or document contents.
+    const states=db.prepare('SELECT type,status,progress FROM AnalysisJob WHERE documentId=?').all(documentId);
+    throw new Error(`${path.basename(file)}: ${error.message}; jobs=${JSON.stringify(states)}`);
+  }
   const doc=db.prepare('SELECT textContent FROM Document WHERE id=?').get(documentId);
   assert.ok(doc.textContent.length>20);
   const vectors=db.prepare('SELECT length(embedding) AS bytes FROM DocumentChunk WHERE documentId=?').all(documentId);
