@@ -101,6 +101,14 @@ try {
   const imageDoc=ids[files.findIndex(f=>f.endsWith('09_xmind_anh_nhung.xmind'))];
   const imageText=db.prepare('SELECT textContent FROM Document WHERE id=?').get(imageDoc).textContent;
   assert.match(imageText,/Database transactions/);assert.match(imageText,/OSPF/);assert.match(imageText,/log V/);
+  const englishChunk=db.prepare("SELECT id,pageNumber FROM DocumentChunk WHERE documentId=? AND sourceLabel LIKE '%Ảnh tiếng Anh%OCR%' LIMIT 1").get(imageDoc);
+  assert.ok(englishChunk);
+  await page.goto(`${origin}/documents/${imageDoc}?chunk=${englishChunk.id}&from=search&mode=visual#matched-chunk`);
+  const sourceBranch=page.frameLocator('iframe').locator('#matched-preview');
+  await sourceBranch.waitFor();
+  assert.ok((await sourceBranch.getAttribute('data-path')).endsWith('Ảnh tiếng Anh'));
+  await sourceBranch.locator('img.mindmap-image').waitFor();
+  record('Open related OCR result selects exact English image branch, not similar Vietnamese branch');
   const reextract=await fetch(`${origin}/api/documents/${imageDoc}/reextract`,{method:'POST'});
   assert.ok(reextract.ok,await reextract.text());
   await until(()=>{

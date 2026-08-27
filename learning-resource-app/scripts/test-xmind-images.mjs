@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import JSZip from 'jszip';
 import { createCanvas } from '@napi-rs/canvas';
+import { load } from 'cheerio';
 import { readXmind, extractXmind } from '../src/lib/documents/extract-xmind.ts';
 import { renderDocumentPreview } from '../src/lib/documents/render-document-preview.ts';
 import { xmindResourcePath, rasterInfo, createXmindImageReader } from '../src/lib/documents/xmind-images.ts';
@@ -27,6 +28,12 @@ try {
     for(const marker of ['trạng thái liên kết','Mạng máy tính','cơ sở dữ liệu','Database transactions','data integrity','Dijkstra','log V']) assert.ok(result.text.includes(marker),`${name}: ${marker}\n${result.text}`);
     const ocr=result.sections.filter(s=>s.sourceLabel.includes('(OCR'));
     assert.equal(ocr.length,4,'VI, EN, formula, reused VI; blank does not generate text');
+    for(const section of ocr) {
+      for(const text of [section.text, 'Later chunk without the repeated branch title']) {
+        const matched=await renderDocumentPreview(buffer,'XMIND',name,section.pageNumber,text,section.sourceLabel);
+        assert.equal(load(matched.html)('#matched-preview').attr('data-path'),section.text.split('\n')[0],'Open exact image branch, including Vietnamese/English names that normalize to similar words');
+      }
+    }
     assert.ok(ocr.some(s=>s.pageNumber===2 && s.sourceLabel.includes('Ảnh Việt được dùng lại')));
     assert.ok(result.warnings.length>=4,'Blank, corrupt, missing and external reported without losing native text');
     assert.ok(!result.text.includes('example.invalid'),'Warnings are not indexed as document content');

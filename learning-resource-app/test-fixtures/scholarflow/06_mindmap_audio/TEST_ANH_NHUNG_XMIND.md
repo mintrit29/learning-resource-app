@@ -16,6 +16,7 @@ Giữ bộ file này trong Git để cả nhóm dùng lại. Không dùng tài l
 ## Kết quả đã đo / giới hạn
 
 - Test tự động JSON/XML, chữ Việt/Anh/công thức mẫu, ảnh lặp ở sơ đồ khác, blank/corrupt/missing/external, đường dẫn thoát ZIP, ảnh nén quá lớn: đạt trên runtime local ngày 27/08/2026.
+- Bổ sung 28/08: kiểm JPEG/WebP, ảnh trong ghi chú HTML và mở đúng nhánh nguồn. Đã phát hiện/sửa nhầm nhánh tiếng Anh → tiếng Việt do so khớp bỏ dấu; giờ ưu tiên đường dẫn nhánh lưu trong chunk, kể cả chunk dài không lặp tên nhánh ở đầu.
 - Có lỗi dấu cụ thể: `Định tuyến` có thể thành `Định tuyên`. Không cam kết OCR đúng 100%; bảng phức tạp, chữ nhỏ, công thức nhiều tầng và hình không có chữ vẫn có giới hạn. Không suy luận nội dung sơ đồ.
 - Chỉ ảnh nằm trong resources/attachments của file. Không tải URL ngoài, không đọc đường dẫn trên máy. PNG/JPEG/WebP tối đa 8 MB/ảnh, 32 MB tổng, 100 lượt ảnh, 16 triệu pixel/ảnh. Vượt giới hạn báo riêng và giữ chữ nhánh.
 - JSON topic.image và ghi chú HTML dạng chuỗi, XML xhtml:img được đọc; định dạng ghi chú phong phú riêng của từng bản XMind chưa được cam kết đầy đủ.

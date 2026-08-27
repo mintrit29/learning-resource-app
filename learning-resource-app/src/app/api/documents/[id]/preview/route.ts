@@ -48,8 +48,8 @@ export async function GET(
       fileType: true,
       originalFileName: true,
       chunks: matchedChunkId
-        ? { where: { id: matchedChunkId }, select: { content: true }, take: 1 }
-        : { where: { id: "__none__" }, select: { content: true }, take: 1 },
+        ? { where: { id: matchedChunkId }, select: { content: true, sourceLabel: true }, take: 1 }
+        : { where: { id: "__none__" }, select: { content: true, sourceLabel: true }, take: 1 },
     },
   });
   if (!document) return errorPage("Không tìm thấy tài liệu.", 404);
@@ -69,6 +69,7 @@ export async function GET(
       document.originalFileName,
       ["PPTX", "EPUB", "XMIND"].includes(document.fileType) ? itemNumber : undefined,
       document.chunks[0]?.content,
+      document.chunks[0]?.sourceLabel ?? undefined,
     );
     return new Response(preview.html, { headers: previewHeaders() });
   } catch (error) {

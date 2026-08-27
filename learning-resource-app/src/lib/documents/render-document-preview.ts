@@ -85,13 +85,24 @@ function normalizeMatchText(value: string) {
     .trim();
 }
 
-function highlightPreviewMatch(html: string, matchText?: string) {
+function highlightPreviewMatch(html: string, matchText?: string, sourceLabel?: string) {
+  const $ = cheerio.load(html);
+  if ($(".mindmap-tree").length) {
+    // OCR text is not DOM text. Its recorded branch path is authoritative;
+    // accent-insensitive token scoring confuses "ảnh" with "Anh".
+    const sourcePath = sourceLabel?.replace(/^Sơ đồ \d+ · /, "").replace(/ · Ảnh \d+ \(OCR Việt–Anh\)$/, "");
+    const expected = (sourcePath || matchText?.split("\n")[0] || "").normalize("NFC").trim();
+    const exact = $(".mindmap-node").filter((_, node) => ($(node).attr("data-path") ?? "").normalize("NFC").trim() === expected).first();
+    if (expected && exact.length) {
+      exact.attr("id", "matched-preview").addClass("matched-preview");
+      return $.html();
+    }
+  }
   const normalizedMatch = normalizeMatchText(matchText ?? "");
   if (!normalizedMatch) return html;
   const matchTokens = [...new Set(normalizedMatch.split(" ").filter((token) => token.length >= 3))];
   if (!matchTokens.length) return html;
 
-  const $ = cheerio.load(html);
   let bestMatch = $("__scholarflow_no_match__");
   let bestScore = 0;
   if ($(".mindmap-tree").length) scoreCandidates(".mindmap-node");
@@ -403,6 +414,7 @@ export async function renderDocumentPreview(
   title: string,
   itemNumber?: number,
   matchText?: string,
+  sourceLabel?: string,
 ): Promise<RenderedDocumentPreview> {
   let preview: RenderedDocumentPreview;
   switch (fileType) {
@@ -415,5 +427,5 @@ export async function renderDocumentPreview(
     case "PPTX": preview = await renderPptx(buffer, title, itemNumber); break;
     case "EPUB": preview = await renderEpub(buffer, title, itemNumber); break;
   }
-  return { ...preview, html: highlightPreviewMatch(preview.html, matchText) };
+  return { ...preview, html: highlightPreviewMatch(preview.html, matchText, sourceLabel) };
 }
