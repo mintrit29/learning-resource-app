@@ -172,6 +172,6 @@ Ngoài truy vấn chữ, người dùng có thể mở ảnh, PDF, DOCX, PPTX ho
 - BGE-M3 chạy CPU có thể chậm với tài liệu rất lớn.
 - Lần đầu cần tải model khoảng 2,1 GB và phụ thuộc tốc độ mạng.
 - OCR tiếng Việt/Anh trên bản scan mờ, công thức viết tay hoặc biểu đồ phức tạp có thể chưa chính xác hoàn toàn.
-- OCR mind map ảnh/PDF chỉ lập chỉ mục phần chữ, chưa suy luận đường nối. XMind đọc cây cha-con có sẵn, ghi chú và nhãn; xem trước dạng cây, chưa đọc ảnh/tập tin đính kèm, liên kết chéo hoặc file có mật khẩu. Giới hạn XMind: 25 MB, 200 sơ đồ, 5.000 nhánh, 64 cấp và 8 MB chữ sau giải nén. Whisper Base có thể sai tên riêng, thương hiệu, giọng nhiễu hoặc nhiều người nói; audio giới hạn 25 MB và 60 phút.
+- OCR mind map ảnh/PDF chỉ lập chỉ mục phần chữ, chưa suy luận đường nối. XMind đọc cây cha-con, ghi chú/nhãn và OCR ảnh nhúng PNG/JPEG/WebP; xem trước dạng nhánh tự sắp xếp. Không đọc liên kết ảnh ngoài, file đính kèm khác, liên kết chéo hoặc file có mật khẩu. Giới hạn XMind: 25 MB, 200 sơ đồ, 5.000 nhánh, 64 cấp, 8 MB chữ sau giải nén; ảnh tối đa 8 MB/ảnh, 32 MB tổng, 100 lượt và 16 MP/ảnh. Whisper Base có thể sai tên riêng, thương hiệu, giọng nhiễu hoặc nhiều người nói; audio giới hạn 25 MB và 60 phút.
 - OpenRouter và Custom API có thể phát sinh chi phí hoặc giới hạn theo nhà cung cấp.
 - OCR bảng, nhãn biểu đồ và công thức ảnh phức tạp có thể chưa hoàn hảo; MVP cho phép sửa query trước khi tìm và không tích hợp model công thức thử nghiệm thiếu ổn định.

@@ -99,6 +99,7 @@ export function VisualResourceSearch() {
   const [isSearching, setIsSearching] = useState(false);
   const [isPanning, setIsPanning] = useState(false);
   const [error, setError] = useState("");
+  const [ocrWarning, setOcrWarning] = useState(restoredDraft?.ocrWarning ?? "");
   const pdf = usePdfPage(file, currentPreviewItem);
 
   const restoreViewport = useCallback(() => {
@@ -209,11 +210,12 @@ export function VisualResourceSearch() {
       capturedPreview,
       results,
       searchStatus,
+      ocrWarning,
       viewport: viewportRef.current,
       canvasBaseSize,
       frameSize,
     });
-  }, [file, previewHtml, previewItemCount, currentPreviewItem, zoom, viewerMode, selection, query, capturedPreview, results, searchStatus, canvasBaseSize, frameSize]);
+  }, [file, previewHtml, previewItemCount, currentPreviewItem, zoom, viewerMode, selection, query, capturedPreview, results, searchStatus, ocrWarning, canvasBaseSize, frameSize]);
 
   async function runSearch(searchQuery: string, sequence = ++requestSequenceRef.current) {
     const normalizedQuery = searchQuery.trim().slice(0, 500);
@@ -296,6 +298,7 @@ export function VisualResourceSearch() {
     }
     const sequence = ++requestSequenceRef.current;
     setError("");
+    setOcrWarning("");
     setIsCapturing(true);
     setIsRecognizing(false);
     let ocrTimeout: number | undefined;
@@ -315,14 +318,14 @@ export function VisualResourceSearch() {
         ocrTimeout = window.setTimeout(() => controller.abort(), 90_000);
         for (const imageDataUrl of captures) {
           try {
-          const response = await fetch("/api/search/visual/ocr", {
-            method: "POST", headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ imageDataUrl }), signal: controller.signal,
-          });
-          const data = await readJsonResponse<{ text?: string; message?: string }>(response, "Dịch vụ OCR ảnh chưa sẵn sàng.");
-          if (sequence !== requestSequenceRef.current) return;
-          if (response.ok && data.text) parts.push(data.text);
-          else failures.push(data.message ?? "Không đọc được chữ trong ảnh đã chọn.");
+            const response = await fetch("/api/search/visual/ocr", {
+              method: "POST", headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ imageDataUrl }), signal: controller.signal,
+            });
+            const data = await readJsonResponse<{ text?: string; message?: string }>(response, "Dịch vụ OCR ảnh chưa sẵn sàng.");
+            if (sequence !== requestSequenceRef.current) return;
+            if (response.ok && data.text) parts.push(data.text);
+            else failures.push(data.message ?? "Không đọc được chữ trong ảnh đã chọn.");
           } catch (caught) {
             if (sequence !== requestSequenceRef.current) return;
             failures.push(caught instanceof Error ? caught.message : "Không đọc được ảnh.");
@@ -332,7 +335,7 @@ export function VisualResourceSearch() {
         const text = [...new Set(parts.map(part => part.trim()).filter(Boolean))].join("\n");
         if (!text) throw new Error(failures[0] ?? "Vùng này không có chữ. Hãy chọn tên nhánh, ghi chú hoặc ảnh có chữ.");
         setQuery(text);
-        if (failures.length) setError(`Đã lấy chữ gốc; một phần ảnh chưa đọc được: ${failures[0]}`);
+        if (failures.length) setOcrWarning(`Đã giữ phần chữ đọc được; một phần ảnh chưa đọc được: ${failures[0]}`);
         return;
       }
       await nextAnimationFrame();
@@ -497,6 +500,7 @@ export function VisualResourceSearch() {
     setSelection(null);
     setDraftSelection(null);
     setQuery("");
+    setOcrWarning("");
     setCapturedPreview("");
     setResults([]);
     setSearchStatus(null);
@@ -564,6 +568,7 @@ export function VisualResourceSearch() {
     searchAbortRef.current?.abort();
     lastSearchQueryRef.current = "";
     setQuery("");
+    setOcrWarning("");
     setCapturedPreview("");
     setResults([]);
     setSearchStatus(null);
@@ -925,6 +930,7 @@ export function VisualResourceSearch() {
             <button disabled={isSearching || query.trim().length < 2} type="submit"><Search size={16} /> Tìm lại</button>
           </form>
 
+          {ocrWarning ? <p className="visual-ocr-warning" role="status">{ocrWarning}</p> : null}
           {error || pdf.error ? <div className="search-error"><strong>Chưa tìm được</strong><p>{error || pdf.error}</p></div> : null}
           {!error && searchStatus && results.length === 0 ? <div className="visual-no-results"><FileSearch size={24} /><strong>{searchStatus === "EMPTY_LIBRARY" ? "Thư viện chưa có tài liệu" : "Không có tài liệu phù hợp"}</strong><span>{searchStatus === "EMPTY_LIBRARY" ? "Hãy thêm tài liệu vào thư viện trước." : "Thử chọn thêm phần chữ hoặc chú thích quanh nội dung."}</span></div> : null}
           {results.length ? (

@@ -56,11 +56,12 @@ export async function readXmind(buffer: Buffer): Promise<Sheet[]> {
       if (!Object.keys(node).length) throw new Error("Cấu trúc nhánh XMind không hợp lệ.");
       const notes = object(node.notes);
       const html = clean(object(notes.html).content);
+      const $html = html ? cheerio.load(html) : null;
       return {
         title: clean(node.title),
-        notes: clean(object(notes.plain).content) || (html ? cheerio.load(html).text().trim() : ""),
+        notes: clean(object(notes.plain).content) || ($html ? $html.text().trim() : ""),
         labels: (Array.isArray(node.labels) ? node.labels : [node.labels]).map(clean).filter(Boolean),
-        images: [...new Set([clean(object(node.image).src), ...(html ? cheerio.load(html)("img").toArray().map(img => clean(cheerio.load(html)(img).attr("src"))) : [])].filter(Boolean))].map(source => ({ source })),
+        images: [...new Set([clean(object(node.image).src), ...($html ? $html("img").toArray().map(img => clean($html(img).attr("src"))) : [])].filter(Boolean))].map(source => ({ source })),
         children: Object.entries(object(node.children)).flatMap(([kind, group]) => {
           if (!Array.isArray(group)) throw new Error("Danh sách nhánh XMind không hợp lệ.");
           return group.map((child) => ({ ...topic(child, depth + 1), detached: kind === "detached" }));

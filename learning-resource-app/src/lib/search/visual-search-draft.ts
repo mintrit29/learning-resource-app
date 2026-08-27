@@ -26,6 +26,7 @@ export type VisualSearchDraft = {
   selection: VisualSelection | null;
   query: string;
   capturedPreview: string;
+  ocrWarning?: string;
   results: VisualSearchResult[];
   searchStatus: VisualSearchStatus | null;
   viewport?: { left: number; top: number; pageTop: number; resultsTop: number };

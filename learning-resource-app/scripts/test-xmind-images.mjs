@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import JSZip from 'jszip';
+import { createCanvas } from '@napi-rs/canvas';
 import { readXmind, extractXmind } from '../src/lib/documents/extract-xmind.ts';
 import { renderDocumentPreview } from '../src/lib/documents/render-document-preview.ts';
 import { xmindResourcePath, rasterInfo, createXmindImageReader } from '../src/lib/documents/xmind-images.ts';
@@ -40,5 +41,24 @@ try {
   const reader=createXmindImageReader(zip);
   assert.match((await reader('xap:resources/bomb.png')).warning,/16 triệu/);
   assert.match((await reader('xap:resources/huge.png')).warning,/8 MB/);
+  const canvas=createCanvas(40,30); canvas.getContext('2d').fillRect(0,0,40,30);
+  const formats=new JSZip();
+  for(const mime of ['image/png','image/jpeg','image/webp']) {
+    const name=`resources/${mime.split('/')[1]}`;
+    formats.file(name,canvas.toBuffer(mime));
+    const parsed=await createXmindImageReader(formats)(`xap:${name}`);
+    assert.equal(parsed.width,40); assert.equal(parsed.height,30);
+    assert.ok(parsed.dataUrl.startsWith(`data:${mime};`));
+  }
+  formats.file('resources/vector.svg','<svg onload="alert(1)"/>');
+  assert.ok((await createXmindImageReader(formats)('xap:resources/vector.svg')).warning);
+  const repeated=createXmindImageReader(formats);
+  for(let i=0;i<100;i++) assert.ok((await repeated('xap:resources/png')).dataUrl);
+  assert.match((await repeated('xap:resources/png')).warning,/100 ảnh/);
+  const htmlZip=await JSZip.loadAsync(await readFile(path.join(base,'09_xmind_anh_nhung.xmind')));
+  htmlZip.file('content.json',JSON.stringify([{rootTopic:{title:'Notes',notes:{html:{content:'<p>Chữ gốc</p><img src="xap:resources/vi.png">'}}}}]));
+  const htmlSheets=await readXmind(await htmlZip.generateAsync({type:'nodebuffer'}));
+  assert.equal(htmlSheets[0].root.notes,'Chữ gốc');
+  assert.ok(htmlSheets[0].root.images[0].dataUrl);
   console.log('PASS embedded XMind images: JSON/XML, real VI/EN/formula OCR, branch/page attribution, preview, blank/corrupt/missing/external, path and decompression guards');
 } finally { await shutdownVietnameseOcr(); }
