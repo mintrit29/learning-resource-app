@@ -4,6 +4,8 @@ ScholarFlow là ứng dụng desktop Windows giúp sinh viên lưu trữ, phân 
 
 > Bản desktop hiện nằm trên nhánh `main`, dùng Electron, SQLite và các runtime cục bộ. Không có tài khoản/Supabase. Trích xuất và tìm kiếm chạy local; nếu chủ động bật AI trực tuyến, nội dung phục vụ phân tích sẽ được gửi đến provider đã cấu hình.
 
+> **28/08/2026 — ưu tiên chốt bản dev:** nhóm chạy bằng `npm run dev`. Tạm dừng phát hành EXE; không cần đóng gói lại mỗi lần sửa code. CI vẫn kiểm lint/unit/build/standalone nhưng không tạo bộ cài khi push/PR. Các báo cáo EXE trong bộ test là lịch sử kiểm thử, không phải hướng dẫn tải bản hiện hành.
+
 ## Chức năng chính
 
 - Mở thẳng vào thư viện cục bộ, không cần đăng ký hoặc đăng nhập.
@@ -74,7 +76,7 @@ Lệnh `npm run dev` mở cửa sổ Electron, không mở một sản phẩm we
 ```powershell
 npm run lint
 npm run test:unit
-npm run build
+npm run desktop:build
 npm run test:desktop-runtime
 ```
 
@@ -89,18 +91,22 @@ Kiểm thử thủ công đầy đủ nằm trong `learning-resource-app\test-fi
 
 ## Đóng gói bộ cài Windows
 
+Chỉ thực hiện khi nhóm đã nghiệm thu bản dev và yêu cầu phát hành cuối. Giữ cấu hình/script đóng gói để dùng lại; không chạy trong vòng lặp sửa code thông thường.
+
 ```powershell
 npm run desktop:package
 ```
 
 Bộ cài được tạo trong `learning-resource-app\dist-electron`. Thư mục build và file cài đặt không được commit vào repo; bản phát hành được tải lên GitHub Releases.
 
+Trên GitHub, chạy CI thủ công với `test_installer=true` trên commit cần phát hành, đợi kiểm bản cài đạt rồi mới chạy thủ công workflow `Release desktop` với tag đúng commit đó. Push code hoặc push tag không tự tạo/phát hành EXE.
+
 ## Giới hạn hiện tại
 
 - Tài liệu lớn có thể tạo embedding chậm khi chỉ dùng CPU.
 - OCR tài liệu scan chạy trên CPU nên chậm hơn PDF có text; chất lượng công thức và biểu đồ phụ thuộc độ nét của bản scan.
 - OCR bảng/công thức/biểu đồ ưu tiên trích xuất chữ và ký hiệu để tìm kiếm, không diễn giải quan hệ thị giác hoặc giải bài tập.
-- Mind map ảnh/PDF được tìm bằng chữ, không suy luận đường nối. XMind giữ cây cha-con có sẵn; chưa đọc ảnh/tập tin đính kèm, liên kết chéo hay file có mật khẩu. Bộ test mới: [PDF/XMind](learning-resource-app/test-fixtures/scholarflow/06_mindmap_audio/TEST_PDF_XMIND.md).
+- Mind map ảnh/PDF được tìm bằng chữ, không suy luận đường nối. XMind giữ cây cha-con và đọc/OCR ảnh nhúng PNG/JPEG/WebP; chưa đọc tập tin đính kèm khác, liên kết chéo hay file có mật khẩu. Bộ test mới: [PDF/XMind](learning-resource-app/test-fixtures/scholarflow/06_mindmap_audio/TEST_PDF_XMIND.md).
 - Audio giới hạn 25 MB và tối đa 60 phút. Whisper Base nhận tốt lời nói rõ bằng tiếng Việt/Anh nhưng tên riêng, thương hiệu, tiếng ồn hoặc nhiều người nói có thể cần sửa bản chép lời.
 - Phân tích metadata cần một kết nối AI hợp lệ; thư viện và tìm kiếm vẫn dùng dữ liệu đã xử lý cục bộ.
 - Chưa có đồng bộ dữ liệu giữa nhiều máy.

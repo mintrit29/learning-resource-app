@@ -236,6 +236,18 @@ Kiểm tra nhanh ngày 15/08/2026: unit validation vùng/payload/query merge/ses
 
 ## J. Kiểm thử, Git và phát hành
 
+### Trạng thái hiện tại — dev trước / EXE sau (28/08/2026)
+
+- [x] Gỡ bản cài 0.1.5 trên máy, giữ database/tài liệu/model (hash database trước/sau giống nhau).
+- [x] Dọn `dist-electron`, bộ cài tải về 0.1.4/0.1.5 và checksum tạm (khoảng 1,63 GB); không xóa bộ test hoặc dependency dev.
+- [x] Chuyển CI tự động sang kiểm source/build/standalone, không tạo EXE; bỏ tự phát hành khi push tag. Kiểm installer/release chỉ gọi thủ công sau nghiệm thu dev.
+- [x] Sau dọn EXE: lint, toàn bộ unit và kiểm cấu hình workflow đạt; các dependency dev vẫn nguyên vẹn. Không build EXE trong lượt dọn này.
+- [ ] Hoàn tất gỡ 6 GitHub Releases EXE 0.1.0–0.1.5; đang chờ xác nhận thao tác trình duyệt, giữ tag/commit.
+- [ ] Điều tra thêm độ trễ embedding lần đầu trên CPU; chưa coi là đã sửa.
+- [ ] Nghiệm thu bản dev rồi mới đóng gói/kiểm installer và phát hành bản cuối theo yêu cầu mới.
+
+Các mục EXE đã đạt bên dưới lưu lịch sử, không có nghĩa đang tiếp tục build/phát hành tự động.
+
 - [x] ESLint đạt trên working tree local-only.
 - [x] TypeScript `--noEmit` đạt.
 - [x] Toàn bộ `test:unit` đạt.

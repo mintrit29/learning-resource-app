@@ -14,7 +14,9 @@
 **/dist-electron/
 **/coverage/
 **/release-test-results/
-**/release-test-results/
+# Generated ScholarFlow installers must never enter source control.
+ScholarFlow-Setup-*.exe
+ScholarFlow-Setup-*.exe.blockmap
 **/.pnp
 **/.pnp.*
 **/.yarn/*

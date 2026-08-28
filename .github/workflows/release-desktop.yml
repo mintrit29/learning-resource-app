@@ -1,8 +1,7 @@
 name: Release desktop
 
 on:
-  push:
-    tags: ['v*-desktop']
+  # No automatic release on tag push while the team is validating dev.
   workflow_dispatch:
     inputs:
       tag:
@@ -28,7 +27,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           $sha = git rev-parse HEAD
-          $runs = gh run list --workflow ci.yml --commit $sha --branch main --status success --json databaseId --limit 1 | ConvertFrom-Json
+          $runs = gh run list --workflow ci.yml --event workflow_dispatch --commit $sha --branch main --status success --json databaseId --limit 1 | ConvertFrom-Json
           if ($LASTEXITCODE -ne 0 -or @($runs).Count -ne 1) { throw 'No successful installed-EXE CI for this exact commit; release blocked.' }
           gh run download $runs[0].databaseId --name windows-release-tested --dir tested-release
           if ($LASTEXITCODE -ne 0) { throw 'Cannot download tested installer' }

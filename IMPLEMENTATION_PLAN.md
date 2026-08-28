@@ -268,6 +268,15 @@ Backup/restore, gộp nhiều vùng và OCR công thức ảnh bằng model chuy
 
 ## 9. Điều kiện hoàn thành sản phẩm
 
+### Quyết định mới — 28/08/2026: chốt dev trước, EXE sau
+
+- Theo yêu cầu người dùng, tạm dừng phát hành EXE và dùng `npm run dev` để nghiệm thu/sửa lỗi.
+- CI push/PR chỉ lint, unit, desktop build/standalone; không đóng gói, cài EXE hay tải artifact bộ cài. Kiểm installer chỉ chạy khi gọi CI thủ công với `test_installer=true`; release cũng chỉ gọi thủ công sau nghiệm thu.
+- Gỡ bản cài trên máy và artifact đóng gói trong workspace; giữ dữ liệu/model, mã nguồn, cấu hình packaging và toàn bộ bộ test. GitHub Releases đang chờ xác nhận xóa qua trình duyệt; chưa được ghi nhận hoàn tất.
+- Kết quả kiểm EXE 0.1.4/0.1.5 bên dưới là lịch sử, không phải yêu cầu tạo thêm EXE trong giai đoạn dev.
+- Tiếp tục theo dõi độ trễ embedding lần đầu: ca thêm môn trên máy kiểm thử mất khoảng 207 giây, lượt đã nóng 315 ms. Chưa chốt nguyên nhân hoặc tuyên bố đã sửa hiệu năng.
+- Bản sửa Custom API/upload và bằng chứng kiểm thử: [báo cáo 28/08](learning-resource-app/test-fixtures/scholarflow/06_mindmap_audio/KET_QUA_EXE_0.1.5.md).
+
 ### Bổ sung ảnh XMind và phát hành 0.1.4 (27/08)
 
 Đã thêm đọc ảnh nội bộ ZIP an toàn, hiển thị trong nhánh, OCR Việt–Anh khi upload và chỉ OCR vùng ảnh khi tìm kiếm. Chữ nhánh luôn lấy native. Ảnh không đọc được có cảnh báo, không mất phần chữ khác. Bộ test mới đo được lỗi dấu `tuyến` → `tuyên`; không cam kết OCR hoàn hảo.

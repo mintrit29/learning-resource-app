@@ -57,9 +57,13 @@ export async function runReleaseApiRegression(origin, record = console.log) {
   const name=`QA temporary ${Date.now()}`;
   try {
     await check('Subject create/edit/duplicate',async()=>{
-      const created=await json('/api/tags',post({name,description:'Môn học kiểm thử'}),201);tagId=created.tag.id;
+      // First real BGE inference on a cold CPU can exceed the HTTP-only 30s budget.
+      // Keep a finite limit and report timing; do not replace inference with a mock.
+      const started=Date.now();
+      const created=await json('/api/tags',{...post({name,description:'Môn học kiểm thử'}),signal:AbortSignal.timeout(240000)},201);tagId=created.tag.id;
       await json('/api/tags',post({name}),409);
-      await json(`/api/tags/${tagId}`,{...post({name:name+' renamed'}),method:'PATCH'},200);
+      await json(`/api/tags/${tagId}`,{...post({name:name+' renamed'}),method:'PATCH',signal:AbortSignal.timeout(240000)},200);
+      record(`Subject real embedding create/edit elapsed: ${Date.now()-started}ms`);
     });
   } finally {
     if(tagId) await check('Delete only test subject',()=>json(`/api/tags/${tagId}`,{method:'DELETE'},200));

@@ -4,6 +4,12 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
+    inputs:
+      test_installer:
+        description: Build and test EXE only after the dev version is approved
+        type: boolean
+        default: false
 
 jobs:
   desktop-quality:
@@ -25,11 +31,17 @@ jobs:
       - run: npm run docling:prepare
       - run: npm run lint
       - run: npm run test:unit
-      - run: npm run desktop:package
+      # Normal pushes validate source without producing an installer.
+      - run: npm run desktop:build
       - run: npm run test:desktop-runtime
+      - name: Build installer only on explicit manual request
+        if: github.event_name == 'workflow_dispatch' && inputs.test_installer
+        run: npx --no-install electron-builder --config electron-builder.yml --win nsis
       - name: Install and test real EXE on isolated Windows runner
+        if: github.event_name == 'workflow_dispatch' && inputs.test_installer
         run: npm run test:installed-release
       - name: Record installer checksum
+        if: github.event_name == 'workflow_dispatch' && inputs.test_installer
         shell: pwsh
         run: |
           $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
@@ -37,12 +49,13 @@ jobs:
           $hash = (Get-FileHash -LiteralPath $file -Algorithm SHA256).Hash.ToLowerInvariant()
           "$hash  ScholarFlow-Setup-$version.exe" | Set-Content release-test-results/SHA256SUMS.txt
       - uses: actions/upload-artifact@v4
-        if: always()
+        if: always() && github.event_name == 'workflow_dispatch' && inputs.test_installer
         with:
           name: installed-exe-diagnostics
           path: learning-resource-app/release-test-results/
           retention-days: 14
       - uses: actions/upload-artifact@v4
+        if: github.event_name == 'workflow_dispatch' && inputs.test_installer
         with:
           name: windows-release-tested
           path: |
