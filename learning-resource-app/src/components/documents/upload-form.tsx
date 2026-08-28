@@ -22,6 +22,7 @@ import {
 } from "@/lib/documents/upload-policy";
 import {
   clearUploadDraft,
+  getUploadFeedback,
   readUploadDraft,
   saveUploadDraft,
   type UploadDraftItem as UploadItem,
@@ -50,7 +51,7 @@ export function UploadForm() {
   const [error, setError] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
-  const [needsComponent, setNeedsComponent] = useState(false);
+  const feedback = getUploadFeedback(items, isUploading);
 
   useEffect(() => {
     folderInputRef.current?.setAttribute("webkitdirectory", "");
@@ -66,6 +67,7 @@ export function UploadForm() {
   }, [items]);
 
   function chooseFiles(candidates: File[]) {
+    if (isUploading) return;
     setError("");
     if (!candidates.length) return;
 
@@ -114,14 +116,13 @@ export function UploadForm() {
     if (!pendingItems.length) return;
 
     setError("");
-    setNeedsComponent(false);
     setIsUploading(true);
     let uploadedCount = 0;
     let failedCount = 0;
     let firstDocumentId: string | undefined;
 
     for (const item of pendingItems) {
-      updateItem(item.id, { status: "uploading", message: undefined });
+      updateItem(item.id, { status: "uploading", message: undefined, needsComponent: false });
       const formData = new FormData();
       formData.append("file", item.file);
 
@@ -140,8 +141,8 @@ export function UploadForm() {
           updateItem(item.id, {
             status: "error",
             message: data.message ?? "Không thể thêm tài liệu.",
+            needsComponent: Boolean(data.setupUrl),
           });
-          if (data.setupUrl) setNeedsComponent(true);
           continue;
         }
 
@@ -160,7 +161,6 @@ export function UploadForm() {
 
     setIsUploading(false);
     if (failedCount > 0) {
-      setError(`${failedCount} file chưa tải lên được. Bạn có thể bấm thử lại.`);
       router.refresh();
       return;
     }
@@ -289,8 +289,8 @@ export function UploadForm() {
           </div>
         )}
       </div>
-      {error ? <p className="upload-error">{error}</p> : null}
-      {needsComponent ? <p className="foundation-note"><Link href="/settings/components">Mở Thành phần cục bộ để tải thành phần còn thiếu</Link></p> : null}
+      {error || feedback.message ? <p className="upload-error">{error || feedback.message}</p> : null}
+      {feedback.needsComponent ? <p className="foundation-note"><Link href="/settings/components">Mở Thành phần cục bộ để tải thành phần còn thiếu</Link></p> : null}
       {items.length ? (
         <div className="upload-actions">
           <p>

@@ -1,11 +1,22 @@
 # Project Checklist — ScholarFlow Desktop
 
-**Cập nhật:** 21/08/2026
-**Nhánh:** `desktop-app`
+**Cập nhật:** 28/08/2026
+**Nhánh:** `main`
 **Phạm vi:** desktop Windows, local-only, không đăng ký/đăng nhập, cloud backend, Docker hoặc web app riêng.
 **Quy ước:** chỉ đánh dấu hoàn thành sau khi đã triển khai hoặc kiểm tra thực tế. Các ý tưởng ngoài MVP được ghi rõ, không để lẫn với việc bắt buộc trước release.
 
 ## A. Desktop shell
+
+### Tìm bằng giọng nói — bổ sung bản dev 28/08
+
+- [x] Mic → ghi tối đa 30 giây → chép lời Whisper local → điền query → tự tìm.
+- [x] Dừng/Hủy, Esc, thiếu model, lỗi thiết bị, giới hạn dung lượng/thời gian, không lưu bản ghi vào thư viện.
+- [x] Test hủy khi đang xin quyền/ghi/chép lời, bỏ kết quả cũ, không ghi đè nội dung mới.
+- [x] Test API và FFmpeg thật với WebM im lặng/quá dài/hỏng; kiểm tra origin và quyền audio-only.
+- [x] Chạy hai mẫu thật Việt–Anh qua Whisper Base; nhận được nội dung nhưng tên riêng vẫn có sai số.
+- [x] Electron dev với mic giả: ghi/auto-stop/chép lời/điền query/gọi tìm kiếm. Đã sửa lỗi chặn nhầm Host/Origin trong Next dev.
+- [ ] Người dùng thử mic vật lý, quyền Windows, giọng nói thật và tiếng ồn theo `TEST_TIM_GIONG_NOI.md`.
+- [ ] EXE/release cho thay đổi này: tạm hoãn theo yêu cầu người dùng.
 
 - [x] Đóng gói giao diện Next.js trong Electron.
 - [x] Chỉ chạy dịch vụ nội bộ trên `127.0.0.1` với cổng động.

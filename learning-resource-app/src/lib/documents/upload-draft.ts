@@ -6,7 +6,18 @@ export type UploadDraftItem = {
   status: UploadDraftStatus;
   message?: string;
   documentId?: string;
+  needsComponent?: boolean;
 };
+
+export function getUploadFeedback(items: UploadDraftItem[], isUploading: boolean) {
+  const failed = items.filter((item) => item.status === "error");
+  return {
+    message: !isUploading && failed.length
+      ? `${failed.length} file chưa tải lên được. Bạn có thể bấm thử lại.`
+      : "",
+    needsComponent: failed.some((item) => item.needsComponent),
+  };
+}
 
 const DRAFT_TTL_MS = 30 * 60 * 1_000;
 let draft: { items: UploadDraftItem[]; savedAt: number } | null = null;

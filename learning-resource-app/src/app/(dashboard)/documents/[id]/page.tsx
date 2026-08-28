@@ -13,6 +13,8 @@ import { RetryJobButton } from "@/components/documents/retry-job-button";
 import { ScrollToMatchedChunk } from "@/components/documents/scroll-to-matched-chunk";
 import { db } from "@/lib/db";
 import { getDocumentDisplayStatus } from "@/lib/documents/display-status";
+import { libraryReturnHref } from "@/lib/documents/library-navigation";
+import { isSkippedAnalysisJob, OPTIONAL_ANALYSIS_NOTE } from "@/lib/documents/optional-analysis";
 import { estimateProcessingRemaining } from "@/lib/documents/processing-estimate";
 import { formatDifficulty, formatFileType } from "@/lib/labels";
 import { ensureCurriculumTopics } from "@/lib/taxonomy/curriculum-topics";
@@ -31,6 +33,7 @@ const jobStatusLabels: Record<string, string> = {
   PROCESSING: "Đang xử lý",
   COMPLETED: "Hoàn thành",
   FAILED: "Thất bại",
+  SKIPPED: "Bỏ qua (tùy chọn)",
 };
 
 const processingSteps = [
@@ -51,14 +54,14 @@ export default async function DocumentDetailPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ chunk?: string; from?: string; mode?: string }>;
+  searchParams: Promise<{ chunk?: string; from?: string; mode?: string; returnTo?: string }>;
 }) {
   await ensureCurriculumTopics();
   const { id } = await params;
-  const { chunk: matchedChunkId, from, mode } = await searchParams;
+  const { chunk: matchedChunkId, from, mode, returnTo } = await searchParams;
   const cameFromSearch = from === "search";
   const searchMode = mode === "visual" ? "visual" : "text";
-  const backHref = cameFromSearch ? `/search${searchMode === "visual" ? "?mode=visual" : ""}` : "/documents";
+  const backHref = cameFromSearch ? `/search${searchMode === "visual" ? "?mode=visual" : ""}` : libraryReturnHref(returnTo, id);
   const document = await db.document.findFirst({
     where: { id },
     include: {
@@ -71,13 +74,14 @@ export default async function DocumentDetailPage({
   });
   if (!document) notFound();
 
-  const [missingEmbeddings, topics] = await Promise.all([
+  const [missingEmbeddings, topics, activeProvider] = await Promise.all([
     db.documentChunk.count({ where: { documentId: document.id, embedding: null } }),
     db.tag.findMany({
       where: { isClassificationEnabled: true },
       select: { id: true, name: true },
       orderBy: { name: "asc" },
     }),
+    db.aiProvider.findFirst({ where: { isActive: true }, select: { id: true } }),
   ]);
 
   const matchedChunk = document.chunks[0];
@@ -86,7 +90,7 @@ export default async function DocumentDetailPage({
   );
   const analysisComplete = Boolean(document.difficulty && document.summary);
   const needsProcessing = !document.textContent || document._count.chunks === 0 ||
-    missingEmbeddings > 0 || !analysisComplete;
+    missingEmbeddings > 0 || (Boolean(activeProvider) && !analysisComplete);
   const originalFileHref = `/api/documents/${document.id}/file`;
   const originalFileDownloadHref = `${originalFileHref}?download=1`;
   const extractedTextDownloadHref = `/api/documents/${document.id}/text`;
@@ -128,11 +132,15 @@ export default async function DocumentDetailPage({
         <div className="document-header-actions">
           {!isProcessing && needsProcessing ? <RetryJobButton documentId={document.id} /> : null}
           {!isProcessing ? <ReextractButton documentId={document.id} documentTitle={document.title} /> : null}
-          {!isProcessing && document.textContent ? <ReanalyzeButton documentId={document.id} /> : null}
+          {!isProcessing && document.textContent && activeProvider ? <ReanalyzeButton documentId={document.id} /> : null}
           <span className={`status-pill ${displayStatus.className}`}><i className="status-dot" />{displayStatus.label}</span>
           <DeleteDocumentButton documentId={document.id} documentTitle={document.title} />
         </div>
       </header>
+
+      {!activeProvider && !analysisComplete && document.textContent ? (
+        <p className="foundation-note">{OPTIONAL_ANALYSIS_NOTE} <Link href="/settings/ai-providers">Kết nối AI tùy chọn</Link></p>
+      ) : null}
 
       {document.summary ? (
         <section className="document-analysis-section">
@@ -173,11 +181,12 @@ export default async function DocumentDetailPage({
         <div className="job-list">
           {processingSteps.map((type) => {
             const job = latestJobsByType.get(type);
-            const status = job?.status ?? "PENDING";
+            const skipped = isSkippedAnalysisJob(job);
+            const status = skipped ? "SKIPPED" : job?.status ?? "PENDING";
             return (
               <div className="job-row" key={type}>
-                <i className={`status-dot ${status.toLowerCase()}`} />
-                <div><strong>{jobLabels[type]}</strong>{job?.errorMessage ? <small>{job.errorMessage}</small> : null}</div>
+                <i className={`status-dot ${skipped ? "ready" : status.toLowerCase()}`} />
+                <div><strong>{jobLabels[type]}</strong>{skipped ? <small>{activeProvider ? "Lần xử lý trước chưa có kết nối AI. Bạn có thể bấm Phân tích AI lại." : OPTIONAL_ANALYSIS_NOTE}</small> : job?.errorMessage ? <small>{job.errorMessage}</small> : null}</div>
                 <span className="job-result">{job ? jobStatusLabels[status] : "Chưa chạy"}</span>
               </div>
             );

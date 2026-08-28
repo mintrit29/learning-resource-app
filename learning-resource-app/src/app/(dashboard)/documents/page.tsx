@@ -5,6 +5,7 @@ import { ProcessingRefresh } from "@/components/documents/processing-refresh";
 import { Difficulty, FileType, JobStatus } from "@/generated/prisma/enums";
 import { db } from "@/lib/db";
 import { getDocumentDisplayStatus } from "@/lib/documents/display-status";
+import { libraryHref } from "@/lib/documents/library-navigation";
 import { formatFileType } from "@/lib/labels";
 import { ensureCurriculumTopics } from "@/lib/taxonomy/curriculum-topics";
 
@@ -81,7 +82,7 @@ export default async function DocumentsPage({
         createdAt: true,
         jobs: {
           orderBy: { createdAt: "asc" },
-          select: { type: true, status: true, createdAt: true },
+          select: { type: true, status: true, createdAt: true, errorMessage: true },
         },
       },
     }),
@@ -99,6 +100,7 @@ export default async function DocumentsPage({
   ]);
 
   const hasFilters = Boolean(q || topic || difficulty || fileType || status);
+  const returnTo = libraryHref({ q, topic, difficulty, fileType, status });
   const documents = status
     ? documentRows.filter((document) => {
         const displayStatus = getDocumentDisplayStatus(document, document.jobs);
@@ -215,7 +217,7 @@ export default async function DocumentsPage({
             {documents.map((document) => {
               const displayStatus = getDocumentDisplayStatus(document, document.jobs);
               return (
-                <Link className="document-row" href={`/documents/${document.id}`} key={document.id}>
+                <Link className="document-row" id={`document-${document.id}`} style={{ scrollMarginTop: 100 }} href={`/documents/${document.id}?returnTo=${encodeURIComponent(returnTo)}`} key={document.id}>
                   <div className="document-name">
                     <span>{formatFileType(document.fileType)}</span>
                     <div>

@@ -18,6 +18,7 @@ ScholarFlow là ứng dụng desktop Windows giúp sinh viên lưu trữ, phân 
 - Chia nội dung thành các đoạn và tạo vector BGE-M3 1.024 chiều trên máy.
 - Phân loại tài liệu vào danh sách môn học cố định, đồng thời phân tích độ khó, ngôn ngữ và tóm tắt bằng OpenRouter, Ollama hoặc Custom API.
 - Tìm kiếm kết hợp ngữ nghĩa, từ khóa và bộ lọc metadata.
+- Tìm bằng giọng nói: bấm mic cạnh ô mô tả, nói tối đa 30 giây rồi Dừng; Whisper Base local điền câu chữ và app tự tìm. Có Hủy/Esc, sửa chữ nhận sai; không lưu bản ghi vào thư viện. [Test nhanh mic](learning-resource-app/test-fixtures/scholarflow/06_mindmap_audio/TEST_TIM_GIONG_NOI.md).
 - Tìm bằng ảnh hoặc file theo cách chọn trực tiếp một vùng; OCR vùng chọn rồi dùng nội dung đó làm truy vấn, không tự giải bài tập.
 - Hiển thị đoạn phù hợp nhất, lý do phù hợp và vị trí để mở lại nguồn.
 - Khi mở kết quả, app giữ trạng thái tìm kiếm và đưa bản xem file tới đúng trang, slide, chương hoặc vùng nội dung liên quan.

@@ -1,9 +1,11 @@
 import { DocumentStatus, JobStatus, JobType } from "@/generated/prisma/enums";
+import { isSkippedAnalysisJob } from "./optional-analysis";
 
 type JobLike = {
   type: JobType | string;
   status: JobStatus | string;
   createdAt?: Date;
+  errorMessage?: string | null;
 };
 
 type DocumentLike = {
@@ -65,6 +67,10 @@ export function getDocumentDisplayStatus(document: DocumentLike, jobs: JobLike[]
 
   if (isRunning(analysisJob?.status)) {
     return { label: "Đang phân tích AI", className: "processing", isReadyToAsk: false };
+  }
+
+  if (isSkippedAnalysisJob(analysisJob)) {
+    return { label: "Sẵn sàng tìm kiếm · Chưa phân tích AI", className: "ready", isReadyToAsk: true };
   }
 
   if (analysisJob?.status === JobStatus.FAILED) {

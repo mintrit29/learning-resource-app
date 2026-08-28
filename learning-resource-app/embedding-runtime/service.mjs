@@ -268,23 +268,29 @@ async function loadWhisperModel() {
   return transcriptionState.loadingPromise;
 }
 
-async function decodeAudio(audio, extension) {
+async function decodeAudio(audio, extension, voice = false) {
   if (!ffmpegPath) throw new Error("FFmpeg runtime is unavailable");
-  const workDirectory = await mkdtemp(path.join(os.tmpdir(), "scholarflow-audio-"));
-  const inputPath = path.join(workDirectory, `input.${extension}`);
+  // Microphone recordings stay in memory. Uploaded documents keep their existing decoder.
+  const workDirectory = voice ? null : await mkdtemp(path.join(os.tmpdir(), "scholarflow-audio-"));
+  const inputPath = workDirectory ? path.join(workDirectory, `input.${extension}`) : "pipe:0";
+  const maxPcmBytes = voice ? 32 * 16000 * 4 : MAX_AUDIO_PCM_BYTES;
   try {
-    await writeFile(inputPath, audio);
+    if (workDirectory) await writeFile(inputPath, audio);
     return await new Promise((resolve, reject) => {
       const child = spawn(ffmpegPath, [
         "-hide_banner", "-loglevel", "error", "-i", inputPath,
         "-f", "f32le", "-acodec", "pcm_f32le", "-ac", "1", "-ar", "16000", "pipe:1",
-      ], { windowsHide: true, stdio: ["ignore", "pipe", "pipe"] });
+      ], { windowsHide: true, stdio: [voice ? "pipe" : "ignore", "pipe", "pipe"] });
+      if (voice) { child.stdin.on("error", () => {}); child.stdin.end(audio); }
       const output = [];
       const errors = [];
+      let timedOut = false;
+      const decodeTimer = voice ? setTimeout(() => { timedOut = true; child.kill(); }, 15_000) : null;
+      child.once("close", () => { if (decodeTimer) clearTimeout(decodeTimer); });
       let outputBytes = 0;
       child.stdout.on("data", (chunk) => {
         outputBytes += chunk.length;
-        if (outputBytes > MAX_AUDIO_PCM_BYTES) {
+        if (outputBytes > maxPcmBytes) {
           child.kill();
           return;
         }
@@ -292,9 +298,11 @@ async function decodeAudio(audio, extension) {
       });
       child.stderr.on("data", (chunk) => errors.push(chunk));
       child.once("error", reject);
-      child.once("exit", (code) => {
-        if (outputBytes > MAX_AUDIO_PCM_BYTES) {
-          const error = new Error("Âm thanh dài quá 60 phút");
+      child.once("close", (code) => {
+        if (timedOut) {
+          reject(new Error("Không giải mã được bản ghi trong thời gian cho phép"));
+        } else if (outputBytes > maxPcmBytes) {
+          const error = new Error(voice ? "Bản ghi quá dài" : "Âm thanh dài quá 60 phút");
           error.statusCode = 413;
           reject(error);
         } else if (code !== 0) {
@@ -306,14 +314,27 @@ async function decodeAudio(audio, extension) {
       });
     });
   } finally {
-    await rm(workDirectory, { recursive: true, force: true });
+    if (workDirectory) await rm(workDirectory, { recursive: true, force: true });
   }
 }
 
-async function transcribeAudio(audio, extension) {
+async function transcribeAudio(audio, extension, voice = false, cancelled = () => false) {
+  const samples = await decodeAudio(audio, extension, voice);
+  if (samples.length < 1600) {
+    const error = new Error("Âm thanh quá ngắn hoặc không có dữ liệu");
+    error.statusCode = voice ? 422 : 400;
+    throw error;
+  }
+  if (voice) {
+    let energy = 0;
+    for (const sample of samples) energy += sample * sample;
+    if (!Number.isFinite(energy) || Math.sqrt(energy / samples.length) < 0.001) {
+      const error = new Error("Không nghe thấy lời nói"); error.statusCode = 422; throw error;
+    }
+  }
+  if (cancelled()) throw new Error("Transcription cancelled");
   const transcriber = await loadWhisperModel();
-  const samples = await decodeAudio(audio, extension);
-  if (samples.length < 1600) throw new Error("Âm thanh quá ngắn hoặc không có dữ liệu");
+  if (cancelled()) throw new Error("Transcription cancelled");
   const startedAt = performance.now();
   const sample = samples.subarray(0, Math.min(samples.length, 30 * 16000));
   const transcriptionOptions = (language, returnTimestamps) => ({
@@ -324,6 +345,7 @@ async function transcribeAudio(audio, extension) {
     return_timestamps: returnTimestamps,
   });
   const vietnameseCandidate = await transcriber(sample, transcriptionOptions("vi", samples.length <= sample.length));
+  if (cancelled()) throw new Error("Transcription cancelled");
   const englishCandidate = await transcriber(sample, transcriptionOptions("en", samples.length <= sample.length));
   const languageScore = (value, language) => {
     const text = String(value?.text || "").toLowerCase();
@@ -402,19 +424,24 @@ const server = http.createServer(async (request, response) => {
     }
 
     if (request.method === "POST" && requestUrl.pathname === "/transcribe") {
+      const voice = requestUrl.searchParams.get("mode") === "voice";
       const extension = String(request.headers["x-audio-extension"] || "").toLowerCase();
-      if (!["mp3", "wav", "m4a"].includes(extension)) {
+      if (!(voice ? ["webm"] : ["mp3", "wav", "m4a"]).includes(extension)) {
         const error = new Error("Unsupported audio extension");
         error.statusCode = 415;
         throw error;
       }
-      const audio = await readBinaryBody(request, MAX_AUDIO_REQUEST_BYTES);
+      const audio = await readBinaryBody(request, voice ? 2 * 1024 * 1024 : MAX_AUDIO_REQUEST_BYTES);
       if (!audio.length) {
         const error = new Error("Audio file is empty");
         error.statusCode = 400;
         throw error;
       }
-      sendJson(response, 200, await enqueueInference(() => transcribeAudio(audio, extension)));
+      const result = await enqueueInference(() => {
+        if (response.destroyed) throw new Error("Transcription cancelled");
+        return transcribeAudio(audio, extension, voice, () => response.destroyed);
+      });
+      if (!response.destroyed) sendJson(response, 200, result);
       return;
     }
 

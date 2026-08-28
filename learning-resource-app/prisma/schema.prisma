@@ -44,6 +44,7 @@ enum JobStatus {
   PROCESSING
   COMPLETED
   FAILED
+  SKIPPED
 }
 
 enum DocumentTagSource {

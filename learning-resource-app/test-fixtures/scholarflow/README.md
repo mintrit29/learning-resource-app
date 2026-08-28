@@ -3,7 +3,10 @@
 Đây là thư mục test cố định và duy nhất của dự án, dùng cho cả kiểm thử tự động lẫn kiểm thử thủ công ứng dụng desktop trước khi đóng gói hoặc bàn giao.
 
 - Bắt đầu tại `HUONG_DAN_TEST_FULL_SCHOLARFLOW.md`.
+- Tìm bằng giọng nói mới trên bản dev: [TEST_TIM_GIONG_NOI.md](06_mindmap_audio/TEST_TIM_GIONG_NOI.md), hướng dẫn mic/Dừng/Hủy và giới hạn nhận dạng.
 - Ghi kết quả hoặc tham khảo lần test trước trong `KET_QUA_TEST.md`.
+- Audit giao diện nền ngày 28/08 (không chiếm màn hình người dùng): [KIEM_THU_GIAO_DIEN_NEN_2026-08-28.md](KIEM_THU_GIAO_DIEN_NEN_2026-08-28.md), gồm kết quả trên 11 file, lỗi UX và các phần Electron chưa kiểm.
+- Báo cáo trên đã bổ sung kết quả sửa UX-01/02/03 và thử lại trên giao diện nền; chạy hồi quy tự động bằng `npm run test:ux-regression` (cũng nằm trong `test:unit`).
 - `01_library`: bốn tài liệu chuẩn DOCX, PDF, PPTX và EPUB để thêm vào thư viện.
 - `02_visual_queries`: ảnh và tài liệu dùng để tìm bằng vùng chọn/OCR.
 - `03_negative_cases`: file hỏng, file không hỗ trợ và file vượt 40 MB.

@@ -5,6 +5,8 @@ import { FormEvent, useEffect, useRef, useState } from "react";
 import { ArrowUpRight, FileImage, FileSearch, LoaderCircle, Search, X } from "lucide-react";
 import { formatDifficulty, formatFileType } from "@/lib/labels";
 import { VisualResourceSearch } from "@/components/search/visual-resource-search";
+import { VoiceSearchButton } from "@/components/search/voice-search-button";
+import type { VoiceState } from "@/lib/search/voice-search-session";
 
 type SearchResult = {
   chunkId: string;
@@ -84,6 +86,15 @@ export function ResourceSearch({ topics, initialMode = "text" }: { topics: strin
   const [searchStatus, setSearchStatus] = useState<SearchStatus | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [hasRestoredSearch, setHasRestoredSearch] = useState(false);
+  const [voice, setVoice] = useState<VoiceState>({ phase: "idle", message: "" });
+  const [voiceReset, setVoiceReset] = useState(0);
+  const voiceBusy = ["requesting", "recording", "transcribing"].includes(voice.phase);
+
+  function editQuery(text: string) {
+    setVoiceReset(value => value + 1);
+    requestRef.current?.abort();
+    setQuery(text);
+  }
 
   useEffect(() => {
     const restoreTimer = window.setTimeout(() => {
@@ -136,6 +147,7 @@ export function ResourceSearch({ topics, initialMode = "text" }: { topics: strin
         status?: SearchStatus;
         results?: SearchResult[];
       };
+      if (controller.signal.aborted || requestRef.current !== controller) return;
       if (!response.ok) {
         setError(data.message ?? "Không thể tìm trong tài liệu.");
         setResults([]);
@@ -151,6 +163,7 @@ export function ResourceSearch({ topics, initialMode = "text" }: { topics: strin
       lastSearchSignatureRef.current = signature;
       saveSearch({ query: normalizedQuery, filters: activeFilters, appliedFilters: activeFilters, results: nextResults, status: nextStatus });
     } catch (caught) {
+      if (controller.signal.aborted || requestRef.current !== controller) return;
       if (caught instanceof DOMException && caught.name === "AbortError") return;
       setError("Không thể kết nối tới máy chủ.");
       setResults([]);
@@ -160,7 +173,7 @@ export function ResourceSearch({ topics, initialMode = "text" }: { topics: strin
   }
 
   useEffect(() => {
-    if (!hasRestoredSearch) return;
+    if (!hasRestoredSearch || voiceBusy || searchMode !== "text") return;
     const normalizedQuery = query.trim().slice(0, 500);
     if (normalizedQuery.length < 2) {
       requestRef.current?.abort();
@@ -180,20 +193,24 @@ export function ResourceSearch({ topics, initialMode = "text" }: { topics: strin
     return () => window.clearTimeout(timer);
     // runSearch only reads the query and filters passed above.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query, filters, hasRestoredSearch]);
+  }, [query, filters, hasRestoredSearch, voiceBusy, searchMode]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (voiceBusy) return;
     await runSearch(query.trim());
   }
 
   function updateFilter<Key extends keyof SearchFilters>(key: Key, value: SearchFilters[Key]) {
+    setVoiceReset(value => value + 1);
+    requestRef.current?.abort();
     const nextFilters = { ...filters, [key]: value };
     setFilters(nextFilters);
     saveSearch({ query, filters: nextFilters, appliedFilters, results, status: searchStatus });
   }
 
   function handleClearSearch() {
+    setVoiceReset(value => value + 1);
     requestRef.current?.abort();
     lastSearchSignatureRef.current = "";
     setQuery("");
@@ -208,6 +225,7 @@ export function ResourceSearch({ topics, initialMode = "text" }: { topics: strin
   }
 
   function changeSearchMode(mode: "text" | "visual") {
+    requestRef.current?.abort();
     setSearchMode(mode);
     const url = new URL(window.location.href);
     if (mode === "visual") url.searchParams.set("mode", "visual");
@@ -234,16 +252,25 @@ export function ResourceSearch({ topics, initialMode = "text" }: { topics: strin
           <input
             aria-label="Mô tả tài liệu cần tìm"
             ref={inputRef}
-            onChange={(event) => setQuery(event.target.value)}
+            onChange={(event) => editQuery(event.target.value)}
+            maxLength={500}
             placeholder="Ví dụ: tài liệu nền tảng về database cho người mới..."
             value={query}
           />
           {query ? <button aria-label="Xóa nội dung tìm kiếm" className="search-input-clear" onClick={handleClearSearch} type="button"><X size={16} /></button> : null}
-          <button disabled={isSearching || query.trim().length < 2} type="submit">
+          {searchMode === "text" ? <VoiceSearchButton reset={voiceReset} onState={(state) => {
+            setVoice(state);
+            if (state.phase === "requesting") { requestRef.current?.abort(); setIsSearching(false); }
+          }} onTranscript={(text) => { lastSearchSignatureRef.current = ""; setQuery(text); inputRef.current?.focus(); }} /> : null}
+          <button disabled={voiceBusy || isSearching || query.trim().length < 2} type="submit">
             {isSearching ? <LoaderCircle className="spin" size={17} /> : null}
             {isSearching ? "Đang tìm" : "Tìm ngay"}
           </button>
         </div>
+        {voice.message ? <div className="voice-search-status" role="status" aria-live="polite">
+          {voice.message}{voice.phase === "recording" ? " Tự dừng sau 30 giây; Esc để hủy." : ""}
+          {voice.missing ? <> <Link href="/settings/components">Mở cài đặt thành phần</Link></> : null}
+        </div> : null}
 
         <div className="search-filters" aria-label="Lọc tài liệu">
           <label>
@@ -282,7 +309,7 @@ export function ResourceSearch({ topics, initialMode = "text" }: { topics: strin
         <div className="query-examples">
           <span>Thử:</span>
           {examples.map((example) => (
-            <button key={example} onClick={() => setQuery(example)} type="button">{example}</button>
+            <button key={example} onClick={() => editQuery(example)} type="button">{example}</button>
           ))}
         </div>
       )}

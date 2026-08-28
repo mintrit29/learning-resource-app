@@ -57,7 +57,8 @@ export const JobStatus = {
   PENDING: 'PENDING',
   PROCESSING: 'PROCESSING',
   COMPLETED: 'COMPLETED',
-  FAILED: 'FAILED'
+  FAILED: 'FAILED',
+  SKIPPED: 'SKIPPED'
 } as const
 
 export type JobStatus = (typeof JobStatus)[keyof typeof JobStatus]

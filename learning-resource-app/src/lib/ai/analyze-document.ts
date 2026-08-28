@@ -28,7 +28,16 @@ export async function analyzeDocument(documentId: string, jobId: string) {
       where: { isActive: true },
       orderBy: { updatedAt: "desc" },
     });
-    if (!provider) throw new AiProviderError("Chưa có kết nối AI đang hoạt động.");
+    if (!provider) {
+      await db.$transaction([
+        db.analysisJob.update({
+          where: { id: jobId },
+          data: { status: JobStatus.SKIPPED, progress: 100, errorMessage: null, startedAt: null, finishedAt: new Date() },
+        }),
+        db.document.update({ where: { id: document.id }, data: { status: DocumentStatus.READY } }),
+      ]);
+      return true;
+    }
 
     await Promise.all([
       db.analysisJob.update({

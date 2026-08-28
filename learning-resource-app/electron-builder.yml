@@ -12,6 +12,7 @@ files:
   - preload.cjs
   - component-manager.cjs
   - visual-search.cjs
+  - microphone-permission.cjs
   - package.json
 
 extraResources:

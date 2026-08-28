@@ -31,8 +31,8 @@ function getProviderStatus(provider: { displayName: string; type: string; authSt
     return {
       isConnected: false,
       value: "Chưa có",
-      detail: "Cần kết nối để phân tích",
-      stepHint: "Thêm OpenRouter, Ollama hoặc Custom API.",
+      detail: "Tùy chọn: tóm tắt và phân loại",
+      stepHint: "Không bắt buộc để thêm hoặc tìm tài liệu.",
     };
   }
 
@@ -94,7 +94,7 @@ export default async function DashboardPage() {
         createdAt: true,
         jobs: {
           orderBy: { createdAt: "asc" },
-          select: { type: true, status: true, createdAt: true },
+          select: { type: true, status: true, createdAt: true, errorMessage: true },
         },
       },
     }),
@@ -133,14 +133,7 @@ export default async function DashboardPage() {
   const visibleStatusRows = statusRows.filter((row) => row.status === "FAILED");
   const providerStatus = getProviderStatus(activeProvider);
 
-  const nextAction = !providerStatus.isConnected
-    ? {
-        label: activeProvider ? "Kiểm tra kết nối AI" : "Kết nối AI",
-        helper: activeProvider
-          ? "Kết nối AI mặc định chưa ổn. Hãy kiểm tra lại hoặc sửa cấu hình."
-          : "Cần provider để app tóm tắt, phân loại và gợi ý tài liệu.",
-      }
-    : documentCount === 0
+  const nextAction = documentCount === 0
       ? {
           label: "Thêm tài liệu đầu tiên",
       helper: "Tải tài liệu, ảnh mind map hoặc âm thanh để bắt đầu xây thư viện.",
@@ -163,7 +156,7 @@ export default async function DashboardPage() {
       icon: Sparkles,
     },
     {
-      label: "Kết nối AI",
+      label: "Kết nối AI (tùy chọn)",
       value: providerStatus.value,
       detail: providerStatus.detail,
       icon: ServerCog,
@@ -191,16 +184,16 @@ export default async function DashboardPage() {
           <p>{nextAction.helper}</p>
         </div>
         <ol className="onboarding-steps">
-          <li className={providerStatus.isConnected ? "done" : "current"}>
-            <span>{providerStatus.isConnected ? <CheckCircle2 size={17} /> : "1"}</span>
+          <li className={providerStatus.isConnected ? "done" : ""}>
+            <span>{providerStatus.isConnected ? <CheckCircle2 size={17} /> : <Sparkles size={17} />}</span>
             <div>
-              <strong>Kết nối AI</strong>
+              <strong>AI tùy chọn</strong>
               <small>{providerStatus.stepHint}</small>
             </div>
-            {!providerStatus.isConnected ? <Link href="/settings/ai-providers">{activeProvider ? "Kiểm tra" : "Làm ngay"}</Link> : null}
+            {!providerStatus.isConnected ? <Link href="/settings/ai-providers">{activeProvider ? "Kiểm tra" : "Thiết lập"}</Link> : null}
           </li>
-          <li className={documentCount > 0 ? "done" : providerStatus.isConnected ? "current" : ""}>
-            <span>{documentCount > 0 ? <CheckCircle2 size={17} /> : "2"}</span>
+          <li className={documentCount > 0 ? "done" : "current"}>
+            <span>{documentCount > 0 ? <CheckCircle2 size={17} /> : "1"}</span>
             <div>
               <strong>Thêm tài liệu</strong>
               <small>{documentCount > 0 ? `${documentCount} tài liệu trong thư viện` : "Tài liệu, ảnh mind map hoặc âm thanh."}</small>
@@ -208,7 +201,7 @@ export default async function DashboardPage() {
             {documentCount === 0 ? <Link href="/upload">Thêm file</Link> : null}
           </li>
           <li className={documentCount > 0 ? "current" : ""}>
-            <span>3</span>
+            <span>2</span>
             <div>
               <strong>Tìm tài liệu</strong>
               <small>Tìm nguồn theo môn học, độ khó và nhu cầu nghiên cứu.</small>

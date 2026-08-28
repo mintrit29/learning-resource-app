@@ -49,7 +49,7 @@
     },
     {
       "file": "02_visual_queries/02_de_thi_scan_hai_trang.pdf",
-      "region": "trang 2, Câu 4",
+      "region": "trang 2, Câu 1 (Dijkstra và cạnh trọng số âm)",
       "expected": "03_thuat_toan_do_thi.pptx",
       "anchor": "SF-DIJKSTRA-NONNEGATIVE-37"
     },

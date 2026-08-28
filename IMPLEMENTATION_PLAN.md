@@ -1,11 +1,23 @@
 # Implementation Plan — ScholarFlow Desktop
 
-**Cập nhật:** 21/08/2026
-**Nhánh thực hiện:** `desktop-app`
+**Cập nhật:** 28/08/2026
+**Nhánh thực hiện:** `main`
 **Phạm vi:** ứng dụng desktop Windows chạy local, không có tài khoản, cloud backend, Docker hoặc bản web độc lập.
 **Lưu ý tài liệu:** PRD đã được đồng bộ với sản phẩm local-only và phạm vi MVP cuối.
 
 ## 1. Kiến trúc đích
+
+### Bổ sung 28/08: tìm bằng giọng nói trên bản dev
+
+- Nút mic trong tìm bằng mô tả; ghi tối đa 30 giây, Dừng để chép lời rồi tự tìm, Hủy/Esc để bỏ.
+- Dùng Whisper Base local có sẵn, không thêm model và không gọi dịch vụ chép lời cloud.
+- Ghi âm WebM/Opus trong RAM; giải mã FFmpeg qua pipe, không thêm bản ghi vào thư viện. Câu truy vấn vẫn được lưu như tìm kiếm thông thường.
+- Thiếu Whisper dẫn tới `/settings/components`; không mở mic trước khi kiểm tra model.
+- Chỉ cho phép mic audio từ trang `/search` của cửa sổ chính, không cấp camera hoặc mic cho iframe.
+- Hủy khi đổi tab/rời trang/ẩn app/gõ sửa; kết quả chép lời đến muộn không được ghi đè query mới.
+- Test lifecycle/API/FFmpeg và Whisper thật Việt–Anh; test Electron bằng microphone giả. Cần người dùng thử mic vật lý, giọng thật và môi trường ồn.
+- Hướng dẫn: `learning-resource-app/test-fixtures/scholarflow/06_mindmap_audio/TEST_TIM_GIONG_NOI.md`.
+- Chưa tạo EXE hoặc release mới; tiếp tục chốt bản dev trước.
 
 ```text
 ScholarFlow.exe
