@@ -2,7 +2,7 @@
 
 ## Trạng thái
 
-> Báo cáo lịch sử. Sau lượt kiểm này, người dùng yêu cầu chốt bản dev trước và gỡ EXE. Bản cài trên máy đã được gỡ, database/model giữ nguyên; GitHub Releases đang chờ xác nhận xóa. Không dùng các liên kết phát hành dưới đây làm hướng dẫn tải bản hiện hành.
+> Báo cáo lịch sử. Sau lượt kiểm này, người dùng yêu cầu chốt bản dev trước và gỡ EXE. Bản cài trên máy đã được gỡ, database/model giữ nguyên; cả 6 GitHub Releases EXE 0.1.0–0.1.5 cùng file đính kèm đã xóa sau xác nhận. Tag và lịch sử commit vẫn còn. Các liên kết release/asset bên dưới chỉ ghi nguồn kiểm thử cũ và không còn dùng để tải; liên kết CI vẫn lưu lịch sử kiểm thử.
 
 Commit sửa lỗi: `e6c3ca0fb4e0587f2725646c5b08708c2f445bd1`. Lint, toàn bộ `test:unit` và TypeScript `--noEmit` trên máy phát triển đã đạt. [CI bản mới](https://github.com/mintrit29/learning-resource-app/actions/runs/33137087513) đã đạt lint/unit/build/package/standalone và kiểm bản cài thật.
 

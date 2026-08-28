@@ -272,7 +272,7 @@ Backup/restore, gộp nhiều vùng và OCR công thức ảnh bằng model chuy
 
 - Theo yêu cầu người dùng, tạm dừng phát hành EXE và dùng `npm run dev` để nghiệm thu/sửa lỗi.
 - CI push/PR chỉ lint, unit, desktop build/standalone; không đóng gói, cài EXE hay tải artifact bộ cài. Kiểm installer chỉ chạy khi gọi CI thủ công với `test_installer=true`; release cũng chỉ gọi thủ công sau nghiệm thu.
-- Gỡ bản cài trên máy và artifact đóng gói trong workspace; giữ dữ liệu/model, mã nguồn, cấu hình packaging và toàn bộ bộ test. GitHub Releases đang chờ xác nhận xóa qua trình duyệt; chưa được ghi nhận hoàn tất.
+- Đã gỡ bản cài trên máy và artifact đóng gói trong workspace; giữ dữ liệu/model, mã nguồn, cấu hình packaging và toàn bộ bộ test. Đã xóa đủ 6 GitHub Releases EXE 0.1.0–0.1.5 cùng file đính kèm sau xác nhận người dùng; trang Releases không còn bản phát hành. Cả 6 tag và lịch sử commit vẫn giữ nguyên, có thể dùng làm mốc build lại khi cần.
 - Kết quả kiểm EXE 0.1.4/0.1.5 bên dưới là lịch sử, không phải yêu cầu tạo thêm EXE trong giai đoạn dev.
 - Tiếp tục theo dõi độ trễ embedding lần đầu: ca thêm môn trên máy kiểm thử mất khoảng 207 giây, lượt đã nóng 315 ms. Chưa chốt nguyên nhân hoặc tuyên bố đã sửa hiệu năng.
 - Bản sửa Custom API/upload và bằng chứng kiểm thử: [báo cáo 28/08](learning-resource-app/test-fixtures/scholarflow/06_mindmap_audio/KET_QUA_EXE_0.1.5.md).

@@ -242,7 +242,7 @@ Kiểm tra nhanh ngày 15/08/2026: unit validation vùng/payload/query merge/ses
 - [x] Dọn `dist-electron`, bộ cài tải về 0.1.4/0.1.5 và checksum tạm (khoảng 1,63 GB); không xóa bộ test hoặc dependency dev.
 - [x] Chuyển CI tự động sang kiểm source/build/standalone, không tạo EXE; bỏ tự phát hành khi push tag. Kiểm installer/release chỉ gọi thủ công sau nghiệm thu dev.
 - [x] Sau dọn EXE: lint, toàn bộ unit và kiểm cấu hình workflow đạt; các dependency dev vẫn nguyên vẹn. Không build EXE trong lượt dọn này.
-- [ ] Hoàn tất gỡ 6 GitHub Releases EXE 0.1.0–0.1.5; đang chờ xác nhận thao tác trình duyệt, giữ tag/commit.
+- [x] Hoàn tất gỡ 6 GitHub Releases EXE 0.1.0–0.1.5 cùng file đính kèm sau xác nhận người dùng; trang Releases trống và `git ls-remote --tags origin` xác nhận cả 6 tag còn nguyên. Không xóa lịch sử commit.
 - [ ] Điều tra thêm độ trễ embedding lần đầu trên CPU; chưa coi là đã sửa.
 - [ ] Nghiệm thu bản dev rồi mới đóng gói/kiểm installer và phát hành bản cuối theo yêu cầu mới.
 
