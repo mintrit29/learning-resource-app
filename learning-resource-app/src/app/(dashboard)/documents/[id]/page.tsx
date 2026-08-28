@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Download, FileText, LocateFixed } from "lucide-react";
 import { DeleteDocumentButton } from "@/components/documents/delete-document-button";
+import { DocumentPreviewFrame } from "@/components/documents/document-preview-frame";
 import { EditAnalysisButton } from "@/components/documents/edit-analysis-button";
 import { ExtractedTextDisclosure } from "@/components/documents/extracted-text-disclosure";
 import { ProcessingEstimate } from "@/components/documents/processing-estimate";
@@ -226,9 +227,10 @@ export default async function DocumentDetailPage({
             </a>
           </div>
         </div>
-        <iframe
-          className={`document-preview-frame ${document.fileType.toLowerCase()}`}
-          sandbox={isDirectPreview ? undefined : ""}
+        <DocumentPreviewFrame
+          fileType={document.fileType}
+          direct={isDirectPreview}
+          matched={Boolean(matchedChunk)}
           src={originalFilePreviewHref}
           title={`Bản xem: ${document.originalFileName}`}
         />

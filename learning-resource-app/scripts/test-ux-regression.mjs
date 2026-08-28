@@ -7,6 +7,7 @@ import { getUploadFeedback } from "../src/lib/documents/upload-draft.ts";
 import { getDocumentDisplayStatus } from "../src/lib/documents/display-status.ts";
 import { isSkippedAnalysisJob } from "../src/lib/documents/optional-analysis.ts";
 import { libraryHref, libraryReturnHref } from "../src/lib/documents/library-navigation.ts";
+import { previewVisitUrl } from "../src/lib/documents/preview-navigation.ts";
 
 const failed = { id: "bad", status: "error", needsComponent: true };
 assert.match(getUploadFeedback([failed], false).message, /^1 file/);
@@ -44,6 +45,19 @@ for (const unsafe of ["https://evil.test/documents", "//evil.test/documents", "j
 assert.equal(libraryReturnHref("/documents?unexpected=1&q=OSPF#bad", "doc1"), "/documents?q=OSPF#document-doc1");
 assert.equal(libraryReturnHref(undefined, "doc1"), "/documents");
 console.log("PASS UX state: upload errors, optional AI/legacy jobs, safe library return URLs");
+
+const previewSource = "/api/documents/doc1/preview?item=2&chunk=chunk1#matched-preview";
+const firstVisit = new URL(previewVisitUrl(previewSource, "http://127.0.0.1:3000/documents/doc1", "first"));
+const nextVisit = new URL(previewVisitUrl(firstVisit.href, "http://127.0.0.1:3000/search", "next"));
+assert.equal(firstVisit.hash, "#matched-preview");
+assert.equal(nextVisit.hash, "#matched-preview");
+assert.equal(nextVisit.searchParams.get("item"), "2");
+assert.equal(nextVisit.searchParams.get("chunk"), "chunk1");
+assert.equal(nextVisit.searchParams.get("visit"), "next");
+assert.equal(nextVisit.searchParams.getAll("visit").length, 1);
+assert.notEqual(firstVisit.href, nextVisit.href);
+assert.throws(() => previewVisitUrl("https://outside.test/preview", "http://127.0.0.1:3000", "id"), /stay in the app/);
+console.log("PASS preview navigation: new visit preserves matched chunk, sheet, fragment and same origin");
 
 // Real database and analysis path, with an isolated loopback provider (no cloud calls).
 const temporaryRoot = await mkdtemp(path.join(tmpdir(), "scholarflow-ux-test-"));

@@ -202,3 +202,7 @@ Tương thích dữ liệu cũ: job phân tích `FAILED` với đúng thông bá
 - **Q-01:** không thay OCR/model. Test định tuyến đạt 19/19 nhưng vẫn báo thiếu 6 marker ở bảng/biểu đồ/sơ đồ; benchmark công thức ảnh phức tạp vẫn thiếu ký hiệu. Exit 0 của bộ test không có nghĩa OCR chính xác tuyệt đối.
 - **Q-02:** chưa đổi xếp hạng/ngưỡng tìm kiếm; kết quả phụ kém sát vẫn cần bộ đánh giá riêng để tránh sửa một query làm hỏng query khác.
 - Các giới hạn kiểm thử Electron, mic thật, Explorer, model management và cloud thật ở mục trước vẫn còn; lượt sửa này không thay thế kiểm thử chấp nhận trên desktop.
+
+### Cập nhật OBS-01 sau khi người dùng yêu cầu tái hiện thêm
+
+Đã tái hiện và sửa lỗi cuộn nhánh XMind khi mở xen kẽ JSON/XML và quay lại các bản xem trước đó. Bằng chứng trước/sau, cách sửa, các lượt kiểm tra đã đạt và giới hạn công cụ được lưu tại [TEST_QUAY_LAI_XMIND.md](06_mindmap_audio/TEST_QUAY_LAI_XMIND.md). Ghi nhận “chưa tái hiện” ở mục trước là kết quả của lượt thử ban đầu, không phải trạng thái mới nhất.

@@ -71,7 +71,9 @@ export async function GET(
       document.chunks[0]?.content,
       document.chunks[0]?.sourceLabel ?? undefined,
     );
-    return new Response(preview.html, { headers: previewHeaders() });
+    // Explicit result opens have unique visit URLs only to reset iframe scroll;
+    // do not retain a separate cached HTML copy for every visit.
+    return new Response(preview.html, { headers: previewHeaders(searchParams.has("visit") ? "no-store" : undefined) });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Không thể tạo bản xem nhanh.";
     return errorPage(message, 422);

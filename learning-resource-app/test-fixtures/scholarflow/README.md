@@ -7,6 +7,7 @@
 - Ghi kết quả hoặc tham khảo lần test trước trong `KET_QUA_TEST.md`.
 - Audit giao diện nền ngày 28/08 (không chiếm màn hình người dùng): [KIEM_THU_GIAO_DIEN_NEN_2026-08-28.md](KIEM_THU_GIAO_DIEN_NEN_2026-08-28.md), gồm kết quả trên 11 file, lỗi UX và các phần Electron chưa kiểm.
 - Báo cáo trên đã bổ sung kết quả sửa UX-01/02/03 và thử lại trên giao diện nền; chạy hồi quy tự động bằng `npm run test:ux-regression` (cũng nằm trong `test:unit`).
+- Lỗi cuộn nhánh XMind đã tái hiện và có ca hồi quy riêng: [TEST_QUAY_LAI_XMIND.md](06_mindmap_audio/TEST_QUAY_LAI_XMIND.md). Cần thử mở xen kẽ file JSON và XML rồi quay lại, không chỉ mở lặp một file.
 - `01_library`: bốn tài liệu chuẩn DOCX, PDF, PPTX và EPUB để thêm vào thư viện.
 - `02_visual_queries`: ảnh và tài liệu dùng để tìm bằng vùng chọn/OCR.
 - `03_negative_cases`: file hỏng, file không hỗ trợ và file vượt 40 MB.
