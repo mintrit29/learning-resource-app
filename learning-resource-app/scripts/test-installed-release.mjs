@@ -5,6 +5,7 @@ import { mkdtemp, mkdir, readFile, writeFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import Database from 'better-sqlite3';
 import { _electron } from 'playwright';
+import { runReleaseApiRegression } from './release-api-regression.mjs';
 assert.equal(process.env.GITHUB_ACTIONS, 'true', 'Run this UI/install test on GitHub Actions, not the user desktop');
 assert.equal(process.env.RUNNER_ENVIRONMENT, 'github-hosted', 'Requires an isolated GitHub-hosted runner');
 assert.equal(process.platform, 'win32');
@@ -92,6 +93,7 @@ try {
     assert.equal(status.status,'ready',JSON.stringify(status)); record(`Install ${id}`);
   }
   await page.goto(`${origin}/dashboard`);
+  assert.ok((await page.locator('footer').textContent()).includes(`v${version}`), 'Footer must match installed EXE version');
   const logPath=path.join(dataDir,'logs/desktop.log');
   const log=await readFile(logPath,'utf8');
   const embedOrigin=[...log.matchAll(/local BGE-M3 tại (http:\/\/127\.0\.0\.1:\d+)/g)].at(-1)?.[1];
@@ -137,6 +139,7 @@ try {
   const providers=await (await fetch(`${origin}/api/ai-providers`)).json();
   assert.ok(providers.providers.some(p=>p.displayName==='Release QA Custom'&&p.hasApiKey));
   record('Custom API settings saved through UI and persisted');
+  await runReleaseApiRegression(origin, name => record(name));
   await page.goto(`${origin}/search?mode=visual`);
   await page.locator('.visual-search-shell input[type=file]').setInputFiles(path.join(fixtures,'06_mindmap_audio/09_xmind_anh_nhung.xmind'));
   const picture=page.frameLocator('.visual-canvas iframe').locator('img.mindmap-image').first();

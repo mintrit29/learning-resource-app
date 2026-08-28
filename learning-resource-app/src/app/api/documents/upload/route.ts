@@ -59,7 +59,10 @@ function hasExpectedSignature(buffer: Buffer, extension: SupportedExtension) {
 }
 
 export async function POST(request: Request) {
-  const formData = await request.formData();
+  const formData = await request.formData().catch(() => null);
+  if (!formData) {
+    return NextResponse.json({ message: "Dữ liệu tải lên không hợp lệ. Hãy chọn lại file và thử lại." }, { status: 400 });
+  }
   const file = formData.get("file");
   if (!(file instanceof File)) {
     return NextResponse.json({ message: "Chưa chọn tài liệu" }, { status: 400 });

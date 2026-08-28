@@ -206,7 +206,7 @@ export default async function DocumentDetailPage({
                 : isDirectPreview
                 ? `${document.fileType === "AUDIO" ? "Âm thanh" : document.fileType === "IMAGE" ? "Ảnh mind map" : "PDF"} có thể xem trực tiếp trong app.`
                 : document.fileType === "XMIND"
-                ? "XMind hiển thị sơ đồ nhánh, ghi chú và nhãn. Bố cục được tự sắp xếp; ảnh đính kèm và liên kết chéo chưa được hiển thị. File gốc vẫn được giữ nguyên."
+                ? "XMind hiển thị sơ đồ nhánh, ghi chú, nhãn và ảnh nhúng PNG/JPEG/WebP. Bố cục được tự sắp xếp; liên kết chéo chưa được hiển thị. File gốc vẫn được giữ nguyên."
                 : `${document.fileType} được chuyển thành bản xem nhanh và hiển thị ngay trong app. Bố cục phức tạp có thể khác nhẹ so với phần mềm gốc.`}
             </p>
           </div>

@@ -111,6 +111,11 @@ export async function testProviderConnection(config: ProviderConfig) {
   if (!response.ok) {
     throw aiHttpError(response.status);
   }
+  const data = await readJson<{ choices?: Array<{ message?: { content?: unknown } }> }>(response, "Dịch vụ AI");
+  const content = data?.choices?.[0]?.message?.content;
+  if (typeof content !== "string" || !content.trim()) {
+    throw new AiProviderError("Dịch vụ AI không trả về nội dung. Kiểm tra Base URL và model đã chọn.");
+  }
   return "Kết nối model thành công";
 }
 
