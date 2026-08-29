@@ -1,0 +1,949 @@
+{
+  "date": "2026-08-28",
+  "model": "onnx-community/whisper-small",
+  "revision": "36050c46d777d46dc4b5f43f6d90574fc38f8732",
+  "runtime": "Transformers.js 4.2.0 / CPU q8; FFmpeg 16k mono",
+  "embedding": "real BGE-M3, 1024 dimensions; no cloud AI provider",
+  "fixtures": "synthetic speech, NOT real human recordings",
+  "metrics": [
+    {
+      "name": "short-vi.mp3",
+      "sha256": "bd2f08809fe2d032ef6800d497319f22920cf2fb76fe96c442e882bc59718446",
+      "status": "READY",
+      "elapsedMs": 7668,
+      "referenceWords": 8,
+      "baseAfterFixEdits": 7,
+      "smallEdits": 0
+    },
+    {
+      "name": "short-vi.wav",
+      "sha256": "75458aca7f4cedb6dc8fd4346daf64d4668aa56456b4ec74cae6f5c32b2a88a8",
+      "status": "READY",
+      "elapsedMs": 7684,
+      "referenceWords": 8,
+      "baseAfterFixEdits": 6,
+      "smallEdits": 1
+    },
+    {
+      "name": "short-vi.m4a",
+      "sha256": "8d4289c98babc5528f406d224129450dd4e320606f9ba8d415180dc1aa82789d",
+      "status": "READY",
+      "elapsedMs": 9212,
+      "referenceWords": 8,
+      "baseAfterFixEdits": 5,
+      "smallEdits": 0
+    },
+    {
+      "name": "lecture-vi.mp3",
+      "sha256": "08d9992ca30f7d8908b5ab2327275cf0d4dae380e76852c5f979719b6c9acf6f",
+      "status": "READY",
+      "elapsedMs": 40704,
+      "referenceWords": 150,
+      "baseAfterFixEdits": 35,
+      "smallEdits": 17
+    },
+    {
+      "name": "lecture-vi.wav",
+      "sha256": "657596eab1a9162511a3c0ae4b5fca688690874f1b53f01bce36ea70db45d8da",
+      "status": "READY",
+      "elapsedMs": 39240,
+      "referenceWords": 150,
+      "baseAfterFixEdits": 33,
+      "smallEdits": 18
+    },
+    {
+      "name": "lecture-vi.m4a",
+      "sha256": "20d8461ee79ab3c8e14658b9ea3817c0785bb77cea20829fbbdbf246cef01e31",
+      "status": "READY",
+      "elapsedMs": 37154,
+      "referenceWords": 150,
+      "baseAfterFixEdits": 33,
+      "smallEdits": 16
+    },
+    {
+      "name": "lecture-en.mp3",
+      "sha256": "410f8504e0863e0501dc34c1c48a269317d5941b51dd7572c5077abb9a37fca0",
+      "status": "READY",
+      "elapsedMs": 26916,
+      "referenceWords": 123,
+      "baseAfterFixEdits": 0,
+      "smallEdits": 0
+    },
+    {
+      "name": "mixed.m4a",
+      "sha256": "f3de1212999e374d0038563c72bd1231e0c3a58e84bc2eaff9d7da503315f243",
+      "status": "READY",
+      "elapsedMs": 56878,
+      "referenceWords": 273,
+      "baseAfterFixEdits": 34,
+      "smallEdits": 32
+    },
+    {
+      "name": "baseline-vi.mp3",
+      "sha256": "a9e6793a4b7d506a611f165a7568d98254a71ef754aac295d88f516489ae75a2",
+      "status": "READY",
+      "elapsedMs": 7121
+    },
+    {
+      "name": "baseline-en.wav",
+      "sha256": "f340bb9cbbe1df6d981006685cb8137a381ab550c563695d6274dc7dc7aa0686",
+      "status": "READY",
+      "elapsedMs": 6150
+    },
+    {
+      "name": "silence.wav",
+      "sha256": "8442e35f15fa3f2378b181bbf8f7fa1dbdcb61ab2726ea0e43080371cb16d701",
+      "status": "FAILED",
+      "elapsedMs": 522
+    },
+    {
+      "name": "silence.m4a",
+      "sha256": "715c7a55cca246533d3193fd82a0ee1938a7e8974da44d82c835b5c28dea88ed",
+      "status": "FAILED",
+      "elapsedMs": 529
+    },
+    {
+      "name": "noise.wav",
+      "sha256": "eb9d9b5a11c3cfe3c696a2a46f5a52d57a6052f95acc7a04c1bd5a8d82f80eb6",
+      "status": "FAILED",
+      "elapsedMs": 3074
+    },
+    {
+      "name": "corrupt.mp3",
+      "sha256": "a7383a467835aa2f7d7920e3a4c88c62041353c49874d9f46f0332af065abe9f",
+      "status": "FAILED",
+      "elapsedMs": 535
+    },
+    {
+      "name": "wrong-format.mp3",
+      "sha256": "def97188d0e31d55718cb0bb9fad4ee5f89e1628805e890864a663a5354939d6",
+      "status": 415,
+      "elapsedMs": 4
+    },
+    {
+      "name": "empty.wav",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": 413,
+      "elapsedMs": 3
+    },
+    {
+      "name": "database.mp3",
+      "sha256": "f4120f8e978dd5c41c2378c9915da4d11f31c7affd8302018389aee5467b06b5",
+      "status": "FAILED",
+      "elapsedMs": 5612
+    }
+  ],
+  "rows": [
+    {
+      "name": "short-vi.mp3",
+      "http": 202,
+      "body": {
+        "documentId": "cmtd3g51c000r58uzpj2hhbmy",
+        "status": "UPLOADED"
+      },
+      "jobs": [
+        {
+          "type": "EXTRACT_TEXT",
+          "status": "COMPLETED",
+          "errorMessage": null
+        },
+        {
+          "type": "CHUNK_DOCUMENT",
+          "status": "COMPLETED",
+          "errorMessage": null
+        },
+        {
+          "type": "EMBED_DOCUMENT",
+          "status": "COMPLETED",
+          "errorMessage": null
+        },
+        {
+          "type": "ANALYZE_DOCUMENT",
+          "status": "SKIPPED",
+          "errorMessage": null
+        }
+      ],
+      "document": {
+        "status": "READY",
+        "textContent": "Tìm tài liệu về cơ sở dữ liệu."
+      },
+      "chunks": [
+        {
+          "content": "Tìm tài liệu về cơ sở dữ liệu.",
+          "sourceLabel": "Bản ghi âm · 00:00–00:03 (mốc theo đoạn)"
+        }
+      ],
+      "elapsedMs": 7668
+    },
+    {
+      "name": "short-vi.wav",
+      "http": 202,
+      "body": {
+        "documentId": "cmtd3gaxf000x58uz0l8tufx2",
+        "status": "UPLOADED"
+      },
+      "jobs": [
+        {
+          "type": "EXTRACT_TEXT",
+          "status": "COMPLETED",
+          "errorMessage": null
+        },
+        {
+          "type": "CHUNK_DOCUMENT",
+          "status": "COMPLETED",
+          "errorMessage": null
+        },
+        {
+          "type": "EMBED_DOCUMENT",
+          "status": "COMPLETED",
+          "errorMessage": null
+        },
+        {
+          "type": "ANALYZE_DOCUMENT",
+          "status": "SKIPPED",
+          "errorMessage": null
+        }
+      ],
+      "document": {
+        "status": "READY",
+        "textContent": "Tìm tai liệu về cơ sở dữ liệu."
+      },
+      "chunks": [
+        {
+          "content": "Tìm tai liệu về cơ sở dữ liệu.",
+          "sourceLabel": "Bản ghi âm · 00:00–00:03 (mốc theo đoạn)"
+        }
+      ],
+      "elapsedMs": 7684
+    },
+    {
+      "name": "short-vi.m4a",
+      "http": 202,
+      "body": {
+        "documentId": "cmtd3ggvk001358uzqd3a1eu0",
+        "status": "UPLOADED"
+      },
+      "jobs": [
+        {
+          "type": "EXTRACT_TEXT",
+          "status": "COMPLETED",
+          "errorMessage": null
+        },
+        {
+          "type": "CHUNK_DOCUMENT",
+          "status": "COMPLETED",
+          "errorMessage": null
+        },
+        {
+          "type": "EMBED_DOCUMENT",
+          "status": "COMPLETED",
+          "errorMessage": null
+        },
+        {
+          "type": "ANALYZE_DOCUMENT",
+          "status": "SKIPPED",
+          "errorMessage": null
+        }
+      ],
+      "document": {
+        "status": "READY",
+        "textContent": "Tìm tài liệu về cơ sở dữ liệu."
+      },
+      "chunks": [
+        {
+          "content": "Tìm tài liệu về cơ sở dữ liệu.",
+          "sourceLabel": "Bản ghi âm · 00:00–00:03 (mốc theo đoạn)"
+        }
+      ],
+      "elapsedMs": 9212
+    },
+    {
+      "name": "lecture-vi.mp3",
+      "http": 202,
+      "body": {
+        "documentId": "cmtd3gnzg001958uzen3lnu5r",
+        "status": "UPLOADED"
+      },
+      "jobs": [
+        {
+          "type": "EXTRACT_TEXT",
+          "status": "COMPLETED",
+          "errorMessage": null
+        },
+        {
+          "type": "CHUNK_DOCUMENT",
+          "status": "COMPLETED",
+          "errorMessage": null
+        },
+        {
+          "type": "EMBED_DOCUMENT",
+          "status": "COMPLETED",
+          "errorMessage": null
+        },
+        {
+          "type": "ANALYZE_DOCUMENT",
+          "status": "SKIPPED",
+          "errorMessage": null
+        }
+      ],
+      "document": {
+        "status": "READY",
+        "textContent": "Hôm nay chúng ta học về mạng máy tính và cơ sở giữ liệu. Máy tính gửi thông tin bằng các gói giữ liệu. Bộ định tuyến chuyển tiếp gói tính đến mạng đích. Giao thức định tuyến lựa chọn đường đi dựa trên chi phí. Cơ sở giữ liệu lưu trữ thông tin trong các bản. Mỗi bản có các hàng và các cuộc. Phá chính giúp phân biệt từng bản đi. Phá ngoại liên kết giữ liệu giữa các bản.\n\nChưởng hóa giúp giảm giữ liệu trùng lập và tránh lỗi khi cập nhật. Khi thiết kế hệ thống, chúng ta cần kiểm tra quyền truy cập và sao lưu giữ liệu. Bản sao lưu phải được kiểm tra thường xuyên. Phần cuối bài học nhắc lại rằng bão mật và tính chính xác đều quan trọng. Đây là câu kết thúc của bài kiểm tra âm thanh."
+      },
+      "chunks": [
+        {
+          "content": "Hôm nay chúng ta học về mạng máy tính và cơ sở giữ liệu. Máy tính gửi thông tin bằng các gói giữ liệu. Bộ định tuyến chuyển tiếp gói tính đến mạng đích. Giao thức định tuyến lựa chọn đường đi dựa trên chi phí. Cơ sở giữ liệu lưu trữ thông tin trong các bản. Mỗi bản có các hàng và các cuộc. Phá chính giúp phân biệt từng bản đi. Phá ngoại liên kết giữ liệu giữa các bản.",
+          "sourceLabel": "Bản ghi âm · 00:00–00:28 (mốc theo đoạn)"
+        },
+        {
+          "content": "Chưởng hóa giúp giảm giữ liệu trùng lập và tránh lỗi khi cập nhật. Khi thiết kế hệ thống, chúng ta cần kiểm tra quyền truy cập và sao lưu giữ liệu. Bản sao lưu phải được kiểm tra thường xuyên. Phần cuối bài học nhắc lại rằng bão mật và tính chính xác đều quan trọng. Đây là câu kết thúc của bài kiểm tra âm thanh.",
+          "sourceLabel": "Bản ghi âm · 00:28–00:50 (mốc theo đoạn)"
+        }
+      ],
+      "elapsedMs": 40704
+    },
+    {
+      "name": "lecture-vi.wav",
+      "http": 202,
+      "body": {
+        "documentId": "cmtd3hjek001g58uzsj8y4no2",
+        "status": "UPLOADED"
+      },
+      "jobs": [
+        {
+          "type": "EXTRACT_TEXT",
+          "status": "COMPLETED",
+          "errorMessage": null
+        },
+        {
+          "type": "CHUNK_DOCUMENT",
+          "status": "COMPLETED",
+          "errorMessage": null
+        },
+        {
+          "type": "EMBED_DOCUMENT",
+          "status": "COMPLETED",
+          "errorMessage": null
+        },
+        {
+          "type": "ANALYZE_DOCUMENT",
+          "status": "SKIPPED",
+          "errorMessage": null
+        }
+      ],
+      "document": {
+        "status": "READY",
+        "textContent": "Hôm nay chúng ta học về mạng máy tính và cơ sở giữ liệu. Máy tính gửi thông tin bằng các cõi giữ liệu. Bộ định tuyến chuyển tiếp cõi tinh đến mạng đích. Giao thức định tuyến lựa chọn đường đi dựa trên chi phí. Cơ sở giữ liệu lưu trữ thông tin trong các bản. Mỗi bản có các hàng và các cục. Khóa chính giúp phân biệt từng bản ghi. Khóa ngoại liên kết giữ liệu giữa các bản.\n\nChưởng hóa giúp giảm giữ liệu trùng lập và tránh lỗi khi cập nhật. Khi thiết kế hệ thống, chúng ta cần kiểm tra quyền truy cập và sau lưu giữ liệu. Bản sau lưu phải được kiểm tra thường xuyên. Phần cuối bài học nhắc lại rằng bão mật và tính chính xác đều quan trọng. Đây là câu kết thúc của bài kiểm tra âm thanh."
+      },
+      "chunks": [
+        {
+          "content": "Hôm nay chúng ta học về mạng máy tính và cơ sở giữ liệu. Máy tính gửi thông tin bằng các cõi giữ liệu. Bộ định tuyến chuyển tiếp cõi tinh đến mạng đích. Giao thức định tuyến lựa chọn đường đi dựa trên chi phí. Cơ sở giữ liệu lưu trữ thông tin trong các bản. Mỗi bản có các hàng và các cục. Khóa chính giúp phân biệt từng bản ghi. Khóa ngoại liên kết giữ liệu giữa các bản.",
+          "sourceLabel": "Bản ghi âm · 00:00–00:28 (mốc theo đoạn)"
+        },
+        {
+          "content": "Chưởng hóa giúp giảm giữ liệu trùng lập và tránh lỗi khi cập nhật. Khi thiết kế hệ thống, chúng ta cần kiểm tra quyền truy cập và sau lưu giữ liệu. Bản sau lưu phải được kiểm tra thường xuyên. Phần cuối bài học nhắc lại rằng bão mật và tính chính xác đều quan trọng. Đây là câu kết thúc của bài kiểm tra âm thanh.",
+          "sourceLabel": "Bản ghi âm · 00:28–00:50 (mốc theo đoạn)"
+        }
+      ],
+      "elapsedMs": 39240
+    },
+    {
+      "name": "lecture-vi.m4a",
+      "http": 202,
+      "body": {
+        "documentId": "cmtd3idoo001n58uzcmvjegzk",
+        "status": "UPLOADED"
+      },
+      "jobs": [
+        {
+          "type": "EXTRACT_TEXT",
+          "status": "COMPLETED",
+          "errorMessage": null
+        },
+        {
+          "type": "CHUNK_DOCUMENT",
+          "status": "COMPLETED",
+          "errorMessage": null
+        },
+        {
+          "type": "EMBED_DOCUMENT",
+          "status": "COMPLETED",
+          "errorMessage": null
+        },
+        {
+          "type": "ANALYZE_DOCUMENT",
+          "status": "SKIPPED",
+          "errorMessage": null
+        }
+      ],
+      "document": {
+        "status": "READY",
+        "textContent": "Hôm nay chúng ta học về mạng máy tính và cơ sở giữ liệu. Máy tính gửi thông tin bằng các cõi giữ liệu. Bộ định tuyến chuyển tiếp cõi tin đến mạng đích. Giao thức định tuyến lựa chọn đường đi dựa trên chi phí. Cơ sở giữ liệu lưu trữ thông tin trong các bản. Mỗi bản có các hàng và các cuộc. Khóa chính giúp phân biệt từng bản đi. Khóa ngoại liên kết giữ liệu giữa các bản.\n\nChưởng hóa giúp giảm giữ liệu trùng lập và tránh lỗi khi cập nhật. Khi thiết kế hệ thống, chúng ta cần kiểm tra quyền truy cập và sao lưu giữ liệu. Bản sao lưu phải được kiểm tra thường xuyên. Phần cuối bài học nhắc lại rằng bão mật và tính chính xác đều quan trọng. Đây là câu kết thúc của bài kiểm tra âm thanh."
+      },
+      "chunks": [
+        {
+          "content": "Hôm nay chúng ta học về mạng máy tính và cơ sở giữ liệu. Máy tính gửi thông tin bằng các cõi giữ liệu. Bộ định tuyến chuyển tiếp cõi tin đến mạng đích. Giao thức định tuyến lựa chọn đường đi dựa trên chi phí. Cơ sở giữ liệu lưu trữ thông tin trong các bản. Mỗi bản có các hàng và các cuộc. Khóa chính giúp phân biệt từng bản đi. Khóa ngoại liên kết giữ liệu giữa các bản.",
+          "sourceLabel": "Bản ghi âm · 00:00–00:28 (mốc theo đoạn)"
+        },
+        {
+          "content": "Chưởng hóa giúp giảm giữ liệu trùng lập và tránh lỗi khi cập nhật. Khi thiết kế hệ thống, chúng ta cần kiểm tra quyền truy cập và sao lưu giữ liệu. Bản sao lưu phải được kiểm tra thường xuyên. Phần cuối bài học nhắc lại rằng bão mật và tính chính xác đều quan trọng. Đây là câu kết thúc của bài kiểm tra âm thanh.",
+          "sourceLabel": "Bản ghi âm · 00:28–00:50 (mốc theo đoạn)"
+        }
+      ],
+      "elapsedMs": 37154
+    },
+    {
+      "name": "lecture-en.mp3",
+      "http": 202,
+      "body": {
+        "documentId": "cmtd3j6c6001u58uz5srxmipq",
+        "status": "UPLOADED"
+      },
+      "jobs": [
+        {
+          "type": "EXTRACT_TEXT",
+          "status": "COMPLETED",
+          "errorMessage": null
+        },
+        {
+          "type": "CHUNK_DOCUMENT",
+          "status": "COMPLETED",
+          "errorMessage": null
+        },
+        {
+          "type": "EMBED_DOCUMENT",
+          "status": "COMPLETED",
+          "errorMessage": null
+        },
+        {
+          "type": "ANALYZE_DOCUMENT",
+          "status": "SKIPPED",
+          "errorMessage": null
+        }
+      ],
+      "document": {
+        "status": "READY",
+        "textContent": "Today we study computer networks and databases. Computers exchange information by sending data packets. A router forwards each packet toward its destination. Routing protocols compare the cost of different paths. A database stores information in tables with rows and columns. A primary key identifies each record. A foreign key connects records across tables.\n\nNormalization reduces duplication and helps avoid update errors. Good system design also requires access control and regular backups. We should test whether a backup can actually be restored. Students can practice by designing a small library database and connecting two local networks. This exercise combines network configuration, data management and security.\n\nThe final reminder is to verify both accuracy and reliability. This is the final sentence of the audio test."
+      },
+      "chunks": [
+        {
+          "content": "Today we study computer networks and databases. Computers exchange information by sending data packets. A router forwards each packet toward its destination. Routing protocols compare the cost of different paths. A database stores information in tables with rows and columns. A primary key identifies each record. A foreign key connects records across tables.",
+          "sourceLabel": "Bản ghi âm · 00:00–00:28 (mốc theo đoạn)"
+        },
+        {
+          "content": "Normalization reduces duplication and helps avoid update errors. Good system design also requires access control and regular backups. We should test whether a backup can actually be restored. Students can practice by designing a small library database and connecting two local networks. This exercise combines network configuration, data management and security.",
+          "sourceLabel": "Bản ghi âm · 00:28–00:56 (mốc theo đoạn)"
+        },
+        {
+          "content": "The final reminder is to verify both accuracy and reliability. This is the final sentence of the audio test.",
+          "sourceLabel": "Bản ghi âm · 00:56–01:05 (mốc theo đoạn)"
+        }
+      ],
+      "elapsedMs": 26916
+    },
+    {
+      "name": "mixed.m4a",
+      "http": 202,
+      "body": {
+        "documentId": "cmtd3jr3w002258uzmj6qq7bc",
+        "status": "UPLOADED"
+      },
+      "jobs": [
+        {
+          "type": "EXTRACT_TEXT",
+          "status": "COMPLETED",
+          "errorMessage": null
+        },
+        {
+          "type": "CHUNK_DOCUMENT",
+          "status": "COMPLETED",
+          "errorMessage": null
+        },
+        {
+          "type": "EMBED_DOCUMENT",
+          "status": "COMPLETED",
+          "errorMessage": null
+        },
+        {
+          "type": "ANALYZE_DOCUMENT",
+          "status": "SKIPPED",
+          "errorMessage": null
+        }
+      ],
+      "document": {
+        "status": "READY",
+        "textContent": "Hôm nay chúng ta học về mạng máy tính và cơ sở giữ liệu. Máy tính gửi thông tin bằng các cõi giữ liệu. Bộ định tuyến chuyển tiếp cõi tin đến mạng đích. Giao thức định tuyến lựa chọn đường đi dựa trên chi phí. Cơ sở giữ liệu lưu trữ thông tin trong các bản. Mỗi bản có các hàng và các cuộc. Khóa chính giúp phân biệt từng bản đi. Khóa ngoại liên kết giữ liệu giữa các bản.\n\nChưởng hóa giúp giảm giữ liệu trùng lập và tránh lỗi khi cập nhật. Khi thiết kế hệ thống, chúng ta cần kiểm tra quyền truy cập và sao lưu giữ liệu. Bản sao lưu phải được kiểm tra thường xuyên. Phần cuối bài học nhắc lại rằng bão mật và tính chính xác đều quan trọng. Đây là câu kết thúc của bài kiểm tra âm thanh. Hôm nay, chúng ta đã tìm thấy bài kiểm tra hệ thống và bài đại bài.\n\nComputers exchange information by sending data packets. A router forwards each packet toward its destination. Routing protocols compare the cost of different paths. A database stores information in tables with rows and columns. A primary key identifies each record. A foreign key connects records across tables.\n\nNormalization reduces duplication and helps avoid update errors. Good system design also requires access control and regular backups. We should test whether a backup can actually be restored. Students can practice by designing a small library database and connecting two local networks. This exercise combines network configuration, data management and security.\n\nThe final reminder is to verify both accuracy and reliability. This is the final sentence of the audio test."
+      },
+      "chunks": [
+        {
+          "content": "Hôm nay chúng ta học về mạng máy tính và cơ sở giữ liệu. Máy tính gửi thông tin bằng các cõi giữ liệu. Bộ định tuyến chuyển tiếp cõi tin đến mạng đích. Giao thức định tuyến lựa chọn đường đi dựa trên chi phí. Cơ sở giữ liệu lưu trữ thông tin trong các bản. Mỗi bản có các hàng và các cuộc. Khóa chính giúp phân biệt từng bản đi. Khóa ngoại liên kết giữ liệu giữa các bản.",
+          "sourceLabel": "Bản ghi âm · 00:00–00:28 (mốc theo đoạn)"
+        },
+        {
+          "content": "Chưởng hóa giúp giảm giữ liệu trùng lập và tránh lỗi khi cập nhật. Khi thiết kế hệ thống, chúng ta cần kiểm tra quyền truy cập và sao lưu giữ liệu. Bản sao lưu phải được kiểm tra thường xuyên. Phần cuối bài học nhắc lại rằng bão mật và tính chính xác đều quan trọng. Đây là câu kết thúc của bài kiểm tra âm thanh. Hôm nay, chúng ta đã tìm thấy bài kiểm tra hệ thống và bài đại bài.",
+          "sourceLabel": "Bản ghi âm · 00:28–00:54 (mốc theo đoạn)"
+        },
+        {
+          "content": "Computers exchange information by sending data packets. A router forwards each packet toward its destination. Routing protocols compare the cost of different paths. A database stores information in tables with rows and columns. A primary key identifies each record. A foreign key connects records across tables.",
+          "sourceLabel": "Bản ghi âm · 00:54–01:19 (mốc theo đoạn)"
+        },
+        {
+          "content": "Normalization reduces duplication and helps avoid update errors. Good system design also requires access control and regular backups. We should test whether a backup can actually be restored. Students can practice by designing a small library database and connecting two local networks. This exercise combines network configuration, data management and security.",
+          "sourceLabel": "Bản ghi âm · 01:19–01:46 (mốc theo đoạn)"
+        },
+        {
+          "content": "The final reminder is to verify both accuracy and reliability. This is the final sentence of the audio test.",
+          "sourceLabel": "Bản ghi âm · 01:46–01:56 (mốc theo đoạn)"
+        }
+      ],
+      "elapsedMs": 56878
+    },
+    {
+      "name": "baseline-vi.mp3",
+      "http": 202,
+      "body": {
+        "documentId": "cmtd3kyzf002c58uzu4ryq037",
+        "status": "UPLOADED"
+      },
+      "jobs": [
+        {
+          "type": "EXTRACT_TEXT",
+          "status": "COMPLETED",
+          "errorMessage": null
+        },
+        {
+          "type": "CHUNK_DOCUMENT",
+          "status": "COMPLETED",
+          "errorMessage": null
+        },
+        {
+          "type": "EMBED_DOCUMENT",
+          "status": "COMPLETED",
+          "errorMessage": null
+        },
+        {
+          "type": "ANALYZE_DOCUMENT",
+          "status": "SKIPPED",
+          "errorMessage": null
+        }
+      ],
+      "document": {
+        "status": "READY",
+        "textContent": "Colafone giúp tìm tài liệu học tập về mạng máy tính và cơ sở dữ liệu."
+      },
+      "chunks": [
+        {
+          "content": "Colafone giúp tìm tài liệu học tập về mạng máy tính và cơ sở dữ liệu.",
+          "sourceLabel": "Bản ghi âm · 00:00–00:04 (mốc theo đoạn)"
+        }
+      ],
+      "elapsedMs": 7121
+    },
+    {
+      "name": "baseline-en.wav",
+      "http": 202,
+      "body": {
+        "documentId": "cmtd3l4hm002i58uzksty8fls",
+        "status": "UPLOADED"
+      },
+      "jobs": [
+        {
+          "type": "EXTRACT_TEXT",
+          "status": "COMPLETED",
+          "errorMessage": null
+        },
+        {
+          "type": "CHUNK_DOCUMENT",
+          "status": "COMPLETED",
+          "errorMessage": null
+        },
+        {
+          "type": "EMBED_DOCUMENT",
+          "status": "COMPLETED",
+          "errorMessage": null
+        },
+        {
+          "type": "ANALYZE_DOCUMENT",
+          "status": "SKIPPED",
+          "errorMessage": null
+        }
+      ],
+      "document": {
+        "status": "READY",
+        "textContent": "Scholar Flow can search learning resources about computer networks and databases."
+      },
+      "chunks": [
+        {
+          "content": "Scholar Flow can search learning resources about computer networks and databases.",
+          "sourceLabel": "Bản ghi âm · 00:00–00:05 (mốc theo đoạn)"
+        }
+      ],
+      "elapsedMs": 6150
+    },
+    {
+      "name": "silence.wav",
+      "http": 202,
+      "body": {
+        "documentId": "cmtd3l988002o58uz9thfpxih",
+        "status": "UPLOADED"
+      },
+      "jobs": [
+        {
+          "type": "EXTRACT_TEXT",
+          "status": "FAILED",
+          "errorMessage": "Không nghe thấy lời nói trong file âm thanh."
+        },
+        {
+          "type": "CHUNK_DOCUMENT",
+          "status": "FAILED",
+          "errorMessage": "Không thể chunk vì bước trích xuất thất bại"
+        },
+        {
+          "type": "EMBED_DOCUMENT",
+          "status": "FAILED",
+          "errorMessage": "Không thể embed vì bước trích xuất thất bại"
+        },
+        {
+          "type": "ANALYZE_DOCUMENT",
+          "status": "FAILED",
+          "errorMessage": "Không thể phân tích vì bước trích xuất thất bại"
+        }
+      ],
+      "document": {
+        "status": "FAILED",
+        "textContent": null
+      },
+      "chunks": [],
+      "elapsedMs": 522
+    },
+    {
+      "name": "silence.m4a",
+      "http": 202,
+      "body": {
+        "documentId": "cmtd3l9mz002t58uz1y5d56fk",
+        "status": "UPLOADED"
+      },
+      "jobs": [
+        {
+          "type": "EXTRACT_TEXT",
+          "status": "FAILED",
+          "errorMessage": "Không nghe thấy lời nói trong file âm thanh."
+        },
+        {
+          "type": "CHUNK_DOCUMENT",
+          "status": "FAILED",
+          "errorMessage": "Không thể chunk vì bước trích xuất thất bại"
+        },
+        {
+          "type": "EMBED_DOCUMENT",
+          "status": "FAILED",
+          "errorMessage": "Không thể embed vì bước trích xuất thất bại"
+        },
+        {
+          "type": "ANALYZE_DOCUMENT",
+          "status": "FAILED",
+          "errorMessage": "Không thể phân tích vì bước trích xuất thất bại"
+        }
+      ],
+      "document": {
+        "status": "FAILED",
+        "textContent": null
+      },
+      "chunks": [],
+      "elapsedMs": 529
+    },
+    {
+      "name": "noise.wav",
+      "http": 202,
+      "body": {
+        "documentId": "cmtd3la1p002y58uz3ikfmj2v",
+        "status": "UPLOADED"
+      },
+      "jobs": [
+        {
+          "type": "EXTRACT_TEXT",
+          "status": "FAILED",
+          "errorMessage": "Chưa nhận diện chắc chắn tiếng Việt hoặc tiếng Anh. Hãy thử file có lời nói rõ hơn."
+        },
+        {
+          "type": "CHUNK_DOCUMENT",
+          "status": "FAILED",
+          "errorMessage": "Không thể chunk vì bước trích xuất thất bại"
+        },
+        {
+          "type": "EMBED_DOCUMENT",
+          "status": "FAILED",
+          "errorMessage": "Không thể embed vì bước trích xuất thất bại"
+        },
+        {
+          "type": "ANALYZE_DOCUMENT",
+          "status": "FAILED",
+          "errorMessage": "Không thể phân tích vì bước trích xuất thất bại"
+        }
+      ],
+      "document": {
+        "status": "FAILED",
+        "textContent": null
+      },
+      "chunks": [],
+      "elapsedMs": 3074
+    },
+    {
+      "name": "corrupt.mp3",
+      "http": 202,
+      "body": {
+        "documentId": "cmtd3lcfl003358uzbijc0s5e",
+        "status": "UPLOADED"
+      },
+      "jobs": [
+        {
+          "type": "EXTRACT_TEXT",
+          "status": "FAILED",
+          "errorMessage": "Không đọc được file âm thanh. File có thể bị hỏng; hãy xuất lại dưới dạng MP3, WAV hoặc M4A rồi thử lại."
+        },
+        {
+          "type": "CHUNK_DOCUMENT",
+          "status": "FAILED",
+          "errorMessage": "Không thể chunk vì bước trích xuất thất bại"
+        },
+        {
+          "type": "EMBED_DOCUMENT",
+          "status": "FAILED",
+          "errorMessage": "Không thể embed vì bước trích xuất thất bại"
+        },
+        {
+          "type": "ANALYZE_DOCUMENT",
+          "status": "FAILED",
+          "errorMessage": "Không thể phân tích vì bước trích xuất thất bại"
+        }
+      ],
+      "document": {
+        "status": "FAILED",
+        "textContent": null
+      },
+      "chunks": [],
+      "elapsedMs": 535
+    },
+    {
+      "name": "wrong-format.mp3",
+      "http": 415,
+      "body": {
+        "message": "Nội dung file không khớp với định dạng đã chọn"
+      },
+      "elapsedMs": 4
+    },
+    {
+      "name": "empty.wav",
+      "http": 413,
+      "body": {
+        "message": "File phải có dung lượng từ 1 byte đến 25 MB"
+      },
+      "elapsedMs": 3
+    },
+    {
+      "name": "database.mp3",
+      "http": 202,
+      "body": {
+        "documentId": "cmtd3lcud003858uzb699x87t",
+        "status": "UPLOADED"
+      },
+      "jobs": [
+        {
+          "type": "EXTRACT_TEXT",
+          "status": "FAILED",
+          "errorMessage": "Không nhận dạng được đủ lời nói trong file âm thanh."
+        },
+        {
+          "type": "CHUNK_DOCUMENT",
+          "status": "FAILED",
+          "errorMessage": "Không thể chunk vì bước trích xuất thất bại"
+        },
+        {
+          "type": "EMBED_DOCUMENT",
+          "status": "FAILED",
+          "errorMessage": "Không thể embed vì bước trích xuất thất bại"
+        },
+        {
+          "type": "ANALYZE_DOCUMENT",
+          "status": "FAILED",
+          "errorMessage": "Không thể phân tích vì bước trích xuất thất bại"
+        }
+      ],
+      "document": {
+        "status": "FAILED",
+        "textContent": null
+      },
+      "chunks": [],
+      "elapsedMs": 5612
+    }
+  ],
+  "searches": [
+    {
+      "name": "lecture-vi.mp3",
+      "query": "Khóa ngoại liên kết dữ liệu giữa các bảng",
+      "result": {
+        "query": "Khóa ngoại liên kết dữ liệu giữa các bảng",
+        "status": "OK",
+        "interpretedQuery": {
+          "difficulty": null,
+          "fileType": null,
+          "keywords": [
+            "khoa",
+            "ngoai",
+            "lien",
+            "ket",
+            "giua",
+            "bang"
+          ],
+          "keywordGroups": [
+            [
+              "khoa"
+            ],
+            [
+              "ngoai"
+            ],
+            [
+              "lien"
+            ],
+            [
+              "ket"
+            ],
+            [
+              "giua"
+            ],
+            [
+              "bang"
+            ]
+          ]
+        },
+        "retrievalMode": "hybrid",
+        "results": [
+          {
+            "chunkId": "cmtd3hifa001e58uzs646fhat",
+            "documentId": "cmtd3gnzg001958uzen3lnu5r",
+            "title": "lecture-vi",
+            "fileType": "AUDIO",
+            "primaryTopic": null,
+            "difficulty": null,
+            "content": "Hôm nay chúng ta học về mạng máy tính và cơ sở giữ liệu. Máy tính gửi thông tin bằng các gói giữ liệu. Bộ định tuyến chuyển tiếp gói tính đến mạng đích. Giao thức định tuyến lựa chọn đường đi dựa trên chi phí. Cơ sở giữ liệu lưu trữ thông tin trong các bản. Mỗi bản có các hàng và các cuộc. Phá chính giúp phân biệt từng bản đi. Phá ngoại liên kết giữ liệu giữa các bản.",
+            "pageNumber": null,
+            "sourceLabel": "Bản ghi âm · 00:00–00:28 (mốc theo đoạn)",
+            "score": 0.6431064060211182,
+            "semanticScore": 0.49454450607299805,
+            "keywordScore": 1,
+            "matchReasons": [
+              "Khớp ngữ nghĩa",
+              "Khớp từ khóa"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "lecture-en.mp3",
+      "query": "A primary key identifies each record",
+      "result": {
+        "query": "A primary key identifies each record",
+        "status": "OK",
+        "interpretedQuery": {
+          "difficulty": null,
+          "fileType": null,
+          "keywords": [
+            "primary",
+            "key",
+            "identifies",
+            "each",
+            "record"
+          ],
+          "keywordGroups": [
+            [
+              "primary"
+            ],
+            [
+              "key"
+            ],
+            [
+              "identifies"
+            ],
+            [
+              "each"
+            ],
+            [
+              "record"
+            ]
+          ]
+        },
+        "retrievalMode": "hybrid",
+        "results": [
+          {
+            "chunkId": "cmtd3jqce001z58uzn7weu4f1",
+            "documentId": "cmtd3j6c6001u58uz5srxmipq",
+            "title": "lecture-en",
+            "fileType": "AUDIO",
+            "primaryTopic": null,
+            "difficulty": null,
+            "content": "Today we study computer networks and databases. Computers exchange information by sending data packets. A router forwards each packet toward its destination. Routing protocols compare the cost of different paths. A database stores information in tables with rows and columns. A primary key identifies each record. A foreign key connects records across tables.",
+            "pageNumber": null,
+            "sourceLabel": "Bản ghi âm · 00:00–00:28 (mốc theo đoạn)",
+            "score": 0.6851880960702897,
+            "semanticScore": 0.5361766517162323,
+            "keywordScore": 1,
+            "matchReasons": [
+              "Khớp ngữ nghĩa",
+              "Khớp từ khóa"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "baseline-vi.mp3",
+      "query": "mạng máy tính",
+      "result": {
+        "query": "mạng máy tính",
+        "status": "OK",
+        "interpretedQuery": {
+          "difficulty": null,
+          "fileType": null,
+          "keywords": [
+            "mang",
+            "may",
+            "tinh"
+          ],
+          "keywordGroups": [
+            [
+              "mang"
+            ],
+            [
+              "may"
+            ],
+            [
+              "tinh"
+            ]
+          ]
+        },
+        "retrievalMode": "hybrid",
+        "results": [
+          {
+            "chunkId": "cmtd3l44m002h58uz3u7uiktf",
+            "documentId": "cmtd3kyzf002c58uzu4ryq037",
+            "title": "baseline-vi",
+            "fileType": "AUDIO",
+            "primaryTopic": null,
+            "difficulty": null,
+            "content": "Colafone giúp tìm tài liệu học tập về mạng máy tính và cơ sở dữ liệu.",
+            "pageNumber": null,
+            "sourceLabel": "Bản ghi âm · 00:00–00:04 (mốc theo đoạn)",
+            "score": 0.7133649448156357,
+            "semanticScore": 0.5893004238605499,
+            "keywordScore": 1,
+            "matchReasons": [
+              "Khớp ngữ nghĩa",
+              "Khớp từ khóa"
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

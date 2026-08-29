@@ -199,9 +199,11 @@ Sai một vài ký hiệu công thức, chữ cực nhỏ trong bảng/biểu đ
 
 Lưu ý: file dùng làm truy vấn chỉ để tìm, không được tự xuất hiện trong thư viện.
 
+> 29/08/2026: micro tìm kiếm đã gỡ; không thực hiện bài test mic cũ. Xem `APP_CAPABILITIES.md` ở thư mục gốc để phân biệt giới hạn nhận dạng với lỗi cần sửa.
+
 ## 5.1 Thêm mind map và âm thanh — 8 đến 15 phút
 
-1. Vào **Cài đặt → Thành phần cục bộ**. Cài **Whisper Base** nếu chưa có; thành phần này là tùy chọn và chỉ cần cho audio.
+1. Vào **Cài đặt → Thành phần cục bộ**. Cài **Whisper Small + VAD** nếu chưa có; thành phần này là tùy chọn và chỉ cần cho audio.
 2. Vào **Thêm tài liệu**, chọn cả ba file trong `06_mindmap_audio` rồi thêm vào thư viện.
 3. `01_mindmap_mang_may_tinh.png` phải trích xuất được ít nhất `MẠNG MÁY TÍNH`, `OSPF` và `Định tuyến trạng thái liên kết`.
 4. `02_audio_tieng_viet.mp3` phải có bản ghi chứa các ý `tài liệu học tập`, `mạng máy tính`, `cơ sở dữ liệu` và vị trí nguồn dạng mốc thời gian.
@@ -210,7 +212,7 @@ Lưu ý: file dùng làm truy vấn chỉ để tìm, không được tự xuấ
 7. Mở kết quả audio: app phải phát/mở được file gốc và vẫn hiển thị nội dung đã chép lời. Quay lại không được mất truy vấn.
 8. Có thể xóa Whisper để kiểm tra chế độ giới hạn: tài liệu/ảnh vẫn thêm được, riêng audio phải bị chặn với liên kết tới Cài đặt. Cài lại Whisper sau ca này.
 
-Chấp nhận: Whisper Base có thể viết sai tên riêng hoặc thương hiệu. Không chấp nhận: bản ghi rỗng, báo hoàn tất với `0 ký tự`, mất timestamp, treo ở bước đọc nội dung hoặc làm các định dạng khác ngừng hoạt động.
+Chấp nhận: Small có thể sai cả từ tiếng Việt thường, tên riêng hoặc câu trộn ngôn ngữ. VAD không sửa chữ. File không có lời nói phải thất bại rõ ràng, không sinh tài liệu giả. Không chấp nhận: bản ghi rỗng, báo hoàn tất với `0 ký tự`, mất timestamp, treo ở bước đọc nội dung hoặc làm các định dạng khác ngừng hoạt động.
 
 ## 6. Xử lý file lỗi — 5 phút
 

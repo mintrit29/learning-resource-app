@@ -1,0 +1,36 @@
+{
+  "date": "2026-08-29",
+  "runtime": "Whisper Small Q8 + Silero VAD; real BGE-M3; isolated SQLite library",
+  "total": 26,
+  "ready": 14,
+  "failedSafely": 10,
+  "rejectedAtUpload": 2,
+  "retrievalChecks": 3,
+  "quality": [
+    {
+      "name": "lecture-vi.mp3",
+      "referenceUnits": 150,
+      "actualUnits": 150,
+      "edits": 17
+    },
+    {
+      "name": "lecture-vi.wav",
+      "referenceUnits": 150,
+      "actualUnits": 150,
+      "edits": 18
+    },
+    {
+      "name": "lecture-vi.m4a",
+      "referenceUnits": 150,
+      "actualUnits": 150,
+      "edits": 16
+    },
+    {
+      "name": "lecture-en.mp3",
+      "referenceUnits": 123,
+      "actualUnits": 123,
+      "edits": 0
+    }
+  ],
+  "caveat": "Synthetic speech/noise fixtures, not representative of all real speakers. Functional pass does not mean perfect transcripts. Vietnamese counts are whitespace-separated syllabic units, English counts are words. Punctuation/case are ignored."
+}

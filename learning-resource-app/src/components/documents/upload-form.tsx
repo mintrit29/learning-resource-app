@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -21,12 +21,10 @@ import {
   SUPPORTED_UPLOAD_LABEL,
 } from "@/lib/documents/upload-policy";
 import {
-  clearUploadDraft,
   getUploadFeedback,
-  readUploadDraft,
-  saveUploadDraft,
   type UploadDraftItem as UploadItem,
 } from "@/lib/documents/upload-draft";
+import { editUploadItems, getServerUploadSnapshot, getUploadSnapshot, subscribeUploadSession, uploadPendingFiles } from "@/lib/documents/upload-session";
 
 function formatFileSize(bytes: number) {
   return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
@@ -47,18 +45,20 @@ export function UploadForm() {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const folderInputRef = useRef<HTMLInputElement>(null);
-  const [items, setItems] = useState<UploadItem[]>(readUploadDraft);
+  const { items, isUploading } = useSyncExternalStore(subscribeUploadSession, getUploadSnapshot, getServerUploadSnapshot);
+  const setItems = editUploadItems;
+  const mountedRef = useRef(false);
   const [error, setError] = useState("");
-  const [isUploading, setIsUploading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const feedback = getUploadFeedback(items, isUploading);
 
   useEffect(() => {
+    mountedRef.current = true;
     folderInputRef.current?.setAttribute("webkitdirectory", "");
+    return () => { mountedRef.current = false; };
   }, []);
 
   useEffect(() => {
-    saveUploadDraft(items);
     const hasUnfinishedWork = items.some((item) => item.status !== "uploaded");
     if (!hasUnfinishedWork) return;
     const warnBeforeLeaving = (event: BeforeUnloadEvent) => event.preventDefault();
@@ -107,66 +107,16 @@ export function UploadForm() {
     if (messages.length) setError(`Đã bỏ qua ${messages.join(", ")}.`);
   }
 
-  function updateItem(id: string, changes: Partial<UploadItem>) {
-    setItems((current) => current.map((item) => (item.id === id ? { ...item, ...changes } : item)));
-  }
-
   async function uploadFiles() {
-    const pendingItems = items.filter((item) => item.status === "ready" || item.status === "error");
-    if (!pendingItems.length) return;
-
     setError("");
-    setIsUploading(true);
-    let uploadedCount = 0;
-    let failedCount = 0;
-    let firstDocumentId: string | undefined;
-
-    for (const item of pendingItems) {
-      updateItem(item.id, { status: "uploading", message: undefined, needsComponent: false });
-      const formData = new FormData();
-      formData.append("file", item.file);
-
-      try {
-        const response = await fetch("/api/documents/upload", {
-          method: "POST",
-          body: formData,
-        });
-        const data = (await response.json()) as {
-          documentId?: string;
-          message?: string;
-          setupUrl?: string;
-        };
-        if (!response.ok || !data.documentId) {
-          failedCount += 1;
-          updateItem(item.id, {
-            status: "error",
-            message: data.message ?? "Không thể thêm tài liệu.",
-            needsComponent: Boolean(data.setupUrl),
-          });
-          continue;
-        }
-
-        uploadedCount += 1;
-        firstDocumentId ??= data.documentId;
-        updateItem(item.id, {
-          status: "uploaded",
-          documentId: data.documentId,
-          message: "Đã đưa vào hàng đợi",
-        });
-      } catch {
-        failedCount += 1;
-        updateItem(item.id, { status: "error", message: "Không thể kết nối tới máy chủ." });
-      }
-    }
-
-    setIsUploading(false);
+    const outcome = await uploadPendingFiles();
+    if (!outcome || !mountedRef.current) return;
+    const { uploadedCount, failedCount, firstDocumentId, totalCount } = outcome;
     if (failedCount > 0) {
       router.refresh();
       return;
     }
-    setItems([]);
-    clearUploadDraft();
-    if (uploadedCount === 1 && firstDocumentId && items.length === 1) {
+    if (uploadedCount === 1 && firstDocumentId && totalCount === 1) {
       router.push(`/documents/${firstDocumentId}`);
     } else if (uploadedCount > 0) {
       router.push("/documents");

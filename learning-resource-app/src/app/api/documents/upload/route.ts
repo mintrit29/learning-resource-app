@@ -16,8 +16,8 @@ import { createNamedUploadStorageLocation } from "@/lib/storage/local-storage";
 import {
   DOCLING_MISSING_MESSAGE,
   isDoclingReady,
-  isWhisperReady,
-  WHISPER_MISSING_MESSAGE,
+  isUploadWhisperReady,
+  UPLOAD_WHISPER_MISSING_MESSAGE,
 } from "@/lib/desktop/component-availability";
 
 export const runtime = "nodejs";
@@ -77,9 +77,9 @@ export async function POST(request: Request) {
   }
 
   const isAudio = ["mp3", "wav", "m4a"].includes(extension);
-  if (extension !== "xmind" && (isAudio ? !await isWhisperReady() : !await isDoclingReady())) {
+  if (extension !== "xmind" && (isAudio ? !await isUploadWhisperReady() : !await isDoclingReady())) {
     return NextResponse.json({
-      message: isAudio ? WHISPER_MISSING_MESSAGE : DOCLING_MISSING_MESSAGE,
+      message: isAudio ? UPLOAD_WHISPER_MISSING_MESSAGE : DOCLING_MISSING_MESSAGE,
       setupUrl: "/settings/components",
     }, { status: 503 });
   }

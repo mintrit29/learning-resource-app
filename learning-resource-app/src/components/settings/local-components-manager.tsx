@@ -115,11 +115,13 @@ export function LocalComponentsManager({ onboarding = false }: { onboarding?: bo
               </div>
               <p>{component.id === "docling"
                 ? "Đọc PDF, DOCX, PPTX, EPUB và OCR hình ảnh."
-                : component.id === "whisper"
-                ? "Chuyển giọng nói tiếng Việt và tiếng Anh trong MP3, WAV, M4A thành nội dung tìm kiếm."
+                : component.id === "whisper-small"
+                ? "Chép lời MP3, WAV, M4A bằng Whisper Small; VAD bỏ đoạn không có lời nói. Tiếng Việt, tên riêng và câu trộn Anh–Việt có thể sai hoặc thiếu chữ; VAD không sửa từ nghe sai."
                 : "Tạo vector 1.024 chiều cho tìm kiếm ngữ nghĩa và dẫn nguồn."}</p>
               {active ? <div className="component-progress"><span style={{ width: `${itemProgress}%` }} /></div> : null}
+              {component.id === "whisper-small" && component.status === "corrupt" ? <p>Bản Small cũ có thể chỉ thiếu VAD (khoảng 2,3 MB). Bấm Tải lại để bổ sung; các file model còn đúng sẽ được giữ.</p> : null}
               {component.error ? <p className="form-error">{component.error}</p> : null}
+              <p>Dung lượng: {formatBytes(component.totalBytes)}</p>
               <div className="component-actions">
                 {active ? (
                   <button className="secondary-button compact" onClick={() => window.scholarFlowDesktop?.cancelComponentInstall(component.id)} type="button"><X size={16} /> Hủy</button>

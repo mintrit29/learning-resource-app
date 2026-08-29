@@ -1,0 +1,1261 @@
+{
+  "date": "2026-08-28T16:16:31.403Z",
+  "scope": "Uploaded-audio ASR helper only; no UI, DB, embedding, microphone or app model change",
+  "corpus": "Synthetic TTS; includes same Vietnamese speech transcoded into 3 formats. Not 22 independent linguistic examples. Not human-voice evaluation.",
+  "metric": "Levenshtein edits on NFC/lowercased text with punctuation removed and whitespace splitting. Vietnamese units are mostly syllables, not linguistic words. No post-correction.",
+  "runtime": {
+    "node": "v24.13.0",
+    "platform": "win32",
+    "arch": "x64",
+    "cpu": "Intel(R) Core(TM) i7-10850H CPU @ 2.70GHz",
+    "logicalCpus": 12,
+    "ramGiB": 15.637802124023438,
+    "transformers": "4.2.0",
+    "onnxruntime": "1.24.3",
+    "device": "cpu",
+    "dtype": "q8",
+    "sequential": true
+  },
+  "provenance": {
+    "model": "huuquyet/PhoWhisper-small",
+    "revision": "515c6b55639f2944aa8b64f2b0268b41c944353c",
+    "totalBytes": 251659372,
+    "files": [
+      {
+        "rfilename": "config.json",
+        "blobId": "e1ec989579379c9cc4816a4da153ec3ab295e3b0",
+        "size": 2229
+      },
+      {
+        "rfilename": "generation_config.json",
+        "blobId": "f22b3492dd2fc82d796bb2053cbc2ab4b1b32c29",
+        "size": 3893
+      },
+      {
+        "rfilename": "preprocessor_config.json",
+        "blobId": "91876762a536a746d268353c5cba57286e76b058",
+        "size": 339
+      },
+      {
+        "rfilename": "tokenizer.json",
+        "blobId": "1e95340ff836fad1b5932e800fb7b8c5e6d78a74",
+        "size": 2480466
+      },
+      {
+        "rfilename": "tokenizer_config.json",
+        "blobId": "01cda0a9738fd5662646b6ffa1d39da70d35a6b1",
+        "size": 283277
+      },
+      {
+        "rfilename": "onnx/encoder_model_quantized.onnx",
+        "blobId": "d1031f2d4d0dd17c1421857ba8899f56827f35dc",
+        "size": 92289694,
+        "lfs": {
+          "sha256": "fd66a815bc5f0c452a8726b3ca48f4665d1d5352d00d7b9f4f4ef452c905de32",
+          "size": 92289694,
+          "pointerSize": 133
+        }
+      },
+      {
+        "rfilename": "onnx/decoder_model_merged_quantized.onnx",
+        "blobId": "7e78bb0694dd31c7052a265312269ce3474ce110",
+        "size": 156599474,
+        "lfs": {
+          "sha256": "218ccd2063c1b1601d6d5ebae9d84a9d1059223bcd110acf284fb0b38b3fa533",
+          "size": 156599474,
+          "pointerSize": 134
+        }
+      }
+    ],
+    "upstream": "vinai/PhoWhisper-small",
+    "upstreamRevision": "a86b604c346caf7148c37512eafe783a16420adb",
+    "note": "Community ONNX conversion; upstream PyTorch LFS SHA matches official repository. ONNX equivalence not independently proven."
+  },
+  "comparisons": [
+    {
+      "name": "short-vi.mp3",
+      "sha256": "bd2f08809fe2d032ef6800d497319f22920cf2fb76fe96c442e882bc59718446",
+      "referenceUnits": 8,
+      "smallEdits": 0,
+      "phoEdits": 0,
+      "smallMs": 5849,
+      "phoMs": 6157,
+      "smallError": null,
+      "phoError": null
+    },
+    {
+      "name": "short-vi.wav",
+      "sha256": "75458aca7f4cedb6dc8fd4346daf64d4668aa56456b4ec74cae6f5c32b2a88a8",
+      "referenceUnits": 8,
+      "smallEdits": 1,
+      "phoEdits": 0,
+      "smallMs": 5871,
+      "phoMs": 6048,
+      "smallError": null,
+      "phoError": null
+    },
+    {
+      "name": "short-vi.m4a",
+      "sha256": "8d4289c98babc5528f406d224129450dd4e320606f9ba8d415180dc1aa82789d",
+      "referenceUnits": 8,
+      "smallEdits": 0,
+      "phoEdits": 0,
+      "smallMs": 6374,
+      "phoMs": 6215,
+      "smallError": null,
+      "phoError": null
+    },
+    {
+      "name": "lecture-vi.mp3",
+      "sha256": "08d9992ca30f7d8908b5ab2327275cf0d4dae380e76852c5f979719b6c9acf6f",
+      "referenceUnits": 150,
+      "smallEdits": 17,
+      "phoEdits": 10,
+      "smallMs": 34662,
+      "phoMs": 41449,
+      "smallError": null,
+      "phoError": null
+    },
+    {
+      "name": "lecture-vi.wav",
+      "sha256": "657596eab1a9162511a3c0ae4b5fca688690874f1b53f01bce36ea70db45d8da",
+      "referenceUnits": 150,
+      "smallEdits": 18,
+      "phoEdits": 5,
+      "smallMs": 28084,
+      "phoMs": 40856,
+      "smallError": null,
+      "phoError": null
+    },
+    {
+      "name": "lecture-vi.m4a",
+      "sha256": "20d8461ee79ab3c8e14658b9ea3817c0785bb77cea20829fbbdbf246cef01e31",
+      "referenceUnits": 150,
+      "smallEdits": 16,
+      "phoEdits": 6,
+      "smallMs": 24843,
+      "phoMs": 35686,
+      "smallError": null,
+      "phoError": null
+    },
+    {
+      "name": "lecture-en.mp3",
+      "sha256": "410f8504e0863e0501dc34c1c48a269317d5941b51dd7572c5077abb9a37fca0",
+      "referenceUnits": 123,
+      "smallEdits": 0,
+      "phoEdits": 123,
+      "smallMs": 18841,
+      "phoMs": 32736,
+      "smallError": null,
+      "phoError": null
+    },
+    {
+      "name": "mixed.m4a",
+      "sha256": "f3de1212999e374d0038563c72bd1231e0c3a58e84bc2eaff9d7da503315f243",
+      "referenceUnits": 273,
+      "smallEdits": 32,
+      "phoEdits": 129,
+      "smallMs": 45890,
+      "phoMs": 68143,
+      "smallError": null,
+      "phoError": null
+    },
+    {
+      "name": "baseline-vi.mp3",
+      "sha256": "a9e6793a4b7d506a611f165a7568d98254a71ef754aac295d88f516489ae75a2",
+      "referenceUnits": null,
+      "smallEdits": null,
+      "phoEdits": null,
+      "smallMs": 5617,
+      "phoMs": 8684,
+      "smallError": null,
+      "phoError": null
+    },
+    {
+      "name": "baseline-en.wav",
+      "sha256": "f340bb9cbbe1df6d981006685cb8137a381ab550c563695d6274dc7dc7aa0686",
+      "referenceUnits": null,
+      "smallEdits": null,
+      "phoEdits": null,
+      "smallMs": 4131,
+      "phoMs": 8862,
+      "smallError": null,
+      "phoError": null
+    },
+    {
+      "name": "silence.wav",
+      "sha256": "8442e35f15fa3f2378b181bbf8f7fa1dbdcb61ab2726ea0e43080371cb16d701",
+      "referenceUnits": null,
+      "smallEdits": null,
+      "phoEdits": null,
+      "smallMs": null,
+      "phoMs": null,
+      "smallError": "Không nghe thấy lời nói trong file âm thanh.",
+      "phoError": "Không nghe thấy lời nói trong file âm thanh."
+    },
+    {
+      "name": "silence.m4a",
+      "sha256": "715c7a55cca246533d3193fd82a0ee1938a7e8974da44d82c835b5c28dea88ed",
+      "referenceUnits": null,
+      "smallEdits": null,
+      "phoEdits": null,
+      "smallMs": null,
+      "phoMs": null,
+      "smallError": "Không nghe thấy lời nói trong file âm thanh.",
+      "phoError": "Không nghe thấy lời nói trong file âm thanh."
+    },
+    {
+      "name": "noise.wav",
+      "sha256": "eb9d9b5a11c3cfe3c696a2a46f5a52d57a6052f95acc7a04c1bd5a8d82f80eb6",
+      "referenceUnits": null,
+      "smallEdits": null,
+      "phoEdits": null,
+      "smallMs": null,
+      "phoMs": 7999,
+      "smallError": "Chưa nhận diện chắc chắn tiếng Việt hoặc tiếng Anh. Hãy thử file có lời nói rõ hơn.",
+      "phoError": null
+    },
+    {
+      "name": "database.mp3",
+      "sha256": "f4120f8e978dd5c41c2378c9915da4d11f31c7affd8302018389aee5467b06b5",
+      "referenceUnits": 1,
+      "smallEdits": 0,
+      "phoEdits": 3,
+      "smallMs": 3361,
+      "phoMs": 5724,
+      "smallError": null,
+      "phoError": null
+    },
+    {
+      "name": "female-1.mp3",
+      "sha256": "40a0753138d3f6c641a3fcee39804ea43ee3a9ae5af85b239c6015dbbc4a20e1",
+      "referenceUnits": 7,
+      "smallEdits": 0,
+      "phoEdits": 1,
+      "smallMs": 4356,
+      "phoMs": 6197,
+      "smallError": null,
+      "phoError": null
+    },
+    {
+      "name": "female-2.mp3",
+      "sha256": "4badf75d44443bf22ffde4ff02cf3f89f10379b652f48f48d49f015d1de1bee4",
+      "referenceUnits": 8,
+      "smallEdits": 0,
+      "phoEdits": 0,
+      "smallMs": 4815,
+      "phoMs": 6568,
+      "smallError": null,
+      "phoError": null
+    },
+    {
+      "name": "male-1.mp3",
+      "sha256": "11ee1cb9020180e09808854857ec63e53090a8f58340a7b640a05bf6f7a38113",
+      "referenceUnits": 7,
+      "smallEdits": 1,
+      "phoEdits": 1,
+      "smallMs": 4672,
+      "phoMs": 6443,
+      "smallError": null,
+      "phoError": null
+    },
+    {
+      "name": "male-2.mp3",
+      "sha256": "2190f14471f850d9812ee97caa7516e17b2c426f58e761ba34884661b3f326ac",
+      "referenceUnits": 8,
+      "smallEdits": 2,
+      "phoEdits": 0,
+      "smallMs": 4652,
+      "phoMs": 6154,
+      "smallError": null,
+      "phoError": null
+    },
+    {
+      "name": "en-female-1.mp3",
+      "sha256": "d73534a4d39164185aa7790f3a5a8824fe908b71435cedf13267b19b0278f21f",
+      "referenceUnits": 2,
+      "smallEdits": 0,
+      "phoEdits": 0,
+      "smallMs": 3573,
+      "phoMs": 5644,
+      "smallError": null,
+      "phoError": null
+    },
+    {
+      "name": "en-female-2.mp3",
+      "sha256": "7a84eab5bc43749bd5348fb7d3baa9d3f74b22893103e62f58d6ca9752325d5b",
+      "referenceUnits": 1,
+      "smallEdits": 0,
+      "phoEdits": 3,
+      "smallMs": 3402,
+      "phoMs": 5694,
+      "smallError": null,
+      "phoError": null
+    },
+    {
+      "name": "en-male-1.mp3",
+      "sha256": "6dbc450ccacb42791d67a30307993b23646e6f28fdc0651a95aef9825e46a4f1",
+      "referenceUnits": 2,
+      "smallEdits": 0,
+      "phoEdits": 0,
+      "smallMs": 3391,
+      "phoMs": 5334,
+      "smallError": null,
+      "phoError": null
+    },
+    {
+      "name": "en-male-2.mp3",
+      "sha256": "f4120f8e978dd5c41c2378c9915da4d11f31c7affd8302018389aee5467b06b5",
+      "referenceUnits": 1,
+      "smallEdits": 0,
+      "phoEdits": 3,
+      "smallMs": 3554,
+      "phoMs": 6086,
+      "smallError": null,
+      "phoError": null
+    }
+  ],
+  "baseline": [
+    {
+      "name": "short-vi.mp3",
+      "model": "onnx-community/whisper-small",
+      "loadMs": 3281.5897999999997,
+      "peakRssMiB": 1114.28515625,
+      "fixtureSha256": "bd2f08809fe2d032ef6800d497319f22920cf2fb76fe96c442e882bc59718446",
+      "language": "vi",
+      "text": "Tìm tài liệu về cơ sở dữ liệu.",
+      "chunks": [
+        {
+          "text": "Tìm tài liệu về cơ sở dữ liệu.",
+          "start": 0,
+          "end": 3.048
+        }
+      ],
+      "timestamp_precision": "segment",
+      "duration_seconds": 3,
+      "elapsed_ms": 5849,
+      "referenceWords": 8,
+      "wordEdits": 0
+    },
+    {
+      "name": "short-vi.wav",
+      "model": "onnx-community/whisper-small",
+      "loadMs": 3281.5897999999997,
+      "peakRssMiB": 1199.57421875,
+      "fixtureSha256": "75458aca7f4cedb6dc8fd4346daf64d4668aa56456b4ec74cae6f5c32b2a88a8",
+      "language": "vi",
+      "text": "Tìm tai liệu về cơ sở dữ liệu.",
+      "chunks": [
+        {
+          "text": "Tìm tai liệu về cơ sở dữ liệu.",
+          "start": 0,
+          "end": 3.048
+        }
+      ],
+      "timestamp_precision": "segment",
+      "duration_seconds": 3,
+      "elapsed_ms": 5871,
+      "referenceWords": 8,
+      "wordEdits": 1
+    },
+    {
+      "name": "short-vi.m4a",
+      "model": "onnx-community/whisper-small",
+      "loadMs": 3281.5897999999997,
+      "peakRssMiB": 1209.34375,
+      "fixtureSha256": "8d4289c98babc5528f406d224129450dd4e320606f9ba8d415180dc1aa82789d",
+      "language": "vi",
+      "text": "Tìm tài liệu về cơ sở dữ liệu.",
+      "chunks": [
+        {
+          "text": "Tìm tài liệu về cơ sở dữ liệu.",
+          "start": 0,
+          "end": 3.072
+        }
+      ],
+      "timestamp_precision": "segment",
+      "duration_seconds": 3,
+      "elapsed_ms": 6374,
+      "referenceWords": 8,
+      "wordEdits": 0
+    },
+    {
+      "name": "lecture-vi.mp3",
+      "model": "onnx-community/whisper-small",
+      "loadMs": 3281.5897999999997,
+      "peakRssMiB": 1256.29296875,
+      "fixtureSha256": "08d9992ca30f7d8908b5ab2327275cf0d4dae380e76852c5f979719b6c9acf6f",
+      "language": "vi",
+      "text": "Hôm nay chúng ta học về mạng máy tính và cơ sở giữ liệu. Máy tính gửi thông tin bằng các gói giữ liệu. Bộ định tuyến chuyển tiếp gói tính đến mạng đích. Giao thức định tuyến lựa chọn đường đi dựa trên chi phí. Cơ sở giữ liệu lưu trữ thông tin trong các bản. Mỗi bản có các hàng và các cuộc. Phá chính giúp phân biệt từng bản đi. Phá ngoại liên kết giữ liệu giữa các bản. Chưởng hóa giúp giảm giữ liệu trùng lập và tránh lỗi khi cập nhật. Khi thiết kế hệ thống, chúng ta cần kiểm tra quyền truy cập và sao lưu giữ liệu. Bản sao lưu phải được kiểm tra thường xuyên. Phần cuối bài học nhắc lại rằng bão mật và tính chính xác đều quan trọng. Đây là câu kết thúc của bài kiểm tra âm thanh.",
+      "chunks": [
+        {
+          "text": "Hôm nay chúng ta học về mạng máy tính và cơ sở giữ liệu. Máy tính gửi thông tin bằng các gói giữ liệu. Bộ định tuyến chuyển tiếp gói tính đến mạng đích. Giao thức định tuyến lựa chọn đường đi dựa trên chi phí. Cơ sở giữ liệu lưu trữ thông tin trong các bản. Mỗi bản có các hàng và các cuộc. Phá chính giúp phân biệt từng bản đi. Phá ngoại liên kết giữ liệu giữa các bản.",
+          "start": 0,
+          "end": 28.5
+        },
+        {
+          "text": "Chưởng hóa giúp giảm giữ liệu trùng lập và tránh lỗi khi cập nhật. Khi thiết kế hệ thống, chúng ta cần kiểm tra quyền truy cập và sao lưu giữ liệu. Bản sao lưu phải được kiểm tra thường xuyên. Phần cuối bài học nhắc lại rằng bão mật và tính chính xác đều quan trọng. Đây là câu kết thúc của bài kiểm tra âm thanh.",
+          "start": 28.5,
+          "end": 50.64
+        }
+      ],
+      "timestamp_precision": "segment",
+      "duration_seconds": 51,
+      "elapsed_ms": 34662,
+      "referenceWords": 150,
+      "wordEdits": 17
+    },
+    {
+      "name": "lecture-vi.wav",
+      "model": "onnx-community/whisper-small",
+      "loadMs": 3281.5897999999997,
+      "peakRssMiB": 1307.0703125,
+      "fixtureSha256": "657596eab1a9162511a3c0ae4b5fca688690874f1b53f01bce36ea70db45d8da",
+      "language": "vi",
+      "text": "Hôm nay chúng ta học về mạng máy tính và cơ sở giữ liệu. Máy tính gửi thông tin bằng các cõi giữ liệu. Bộ định tuyến chuyển tiếp cõi tinh đến mạng đích. Giao thức định tuyến lựa chọn đường đi dựa trên chi phí. Cơ sở giữ liệu lưu trữ thông tin trong các bản. Mỗi bản có các hàng và các cục. Khóa chính giúp phân biệt từng bản ghi. Khóa ngoại liên kết giữ liệu giữa các bản. Chưởng hóa giúp giảm giữ liệu trùng lập và tránh lỗi khi cập nhật. Khi thiết kế hệ thống, chúng ta cần kiểm tra quyền truy cập và sau lưu giữ liệu. Bản sau lưu phải được kiểm tra thường xuyên. Phần cuối bài học nhắc lại rằng bão mật và tính chính xác đều quan trọng. Đây là câu kết thúc của bài kiểm tra âm thanh.",
+      "chunks": [
+        {
+          "text": "Hôm nay chúng ta học về mạng máy tính và cơ sở giữ liệu. Máy tính gửi thông tin bằng các cõi giữ liệu. Bộ định tuyến chuyển tiếp cõi tinh đến mạng đích. Giao thức định tuyến lựa chọn đường đi dựa trên chi phí. Cơ sở giữ liệu lưu trữ thông tin trong các bản. Mỗi bản có các hàng và các cục. Khóa chính giúp phân biệt từng bản ghi. Khóa ngoại liên kết giữ liệu giữa các bản.",
+          "start": 0,
+          "end": 28.6
+        },
+        {
+          "text": "Chưởng hóa giúp giảm giữ liệu trùng lập và tránh lỗi khi cập nhật. Khi thiết kế hệ thống, chúng ta cần kiểm tra quyền truy cập và sau lưu giữ liệu. Bản sau lưu phải được kiểm tra thường xuyên. Phần cuối bài học nhắc lại rằng bão mật và tính chính xác đều quan trọng. Đây là câu kết thúc của bài kiểm tra âm thanh.",
+          "start": 28.6,
+          "end": 50.64
+        }
+      ],
+      "timestamp_precision": "segment",
+      "duration_seconds": 51,
+      "elapsed_ms": 28084,
+      "referenceWords": 150,
+      "wordEdits": 18
+    },
+    {
+      "name": "lecture-vi.m4a",
+      "model": "onnx-community/whisper-small",
+      "loadMs": 3281.5897999999997,
+      "peakRssMiB": 1375.78125,
+      "fixtureSha256": "20d8461ee79ab3c8e14658b9ea3817c0785bb77cea20829fbbdbf246cef01e31",
+      "language": "vi",
+      "text": "Hôm nay chúng ta học về mạng máy tính và cơ sở giữ liệu. Máy tính gửi thông tin bằng các cõi giữ liệu. Bộ định tuyến chuyển tiếp cõi tin đến mạng đích. Giao thức định tuyến lựa chọn đường đi dựa trên chi phí. Cơ sở giữ liệu lưu trữ thông tin trong các bản. Mỗi bản có các hàng và các cuộc. Khóa chính giúp phân biệt từng bản đi. Khóa ngoại liên kết giữ liệu giữa các bản. Chưởng hóa giúp giảm giữ liệu trùng lập và tránh lỗi khi cập nhật. Khi thiết kế hệ thống, chúng ta cần kiểm tra quyền truy cập và sao lưu giữ liệu. Bản sao lưu phải được kiểm tra thường xuyên. Phần cuối bài học nhắc lại rằng bão mật và tính chính xác đều quan trọng. Đây là câu kết thúc của bài kiểm tra âm thanh.",
+      "chunks": [
+        {
+          "text": "Hôm nay chúng ta học về mạng máy tính và cơ sở giữ liệu. Máy tính gửi thông tin bằng các cõi giữ liệu. Bộ định tuyến chuyển tiếp cõi tin đến mạng đích. Giao thức định tuyến lựa chọn đường đi dựa trên chi phí. Cơ sở giữ liệu lưu trữ thông tin trong các bản. Mỗi bản có các hàng và các cuộc. Khóa chính giúp phân biệt từng bản đi. Khóa ngoại liên kết giữ liệu giữa các bản.",
+          "start": 0,
+          "end": 28.5
+        },
+        {
+          "text": "Chưởng hóa giúp giảm giữ liệu trùng lập và tránh lỗi khi cập nhật. Khi thiết kế hệ thống, chúng ta cần kiểm tra quyền truy cập và sao lưu giữ liệu. Bản sao lưu phải được kiểm tra thường xuyên. Phần cuối bài học nhắc lại rằng bão mật và tính chính xác đều quan trọng. Đây là câu kết thúc của bài kiểm tra âm thanh.",
+          "start": 28.5,
+          "end": 50.645375
+        }
+      ],
+      "timestamp_precision": "segment",
+      "duration_seconds": 51,
+      "elapsed_ms": 24843,
+      "referenceWords": 150,
+      "wordEdits": 16
+    },
+    {
+      "name": "lecture-en.mp3",
+      "model": "onnx-community/whisper-small",
+      "loadMs": 3281.5897999999997,
+      "peakRssMiB": 1430.86328125,
+      "fixtureSha256": "410f8504e0863e0501dc34c1c48a269317d5941b51dd7572c5077abb9a37fca0",
+      "language": "en",
+      "text": "Today we study computer networks and databases. Computers exchange information by sending data packets. A router forwards each packet toward its destination. Routing protocols compare the cost of different paths. A database stores information in tables with rows and columns. A primary key identifies each record. A foreign key connects records across tables. Normalization reduces duplication and helps avoid update errors. Good system design also requires access control and regular backups. We should test whether a backup can actually be restored. Students can practice by designing a small library database and connecting two local networks. This exercise combines network configuration, data management and security. The final reminder is to verify both accuracy and reliability. This is the final sentence of the audio test.",
+      "chunks": [
+        {
+          "text": "Today we study computer networks and databases. Computers exchange information by sending data packets. A router forwards each packet toward its destination. Routing protocols compare the cost of different paths. A database stores information in tables with rows and columns. A primary key identifies each record. A foreign key connects records across tables.",
+          "start": 0,
+          "end": 28.65
+        },
+        {
+          "text": "Normalization reduces duplication and helps avoid update errors. Good system design also requires access control and regular backups. We should test whether a backup can actually be restored. Students can practice by designing a small library database and connecting two local networks. This exercise combines network configuration, data management and security.",
+          "start": 28.65,
+          "end": 56.3
+        },
+        {
+          "text": "The final reminder is to verify both accuracy and reliability. This is the final sentence of the audio test.",
+          "start": 56.3,
+          "end": 65.352
+        }
+      ],
+      "timestamp_precision": "segment",
+      "duration_seconds": 65,
+      "elapsed_ms": 18841,
+      "referenceWords": 123,
+      "wordEdits": 0
+    },
+    {
+      "name": "mixed.m4a",
+      "model": "onnx-community/whisper-small",
+      "loadMs": 3281.5897999999997,
+      "peakRssMiB": 1498.0234375,
+      "fixtureSha256": "f3de1212999e374d0038563c72bd1231e0c3a58e84bc2eaff9d7da503315f243",
+      "language": "mixed",
+      "text": "Hôm nay chúng ta học về mạng máy tính và cơ sở giữ liệu. Máy tính gửi thông tin bằng các cõi giữ liệu. Bộ định tuyến chuyển tiếp cõi tin đến mạng đích. Giao thức định tuyến lựa chọn đường đi dựa trên chi phí. Cơ sở giữ liệu lưu trữ thông tin trong các bản. Mỗi bản có các hàng và các cuộc. Khóa chính giúp phân biệt từng bản đi. Khóa ngoại liên kết giữ liệu giữa các bản. Chưởng hóa giúp giảm giữ liệu trùng lập và tránh lỗi khi cập nhật. Khi thiết kế hệ thống, chúng ta cần kiểm tra quyền truy cập và sao lưu giữ liệu. Bản sao lưu phải được kiểm tra thường xuyên. Phần cuối bài học nhắc lại rằng bão mật và tính chính xác đều quan trọng. Đây là câu kết thúc của bài kiểm tra âm thanh. Hôm nay, chúng ta đã tìm thấy bài kiểm tra hệ thống và bài đại bài. Computers exchange information by sending data packets. A router forwards each packet toward its destination. Routing protocols compare the cost of different paths. A database stores information in tables with rows and columns. A primary key identifies each record. A foreign key connects records across tables. Normalization reduces duplication and helps avoid update errors. Good system design also requires access control and regular backups. We should test whether a backup can actually be restored. Students can practice by designing a small library database and connecting two local networks. This exercise combines network configuration, data management and security. The final reminder is to verify both accuracy and reliability. This is the final sentence of the audio test.",
+      "chunks": [
+        {
+          "text": "Hôm nay chúng ta học về mạng máy tính và cơ sở giữ liệu. Máy tính gửi thông tin bằng các cõi giữ liệu. Bộ định tuyến chuyển tiếp cõi tin đến mạng đích. Giao thức định tuyến lựa chọn đường đi dựa trên chi phí. Cơ sở giữ liệu lưu trữ thông tin trong các bản. Mỗi bản có các hàng và các cuộc. Khóa chính giúp phân biệt từng bản đi. Khóa ngoại liên kết giữ liệu giữa các bản.",
+          "start": 0,
+          "end": 28.5
+        },
+        {
+          "text": "Chưởng hóa giúp giảm giữ liệu trùng lập và tránh lỗi khi cập nhật. Khi thiết kế hệ thống, chúng ta cần kiểm tra quyền truy cập và sao lưu giữ liệu. Bản sao lưu phải được kiểm tra thường xuyên. Phần cuối bài học nhắc lại rằng bão mật và tính chính xác đều quan trọng. Đây là câu kết thúc của bài kiểm tra âm thanh. Hôm nay, chúng ta đã tìm thấy bài kiểm tra hệ thống và bài đại bài.",
+          "start": 28.5,
+          "end": 54.5
+        },
+        {
+          "text": "Computers exchange information by sending data packets. A router forwards each packet toward its destination. Routing protocols compare the cost of different paths. A database stores information in tables with rows and columns. A primary key identifies each record. A foreign key connects records across tables.",
+          "start": 54.5,
+          "end": 79.3
+        },
+        {
+          "text": "Normalization reduces duplication and helps avoid update errors. Good system design also requires access control and regular backups. We should test whether a backup can actually be restored. Students can practice by designing a small library database and connecting two local networks. This exercise combines network configuration, data management and security.",
+          "start": 79.3,
+          "end": 106.9
+        },
+        {
+          "text": "The final reminder is to verify both accuracy and reliability. This is the final sentence of the audio test.",
+          "start": 106.9,
+          "end": 116.0106875
+        }
+      ],
+      "timestamp_precision": "segment",
+      "duration_seconds": 116,
+      "elapsed_ms": 45890,
+      "referenceWords": 273,
+      "wordEdits": 32
+    },
+    {
+      "name": "baseline-vi.mp3",
+      "model": "onnx-community/whisper-small",
+      "loadMs": 3281.5897999999997,
+      "peakRssMiB": 1501.68359375,
+      "fixtureSha256": "a9e6793a4b7d506a611f165a7568d98254a71ef754aac295d88f516489ae75a2",
+      "language": "vi",
+      "text": "Colafone giúp tìm tài liệu học tập về mạng máy tính và cơ sở dữ liệu.",
+      "chunks": [
+        {
+          "text": "Colafone giúp tìm tài liệu học tập về mạng máy tính và cơ sở dữ liệu.",
+          "start": 0,
+          "end": 4.848
+        }
+      ],
+      "timestamp_precision": "segment",
+      "duration_seconds": 5,
+      "elapsed_ms": 5617
+    },
+    {
+      "name": "baseline-en.wav",
+      "model": "onnx-community/whisper-small",
+      "loadMs": 3281.5897999999997,
+      "peakRssMiB": 1501.68359375,
+      "fixtureSha256": "f340bb9cbbe1df6d981006685cb8137a381ab550c563695d6274dc7dc7aa0686",
+      "language": "en",
+      "text": "Scholar Flow can search learning resources about computer networks and databases.",
+      "chunks": [
+        {
+          "text": "Scholar Flow can search learning resources about computer networks and databases.",
+          "start": 0,
+          "end": 5.4785625
+        }
+      ],
+      "timestamp_precision": "segment",
+      "duration_seconds": 5,
+      "elapsed_ms": 4131
+    },
+    {
+      "name": "silence.wav",
+      "model": "onnx-community/whisper-small",
+      "loadMs": 3281.5897999999997,
+      "peakRssMiB": 1501.68359375,
+      "fixtureSha256": "8442e35f15fa3f2378b181bbf8f7fa1dbdcb61ab2726ea0e43080371cb16d701",
+      "error": "Không nghe thấy lời nói trong file âm thanh."
+    },
+    {
+      "name": "silence.m4a",
+      "model": "onnx-community/whisper-small",
+      "loadMs": 3281.5897999999997,
+      "peakRssMiB": 1501.68359375,
+      "fixtureSha256": "715c7a55cca246533d3193fd82a0ee1938a7e8974da44d82c835b5c28dea88ed",
+      "error": "Không nghe thấy lời nói trong file âm thanh."
+    },
+    {
+      "name": "noise.wav",
+      "model": "onnx-community/whisper-small",
+      "loadMs": 3281.5897999999997,
+      "peakRssMiB": 1501.68359375,
+      "fixtureSha256": "eb9d9b5a11c3cfe3c696a2a46f5a52d57a6052f95acc7a04c1bd5a8d82f80eb6",
+      "error": "Chưa nhận diện chắc chắn tiếng Việt hoặc tiếng Anh. Hãy thử file có lời nói rõ hơn."
+    },
+    {
+      "name": "database.mp3",
+      "model": "onnx-community/whisper-small",
+      "loadMs": 3281.5897999999997,
+      "peakRssMiB": 1501.68359375,
+      "fixtureSha256": "f4120f8e978dd5c41c2378c9915da4d11f31c7affd8302018389aee5467b06b5",
+      "language": "en",
+      "text": "Database",
+      "chunks": [
+        {
+          "text": "Database",
+          "start": 0,
+          "end": 1.8
+        }
+      ],
+      "timestamp_precision": "segment",
+      "duration_seconds": 2,
+      "elapsed_ms": 3361,
+      "referenceWords": 1,
+      "wordEdits": 0
+    },
+    {
+      "name": "female-1.mp3",
+      "model": "onnx-community/whisper-small",
+      "loadMs": 3281.5897999999997,
+      "peakRssMiB": 1501.68359375,
+      "fixtureSha256": "40a0753138d3f6c641a3fcee39804ea43ee3a9ae5af85b239c6015dbbc4a20e1",
+      "language": "vi",
+      "text": "Tìm tài liệu về mạng máy tính.",
+      "chunks": [
+        {
+          "text": "Tìm tài liệu về mạng máy tính.",
+          "start": 0,
+          "end": 2.736
+        }
+      ],
+      "timestamp_precision": "segment",
+      "duration_seconds": 3,
+      "elapsed_ms": 4356,
+      "referenceWords": 7,
+      "wordEdits": 0
+    },
+    {
+      "name": "female-2.mp3",
+      "model": "onnx-community/whisper-small",
+      "loadMs": 3281.5897999999997,
+      "peakRssMiB": 1501.68359375,
+      "fixtureSha256": "4badf75d44443bf22ffde4ff02cf3f89f10379b652f48f48d49f015d1de1bee4",
+      "language": "vi",
+      "text": "Tìm tài liệu về cơ sở dữ liệu.",
+      "chunks": [
+        {
+          "text": "Tìm tài liệu về cơ sở dữ liệu.",
+          "start": 0,
+          "end": 3.048
+        }
+      ],
+      "timestamp_precision": "segment",
+      "duration_seconds": 3,
+      "elapsed_ms": 4815,
+      "referenceWords": 8,
+      "wordEdits": 0
+    },
+    {
+      "name": "male-1.mp3",
+      "model": "onnx-community/whisper-small",
+      "loadMs": 3281.5897999999997,
+      "peakRssMiB": 1501.68359375,
+      "fixtureSha256": "11ee1cb9020180e09808854857ec63e53090a8f58340a7b640a05bf6f7a38113",
+      "language": "vi",
+      "text": "Tìm tai liệu về mạng máy tính.",
+      "chunks": [
+        {
+          "text": "Tìm tai liệu về mạng máy tính.",
+          "start": 0,
+          "end": 2.688
+        }
+      ],
+      "timestamp_precision": "segment",
+      "duration_seconds": 3,
+      "elapsed_ms": 4672,
+      "referenceWords": 7,
+      "wordEdits": 1
+    },
+    {
+      "name": "male-2.mp3",
+      "model": "onnx-community/whisper-small",
+      "loadMs": 3281.5897999999997,
+      "peakRssMiB": 1501.68359375,
+      "fixtureSha256": "2190f14471f850d9812ee97caa7516e17b2c426f58e761ba34884661b3f326ac",
+      "language": "vi",
+      "text": "Tìm tai liệu về cơ sở giữ liệu.",
+      "chunks": [
+        {
+          "text": "Tìm tai liệu về cơ sở giữ liệu.",
+          "start": 0,
+          "end": 2.904
+        }
+      ],
+      "timestamp_precision": "segment",
+      "duration_seconds": 3,
+      "elapsed_ms": 4652,
+      "referenceWords": 8,
+      "wordEdits": 2
+    },
+    {
+      "name": "en-female-1.mp3",
+      "model": "onnx-community/whisper-small",
+      "loadMs": 3281.5897999999997,
+      "peakRssMiB": 1501.68359375,
+      "fixtureSha256": "d73534a4d39164185aa7790f3a5a8824fe908b71435cedf13267b19b0278f21f",
+      "language": "en",
+      "text": "Computer Science",
+      "chunks": [
+        {
+          "text": "Computer Science",
+          "start": 0,
+          "end": 2.088
+        }
+      ],
+      "timestamp_precision": "segment",
+      "duration_seconds": 2,
+      "elapsed_ms": 3573,
+      "referenceWords": 2,
+      "wordEdits": 0
+    },
+    {
+      "name": "en-female-2.mp3",
+      "model": "onnx-community/whisper-small",
+      "loadMs": 3281.5897999999997,
+      "peakRssMiB": 1502.7265625,
+      "fixtureSha256": "7a84eab5bc43749bd5348fb7d3baa9d3f74b22893103e62f58d6ca9752325d5b",
+      "language": "en",
+      "text": "Database",
+      "chunks": [
+        {
+          "text": "Database",
+          "start": 0,
+          "end": 1.776
+        }
+      ],
+      "timestamp_precision": "segment",
+      "duration_seconds": 2,
+      "elapsed_ms": 3402,
+      "referenceWords": 1,
+      "wordEdits": 0
+    },
+    {
+      "name": "en-male-1.mp3",
+      "model": "onnx-community/whisper-small",
+      "loadMs": 3281.5897999999997,
+      "peakRssMiB": 1502.73828125,
+      "fixtureSha256": "6dbc450ccacb42791d67a30307993b23646e6f28fdc0651a95aef9825e46a4f1",
+      "language": "en",
+      "text": "Computer Science",
+      "chunks": [
+        {
+          "text": "Computer Science",
+          "start": 0,
+          "end": 2.16
+        }
+      ],
+      "timestamp_precision": "segment",
+      "duration_seconds": 2,
+      "elapsed_ms": 3391,
+      "referenceWords": 2,
+      "wordEdits": 0
+    },
+    {
+      "name": "en-male-2.mp3",
+      "model": "onnx-community/whisper-small",
+      "loadMs": 3281.5897999999997,
+      "peakRssMiB": 1502.73828125,
+      "fixtureSha256": "f4120f8e978dd5c41c2378c9915da4d11f31c7affd8302018389aee5467b06b5",
+      "language": "en",
+      "text": "Database",
+      "chunks": [
+        {
+          "text": "Database",
+          "start": 0,
+          "end": 1.8
+        }
+      ],
+      "timestamp_precision": "segment",
+      "duration_seconds": 2,
+      "elapsed_ms": 3554,
+      "referenceWords": 1,
+      "wordEdits": 0
+    }
+  ],
+  "candidate": [
+    {
+      "name": "short-vi.mp3",
+      "model": "huuquyet/PhoWhisper-small",
+      "loadMs": 2954.7264,
+      "peakRssMiB": 1506.9765625,
+      "fixtureSha256": "bd2f08809fe2d032ef6800d497319f22920cf2fb76fe96c442e882bc59718446",
+      "language": "vi",
+      "text": "tìm tài liệu về cơ sở dữ liệu.",
+      "chunks": [
+        {
+          "text": "tìm tài liệu về cơ sở dữ liệu.",
+          "start": 0,
+          "end": 3.048
+        }
+      ],
+      "timestamp_precision": "segment",
+      "duration_seconds": 3,
+      "elapsed_ms": 6157,
+      "referenceWords": 8,
+      "wordEdits": 0
+    },
+    {
+      "name": "short-vi.wav",
+      "model": "huuquyet/PhoWhisper-small",
+      "loadMs": 2954.7264,
+      "peakRssMiB": 1506.9765625,
+      "fixtureSha256": "75458aca7f4cedb6dc8fd4346daf64d4668aa56456b4ec74cae6f5c32b2a88a8",
+      "language": "vi",
+      "text": "tìm tài liệu về cơ sở dữ liệu.",
+      "chunks": [
+        {
+          "text": "tìm tài liệu về cơ sở dữ liệu.",
+          "start": 0,
+          "end": 3.048
+        }
+      ],
+      "timestamp_precision": "segment",
+      "duration_seconds": 3,
+      "elapsed_ms": 6048,
+      "referenceWords": 8,
+      "wordEdits": 0
+    },
+    {
+      "name": "short-vi.m4a",
+      "model": "huuquyet/PhoWhisper-small",
+      "loadMs": 2954.7264,
+      "peakRssMiB": 1510.68359375,
+      "fixtureSha256": "8d4289c98babc5528f406d224129450dd4e320606f9ba8d415180dc1aa82789d",
+      "language": "vi",
+      "text": "tìm tài liệu về cơ sở dữ liệu.",
+      "chunks": [
+        {
+          "text": "tìm tài liệu về cơ sở dữ liệu.",
+          "start": 0,
+          "end": 3.072
+        }
+      ],
+      "timestamp_precision": "segment",
+      "duration_seconds": 3,
+      "elapsed_ms": 6215,
+      "referenceWords": 8,
+      "wordEdits": 0
+    },
+    {
+      "name": "lecture-vi.mp3",
+      "model": "huuquyet/PhoWhisper-small",
+      "loadMs": 2954.7264,
+      "peakRssMiB": 1576.0625,
+      "fixtureSha256": "08d9992ca30f7d8908b5ab2327275cf0d4dae380e76852c5f979719b6c9acf6f",
+      "language": "vi",
+      "text": "hôm nay chúng ta học về mảng máy tính và cơ sở dữ liệu máy tính gửi thông tin bằng các gói dữ liệu bộ định tuyển tiếp gói tin đến mạng đích do thước định tuyến lựa chọn đường đi dựa trên chi phí cơ sở dữ liệu lưu trữ thông tin trong các bảng mỗi bảng có các hàng và các cột phá chính giúp phân biệt từng bảng ghi phá ngoại liên kết dữ liệu giữa các bảng. chẩn hoá giúp giảm dữ liệu trùng lặp và tránh lỗi khi cập nhật khi thiết kế hệ thống chúng ta cần kiểm tra quyền truy cập và sao lưu dữ liệu bản sao lưu phải được kiểm tra thường xuyên phần cuối bài học nhắc lại rằng bảo mật và tính chính xác đều quan trọng đây là câu kết thúc của bài kiểm tra âm thanh.",
+      "chunks": [
+        {
+          "text": "hôm nay chúng ta học về mảng máy tính và cơ sở dữ liệu máy tính gửi thông tin bằng các gói dữ liệu bộ định tuyển tiếp gói tin đến mạng đích do thước định tuyến lựa chọn đường đi dựa trên chi phí cơ sở dữ liệu lưu trữ thông tin trong các bảng mỗi bảng có các hàng và các cột phá chính giúp phân biệt từng bảng ghi phá ngoại liên kết dữ liệu giữa các bảng.",
+          "start": 0,
+          "end": 28.5
+        },
+        {
+          "text": "chẩn hoá giúp giảm dữ liệu trùng lặp và tránh lỗi khi cập nhật khi thiết kế hệ thống chúng ta cần kiểm tra quyền truy cập và sao lưu dữ liệu bản sao lưu phải được kiểm tra thường xuyên phần cuối bài học nhắc lại rằng bảo mật và tính chính xác đều quan trọng đây là câu kết thúc của bài kiểm tra âm thanh.",
+          "start": 28.5,
+          "end": 50.64
+        }
+      ],
+      "timestamp_precision": "segment",
+      "duration_seconds": 51,
+      "elapsed_ms": 41449,
+      "referenceWords": 150,
+      "wordEdits": 10
+    },
+    {
+      "name": "lecture-vi.wav",
+      "model": "huuquyet/PhoWhisper-small",
+      "loadMs": 2954.7264,
+      "peakRssMiB": 1633.5390625,
+      "fixtureSha256": "657596eab1a9162511a3c0ae4b5fca688690874f1b53f01bce36ea70db45d8da",
+      "language": "vi",
+      "text": "hôm nay chúng ta học về mảng máy tính và cơ sở dữ liệu máy tính gửi thông tin bằng các gói dữ liệu bộ định tuyển chuyển tiếp gói tin đến mạng đích giao thức định tuyến lựa chọn đường đi dựa trên chi phí cơ sở dữ liệu lưu trữ thông tin trong các bảng mỗi bảng có các hàng và các cột phá chính giúp phân biệt từng bảng ghi phá ngoại liên kết dữ liệu giữa các bảng. chuẩn hóa giúp giảm dữ liệu trùng lặp và tránh lỗi khi cập nhật khi thiết kế hệ thống chúng ta cần kiểm tra quyền truy cập và sao lưu dữ liệu bản sao lưu phải được kiểm tra thường xuyên phần cuối bài học nhắc lại rằng bảo mật và tính chính xác đều quan trọng đây là câu kết thúc của bài kiểm tra âm thanh.",
+      "chunks": [
+        {
+          "text": "hôm nay chúng ta học về mảng máy tính và cơ sở dữ liệu máy tính gửi thông tin bằng các gói dữ liệu bộ định tuyển chuyển tiếp gói tin đến mạng đích giao thức định tuyến lựa chọn đường đi dựa trên chi phí cơ sở dữ liệu lưu trữ thông tin trong các bảng mỗi bảng có các hàng và các cột phá chính giúp phân biệt từng bảng ghi phá ngoại liên kết dữ liệu giữa các bảng.",
+          "start": 0,
+          "end": 28.6
+        },
+        {
+          "text": "chuẩn hóa giúp giảm dữ liệu trùng lặp và tránh lỗi khi cập nhật khi thiết kế hệ thống chúng ta cần kiểm tra quyền truy cập và sao lưu dữ liệu bản sao lưu phải được kiểm tra thường xuyên phần cuối bài học nhắc lại rằng bảo mật và tính chính xác đều quan trọng đây là câu kết thúc của bài kiểm tra âm thanh.",
+          "start": 28.6,
+          "end": 50.64
+        }
+      ],
+      "timestamp_precision": "segment",
+      "duration_seconds": 51,
+      "elapsed_ms": 40856,
+      "referenceWords": 150,
+      "wordEdits": 5
+    },
+    {
+      "name": "lecture-vi.m4a",
+      "model": "huuquyet/PhoWhisper-small",
+      "loadMs": 2954.7264,
+      "peakRssMiB": 1693.3515625,
+      "fixtureSha256": "20d8461ee79ab3c8e14658b9ea3817c0785bb77cea20829fbbdbf246cef01e31",
+      "language": "vi",
+      "text": "hôm nay chúng ta học về mảng máy tính và cơ sở dữ liệu máy tính gửi thông tin bằng các gói dữ liệu bộ định tuyển tiếp gói tin đến mạng đích giao thức định tuyến lựa chọn đường đi dựa trên chi phí cơ sở dữ liệu lưu trữ thông tin trong các bảng mỗi bảng có các hàng và các cột phá chính giúp phân biệt từng bảng ghi phá ngoại liên kết dữ liệu giữa các bảng. chuẩn hóa giúp giảm dữ liệu trùng lặp và tránh lỗi khi cập nhật khi thiết kế hệ thống chúng ta cần kiểm tra quyền truy cập và sao lưu dữ liệu bản sao lưu phải được kiểm tra thường xuyên phần cuối bài học nhắc lại rằng bảo mật và tính chính xác đều quan trọng đây là câu kết thúc của bài kiểm tra âm thanh.",
+      "chunks": [
+        {
+          "text": "hôm nay chúng ta học về mảng máy tính và cơ sở dữ liệu máy tính gửi thông tin bằng các gói dữ liệu bộ định tuyển tiếp gói tin đến mạng đích giao thức định tuyến lựa chọn đường đi dựa trên chi phí cơ sở dữ liệu lưu trữ thông tin trong các bảng mỗi bảng có các hàng và các cột phá chính giúp phân biệt từng bảng ghi phá ngoại liên kết dữ liệu giữa các bảng.",
+          "start": 0,
+          "end": 28.5
+        },
+        {
+          "text": "chuẩn hóa giúp giảm dữ liệu trùng lặp và tránh lỗi khi cập nhật khi thiết kế hệ thống chúng ta cần kiểm tra quyền truy cập và sao lưu dữ liệu bản sao lưu phải được kiểm tra thường xuyên phần cuối bài học nhắc lại rằng bảo mật và tính chính xác đều quan trọng đây là câu kết thúc của bài kiểm tra âm thanh.",
+          "start": 28.5,
+          "end": 50.645375
+        }
+      ],
+      "timestamp_precision": "segment",
+      "duration_seconds": 51,
+      "elapsed_ms": 35686,
+      "referenceWords": 150,
+      "wordEdits": 6
+    },
+    {
+      "name": "lecture-en.mp3",
+      "model": "huuquyet/PhoWhisper-small",
+      "loadMs": 2954.7264,
+      "peakRssMiB": 1762.12109375,
+      "fixtureSha256": "410f8504e0863e0501dc34c1c48a269317d5941b51dd7572c5077abb9a37fca0",
+      "language": "vi",
+      "text": "từ nay chúng ta học về kỳ cụ thể dục và đề bài ấy thì chúng ta phải kiểm tra vấn đề và đề bài ấy. nô mô lây giây sân giấc đục đuồnp lạc cây sân và giúp xả vôi đáp đáy trước vết sân gân sy sân xe đông an gôn sông hoa đa tìm kiếm mục dự ứng công tác tại trung tâm lý đất nước. từ phái nồ rải mắt ờ ít ta va phai bớt ác cư rầy xi en rà lia bi lực ây đây dư thế phái nồ xen tấn dứt đi ai đi taest.",
+      "chunks": [
+        {
+          "text": "từ nay chúng ta học về kỳ cụ thể dục và đề bài ấy thì chúng ta phải kiểm tra vấn đề và đề bài ấy.",
+          "start": 0,
+          "end": 28.65
+        },
+        {
+          "text": "nô mô lây giây sân giấc đục đuồnp lạc cây sân và giúp xả vôi đáp đáy trước vết sân gân sy sân xe đông an gôn sông hoa đa tìm kiếm mục dự ứng công tác tại trung tâm lý đất nước.",
+          "start": 28.65,
+          "end": 56.3
+        },
+        {
+          "text": "từ phái nồ rải mắt ờ ít ta va phai bớt ác cư rầy xi en rà lia bi lực ây đây dư thế phái nồ xen tấn dứt đi ai đi taest.",
+          "start": 56.3,
+          "end": 65.352
+        }
+      ],
+      "timestamp_precision": "segment",
+      "duration_seconds": 65,
+      "elapsed_ms": 32736,
+      "referenceWords": 123,
+      "wordEdits": 123
+    },
+    {
+      "name": "mixed.m4a",
+      "model": "huuquyet/PhoWhisper-small",
+      "loadMs": 2954.7264,
+      "peakRssMiB": 1762.12109375,
+      "fixtureSha256": "f3de1212999e374d0038563c72bd1231e0c3a58e84bc2eaff9d7da503315f243",
+      "language": "vi",
+      "text": "hôm nay chúng ta học về mảng máy tính và cơ sở dữ liệu máy tính gửi thông tin bằng các gói dữ liệu bộ định tuyển tiếp gói tin đến mạng đích giao thức định tuyến lựa chọn đường đi dựa trên chi phí cơ sở dữ liệu lưu trữ thông tin trong các bảng mỗi bảng có các hàng và các cột phá chính giúp phân biệt từng bảng ghi phá ngoại liên kết dữ liệu giữa các bảng. chuẩn hoá giúp giảm dữ liệu trùng lặp và tránh lỗi khi cập nhật khi thiết kế hệ thống chúng ta cần kiểm tra quyền truy cập và sao lưu dữ liệu bản sao lưu phải được kiểm tra thường xuyên phần cuối bài học nhắc lại rằng bảo mật và tính chính xác đều quan trọng đây là câu kết thúc của bài kiểm tra âm thanh. computer giải trình dùng dây chân bằng dạng đất dài hoặc đặt dưới một rảo tối vào mỗi nhìn ghi nhìn trên dài hoặc đặt dưới một lần. nô mô li dây sần giúp đôi mắt đuổi cây và giúp xả vôi đáp đáy đề thường dù các cơ sở mỹ còn thiện hơn cũng được xác thực cẩn thận hơn và tự luận hơn đúng như thế. từ phái nồ rảinh đờ ơ ơ để vẽ phải bớt vẻ vớt áp cơ sởi dầu liệu bơ lơ đí đây là sự tái tạo của tội ơ đi ơ tét.",
+      "chunks": [
+        {
+          "text": "hôm nay chúng ta học về mảng máy tính và cơ sở dữ liệu máy tính gửi thông tin bằng các gói dữ liệu bộ định tuyển tiếp gói tin đến mạng đích giao thức định tuyến lựa chọn đường đi dựa trên chi phí cơ sở dữ liệu lưu trữ thông tin trong các bảng mỗi bảng có các hàng và các cột phá chính giúp phân biệt từng bảng ghi phá ngoại liên kết dữ liệu giữa các bảng.",
+          "start": 0,
+          "end": 28.5
+        },
+        {
+          "text": "chuẩn hoá giúp giảm dữ liệu trùng lặp và tránh lỗi khi cập nhật khi thiết kế hệ thống chúng ta cần kiểm tra quyền truy cập và sao lưu dữ liệu bản sao lưu phải được kiểm tra thường xuyên phần cuối bài học nhắc lại rằng bảo mật và tính chính xác đều quan trọng đây là câu kết thúc của bài kiểm tra âm thanh.",
+          "start": 28.5,
+          "end": 54.5
+        },
+        {
+          "text": "computer giải trình dùng dây chân bằng dạng đất dài hoặc đặt dưới một rảo tối vào mỗi nhìn ghi nhìn trên dài hoặc đặt dưới một lần.",
+          "start": 54.5,
+          "end": 79.3
+        },
+        {
+          "text": "nô mô li dây sần giúp đôi mắt đuổi cây và giúp xả vôi đáp đáy đề thường dù các cơ sở mỹ còn thiện hơn cũng được xác thực cẩn thận hơn và tự luận hơn đúng như thế.",
+          "start": 79.3,
+          "end": 106.9
+        },
+        {
+          "text": "từ phái nồ rảinh đờ ơ ơ để vẽ phải bớt vẻ vớt áp cơ sởi dầu liệu bơ lơ đí đây là sự tái tạo của tội ơ đi ơ tét.",
+          "start": 106.9,
+          "end": 116.0106875
+        }
+      ],
+      "timestamp_precision": "segment",
+      "duration_seconds": 116,
+      "elapsed_ms": 68143,
+      "referenceWords": 273,
+      "wordEdits": 129
+    },
+    {
+      "name": "baseline-vi.mp3",
+      "model": "huuquyet/PhoWhisper-small",
+      "loadMs": 2954.7264,
+      "peakRssMiB": 1785.7109375,
+      "fixtureSha256": "a9e6793a4b7d506a611f165a7568d98254a71ef754aac295d88f516489ae75a2",
+      "language": "vi",
+      "text": "cô la phôn giúp tìm tài liệu học tập về mảng máy tính và cơ sở dữ liệu.",
+      "chunks": [
+        {
+          "text": "cô la phôn giúp tìm tài liệu học tập về mảng máy tính và cơ sở dữ liệu.",
+          "start": 0,
+          "end": 4.848
+        }
+      ],
+      "timestamp_precision": "segment",
+      "duration_seconds": 5,
+      "elapsed_ms": 8684
+    },
+    {
+      "name": "baseline-en.wav",
+      "model": "huuquyet/PhoWhisper-small",
+      "loadMs": 2954.7264,
+      "peakRssMiB": 1785.7109375,
+      "fixtureSha256": "f340bb9cbbe1df6d981006685cb8137a381ab550c563695d6274dc7dc7aa0686",
+      "language": "vi",
+      "text": "scolor flores can seach learn rhe sòi ngis về k computer networks en dãi tơ basis.",
+      "chunks": [
+        {
+          "text": "scolor flores can seach learn rhe sòi ngis về k computer networks en dãi tơ basis.",
+          "start": 0,
+          "end": 5.4785625
+        }
+      ],
+      "timestamp_precision": "segment",
+      "duration_seconds": 5,
+      "elapsed_ms": 8862
+    },
+    {
+      "name": "silence.wav",
+      "model": "huuquyet/PhoWhisper-small",
+      "loadMs": 2954.7264,
+      "peakRssMiB": 1785.7109375,
+      "fixtureSha256": "8442e35f15fa3f2378b181bbf8f7fa1dbdcb61ab2726ea0e43080371cb16d701",
+      "error": "Không nghe thấy lời nói trong file âm thanh."
+    },
+    {
+      "name": "silence.m4a",
+      "model": "huuquyet/PhoWhisper-small",
+      "loadMs": 2954.7264,
+      "peakRssMiB": 1785.7109375,
+      "fixtureSha256": "715c7a55cca246533d3193fd82a0ee1938a7e8974da44d82c835b5c28dea88ed",
+      "error": "Không nghe thấy lời nói trong file âm thanh."
+    },
+    {
+      "name": "noise.wav",
+      "model": "huuquyet/PhoWhisper-small",
+      "loadMs": 2954.7264,
+      "peakRssMiB": 1786.3203125,
+      "fixtureSha256": "eb9d9b5a11c3cfe3c696a2a46f5a52d57a6052f95acc7a04c1bd5a8d82f80eb6",
+      "language": "vi",
+      "text": "họ cho rằng không nên ngồi vào đầu mục đích để xem giấy giấy giấy này.",
+      "chunks": [
+        {
+          "text": "họ cho rằng không nên ngồi vào đầu mục đích để xem giấy giấy giấy này.",
+          "start": 0,
+          "end": 5
+        }
+      ],
+      "timestamp_precision": "segment",
+      "duration_seconds": 5,
+      "elapsed_ms": 7999
+    },
+    {
+      "name": "database.mp3",
+      "model": "huuquyet/PhoWhisper-small",
+      "loadMs": 2954.7264,
+      "peakRssMiB": 1786.73828125,
+      "fixtureSha256": "f4120f8e978dd5c41c2378c9915da4d11f31c7affd8302018389aee5467b06b5",
+      "language": "vi",
+      "text": "dây tơ bâys.",
+      "chunks": [
+        {
+          "text": "dây tơ bâys.",
+          "start": 0,
+          "end": 1.8
+        }
+      ],
+      "timestamp_precision": "segment",
+      "duration_seconds": 2,
+      "elapsed_ms": 5724,
+      "referenceWords": 1,
+      "wordEdits": 3
+    },
+    {
+      "name": "female-1.mp3",
+      "model": "huuquyet/PhoWhisper-small",
+      "loadMs": 2954.7264,
+      "peakRssMiB": 1786.73828125,
+      "fixtureSha256": "40a0753138d3f6c641a3fcee39804ea43ee3a9ae5af85b239c6015dbbc4a20e1",
+      "language": "vi",
+      "text": "tìm tài liệu về mảng máy tính.",
+      "chunks": [
+        {
+          "text": "tìm tài liệu về mảng máy tính.",
+          "start": 0,
+          "end": 2.736
+        }
+      ],
+      "timestamp_precision": "segment",
+      "duration_seconds": 3,
+      "elapsed_ms": 6197,
+      "referenceWords": 7,
+      "wordEdits": 1
+    },
+    {
+      "name": "female-2.mp3",
+      "model": "huuquyet/PhoWhisper-small",
+      "loadMs": 2954.7264,
+      "peakRssMiB": 1786.73828125,
+      "fixtureSha256": "4badf75d44443bf22ffde4ff02cf3f89f10379b652f48f48d49f015d1de1bee4",
+      "language": "vi",
+      "text": "tìm tài liệu về cơ sở dữ liệu.",
+      "chunks": [
+        {
+          "text": "tìm tài liệu về cơ sở dữ liệu.",
+          "start": 0,
+          "end": 3.048
+        }
+      ],
+      "timestamp_precision": "segment",
+      "duration_seconds": 3,
+      "elapsed_ms": 6568,
+      "referenceWords": 8,
+      "wordEdits": 0
+    },
+    {
+      "name": "male-1.mp3",
+      "model": "huuquyet/PhoWhisper-small",
+      "loadMs": 2954.7264,
+      "peakRssMiB": 1786.73828125,
+      "fixtureSha256": "11ee1cb9020180e09808854857ec63e53090a8f58340a7b640a05bf6f7a38113",
+      "language": "vi",
+      "text": "tìm tài liệu về mảng máy tính.",
+      "chunks": [
+        {
+          "text": "tìm tài liệu về mảng máy tính.",
+          "start": 0,
+          "end": 2.688
+        }
+      ],
+      "timestamp_precision": "segment",
+      "duration_seconds": 3,
+      "elapsed_ms": 6443,
+      "referenceWords": 7,
+      "wordEdits": 1
+    },
+    {
+      "name": "male-2.mp3",
+      "model": "huuquyet/PhoWhisper-small",
+      "loadMs": 2954.7264,
+      "peakRssMiB": 1786.73828125,
+      "fixtureSha256": "2190f14471f850d9812ee97caa7516e17b2c426f58e761ba34884661b3f326ac",
+      "language": "vi",
+      "text": "tìm tài liệu về cơ sở dữ liệu.",
+      "chunks": [
+        {
+          "text": "tìm tài liệu về cơ sở dữ liệu.",
+          "start": 0,
+          "end": 2.904
+        }
+      ],
+      "timestamp_precision": "segment",
+      "duration_seconds": 3,
+      "elapsed_ms": 6154,
+      "referenceWords": 8,
+      "wordEdits": 0
+    },
+    {
+      "name": "en-female-1.mp3",
+      "model": "huuquyet/PhoWhisper-small",
+      "loadMs": 2954.7264,
+      "peakRssMiB": 1786.73828125,
+      "fixtureSha256": "d73534a4d39164185aa7790f3a5a8824fe908b71435cedf13267b19b0278f21f",
+      "language": "vi",
+      "text": "computer science.",
+      "chunks": [
+        {
+          "text": "computer science.",
+          "start": 0,
+          "end": 2.088
+        }
+      ],
+      "timestamp_precision": "segment",
+      "duration_seconds": 2,
+      "elapsed_ms": 5644,
+      "referenceWords": 2,
+      "wordEdits": 0
+    },
+    {
+      "name": "en-female-2.mp3",
+      "model": "huuquyet/PhoWhisper-small",
+      "loadMs": 2954.7264,
+      "peakRssMiB": 1786.73828125,
+      "fixtureSha256": "7a84eab5bc43749bd5348fb7d3baa9d3f74b22893103e62f58d6ca9752325d5b",
+      "language": "vi",
+      "text": "đây là bài.",
+      "chunks": [
+        {
+          "text": "đây là bài.",
+          "start": 0,
+          "end": 1.776
+        }
+      ],
+      "timestamp_precision": "segment",
+      "duration_seconds": 2,
+      "elapsed_ms": 5694,
+      "referenceWords": 1,
+      "wordEdits": 3
+    },
+    {
+      "name": "en-male-1.mp3",
+      "model": "huuquyet/PhoWhisper-small",
+      "loadMs": 2954.7264,
+      "peakRssMiB": 1786.73828125,
+      "fixtureSha256": "6dbc450ccacb42791d67a30307993b23646e6f28fdc0651a95aef9825e46a4f1",
+      "language": "vi",
+      "text": "computer science.",
+      "chunks": [
+        {
+          "text": "computer science.",
+          "start": 0,
+          "end": 2.16
+        }
+      ],
+      "timestamp_precision": "segment",
+      "duration_seconds": 2,
+      "elapsed_ms": 5334,
+      "referenceWords": 2,
+      "wordEdits": 0
+    },
+    {
+      "name": "en-male-2.mp3",
+      "model": "huuquyet/PhoWhisper-small",
+      "loadMs": 2954.7264,
+      "peakRssMiB": 1786.73828125,
+      "fixtureSha256": "f4120f8e978dd5c41c2378c9915da4d11f31c7affd8302018389aee5467b06b5",
+      "language": "vi",
+      "text": "dây tơ bâys.",
+      "chunks": [
+        {
+          "text": "dây tơ bâys.",
+          "start": 0,
+          "end": 1.8
+        }
+      ],
+      "timestamp_precision": "segment",
+      "duration_seconds": 2,
+      "elapsed_ms": 6086,
+      "referenceWords": 1,
+      "wordEdits": 3
+    }
+  ]
+}

@@ -27,6 +27,8 @@ export type VisualSearchDraft = {
   query: string;
   capturedPreview: string;
   ocrWarning?: string;
+  error?: string;
+  previewError?: string;
   results: VisualSearchResult[];
   searchStatus: VisualSearchStatus | null;
   viewport?: { left: number; top: number; pageTop: number; resultsTop: number };
@@ -49,4 +51,13 @@ export function saveVisualSearchDraft(draft: Omit<VisualSearchDraft, "savedAt">)
 
 export function clearVisualSearchDraft() {
   currentDraft = null;
+}
+
+export function visualDraftError(draft: VisualSearchDraft | null) {
+  if (draft?.previewError) return draft.previewError;
+  // A navigation during preparation aborts the request. Never restore a silent blank viewer.
+  if (draft?.file && /\.(docx|pptx|epub|xmind)$/i.test(draft.file.name) && !draft.previewHtml) {
+    return draft.error || "Bản xem trước chưa hoàn tất. Hãy bấm Đổi ảnh hoặc file để chọn lại file.";
+  }
+  return "";
 }

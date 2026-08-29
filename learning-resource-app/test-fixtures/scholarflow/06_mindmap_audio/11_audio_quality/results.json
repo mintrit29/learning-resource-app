@@ -1,0 +1,1358 @@
+[
+  {
+    "name": "short-vi.mp3",
+    "http": 202,
+    "body": {
+      "documentId": "cmtd0lz2f000rx8uznfzn8um7",
+      "status": "UPLOADED"
+    },
+    "expected": "Tìm tài liệu về cơ sở dữ liệu",
+    "document": {
+      "status": "READY",
+      "textContent": "Đi'm tay liều về các sợ yếu liều.",
+      "analysisReason": null
+    },
+    "jobs": [
+      {
+        "type": "EXTRACT_TEXT",
+        "status": "COMPLETED",
+        "errorMessage": null,
+        "startedAt": "2026-08-28T13:56:23.373+00:00",
+        "finishedAt": "2026-08-28T13:56:26.446+00:00"
+      },
+      {
+        "type": "CHUNK_DOCUMENT",
+        "status": "COMPLETED",
+        "errorMessage": null,
+        "startedAt": "2026-08-28T13:56:26.453+00:00",
+        "finishedAt": "2026-08-28T13:56:26.457+00:00"
+      },
+      {
+        "type": "EMBED_DOCUMENT",
+        "status": "COMPLETED",
+        "errorMessage": null,
+        "startedAt": "2026-08-28T13:56:26.461+00:00",
+        "finishedAt": "2026-08-28T13:56:26.673+00:00"
+      },
+      {
+        "type": "ANALYZE_DOCUMENT",
+        "status": "SKIPPED",
+        "errorMessage": null,
+        "startedAt": null,
+        "finishedAt": "2026-08-28T13:56:26.676+00:00"
+      }
+    ],
+    "chunks": [
+      {
+        "content": "Đi'm tay liều về các sợ yếu liều.",
+        "sourceLabel": "Bản ghi âm · 00:00–00:02",
+        "vectorBytes": 4096
+      }
+    ],
+    "emptyAudioInventedText": false,
+    "exactWords": false,
+    "wordEdits": 7,
+    "referenceWords": 8,
+    "tailPresent": false,
+    "elapsedMs": 3478,
+    "audioDuration": "00:00:03.10",
+    "initialObservedStatus": "READY",
+    "extractionElapsedMs": 3073,
+    "embeddingMode": "real BGE-M3",
+    "textDownload": {
+      "status": 200,
+      "matchesStored": true
+    },
+    "audioRange": {
+      "status": 200,
+      "type": "audio/mpeg",
+      "range": null,
+      "bytes": 12620
+    }
+  },
+  {
+    "name": "lecture-vi.mp3",
+    "http": 202,
+    "body": {
+      "documentId": "cmtd0m1pv000xx8uzr6cz7wtf",
+      "status": "UPLOADED"
+    },
+    "expected": "Hôm nay chúng ta học về mạng máy tính và cơ sở dữ liệu. Máy tính gửi thông tin bằng các gói dữ liệu. Bộ định tuyến chuyển tiếp gói tin đến mạng đích. Giao thức định tuyến lựa chọn đường đi dựa trên chi phí. Cơ sở dữ liệu lưu trữ thông tin trong các bảng. Mỗi bảng có các hàng và các cột. Khóa chính giúp phân biệt từng bản ghi. Khóa ngoại liên kết dữ liệu giữa các bảng. Chuẩn hóa giúp giảm dữ liệu trùng lặp và tránh lỗi khi cập nhật. Khi thiết kế hệ thống, chúng ta cần kiểm tra quyền truy cập và sao lưu dữ liệu. Bản sao lưu phải được kiểm tra thường xuyên. Phần cuối bài học nhắc lại rằng bảo mật và tính chính xác đều quan trọng. Đây là câu kết thúc của bài kiểm tra âm thanh.",
+    "document": {
+      "status": "READY",
+      "textContent": "Hôm nay chúng ta học về mạng máy tính và cơ sở dữ liệu.\n\nMấy tính gửi thông tin bằng các gói dữ liệu.\n\nBộ định tuyển tiếp gói tính đến mạng nhất.\n\nGiờ thức định tuyến lừa chọn đường đi dựa trên chi phí.\n\nCơ sở dữ liệu lưu trử thông tin trong các bản.\n\nMỗi bản có các hàng và các cuộc.\n\nHóa chính dưới phương biệt tình bản gì.\n\nPhóa ngoại liên kết dữ liệu dừa các bản,\n\nchuẩn hóa dưới giảm dữ liệu trùng lập và chánh lỗi khi cậm nhật,\n\nchỉ thích kế hệ thống chúng ta cần kiểm tra quyền quy tập và sau lưu dữ liệu,\n\nbản sau lưu phải được kiểm tra thường xuên,\n\nphần cuối bài học nhắc lại rằng vẫu mực và tính chính xác đều quan trọng. Đây là câu kết thúc của bài kiểm tra thường xuyên. Phần quý bài học nhất lại rằng bảo mật và tính chính xác đều quan trọng.\n\nĐây là câu kết thúc của bài kiểm tra âm Thanh.",
+      "analysisReason": null
+    },
+    "jobs": [
+      {
+        "type": "EXTRACT_TEXT",
+        "status": "COMPLETED",
+        "errorMessage": null,
+        "startedAt": "2026-08-28T13:56:26.807+00:00",
+        "finishedAt": "2026-08-28T13:57:01.244+00:00"
+      },
+      {
+        "type": "CHUNK_DOCUMENT",
+        "status": "COMPLETED",
+        "errorMessage": null,
+        "startedAt": "2026-08-28T13:57:01.247+00:00",
+        "finishedAt": "2026-08-28T13:57:01.255+00:00"
+      },
+      {
+        "type": "EMBED_DOCUMENT",
+        "status": "COMPLETED",
+        "errorMessage": null,
+        "startedAt": "2026-08-28T13:57:01.257+00:00",
+        "finishedAt": "2026-08-28T13:57:02.484+00:00"
+      },
+      {
+        "type": "ANALYZE_DOCUMENT",
+        "status": "SKIPPED",
+        "errorMessage": null,
+        "startedAt": null,
+        "finishedAt": "2026-08-28T13:57:02.485+00:00"
+      }
+    ],
+    "chunks": [
+      {
+        "content": "Hôm nay chúng ta học về mạng máy tính và cơ sở dữ liệu.",
+        "sourceLabel": "Bản ghi âm · 00:00–00:03",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "Mấy tính gửi thông tin bằng các gói dữ liệu.",
+        "sourceLabel": "Bản ghi âm · 00:03–00:07",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "Bộ định tuyển tiếp gói tính đến mạng nhất.",
+        "sourceLabel": "Bản ghi âm · 00:07–00:11",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "Giờ thức định tuyến lừa chọn đường đi dựa trên chi phí.",
+        "sourceLabel": "Bản ghi âm · 00:11–00:15",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "Cơ sở dữ liệu lưu trử thông tin trong các bản.",
+        "sourceLabel": "Bản ghi âm · 00:15–00:18",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "Mỗi bản có các hàng và các cuộc.",
+        "sourceLabel": "Bản ghi âm · 00:18–00:21",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "Hóa chính dưới phương biệt tình bản gì.",
+        "sourceLabel": "Bản ghi âm · 00:21–00:24",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "Phóa ngoại liên kết dữ liệu dừa các bản,",
+        "sourceLabel": "Bản ghi âm · 00:24–00:28",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "chuẩn hóa dưới giảm dữ liệu trùng lập và chánh lỗi khi cậm nhật,",
+        "sourceLabel": "Bản ghi âm · 00:29–00:33",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "chỉ thích kế hệ thống chúng ta cần kiểm tra quyền quy tập và sau lưu dữ liệu,",
+        "sourceLabel": "Bản ghi âm · 00:33–00:38",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "bản sau lưu phải được kiểm tra thường xuên,",
+        "sourceLabel": "Bản ghi âm · 00:39–00:42",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "phần cuối bài học nhắc lại rằng vẫu mực và tính chính xác đều quan trọng. Đây là câu kết thúc của bài kiểm tra thường xuyên. Phần quý bài học nhất lại rằng bảo mật và tính chính xác đều quan trọng.",
+        "sourceLabel": "Bản ghi âm · 00:42–00:46",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "Đây là câu kết thúc của bài kiểm tra âm Thanh.",
+        "sourceLabel": "Bản ghi âm · 00:46–00:49",
+        "vectorBytes": 4096
+      }
+    ],
+    "emptyAudioInventedText": false,
+    "exactWords": false,
+    "wordEdits": 57,
+    "referenceWords": 150,
+    "tailPresent": true,
+    "elapsedMs": 35778,
+    "audioDuration": "00:00:50.69",
+    "initialObservedStatus": "READY",
+    "extractionElapsedMs": 34437,
+    "embeddingMode": "real BGE-M3"
+  },
+  {
+    "name": "short-vi.wav",
+    "http": 202,
+    "body": {
+      "documentId": "cmtd0mtbn001fx8uz4wzy9xtt",
+      "status": "UPLOADED"
+    },
+    "expected": "Tìm tài liệu về cơ sở dữ liệu",
+    "document": {
+      "status": "READY",
+      "textContent": "Đi mọi người có thể làm những người thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích",
+      "analysisReason": null
+    },
+    "jobs": [
+      {
+        "type": "EXTRACT_TEXT",
+        "status": "COMPLETED",
+        "errorMessage": null,
+        "startedAt": "2026-08-28T13:57:02.585+00:00",
+        "finishedAt": "2026-08-28T13:57:31.697+00:00"
+      },
+      {
+        "type": "CHUNK_DOCUMENT",
+        "status": "COMPLETED",
+        "errorMessage": null,
+        "startedAt": "2026-08-28T13:57:31.699+00:00",
+        "finishedAt": "2026-08-28T13:57:31.711+00:00"
+      },
+      {
+        "type": "EMBED_DOCUMENT",
+        "status": "COMPLETED",
+        "errorMessage": null,
+        "startedAt": "2026-08-28T13:57:31.715+00:00",
+        "finishedAt": "2026-08-28T13:57:32.500+00:00"
+      },
+      {
+        "type": "ANALYZE_DOCUMENT",
+        "status": "SKIPPED",
+        "errorMessage": null,
+        "startedAt": null,
+        "finishedAt": "2026-08-28T13:57:32.502+00:00"
+      }
+    ],
+    "chunks": [
+      {
+        "content": "Đi mọi người có thể làm những người thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích thích",
+        "sourceLabel": "Bản ghi âm · 00:00",
+        "vectorBytes": 4096
+      }
+    ],
+    "emptyAudioInventedText": false,
+    "exactWords": false,
+    "wordEdits": 225,
+    "referenceWords": 8,
+    "tailPresent": false,
+    "elapsedMs": 29962,
+    "audioDuration": "00:00:03.05",
+    "initialObservedStatus": "READY",
+    "extractionElapsedMs": 29112,
+    "embeddingMode": "real BGE-M3",
+    "textDownload": {
+      "status": 200,
+      "matchesStored": true
+    },
+    "audioRange": {
+      "status": 200,
+      "type": "audio/wav",
+      "range": null,
+      "bytes": 146382
+    }
+  },
+  {
+    "name": "lecture-vi.wav",
+    "http": 202,
+    "body": {
+      "documentId": "cmtd0nggk001lx8uz2d9ey25y",
+      "status": "UPLOADED"
+    },
+    "expected": "Hôm nay chúng ta học về mạng máy tính và cơ sở dữ liệu. Máy tính gửi thông tin bằng các gói dữ liệu. Bộ định tuyến chuyển tiếp gói tin đến mạng đích. Giao thức định tuyến lựa chọn đường đi dựa trên chi phí. Cơ sở dữ liệu lưu trữ thông tin trong các bảng. Mỗi bảng có các hàng và các cột. Khóa chính giúp phân biệt từng bản ghi. Khóa ngoại liên kết dữ liệu giữa các bảng. Chuẩn hóa giúp giảm dữ liệu trùng lặp và tránh lỗi khi cập nhật. Khi thiết kế hệ thống, chúng ta cần kiểm tra quyền truy cập và sao lưu dữ liệu. Bản sao lưu phải được kiểm tra thường xuyên. Phần cuối bài học nhắc lại rằng bảo mật và tính chính xác đều quan trọng. Đây là câu kết thúc của bài kiểm tra âm thanh.",
+    "document": {
+      "status": "READY",
+      "textContent": "Today, we learn how to use the language and the language. Each letter is written in the form of a letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the results of the results are to determine the results of the results and determine the results of the results\n\nand determine the results of the results\n\nand determine the results of the results of the results\n\nand determine the results of the results of the results\n\nand determine the results of the results of the results\n\nand determine the results of the results of the results\n\nand determine the results of the results of the results\n\nand determine the results of the results of the results\n\nand determine the results of the results of the results\n\nand determine the results of the results of the results\n\nand determine the results of the results of the results and determine the results of the results of the part of the story is about the story of the story. The latest news report and the news report is on the topic of the story.",
+      "analysisReason": null
+    },
+    "jobs": [
+      {
+        "type": "EXTRACT_TEXT",
+        "status": "COMPLETED",
+        "errorMessage": null,
+        "startedAt": "2026-08-28T13:57:32.567+00:00",
+        "finishedAt": "2026-08-28T14:01:34.547+00:00"
+      },
+      {
+        "type": "CHUNK_DOCUMENT",
+        "status": "COMPLETED",
+        "errorMessage": null,
+        "startedAt": "2026-08-28T14:01:34.550+00:00",
+        "finishedAt": "2026-08-28T14:01:34.562+00:00"
+      },
+      {
+        "type": "EMBED_DOCUMENT",
+        "status": "COMPLETED",
+        "errorMessage": null,
+        "startedAt": "2026-08-28T14:01:34.566+00:00",
+        "finishedAt": "2026-08-28T14:01:47.322+00:00"
+      },
+      {
+        "type": "ANALYZE_DOCUMENT",
+        "status": "SKIPPED",
+        "errorMessage": null,
+        "startedAt": null,
+        "finishedAt": "2026-08-28T14:01:47.332+00:00"
+      }
+    ],
+    "chunks": [
+      {
+        "content": "Today, we learn how to use the language and the language. Each letter is written in the form of a letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the",
+        "sourceLabel": "Bản ghi âm · 00:00–00:26",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the letter to the results of the results are to determine the results of the results and determine the results of the results",
+        "sourceLabel": "Bản ghi âm · 00:00–00:26",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "and determine the results of the results",
+        "sourceLabel": "Bản ghi âm · 00:26–00:28",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "and determine the results of the results of the results",
+        "sourceLabel": "Bản ghi âm · 00:28–00:30",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "and determine the results of the results of the results",
+        "sourceLabel": "Bản ghi âm · 00:30–00:32",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "and determine the results of the results of the results",
+        "sourceLabel": "Bản ghi âm · 00:32–00:34",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "and determine the results of the results of the results",
+        "sourceLabel": "Bản ghi âm · 00:34–00:36",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "and determine the results of the results of the results",
+        "sourceLabel": "Bản ghi âm · 00:36–00:38",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "and determine the results of the results of the results",
+        "sourceLabel": "Bản ghi âm · 00:38–00:40",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "and determine the results of the results of the results",
+        "sourceLabel": "Bản ghi âm · 00:40–00:42",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "and determine the results of the results of the results",
+        "sourceLabel": "Bản ghi âm · 00:42–00:44",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "and determine the results of the results of the results and determine the results of the results of the part of the story is about the story of the story. The latest news report and the news report is on the topic of the story.",
+        "sourceLabel": "Bản ghi âm · 00:44–00:50",
+        "vectorBytes": 4096
+      }
+    ],
+    "emptyAudioInventedText": false,
+    "exactWords": false,
+    "wordEdits": 603,
+    "referenceWords": 150,
+    "tailPresent": false,
+    "elapsedMs": 180202,
+    "audioDuration": "00:00:50.64",
+    "initialObservedStatus": "EXTRACTING",
+    "extractionElapsedMs": 241980,
+    "embeddingMode": "real BGE-M3"
+  },
+  {
+    "name": "short-vi.m4a",
+    "http": 202,
+    "body": {
+      "documentId": "cmtd0w1a700003guzkh34yomb",
+      "status": "UPLOADED"
+    },
+    "expected": "Tìm tài liệu về cơ sở dữ liệu",
+    "document": {
+      "status": "READY",
+      "textContent": "Tim tay liều về các sợ yếu liều",
+      "analysisReason": null
+    },
+    "jobs": [
+      {
+        "type": "EXTRACT_TEXT",
+        "status": "COMPLETED",
+        "errorMessage": null,
+        "startedAt": "2026-08-28T14:04:12.843+00:00",
+        "finishedAt": "2026-08-28T14:04:24.961+00:00"
+      },
+      {
+        "type": "CHUNK_DOCUMENT",
+        "status": "COMPLETED",
+        "errorMessage": null,
+        "startedAt": "2026-08-28T14:04:24.996+00:00",
+        "finishedAt": "2026-08-28T14:04:25.026+00:00"
+      },
+      {
+        "type": "EMBED_DOCUMENT",
+        "status": "COMPLETED",
+        "errorMessage": null,
+        "startedAt": "2026-08-28T14:04:25.055+00:00",
+        "finishedAt": "2026-08-28T14:04:25.213+00:00"
+      },
+      {
+        "type": "ANALYZE_DOCUMENT",
+        "status": "SKIPPED",
+        "errorMessage": null,
+        "startedAt": null,
+        "finishedAt": "2026-08-28T14:04:25.253+00:00"
+      }
+    ],
+    "chunks": [
+      {
+        "content": "Tim tay liều về các sợ yếu liều",
+        "sourceLabel": "Bản ghi âm · 00:00–00:02",
+        "vectorBytes": 4096
+      }
+    ],
+    "embeddingMode": "mock (Whisper and FFmpeg real)",
+    "emptyAudioInventedText": false,
+    "exactWords": false,
+    "wordEdits": 7,
+    "referenceWords": 8,
+    "tailPresent": false,
+    "elapsedMs": 12925,
+    "audioDuration": "00:00:03.05",
+    "initialObservedStatus": "READY",
+    "extractionElapsedMs": 12118,
+    "textDownload": {
+      "status": 200,
+      "matchesStored": true
+    },
+    "audioRange": {
+      "status": 200,
+      "type": "audio/mp4",
+      "range": null,
+      "bytes": 21946
+    }
+  },
+  {
+    "name": "database.mp3",
+    "http": 202,
+    "body": {
+      "documentId": "cmtd0wbc300063guzh41v28ld",
+      "status": "UPLOADED"
+    },
+    "expected": "database",
+    "document": {
+      "status": "FAILED",
+      "textContent": null,
+      "analysisReason": "Trích xuất: Không nhận dạng được đủ lời nói trong file âm thanh."
+    },
+    "jobs": [
+      {
+        "type": "EXTRACT_TEXT",
+        "status": "FAILED",
+        "errorMessage": "Không nhận dạng được đủ lời nói trong file âm thanh.",
+        "startedAt": "2026-08-28T14:04:25.847+00:00",
+        "finishedAt": "2026-08-28T14:04:30.781+00:00"
+      },
+      {
+        "type": "CHUNK_DOCUMENT",
+        "status": "FAILED",
+        "errorMessage": "Không thể chunk vì bước trích xuất thất bại",
+        "startedAt": null,
+        "finishedAt": "2026-08-28T14:04:30.785+00:00"
+      },
+      {
+        "type": "EMBED_DOCUMENT",
+        "status": "FAILED",
+        "errorMessage": "Không thể embed vì bước trích xuất thất bại",
+        "startedAt": null,
+        "finishedAt": "2026-08-28T14:04:30.785+00:00"
+      },
+      {
+        "type": "ANALYZE_DOCUMENT",
+        "status": "FAILED",
+        "errorMessage": "Không thể phân tích vì bước trích xuất thất bại",
+        "startedAt": null,
+        "finishedAt": "2026-08-28T14:04:30.790+00:00"
+      }
+    ],
+    "chunks": [],
+    "embeddingMode": "mock (Whisper and FFmpeg real)",
+    "emptyAudioInventedText": false,
+    "exactWords": false,
+    "wordEdits": 1,
+    "referenceWords": 1,
+    "tailPresent": false,
+    "elapsedMs": 5249,
+    "audioDuration": "00:00:01.80",
+    "initialObservedStatus": "FAILED",
+    "extractionElapsedMs": 4934
+  },
+  {
+    "name": "baseline-vi.mp3",
+    "http": 202,
+    "body": {
+      "documentId": "cmtd0wf7o000b3guzfo4tir6q",
+      "status": "UPLOADED"
+    },
+    "document": {
+      "status": "READY",
+      "textContent": "Cô la Phông giúp tìm tài liệu học tập về mạng máy tính và cơ sở dữ liệu.",
+      "analysisReason": null
+    },
+    "jobs": [
+      {
+        "type": "EXTRACT_TEXT",
+        "status": "COMPLETED",
+        "errorMessage": null,
+        "startedAt": "2026-08-28T14:04:30.859+00:00",
+        "finishedAt": "2026-08-28T14:04:39.963+00:00"
+      },
+      {
+        "type": "CHUNK_DOCUMENT",
+        "status": "COMPLETED",
+        "errorMessage": null,
+        "startedAt": "2026-08-28T14:04:39.965+00:00",
+        "finishedAt": "2026-08-28T14:04:39.973+00:00"
+      },
+      {
+        "type": "EMBED_DOCUMENT",
+        "status": "COMPLETED",
+        "errorMessage": null,
+        "startedAt": "2026-08-28T14:04:39.981+00:00",
+        "finishedAt": "2026-08-28T14:04:39.999+00:00"
+      },
+      {
+        "type": "ANALYZE_DOCUMENT",
+        "status": "SKIPPED",
+        "errorMessage": null,
+        "startedAt": null,
+        "finishedAt": "2026-08-28T14:04:40.003+00:00"
+      }
+    ],
+    "chunks": [
+      {
+        "content": "Cô la Phông giúp tìm tài liệu học tập về mạng máy tính và cơ sở dữ liệu.",
+        "sourceLabel": "Bản ghi âm · 00:00–00:04",
+        "vectorBytes": 4096
+      }
+    ],
+    "embeddingMode": "mock (Whisper and FFmpeg real)",
+    "emptyAudioInventedText": false,
+    "elapsedMs": 9410,
+    "audioDuration": "00:00:04.85",
+    "initialObservedStatus": "READY",
+    "extractionElapsedMs": 9104
+  },
+  {
+    "name": "baseline-en.wav",
+    "http": 202,
+    "body": {
+      "documentId": "cmtd0wmhp000h3guzdf6g7ehw",
+      "status": "UPLOADED"
+    },
+    "document": {
+      "status": "READY",
+      "textContent": "scholar flow can search learning resources about computer networks and databases.",
+      "analysisReason": null
+    },
+    "jobs": [
+      {
+        "type": "EXTRACT_TEXT",
+        "status": "COMPLETED",
+        "errorMessage": null,
+        "startedAt": "2026-08-28T14:04:40.298+00:00",
+        "finishedAt": "2026-08-28T14:04:45.875+00:00"
+      },
+      {
+        "type": "CHUNK_DOCUMENT",
+        "status": "COMPLETED",
+        "errorMessage": null,
+        "startedAt": "2026-08-28T14:04:45.880+00:00",
+        "finishedAt": "2026-08-28T14:04:45.892+00:00"
+      },
+      {
+        "type": "EMBED_DOCUMENT",
+        "status": "COMPLETED",
+        "errorMessage": null,
+        "startedAt": "2026-08-28T14:04:45.894+00:00",
+        "finishedAt": "2026-08-28T14:04:45.915+00:00"
+      },
+      {
+        "type": "ANALYZE_DOCUMENT",
+        "status": "SKIPPED",
+        "errorMessage": null,
+        "startedAt": null,
+        "finishedAt": "2026-08-28T14:04:45.922+00:00"
+      }
+    ],
+    "chunks": [
+      {
+        "content": "scholar flow can search learning resources about computer networks and databases.",
+        "sourceLabel": "Bản ghi âm · 00:00–00:04",
+        "vectorBytes": 4096
+      }
+    ],
+    "embeddingMode": "mock (Whisper and FFmpeg real)",
+    "emptyAudioInventedText": false,
+    "elapsedMs": 5979,
+    "audioDuration": "00:00:05.48",
+    "initialObservedStatus": "READY",
+    "extractionElapsedMs": 5577
+  },
+  {
+    "name": "silence.wav",
+    "http": 202,
+    "body": {
+      "documentId": "cmtd0wr3t000n3guz1pnynwcz",
+      "status": "UPLOADED"
+    },
+    "expected": "",
+    "document": {
+      "status": "FAILED",
+      "textContent": null,
+      "analysisReason": "Trích xuất: Không nhận dạng được đủ lời nói trong file âm thanh."
+    },
+    "jobs": [
+      {
+        "type": "EXTRACT_TEXT",
+        "status": "FAILED",
+        "errorMessage": "Không nhận dạng được đủ lời nói trong file âm thanh.",
+        "startedAt": "2026-08-28T14:04:46.280+00:00",
+        "finishedAt": "2026-08-28T14:04:49.525+00:00"
+      },
+      {
+        "type": "CHUNK_DOCUMENT",
+        "status": "FAILED",
+        "errorMessage": "Không thể chunk vì bước trích xuất thất bại",
+        "startedAt": null,
+        "finishedAt": "2026-08-28T14:04:49.526+00:00"
+      },
+      {
+        "type": "EMBED_DOCUMENT",
+        "status": "FAILED",
+        "errorMessage": "Không thể embed vì bước trích xuất thất bại",
+        "startedAt": null,
+        "finishedAt": "2026-08-28T14:04:49.526+00:00"
+      },
+      {
+        "type": "ANALYZE_DOCUMENT",
+        "status": "FAILED",
+        "errorMessage": "Không thể phân tích vì bước trích xuất thất bại",
+        "startedAt": null,
+        "finishedAt": "2026-08-28T14:04:49.527+00:00"
+      }
+    ],
+    "chunks": [],
+    "embeddingMode": "mock (Whisper and FFmpeg real)",
+    "emptyAudioInventedText": false,
+    "elapsedMs": 3518,
+    "audioDuration": "00:00:05.00",
+    "initialObservedStatus": "FAILED",
+    "extractionElapsedMs": 3245
+  },
+  {
+    "name": "silence.m4a",
+    "http": 202,
+    "body": {
+      "documentId": "cmtd0wttd000s3guztpf6y4y3",
+      "status": "UPLOADED"
+    },
+    "expected": "",
+    "document": {
+      "status": "FAILED",
+      "textContent": null,
+      "analysisReason": "Trích xuất: Không nhận dạng được đủ lời nói trong file âm thanh."
+    },
+    "jobs": [
+      {
+        "type": "EXTRACT_TEXT",
+        "status": "FAILED",
+        "errorMessage": "Không nhận dạng được đủ lời nói trong file âm thanh.",
+        "startedAt": "2026-08-28T14:04:49.782+00:00",
+        "finishedAt": "2026-08-28T14:04:52.983+00:00"
+      },
+      {
+        "type": "CHUNK_DOCUMENT",
+        "status": "FAILED",
+        "errorMessage": "Không thể chunk vì bước trích xuất thất bại",
+        "startedAt": null,
+        "finishedAt": "2026-08-28T14:04:52.985+00:00"
+      },
+      {
+        "type": "EMBED_DOCUMENT",
+        "status": "FAILED",
+        "errorMessage": "Không thể embed vì bước trích xuất thất bại",
+        "startedAt": null,
+        "finishedAt": "2026-08-28T14:04:52.985+00:00"
+      },
+      {
+        "type": "ANALYZE_DOCUMENT",
+        "status": "FAILED",
+        "errorMessage": "Không thể phân tích vì bước trích xuất thất bại",
+        "startedAt": null,
+        "finishedAt": "2026-08-28T14:04:52.988+00:00"
+      }
+    ],
+    "chunks": [],
+    "embeddingMode": "mock (Whisper and FFmpeg real)",
+    "emptyAudioInventedText": false,
+    "elapsedMs": 3417,
+    "audioDuration": "00:00:05.00",
+    "initialObservedStatus": "FAILED",
+    "extractionElapsedMs": 3201
+  },
+  {
+    "name": "noise.wav",
+    "http": 202,
+    "body": {
+      "documentId": "cmtd0wwg4000x3guz2tf0rzi2",
+      "status": "UPLOADED"
+    },
+    "expected": "",
+    "document": {
+      "status": "FAILED",
+      "textContent": null,
+      "analysisReason": "Trích xuất: Không nhận dạng được đủ lời nói trong file âm thanh."
+    },
+    "jobs": [
+      {
+        "type": "EXTRACT_TEXT",
+        "status": "FAILED",
+        "errorMessage": "Không nhận dạng được đủ lời nói trong file âm thanh.",
+        "startedAt": "2026-08-28T14:04:53.197+00:00",
+        "finishedAt": "2026-08-28T14:04:56.510+00:00"
+      },
+      {
+        "type": "CHUNK_DOCUMENT",
+        "status": "FAILED",
+        "errorMessage": "Không thể chunk vì bước trích xuất thất bại",
+        "startedAt": null,
+        "finishedAt": "2026-08-28T14:04:56.511+00:00"
+      },
+      {
+        "type": "EMBED_DOCUMENT",
+        "status": "FAILED",
+        "errorMessage": "Không thể embed vì bước trích xuất thất bại",
+        "startedAt": null,
+        "finishedAt": "2026-08-28T14:04:56.511+00:00"
+      },
+      {
+        "type": "ANALYZE_DOCUMENT",
+        "status": "FAILED",
+        "errorMessage": "Không thể phân tích vì bước trích xuất thất bại",
+        "startedAt": null,
+        "finishedAt": "2026-08-28T14:04:56.514+00:00"
+      }
+    ],
+    "chunks": [],
+    "embeddingMode": "mock (Whisper and FFmpeg real)",
+    "emptyAudioInventedText": false,
+    "elapsedMs": 3463,
+    "audioDuration": "00:00:05.00",
+    "initialObservedStatus": "FAILED",
+    "extractionElapsedMs": 3313
+  },
+  {
+    "name": "corrupt.mp3",
+    "http": 202,
+    "body": {
+      "documentId": "cmtd0wz4100123guzqhu7mwec",
+      "status": "UPLOADED"
+    },
+    "document": {
+      "status": "FAILED",
+      "textContent": null,
+      "analysisReason": "Trích xuất: Không đọc được âm thanh: [mp3 @ 000001eccc671a40] Failed to read frame size: Could not seek to 1116.\r\nC:\\Users\\Dell\\AppData\\Local\\Temp\\scholarflow-audio-5kSHNd\\input.mp3: Invalid argument\r\n"
+    },
+    "jobs": [
+      {
+        "type": "EXTRACT_TEXT",
+        "status": "FAILED",
+        "errorMessage": "Không đọc được âm thanh: [mp3 @ 000001eccc671a40] Failed to read frame size: Could not seek to 1116.\r\nC:\\Users\\Dell\\AppData\\Local\\Temp\\scholarflow-audio-5kSHNd\\input.mp3: Invalid argument\r\n",
+        "startedAt": "2026-08-28T14:04:56.644+00:00",
+        "finishedAt": "2026-08-28T14:04:56.736+00:00"
+      },
+      {
+        "type": "CHUNK_DOCUMENT",
+        "status": "FAILED",
+        "errorMessage": "Không thể chunk vì bước trích xuất thất bại",
+        "startedAt": null,
+        "finishedAt": "2026-08-28T14:04:56.739+00:00"
+      },
+      {
+        "type": "EMBED_DOCUMENT",
+        "status": "FAILED",
+        "errorMessage": "Không thể embed vì bước trích xuất thất bại",
+        "startedAt": null,
+        "finishedAt": "2026-08-28T14:04:56.739+00:00"
+      },
+      {
+        "type": "ANALYZE_DOCUMENT",
+        "status": "FAILED",
+        "errorMessage": "Không thể phân tích vì bước trích xuất thất bại",
+        "startedAt": null,
+        "finishedAt": "2026-08-28T14:04:56.748+00:00"
+      }
+    ],
+    "chunks": [],
+    "embeddingMode": "mock (Whisper and FFmpeg real)",
+    "emptyAudioInventedText": false,
+    "elapsedMs": 325,
+    "audioDuration": null,
+    "initialObservedStatus": "FAILED",
+    "extractionElapsedMs": 92
+  },
+  {
+    "name": "wrong-format.mp3",
+    "http": 415,
+    "body": {
+      "message": "Nội dung file không khớp với định dạng đã chọn"
+    },
+    "elapsedMs": 28,
+    "audioDuration": null
+  },
+  {
+    "name": "empty.wav",
+    "http": 413,
+    "body": {
+      "message": "File phải có dung lượng từ 1 byte đến 25 MB"
+    },
+    "elapsedMs": 24,
+    "audioDuration": null
+  },
+  {
+    "name": "lecture-en.mp3",
+    "http": 202,
+    "body": {
+      "documentId": "cmtd0wzfg00173guzmlyodsls",
+      "status": "UPLOADED"
+    },
+    "expected": "Today we study computer networks and databases. Computers exchange information by sending data packets. A router forwards each packet toward its destination. Routing protocols compare the cost of different paths. A database stores information in tables with rows and columns. A primary key identifies each record. A foreign key connects records across tables. Normalization reduces duplication and helps avoid update errors. Good system design also requires access control and regular backups. We should test whether a backup can actually be restored. Students can practice by designing a small library database and connecting two local networks. This exercise combines network configuration, data management, and security. The final reminder is to verify both accuracy and reliability. This is the final sentence of the audio test.",
+    "document": {
+      "status": "READY",
+      "textContent": "Today we study computer networks and databases.\n\nComputers exchange information by sending data packets.\n\nA router forwards each packet toward its destination.\n\nRouting protocols compare the cost of different paths.\n\nA database stores information in tables with rows and columns.\n\nA primary key identifies each record.\n\nA foreign key connects records across tables.\n\nNormalization reduces duplication and helps avoid update errors.\n\nGood system design also requires access control and regular backups. We should test whether\n\na backup can actually be restored. Students can practice by designing a small library database and connecting two local\n\nnetworks.\n\nThis exercise combines network configuration, data management, and security.\n\nThe final reminder is to verify both accuracy and reliability.\n\nThis is the final sentence of the audio test.",
+      "analysisReason": null
+    },
+    "jobs": [
+      {
+        "type": "EXTRACT_TEXT",
+        "status": "COMPLETED",
+        "errorMessage": null,
+        "startedAt": "2026-08-28T14:04:57.064+00:00",
+        "finishedAt": "2026-08-28T14:05:22.793+00:00"
+      },
+      {
+        "type": "CHUNK_DOCUMENT",
+        "status": "COMPLETED",
+        "errorMessage": null,
+        "startedAt": "2026-08-28T14:05:22.795+00:00",
+        "finishedAt": "2026-08-28T14:05:22.804+00:00"
+      },
+      {
+        "type": "EMBED_DOCUMENT",
+        "status": "COMPLETED",
+        "errorMessage": null,
+        "startedAt": "2026-08-28T14:05:22.806+00:00",
+        "finishedAt": "2026-08-28T14:05:22.852+00:00"
+      },
+      {
+        "type": "ANALYZE_DOCUMENT",
+        "status": "SKIPPED",
+        "errorMessage": null,
+        "startedAt": null,
+        "finishedAt": "2026-08-28T14:05:22.860+00:00"
+      }
+    ],
+    "chunks": [
+      {
+        "content": "Today we study computer networks and databases.",
+        "sourceLabel": "Bản ghi âm · 00:00–00:04",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "Computers exchange information by sending data packets.",
+        "sourceLabel": "Bản ghi âm · 00:04–00:08",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "A router forwards each packet toward its destination.",
+        "sourceLabel": "Bản ghi âm · 00:08–00:12",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "Routing protocols compare the cost of different paths.",
+        "sourceLabel": "Bản ghi âm · 00:12–00:16",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "A database stores information in tables with rows and columns.",
+        "sourceLabel": "Bản ghi âm · 00:16–00:21",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "A primary key identifies each record.",
+        "sourceLabel": "Bản ghi âm · 00:21–00:24",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "A foreign key connects records across tables.",
+        "sourceLabel": "Bản ghi âm · 00:24–00:28",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "Normalization reduces duplication and helps avoid update errors.",
+        "sourceLabel": "Bản ghi âm · 00:28–00:34",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "Good system design also requires access control and regular backups. We should test whether",
+        "sourceLabel": "Bản ghi âm · 00:34–00:40",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "a backup can actually be restored. Students can practice by designing a small library database and connecting two local",
+        "sourceLabel": "Bản ghi âm · 00:40–00:48",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "networks.",
+        "sourceLabel": "Bản ghi âm · 00:48–00:50",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "This exercise combines network configuration, data management, and security.",
+        "sourceLabel": "Bản ghi âm · 00:50–00:56",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "The final reminder is to verify both accuracy and reliability.",
+        "sourceLabel": "Bản ghi âm · 00:56–01:01",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "This is the final sentence of the audio test.",
+        "sourceLabel": "Bản ghi âm · 01:01–01:04",
+        "vectorBytes": 4096
+      }
+    ],
+    "embeddingMode": "mock (Whisper and FFmpeg real)",
+    "emptyAudioInventedText": false,
+    "exactWords": true,
+    "wordEdits": 0,
+    "referenceWords": 123,
+    "tailPresent": true,
+    "elapsedMs": 26023,
+    "audioDuration": "00:01:05.35",
+    "initialObservedStatus": "READY",
+    "extractionElapsedMs": 25729,
+    "textDownload": {
+      "status": 200,
+      "matchesStored": true
+    },
+    "audioRange": {
+      "status": 200,
+      "type": "audio/mpeg",
+      "range": null,
+      "bytes": 392112
+    }
+  },
+  {
+    "name": "lecture-vi.m4a",
+    "http": 202,
+    "body": {
+      "documentId": "cmtd0xjhu001q3guzonmjhxxv",
+      "status": "UPLOADED"
+    },
+    "expected": "Hôm nay chúng ta học về mạng máy tính và cơ sở dữ liệu. Máy tính gửi thông tin bằng các gói dữ liệu. Bộ định tuyến chuyển tiếp gói tin đến mạng đích. Giao thức định tuyến lựa chọn đường đi dựa trên chi phí. Cơ sở dữ liệu lưu trữ thông tin trong các bảng. Mỗi bảng có các hàng và các cột. Khóa chính giúp phân biệt từng bản ghi. Khóa ngoại liên kết dữ liệu giữa các bảng. Chuẩn hóa giúp giảm dữ liệu trùng lặp và tránh lỗi khi cập nhật. Khi thiết kế hệ thống, chúng ta cần kiểm tra quyền truy cập và sao lưu dữ liệu. Bản sao lưu phải được kiểm tra thường xuyên. Phần cuối bài học nhắc lại rằng bảo mật và tính chính xác đều quan trọng. Đây là câu kết thúc của bài kiểm tra âm thanh.",
+    "document": {
+      "status": "READY",
+      "textContent": "Today, we learn how to write and write the language.\n\nWrite the word in the language.\n\nUse the word to write the word in the language.\n\nWrite the word in the language to go to the city.\n\nWrite the language in the language in the language.\n\nEach language has a language and a language.\n\nWrite the language in the language and determine the results of the results\n\nand determine the results of the results\n\nand determine the results of the results of the results\n\nand determine the results of the results of the results\n\nand determine the results of the results of the results\n\nand determine the results of the results of the results of the results\n\nand determine the results of the results of the results of the results\n\nand determine the results of the results of the results\n\nand determine the results of the results of the results\n\nand determine the results of the results of the results\n\nand determine the results of the results of the results and determine the results of the results of the part of the study was to express the importance of the scientific and scientific research.\n\nThis is the end of the study of Mr. Thanh.",
+      "analysisReason": null
+    },
+    "jobs": [
+      {
+        "type": "EXTRACT_TEXT",
+        "status": "COMPLETED",
+        "errorMessage": null,
+        "startedAt": "2026-08-28T14:05:23.062+00:00",
+        "finishedAt": "2026-08-28T14:06:36.804+00:00"
+      },
+      {
+        "type": "CHUNK_DOCUMENT",
+        "status": "COMPLETED",
+        "errorMessage": null,
+        "startedAt": "2026-08-28T14:06:36.808+00:00",
+        "finishedAt": "2026-08-28T14:06:36.816+00:00"
+      },
+      {
+        "type": "EMBED_DOCUMENT",
+        "status": "COMPLETED",
+        "errorMessage": null,
+        "startedAt": "2026-08-28T14:06:36.819+00:00",
+        "finishedAt": "2026-08-28T14:06:36.890+00:00"
+      },
+      {
+        "type": "ANALYZE_DOCUMENT",
+        "status": "SKIPPED",
+        "errorMessage": null,
+        "startedAt": null,
+        "finishedAt": "2026-08-28T14:06:36.893+00:00"
+      }
+    ],
+    "chunks": [
+      {
+        "content": "Today, we learn how to write and write the language.",
+        "sourceLabel": "Bản ghi âm · 00:00–00:04",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "Write the word in the language.",
+        "sourceLabel": "Bản ghi âm · 00:04–00:08",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "Use the word to write the word in the language.",
+        "sourceLabel": "Bản ghi âm · 00:08–00:11",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "Write the word in the language to go to the city.",
+        "sourceLabel": "Bản ghi âm · 00:11–00:15",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "Write the language in the language in the language.",
+        "sourceLabel": "Bản ghi âm · 00:15–00:19",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "Each language has a language and a language.",
+        "sourceLabel": "Bản ghi âm · 00:19–00:22",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "Write the language in the language and determine the results of the results",
+        "sourceLabel": "Bản ghi âm · 00:22–00:26",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "and determine the results of the results",
+        "sourceLabel": "Bản ghi âm · 00:26–00:28",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "and determine the results of the results of the results",
+        "sourceLabel": "Bản ghi âm · 00:28–00:30",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "and determine the results of the results of the results",
+        "sourceLabel": "Bản ghi âm · 00:30–00:32",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "and determine the results of the results of the results",
+        "sourceLabel": "Bản ghi âm · 00:32–00:34",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "and determine the results of the results of the results of the results",
+        "sourceLabel": "Bản ghi âm · 00:34–00:36",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "and determine the results of the results of the results of the results",
+        "sourceLabel": "Bản ghi âm · 00:36–00:38",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "and determine the results of the results of the results",
+        "sourceLabel": "Bản ghi âm · 00:38–00:40",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "and determine the results of the results of the results",
+        "sourceLabel": "Bản ghi âm · 00:40–00:42",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "and determine the results of the results of the results",
+        "sourceLabel": "Bản ghi âm · 00:42–00:44",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "and determine the results of the results of the results and determine the results of the results of the part of the study was to express the importance of the scientific and scientific research.",
+        "sourceLabel": "Bản ghi âm · 00:44–00:46",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "This is the end of the study of Mr. Thanh.",
+        "sourceLabel": "Bản ghi âm · 00:47–00:50",
+        "vectorBytes": 4096
+      }
+    ],
+    "embeddingMode": "mock (Whisper and FFmpeg real)",
+    "emptyAudioInventedText": false,
+    "exactWords": false,
+    "wordEdits": 203,
+    "referenceWords": 150,
+    "tailPresent": false,
+    "elapsedMs": 73877,
+    "audioDuration": "00:00:50.64",
+    "initialObservedStatus": "READY",
+    "extractionElapsedMs": 73742
+  },
+  {
+    "name": "mixed.m4a",
+    "http": 202,
+    "body": {
+      "documentId": "cmtd0z4ig002d3guzxhqwv76u",
+      "status": "UPLOADED"
+    },
+    "expected": "Hôm nay chúng ta học về mạng máy tính và cơ sở dữ liệu. Máy tính gửi thông tin bằng các gói dữ liệu. Bộ định tuyến chuyển tiếp gói tin đến mạng đích. Giao thức định tuyến lựa chọn đường đi dựa trên chi phí. Cơ sở dữ liệu lưu trữ thông tin trong các bảng. Mỗi bảng có các hàng và các cột. Khóa chính giúp phân biệt từng bản ghi. Khóa ngoại liên kết dữ liệu giữa các bảng. Chuẩn hóa giúp giảm dữ liệu trùng lặp và tránh lỗi khi cập nhật. Khi thiết kế hệ thống, chúng ta cần kiểm tra quyền truy cập và sao lưu dữ liệu. Bản sao lưu phải được kiểm tra thường xuyên. Phần cuối bài học nhắc lại rằng bảo mật và tính chính xác đều quan trọng. Đây là câu kết thúc của bài kiểm tra âm thanh. Today we study computer networks and databases. Computers exchange information by sending data packets. A router forwards each packet toward its destination. Routing protocols compare the cost of different paths. A database stores information in tables with rows and columns. A primary key identifies each record. A foreign key connects records across tables. Normalization reduces duplication and helps avoid update errors. Good system design also requires access control and regular backups. We should test whether a backup can actually be restored. Students can practice by designing a small library database and connecting two local networks. This exercise combines network configuration, data management, and security. The final reminder is to verify both accuracy and reliability. This is the final sentence of the audio test.",
+    "document": {
+      "status": "READY",
+      "textContent": "Today, we learn how to write and write the language.\n\nWrite the word in the language.\n\nUse the word to write the word in the language.\n\nWrite the word in the language to go to the city.\n\nWrite the language in the language in the language.\n\nEach language has a language and a language.\n\nWrite the language in the language and determine the results of the results\n\nand determine the results of the results\n\nand determine the results of the results of the results\n\nand determine the results of the results of the results\n\nand determine the results of the results of the results\n\nand determine the results of the results of the results of the results\n\nand determine the results of the results of the results of the results\n\nand determine the results of the results of the results\n\nand determine the results of the results of the results\n\nand determine the results of the results of the results\n\nand determine the results of the results of the results and determine the results of the results of the results of the Today we study computer networks and databases.\n\nComputers exchange information by sending data packets.\n\nA router forwards each packet toward its destination.\n\nRouting protocols compare the cost of different paths.\n\nA database stores information in tables with rows and columns.\n\nA primary key identifies each record.\n\nA foreign key connects records across tables.\n\nNormalization reduces duplication and helps avoid update errors.\n\nGood system design also requires access control and regular backups. This allows you to use the application to provide a better application for your application.\n\nThis allows you to use the application to provide\n\na better application for your application.\n\nThis allows you to use the application to provide\n\na better application for your application.\n\nThis allows you to use the application to provide\n\na better application for your application.\n\nThis allows you to use the application to provide\n\na better application for your application.\n\nThis allows you to use the application to provide a better application for your application. This allows you to use the application to provide by both actors. This exercise combines network configuration, data management and security.\n\nThe final reminder is to verify both accuracy and reliability.\n\nThis is the final sentence of the audio test.",
+      "analysisReason": null
+    },
+    "jobs": [
+      {
+        "type": "EXTRACT_TEXT",
+        "status": "COMPLETED",
+        "errorMessage": null,
+        "startedAt": "2026-08-28T14:06:36.957+00:00",
+        "finishedAt": "2026-08-28T14:08:38.341+00:00"
+      },
+      {
+        "type": "CHUNK_DOCUMENT",
+        "status": "COMPLETED",
+        "errorMessage": null,
+        "startedAt": "2026-08-28T14:08:38.343+00:00",
+        "finishedAt": "2026-08-28T14:08:38.355+00:00"
+      },
+      {
+        "type": "EMBED_DOCUMENT",
+        "status": "COMPLETED",
+        "errorMessage": null,
+        "startedAt": "2026-08-28T14:08:38.357+00:00",
+        "finishedAt": "2026-08-28T14:08:38.431+00:00"
+      },
+      {
+        "type": "ANALYZE_DOCUMENT",
+        "status": "SKIPPED",
+        "errorMessage": null,
+        "startedAt": null,
+        "finishedAt": "2026-08-28T14:08:38.435+00:00"
+      }
+    ],
+    "chunks": [
+      {
+        "content": "Today, we learn how to write and write the language.",
+        "sourceLabel": "Bản ghi âm · 00:00–00:04",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "Write the word in the language.",
+        "sourceLabel": "Bản ghi âm · 00:04–00:08",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "Use the word to write the word in the language.",
+        "sourceLabel": "Bản ghi âm · 00:08–00:11",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "Write the word in the language to go to the city.",
+        "sourceLabel": "Bản ghi âm · 00:11–00:15",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "Write the language in the language in the language.",
+        "sourceLabel": "Bản ghi âm · 00:15–00:19",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "Each language has a language and a language.",
+        "sourceLabel": "Bản ghi âm · 00:19–00:22",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "Write the language in the language and determine the results of the results",
+        "sourceLabel": "Bản ghi âm · 00:22–00:26",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "and determine the results of the results",
+        "sourceLabel": "Bản ghi âm · 00:26–00:28",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "and determine the results of the results of the results",
+        "sourceLabel": "Bản ghi âm · 00:28–00:30",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "and determine the results of the results of the results",
+        "sourceLabel": "Bản ghi âm · 00:30–00:32",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "and determine the results of the results of the results",
+        "sourceLabel": "Bản ghi âm · 00:32–00:34",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "and determine the results of the results of the results of the results",
+        "sourceLabel": "Bản ghi âm · 00:34–00:36",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "and determine the results of the results of the results of the results",
+        "sourceLabel": "Bản ghi âm · 00:36–00:38",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "and determine the results of the results of the results",
+        "sourceLabel": "Bản ghi âm · 00:38–00:40",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "and determine the results of the results of the results",
+        "sourceLabel": "Bản ghi âm · 00:40–00:42",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "and determine the results of the results of the results",
+        "sourceLabel": "Bản ghi âm · 00:42–00:44",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "and determine the results of the results of the results and determine the results of the results of the results of the Today we study computer networks and databases.",
+        "sourceLabel": "Bản ghi âm · 00:44–00:54",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "Computers exchange information by sending data packets.",
+        "sourceLabel": "Bản ghi âm · 00:54–00:59",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "A router forwards each packet toward its destination.",
+        "sourceLabel": "Bản ghi âm · 00:59–01:03",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "Routing protocols compare the cost of different paths.",
+        "sourceLabel": "Bản ghi âm · 01:03–01:07",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "A database stores information in tables with rows and columns.",
+        "sourceLabel": "Bản ghi âm · 01:07–01:12",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "A primary key identifies each record.",
+        "sourceLabel": "Bản ghi âm · 01:12–01:15",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "A foreign key connects records across tables.",
+        "sourceLabel": "Bản ghi âm · 01:15–01:19",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "Normalization reduces duplication and helps avoid update errors.",
+        "sourceLabel": "Bản ghi âm · 01:19–01:24",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "Good system design also requires access control and regular backups. This allows you to use the application to provide a better application for your application.",
+        "sourceLabel": "Bản ghi âm · 01:24–01:26",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "This allows you to use the application to provide",
+        "sourceLabel": "Bản ghi âm · 01:26–01:29",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "a better application for your application.",
+        "sourceLabel": "Bản ghi âm · 01:29–01:31",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "This allows you to use the application to provide",
+        "sourceLabel": "Bản ghi âm · 01:31–01:33",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "a better application for your application.",
+        "sourceLabel": "Bản ghi âm · 01:33–01:35",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "This allows you to use the application to provide",
+        "sourceLabel": "Bản ghi âm · 01:35–01:37",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "a better application for your application.",
+        "sourceLabel": "Bản ghi âm · 01:37–01:39",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "This allows you to use the application to provide",
+        "sourceLabel": "Bản ghi âm · 01:39–01:41",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "a better application for your application.",
+        "sourceLabel": "Bản ghi âm · 01:41–01:43",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "This allows you to use the application to provide a better application for your application. This allows you to use the application to provide by both actors. This exercise combines network configuration, data management and security.",
+        "sourceLabel": "Bản ghi âm · 01:43–01:47",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "The final reminder is to verify both accuracy and reliability.",
+        "sourceLabel": "Bản ghi âm · 01:47–01:52",
+        "vectorBytes": 4096
+      },
+      {
+        "content": "This is the final sentence of the audio test.",
+        "sourceLabel": "Bản ghi âm · 01:52–01:55",
+        "vectorBytes": 4096
+      }
+    ],
+    "embeddingMode": "mock (Whisper and FFmpeg real)",
+    "emptyAudioInventedText": false,
+    "exactWords": false,
+    "wordEdits": 282,
+    "referenceWords": 273,
+    "tailPresent": true,
+    "elapsedMs": 120182,
+    "audioDuration": "00:01:55.99",
+    "initialObservedStatus": "EXTRACTING",
+    "extractionElapsedMs": 121384
+  }
+]

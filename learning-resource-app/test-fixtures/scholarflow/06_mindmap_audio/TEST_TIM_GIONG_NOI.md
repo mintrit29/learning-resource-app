@@ -1,5 +1,7 @@
 # Test nhanh tìm bằng giọng nói
 
+> **ĐÃ NGỪNG — 29/08/2026:** micro tìm kiếm đã gỡ theo yêu cầu. Tài liệu bên dưới chỉ giữ làm lịch sử; các nút/lệnh test voice không còn áp dụng. Âm thanh vẫn được thêm qua file với Whisper Small + VAD.
+
 Cập nhật 28/08/2026. Giữ file này cùng bộ test, không xóa khi dọn cache. Chức năng hiện nằm trên bản dev, chưa có EXE mới.
 
 ## Bạn thử khoảng 3 phút

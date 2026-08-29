@@ -1,0 +1,12 @@
+[
+  {
+    "name": "long-vi",
+    "voice": "vi-VN-HoaiMyNeural",
+    "expected": "Hôm nay chúng ta học về mạng máy tính và cơ sở dữ liệu. Máy tính gửi thông tin bằng các gói dữ liệu. Bộ định tuyến chuyển tiếp gói tin đến mạng đích. Giao thức định tuyến lựa chọn đường đi dựa trên chi phí. Cơ sở dữ liệu lưu trữ thông tin trong các bảng. Mỗi bảng có các hàng và các cột. Khóa chính giúp phân biệt từng bản ghi. Khóa ngoại liên kết dữ liệu giữa các bảng. Chuẩn hóa giúp giảm dữ liệu trùng lặp và tránh lỗi khi cập nhật. Khi thiết kế hệ thống, chúng ta cần kiểm tra quyền truy cập và sao lưu dữ liệu. Bản sao lưu phải được kiểm tra thường xuyên. Phần cuối bài học nhắc lại rằng bảo mật và tính chính xác đều quan trọng. Đây là câu kết thúc của bài kiểm tra âm thanh."
+  },
+  {
+    "name": "long-en",
+    "voice": "en-US-JennyNeural",
+    "expected": "Today we study computer networks and databases. Computers exchange information by sending data packets. A router forwards each packet toward its destination. Routing protocols compare the cost of different paths. A database stores information in tables with rows and columns. A primary key identifies each record. A foreign key connects records across tables. Normalization reduces duplication and helps avoid update errors. Good system design also requires access control and regular backups. We should test whether a backup can actually be restored. Students can practice by designing a small library database and connecting two local networks. This exercise combines network configuration, data management, and security. The final reminder is to verify both accuracy and reliability. This is the final sentence of the audio test."
+  }
+]

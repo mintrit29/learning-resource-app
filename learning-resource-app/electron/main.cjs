@@ -9,7 +9,6 @@ const path = require("node:path");
 const { app, BrowserWindow, dialog, ipcMain, session, shell } = require("electron");
 const { ComponentManager } = require("./component-manager.cjs");
 const { normalizeCaptureRectangle, targetOcrSize } = require("./visual-search.cjs");
-const { allowSearchMicrophone } = require("./microphone-permission.cjs");
 
 const HOST = "127.0.0.1";
 const HEALTH_PATH = "/api/health";
@@ -751,15 +750,9 @@ if (!hasSingleInstanceLock) {
   });
 
   app.whenReady().then(() => {
-    const canUseMic = (webContents, permission, requestingUrl, details, mediaTypes) => allowSearchMicrophone({
-      permission, requestingUrl, serverUrl, mediaTypes, isMainFrame: details.isMainFrame,
-      sameWindow: Boolean(mainWindow && !mainWindow.isDestroyed() && webContents === mainWindow.webContents),
-      pageUrl: webContents?.getURL(),
-    });
-    session.defaultSession.setPermissionCheckHandler((webContents, permission, origin, details) =>
-      canUseMic(webContents, permission, details.requestingUrl || origin, details, [details.mediaType]));
-    session.defaultSession.setPermissionRequestHandler((webContents, permission, callback, details) =>
-      callback(canUseMic(webContents, permission, details.requestingUrl, details, details.mediaTypes)));
+    // No feature records media: deny microphone/camera permission explicitly.
+    session.defaultSession.setPermissionCheckHandler(() => false);
+    session.defaultSession.setPermissionRequestHandler((_webContents, _permission, callback) => callback(false));
     return bootstrap();
   }).catch((error) => {
     writeCriticalLog(`Khởi động thất bại: ${error instanceof Error ? error.stack || error.message : String(error)}`);

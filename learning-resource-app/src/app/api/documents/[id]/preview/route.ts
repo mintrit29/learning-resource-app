@@ -5,6 +5,7 @@ import {
   type PreviewFileType,
 } from "@/lib/documents/render-document-preview";
 import { resolveStoredUploadPath } from "@/lib/storage/local-storage";
+import { toUserFacingError } from "@/lib/user-facing-error";
 
 export const runtime = "nodejs";
 
@@ -75,7 +76,8 @@ export async function GET(
     // do not retain a separate cached HTML copy for every visit.
     return new Response(preview.html, { headers: previewHeaders(searchParams.has("visit") ? "no-store" : undefined) });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Không thể tạo bản xem nhanh.";
+    console.error(`[document-preview] document=${id}`, error);
+    const message = toUserFacingError(error, "Không thể tạo bản xem nhanh. Hãy thử mở lại tài liệu.");
     return errorPage(message, 422);
   }
 }

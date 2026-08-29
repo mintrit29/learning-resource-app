@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
-import { mkdtemp, rm } from "node:fs/promises";
+import "./test-ui-actions.mjs";
+import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { createServer } from "node:http";
@@ -8,6 +9,98 @@ import { getDocumentDisplayStatus } from "../src/lib/documents/display-status.ts
 import { isSkippedAnalysisJob } from "../src/lib/documents/optional-analysis.ts";
 import { libraryHref, libraryReturnHref } from "../src/lib/documents/library-navigation.ts";
 import { previewVisitUrl } from "../src/lib/documents/preview-navigation.ts";
+import { createSearchDraft, restoreSearchState, searchSignature, EMPTY_FILTERS } from "../src/lib/search/search-state.ts";
+import { visualDraftError, saveVisualSearchDraft, readVisualSearchDraft, clearVisualSearchDraft } from "../src/lib/search/visual-search-draft.ts";
+import { editUploadItems, getUploadSnapshot, subscribeUploadSession, uploadPendingFiles } from "../src/lib/documents/upload-session.ts";
+
+// Scope documentation belongs in README/docs, not an extra product screen.
+await assert.rejects(readFile(new URL("../src/app/(dashboard)/help/page.tsx", import.meta.url)), { code: "ENOENT" });
+for (const filename of [
+  "app/(dashboard)/settings/page.tsx", "app/(dashboard)/upload/page.tsx",
+  "app/(dashboard)/documents/[id]/page.tsx", "components/layout/project-header.tsx",
+  "components/search/semantic-search.tsx", "components/search/visual-resource-search.tsx",
+]) {
+  const source = await readFile(new URL(`../src/${filename}`, import.meta.url), "utf8");
+  assert.doesNotMatch(source, /href="\/help|@\/lib\/capabilities|LIMIT_NOTICE/, filename);
+}
+assert.match(await readFile(new URL("../../README.md", import.meta.url), "utf8"), /APP_CAPABILITIES\.md/);
+assert.match(await readFile(new URL("../../APP_CAPABILITIES.md", import.meta.url), "utf8"), /Phân biệt giới hạn và lỗi/);
+console.log("PASS scope documentation retained in README/docs; removed help route and UI notices have no dangling references");
+
+const completedSearch = { query: "chuẩn hóa 3NF", filters: EMPTY_FILTERS, appliedFilters: EMPTY_FILTERS, results: [{ fileType: "XMIND" }], status: "OK" };
+for (const query of ["", " ", "x", "câu hỏi mới"]) {
+  const restored = restoreSearchState(createSearchDraft(query, EMPTY_FILTERS));
+  assert.equal(restored.query, query);
+  assert.deepEqual(restored.results, []);
+  assert.equal(restored.signature, "");
+  assert.equal(restored.searchedQuery, "");
+}
+for (const fileType of ["PDF", "DOCX"]) {
+  const filters = { ...EMPTY_FILTERS, fileType };
+  const changed = restoreSearchState(createSearchDraft(completedSearch.query, filters));
+  assert.equal(changed.filters.fileType, fileType);
+  assert.deepEqual(changed.results, []);
+  assert.equal(changed.signature, "");
+  // Also repair old snapshots written by the previous buggy updateFilter.
+  const legacyMismatch = restoreSearchState({ ...completedSearch, filters });
+  assert.deepEqual(legacyMismatch.results, []);
+  assert.equal(legacyMismatch.status, null);
+  assert.equal(legacyMismatch.signature, "");
+}
+for (const status of ["NO_RELEVANT_RESULTS", "EMPTY_LIBRARY"]) {
+  const restored = restoreSearchState({ ...completedSearch, results: [], status });
+  assert.equal(restored.searchedQuery, completedSearch.query);
+  assert.equal(restored.status, status);
+  assert.equal(restored.signature, searchSignature(completedSearch.query, EMPTY_FILTERS));
+}
+assert.deepEqual(restoreSearchState(completedSearch).results, completedSearch.results);
+assert.equal(searchSignature(" OSPF ", EMPTY_FILTERS), searchSignature("OSPF", { fileType: "", difficulty: "", topic: "" }));
+
+const brokenPreview = { file: { name: "broken.xmind" }, previewHtml: "", error: "thiếu content.json hoặc content.xml" };
+saveVisualSearchDraft(brokenPreview);
+assert.equal(visualDraftError(readVisualSearchDraft()), brokenPreview.error);
+assert.match(visualDraftError({ ...brokenPreview, error: "" }), /chưa hoàn tất/);
+assert.equal(visualDraftError({ ...brokenPreview, previewHtml: "<p>Ready</p>", error: "" }), "");
+assert.equal(visualDraftError({ file: { name: "image.png" }, previewHtml: "" }), "");
+assert.equal(visualDraftError({ file: { name: "bad.png" }, previewHtml: "", previewError: "Không đọc được ảnh", error: "" }), "Không đọc được ảnh");
+assert.equal(visualDraftError({ ...brokenPreview, previewHtml: "<p>Ready</p>", error: "Search failed" }), "", "A search error must not become a permanent preview error");
+assert.equal(visualDraftError(null), "");
+clearVisualSearchDraft();
+console.log("PASS unhappy search state: clear/edit, filter invalidation, legacy mismatch, empty-result restoration, failed/interrupted preview");
+
+const uploadItem = id => ({ id, file: new File(["QA"], `${id}.pdf`, { type: "application/pdf" }), status: "ready" });
+editUploadItems(() => [uploadItem("good"), uploadItem("bad")]);
+let releaseUpload;
+let uploadCalls = 0;
+let notifications = 0;
+const unsubscribeUpload = subscribeUploadSession(() => { notifications += 1; });
+const batch = uploadPendingFiles(async () => {
+  uploadCalls += 1;
+  if (uploadCalls === 1) return new Promise(resolve => { releaseUpload = resolve; });
+  return Response.json({ message: "File hỏng" }, { status: 400 });
+});
+assert.equal(getUploadSnapshot().isUploading, true);
+assert.equal(await uploadPendingFiles(), null, "A second mount/click cannot start another batch");
+editUploadItems(() => []);
+assert.equal(getUploadSnapshot().items.length, 2, "In-flight items cannot be removed/replaced");
+unsubscribeUpload(); // Simulate leaving the upload page before the response.
+releaseUpload(Response.json({ documentId: "new-document" }));
+assert.equal((await batch).failedCount, 1);
+assert.equal(uploadCalls, 2);
+assert.equal(getUploadSnapshot().isUploading, false);
+assert.equal(getUploadSnapshot().items[0].status, "uploaded");
+assert.equal(getUploadSnapshot().items[1].status, "error");
+assert.ok(notifications > 0);
+let retryCalls = 0;
+await uploadPendingFiles(async () => { retryCalls += 1; return Response.json({ documentId: "retried-document" }); });
+assert.equal(retryCalls, 1, "Retry sends only the failed item, never the already uploaded document");
+assert.deepEqual(getUploadSnapshot().items, []);
+editUploadItems(() => [uploadItem("network")]);
+await uploadPendingFiles(async () => { throw new Error("offline"); });
+assert.equal(getUploadSnapshot().items[0].status, "error");
+assert.equal(getUploadSnapshot().isUploading, false);
+editUploadItems(() => []);
+console.log("PASS upload session: late response after unmount, shared status, concurrent-batch lock, partial failure, retry and offline recovery");
 
 const failed = { id: "bad", status: "error", needsComponent: true };
 assert.match(getUploadFeedback([failed], false).message, /^1 file/);

@@ -1,0 +1,31 @@
+import assert from 'node:assert/strict';
+import { requestJsonAction } from '../src/lib/ui-action.ts';
+import { tagSchema } from '../src/lib/taxonomy/tag-schema.ts';
+import { toUserFacingError } from '../src/lib/user-facing-error.ts';
+const run = (fetcher, timeoutMs = 100) => requestJsonAction('/qa', { method: 'POST' }, 'Không thể lưu', { fetcher, timeoutMs });
+assert.deepEqual(await run(async () => Response.json({ message: 'OK' })), { message: 'OK' });
+await assert.rejects(run(async () => Response.json({ message: 'Tên đã tồn tại' }, { status: 409 })), /Tên đã tồn tại/);
+for (const status of [200, 503]) await assert.rejects(run(async () => new Response('<html>server error</html>', { status })), /phản hồi không hợp lệ/);
+for (const body of [null, [], 'bad', 42]) await assert.rejects(run(async () => Response.json(body)), /phản hồi không hợp lệ/);
+await assert.rejects(run(async () => Response.json({ message: {} }, { status: 500 })), /Không thể lưu/);
+await assert.rejects(run(async () => { throw new TypeError('offline'); }), /Không kết nối được/);
+let aborted = false;
+await assert.rejects(run(async (_, init) => {
+  init.signal.addEventListener('abort', () => { aborted = true; });
+  return new Promise(() => {});
+}, 20), /phản hồi quá lâu/);
+assert.equal(aborted, true);
+await assert.rejects(run(async () => ({ json: () => new Promise(() => {}), ok: true }), 20), /phản hồi quá lâu/);
+// A failed request must not poison the next attempt, and mutations are never retried automatically.
+let calls = 0;
+await assert.rejects(run(async () => { calls++; throw Error('offline'); }));
+assert.equal(calls, 1);
+assert.deepEqual(await run(async () => Response.json({ ok: true })), { ok: true });
+for (const name of ['', ' ', 'a']) assert.match(tagSchema.safeParse({ name }).error.issues[0].message, /ít nhất 2 ký tự/);
+assert.equal(tagSchema.safeParse({ name: 'Môn QA' }).success, true);
+assert.match(tagSchema.safeParse({ name: 'a'.repeat(101) }).error.issues[0].message, /100 ký tự/);
+assert.equal(toUserFacingError(new Error('EBUSY: resource busy or locked, open C:\\private\\file.pdf'), 'fallback'), 'File đang được ứng dụng khác sử dụng. Hãy đóng file rồi thử lại.');
+assert.equal(toUserFacingError(new Error('Unexpected token < in JSON at position 0 <!DOCTYPE html>'), 'Không thể tìm tài liệu lúc này. Hãy thử lại.'), 'Không thể tìm tài liệu lúc này. Hãy thử lại.');
+assert.equal(toUserFacingError(new Error('Dòng lỗi '.repeat(80)), 'Thông báo ngắn'), 'Thông báo ngắn');
+assert.equal(toUserFacingError(new Error('Ảnh vùng chọn không hợp lệ.'), 'fallback'), 'Ảnh vùng chọn không hợp lệ.');
+console.log('PASS UI actions: success, JSON errors, HTML, invalid bodies, disconnect, stalled response/body, recovery and Vietnamese validation');

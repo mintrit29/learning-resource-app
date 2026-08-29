@@ -33,6 +33,7 @@ export function ReextractButton({
         setLoading(false);
         return;
       }
+      setLoading(false);
       setIsOpen(false);
       router.refresh();
     } catch {
@@ -43,7 +44,16 @@ export function ReextractButton({
 
   return (
     <>
-      <button className="retry-job-button" onClick={() => setIsOpen(true)} type="button">
+      <button
+        className="retry-job-button"
+        onClick={() => {
+          setLoading(false);
+          setError("");
+          setSetupUrl("");
+          setIsOpen(true);
+        }}
+        type="button"
+      >
         <FileScan size={14} />Trích xuất lại
       </button>
       {isOpen ? (

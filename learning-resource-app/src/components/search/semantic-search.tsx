@@ -5,8 +5,7 @@ import { FormEvent, useEffect, useRef, useState } from "react";
 import { ArrowUpRight, FileImage, FileSearch, LoaderCircle, Search, X } from "lucide-react";
 import { formatDifficulty, formatFileType } from "@/lib/labels";
 import { VisualResourceSearch } from "@/components/search/visual-resource-search";
-import { VoiceSearchButton } from "@/components/search/voice-search-button";
-import type { VoiceState } from "@/lib/search/voice-search-session";
+import { createSearchDraft, restoreSearchState, searchSignature, EMPTY_FILTERS, type SearchFilters, type SearchStatus, type SavedSearchState } from "@/lib/search/search-state";
 
 type SearchResult = {
   chunkId: string;
@@ -21,42 +20,26 @@ type SearchResult = {
   matchReasons: string[];
 };
 
-type SearchStatus = "OK" | "NO_RELEVANT_RESULTS" | "EMPTY_LIBRARY";
-type SearchFilters = {
-  topic: string;
-  difficulty: "" | "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
-  fileType: "" | "PDF" | "PPTX" | "DOCX" | "EPUB" | "IMAGE" | "AUDIO" | "XMIND";
-};
-
-type SavedSearchState = {
-  query: string;
-  filters: SearchFilters;
-  appliedFilters?: SearchFilters;
-  results: SearchResult[];
-  status?: SearchStatus | null;
-};
-
 const SEARCH_STORAGE_KEY = "scholarflow:resource-search:v3";
 const LEGACY_SEARCH_STORAGE_KEYS = ["scholarflow:last-search", "scholarflow:last-search:v2"];
-const EMPTY_FILTERS: SearchFilters = { topic: "", difficulty: "", fileType: "" };
 const examples = [
   "tài liệu nền tảng về database cho người mới",
   "slide machine learning nâng cao",
   "tài liệu về phương pháp nghiên cứu",
 ];
 
-function readSavedSearch(): SavedSearchState | null {
+function readSavedSearch(): ReturnType<typeof restoreSearchState<SearchResult>> | null {
   if (typeof window === "undefined") return null;
   try {
     const saved = window.sessionStorage.getItem(SEARCH_STORAGE_KEY);
-    return saved ? JSON.parse(saved) as SavedSearchState : null;
+    return saved ? restoreSearchState<SearchResult>(JSON.parse(saved)) : null;
   } catch {
     window.sessionStorage.removeItem(SEARCH_STORAGE_KEY);
     return null;
   }
 }
 
-function saveSearch(state: SavedSearchState) {
+function saveSearch(state: SavedSearchState<SearchResult>) {
   try {
     window.sessionStorage.setItem(SEARCH_STORAGE_KEY, JSON.stringify(state));
   } catch {
@@ -77,6 +60,7 @@ export function ResourceSearch({ topics, initialMode = "text" }: { topics: strin
   const inputRef = useRef<HTMLInputElement>(null);
   const requestRef = useRef<AbortController | null>(null);
   const lastSearchSignatureRef = useRef("");
+  const pendingSearchSignatureRef = useRef("");
   const [query, setQuery] = useState("");
   const [filters, setFilters] = useState<SearchFilters>(EMPTY_FILTERS);
   const [appliedFilters, setAppliedFilters] = useState<SearchFilters>(EMPTY_FILTERS);
@@ -86,14 +70,23 @@ export function ResourceSearch({ topics, initialMode = "text" }: { topics: strin
   const [searchStatus, setSearchStatus] = useState<SearchStatus | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [hasRestoredSearch, setHasRestoredSearch] = useState(false);
-  const [voice, setVoice] = useState<VoiceState>({ phase: "idle", message: "" });
-  const [voiceReset, setVoiceReset] = useState(0);
-  const voiceBusy = ["requesting", "recording", "transcribing"].includes(voice.phase);
 
   function editQuery(text: string) {
-    setVoiceReset(value => value + 1);
-    requestRef.current?.abort();
+    invalidateSearch(text, filters);
     setQuery(text);
+  }
+
+  function invalidateSearch(text: string, nextFilters: SearchFilters) {
+    requestRef.current?.abort();
+    requestRef.current = null;
+    pendingSearchSignatureRef.current = "";
+    lastSearchSignatureRef.current = "";
+    setResults([]);
+    setSearchedQuery("");
+    setSearchStatus(null);
+    setError("");
+    setIsSearching(false);
+    saveSearch(createSearchDraft<SearchResult>(text, nextFilters));
   }
 
   useEffect(() => {
@@ -103,12 +96,10 @@ export function ResourceSearch({ topics, initialMode = "text" }: { topics: strin
         setQuery(savedSearch.query);
         setFilters(savedSearch.filters ?? EMPTY_FILTERS);
         setAppliedFilters(savedSearch.appliedFilters ?? savedSearch.filters ?? EMPTY_FILTERS);
-        setSearchedQuery(savedSearch.results?.length ? savedSearch.query : "");
+        setSearchedQuery(savedSearch.searchedQuery);
         setResults(savedSearch.results ?? []);
         setSearchStatus(savedSearch.status ?? null);
-        if (savedSearch.results?.length || savedSearch.status) {
-          lastSearchSignatureRef.current = JSON.stringify([savedSearch.query, savedSearch.filters ?? EMPTY_FILTERS]);
-        }
+        lastSearchSignatureRef.current = savedSearch.signature;
       }
       LEGACY_SEARCH_STORAGE_KEYS.forEach((key) => window.sessionStorage.removeItem(key));
       setHasRestoredSearch(true);
@@ -125,7 +116,8 @@ export function ResourceSearch({ topics, initialMode = "text" }: { topics: strin
     requestRef.current?.abort();
     const controller = new AbortController();
     requestRef.current = controller;
-    const signature = JSON.stringify([normalizedQuery, activeFilters]);
+    const signature = searchSignature(normalizedQuery, activeFilters);
+    pendingSearchSignatureRef.current = signature;
     setIsSearching(true);
     setError("");
     setSearchStatus(null);
@@ -168,12 +160,15 @@ export function ResourceSearch({ topics, initialMode = "text" }: { topics: strin
       setError("Không thể kết nối tới máy chủ.");
       setResults([]);
     } finally {
-      if (requestRef.current === controller) setIsSearching(false);
+      if (requestRef.current === controller) {
+        pendingSearchSignatureRef.current = "";
+        setIsSearching(false);
+      }
     }
   }
 
   useEffect(() => {
-    if (!hasRestoredSearch || voiceBusy || searchMode !== "text") return;
+    if (!hasRestoredSearch || searchMode !== "text") return;
     const normalizedQuery = query.trim().slice(0, 500);
     if (normalizedQuery.length < 2) {
       requestRef.current?.abort();
@@ -187,30 +182,28 @@ export function ResourceSearch({ topics, initialMode = "text" }: { topics: strin
       }, 0);
       return () => window.clearTimeout(clearTimer);
     }
-    const signature = JSON.stringify([normalizedQuery, filters]);
+    const signature = searchSignature(normalizedQuery, filters);
     if (signature === lastSearchSignatureRef.current) return;
-    const timer = window.setTimeout(() => void runSearch(normalizedQuery, filters), 500);
+    const timer = window.setTimeout(() => {
+      if (signature !== pendingSearchSignatureRef.current && signature !== lastSearchSignatureRef.current) void runSearch(normalizedQuery, filters);
+    }, 500);
     return () => window.clearTimeout(timer);
     // runSearch only reads the query and filters passed above.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query, filters, hasRestoredSearch, voiceBusy, searchMode]);
+  }, [query, filters, hasRestoredSearch, searchMode]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (voiceBusy) return;
     await runSearch(query.trim());
   }
 
   function updateFilter<Key extends keyof SearchFilters>(key: Key, value: SearchFilters[Key]) {
-    setVoiceReset(value => value + 1);
-    requestRef.current?.abort();
     const nextFilters = { ...filters, [key]: value };
+    invalidateSearch(query, nextFilters);
     setFilters(nextFilters);
-    saveSearch({ query, filters: nextFilters, appliedFilters, results, status: searchStatus });
   }
 
   function handleClearSearch() {
-    setVoiceReset(value => value + 1);
     requestRef.current?.abort();
     lastSearchSignatureRef.current = "";
     setQuery("");
@@ -258,19 +251,11 @@ export function ResourceSearch({ topics, initialMode = "text" }: { topics: strin
             value={query}
           />
           {query ? <button aria-label="Xóa nội dung tìm kiếm" className="search-input-clear" onClick={handleClearSearch} type="button"><X size={16} /></button> : null}
-          {searchMode === "text" ? <VoiceSearchButton reset={voiceReset} onState={(state) => {
-            setVoice(state);
-            if (state.phase === "requesting") { requestRef.current?.abort(); setIsSearching(false); }
-          }} onTranscript={(text) => { lastSearchSignatureRef.current = ""; setQuery(text); inputRef.current?.focus(); }} /> : null}
-          <button disabled={voiceBusy || isSearching || query.trim().length < 2} type="submit">
+          <button disabled={isSearching || query.trim().length < 2} type="submit">
             {isSearching ? <LoaderCircle className="spin" size={17} /> : null}
             {isSearching ? "Đang tìm" : "Tìm ngay"}
           </button>
         </div>
-        {voice.message ? <div className="voice-search-status" role="status" aria-live="polite">
-          {voice.message}{voice.phase === "recording" ? " Tự dừng sau 30 giây; Esc để hủy." : ""}
-          {voice.missing ? <> <Link href="/settings/components">Mở cài đặt thành phần</Link></> : null}
-        </div> : null}
 
         <div className="search-filters" aria-label="Lọc tài liệu">
           <label>

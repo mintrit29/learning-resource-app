@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { LoaderCircle, Trash2, X } from "lucide-react";
 import { dismissFromBackdrop, useDismissableDialog } from "@/lib/dismissable-dialog";
+import { actionErrorMessage, requestJsonAction } from "@/lib/ui-action";
 
 export function DeleteDocumentButton({
   documentId,
@@ -16,29 +17,26 @@ export function DeleteDocumentButton({
   const [isOpen, setIsOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState("");
+  const actionPending = useRef(false);
   useDismissableDialog(isOpen, isDeleting, () => setIsOpen(false));
 
   async function deleteDocument() {
+    if (actionPending.current) return;
+    actionPending.current = true;
     setError("");
     setIsDeleting(true);
-    const response = await fetch(`/api/documents/${documentId}`, {
-      method: "DELETE",
-    });
-    const data = (await response.json()) as { message?: string };
-
-    if (!response.ok) {
-      setError(data.message ?? "Không thể xóa tài liệu");
-      setIsDeleting(false);
-      return;
-    }
-
-    router.push("/documents");
-    router.refresh();
+    try {
+      await requestJsonAction(`/api/documents/${documentId}`, { method: "DELETE" }, "Không thể xóa tài liệu");
+      setIsOpen(false);
+      router.push("/documents");
+      router.refresh();
+    } catch (caught) { setError(actionErrorMessage(caught, "Không thể xóa tài liệu")); }
+    finally { actionPending.current = false; setIsDeleting(false); }
   }
 
   return (
     <>
-      <button className="danger-button compact" onClick={() => setIsOpen(true)} type="button">
+      <button className="danger-button compact" onClick={() => { setError(""); setIsOpen(true); }} type="button">
         <Trash2 size={17} />Xóa tài liệu
       </button>
       {isOpen ? (

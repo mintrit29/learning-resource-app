@@ -1,4 +1,4 @@
-type LocalComponentId = "bge-m3" | "docling" | "whisper";
+type LocalComponentId = "bge-m3" | "docling" | "whisper-small";
 type LocalComponentState = "missing" | "downloading" | "verifying" | "ready" | "corrupt" | "error";
 
 type LocalComponentStatus = {

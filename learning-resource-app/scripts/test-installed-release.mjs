@@ -87,7 +87,7 @@ try {
   record('Fresh installed EXE starts without models');
   await app.context().tracing.start({screenshots:true,snapshots:true});
   // Exercise the installed component manager/download/checksums, not source copies or mocks.
-  for(const id of ['docling','bge-m3','whisper']) {
+  for(const id of ['docling','bge-m3','whisper','whisper-small']) {
     console.log(`Installing real component ${id} on GitHub runner...`);
     const status=await page.evaluate(id=>window.scholarFlowDesktop.installComponent(id),id);
     assert.equal(status.status,'ready',JSON.stringify(status)); record(`Install ${id}`);

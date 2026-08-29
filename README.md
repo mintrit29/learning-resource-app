@@ -14,11 +14,11 @@ ScholarFlow là ứng dụng desktop Windows giúp sinh viên lưu trữ, phân 
 - Dùng Docling thống nhất để trích xuất cấu trúc, bảng, công thức và vị trí nguồn từ PDF, DOCX, PPTX và EPUB.
 - Dùng pipeline OCR Việt–Anh cục bộ cho PDF scan và ảnh nhúng; kết hợp xử lý riêng cho chữ thường, bảng, code và công thức.
 - OCR chữ trên ảnh/PDF scan mind map; PDF chữ dùng Docling và giữ cả tiêu đề đứng riêng. XMind JSON/XML đọc trực tiếp nhánh, ghi chú, nhãn và đường dẫn cha-con; xem bằng sơ đồ nhánh tự sắp xếp. Ảnh nhúng PNG/JPEG/WebP được hiển thị và OCR Việt–Anh, giữ nguồn theo nhánh/sơ đồ. Chọn vùng XMind lấy chữ gốc và chỉ OCR phần ảnh được khoanh. PDF/XMind hỗ trợ kéo, zoom và giữ vị trí khi quay lại kết quả.
-- Dùng Whisper Base cục bộ để chép lời audio Việt–Anh, giữ mốc thời gian làm vị trí nguồn.
+- Dùng Whisper Small + Silero VAD cục bộ để chép lời file audio Việt–Anh; giữ mốc theo đoạn tối đa 30 giây làm vị trí nguồn, không phải timestamp chính xác từng từ. Silero VAD bỏ cửa sổ không có lời nói; không sửa chữ nhận dạng sai.
 - Chia nội dung thành các đoạn và tạo vector BGE-M3 1.024 chiều trên máy.
 - Phân loại tài liệu vào danh sách môn học cố định, đồng thời phân tích độ khó, ngôn ngữ và tóm tắt bằng OpenRouter, Ollama hoặc Custom API.
 - Tìm kiếm kết hợp ngữ nghĩa, từ khóa và bộ lọc metadata.
-- Tìm bằng giọng nói: bấm mic cạnh ô mô tả, nói tối đa 30 giây rồi Dừng; Whisper Base local điền câu chữ và app tự tìm. Có Hủy/Esc, sửa chữ nhận sai; không lưu bản ghi vào thư viện. [Test nhanh mic](learning-resource-app/test-fixtures/scholarflow/06_mindmap_audio/TEST_TIM_GIONG_NOI.md).
+- Không có micro tìm kiếm; âm thanh chỉ được thêm dưới dạng file tài liệu.
 - Tìm bằng ảnh hoặc file theo cách chọn trực tiếp một vùng; OCR vùng chọn rồi dùng nội dung đó làm truy vấn, không tự giải bài tập.
 - Hiển thị đoạn phù hợp nhất, lý do phù hợp và vị trí để mở lại nguồn.
 - Khi mở kết quả, app giữ trạng thái tìm kiếm và đưa bản xem file tới đúng trang, slide, chương hoặc vùng nội dung liên quan.
@@ -35,7 +35,7 @@ Electron Desktop
   ├─ SQLite + sqlite-vec
   ├─ BGE-M3 qua Transformers.js/ONNX Runtime
   ├─ Docling + OCR Việt–Anh cho trích xuất tài liệu và ảnh
-  ├─ Whisper Base + FFmpeg cho chép lời âm thanh
+  ├─ Whisper Small + Silero VAD + FFmpeg (file âm thanh)
   └─ OpenRouter / Ollama / Custom API (tùy chọn cho phân tích AI)
 ```
 
@@ -48,11 +48,12 @@ Theo mặc định, ScholarFlow lưu dữ liệu trong `%APPDATA%\ScholarFlow`:
 - `data\scholarflow.db`: cơ sở dữ liệu SQLite.
 - `data\uploads`: tài liệu đã thêm.
 - `models\BAAI\bge-m3`: mô hình embedding BGE-M3.
-- `models\onnx-community\whisper-base`: mô hình chép lời Whisper tùy chọn.
+- `models\onnx-community\whisper-base`: cache cũ có thể còn trên máy, không còn được app sử dụng.
+- `models\onnx-community\whisper-small`: model tùy chọn cho file MP3/WAV/M4A, kèm VAD, tổng khoảng 254 MB.
 - `runtimes\docling`: model Docling và PDFium.
 - `logs\desktop.log`: nhật ký chẩn đoán.
 
-API key, database và tài liệu cá nhân không được commit vào Git. BGE-M3, Docling và Whisper được tải, kiểm tra, tải lại hoặc xóa trong **Cài đặt → Thành phần cục bộ**. Whisper là tùy chọn và chỉ cần khi thêm file âm thanh. Bộ cài không chứa các model lớn; sau khi thiết lập xong, trích xuất và tìm kiếm hoạt động cục bộ.
+API key, database và tài liệu cá nhân không được commit vào Git. BGE-M3, Docling và Whisper được tải, kiểm tra, tải lại hoặc xóa trong **Cài đặt → Thành phần cục bộ**. Small + VAD cần cho thêm/trích xuất lại file âm thanh, là thành phần tùy chọn, không chặn onboarding và không tự tải ngầm. Tài liệu cũ không bị xóa hoặc tự chạy lại khi đổi model. Bộ cài không chứa các model lớn; sau khi thiết lập xong, trích xuất và tìm kiếm hoạt động cục bộ.
 
 ## Chạy mã nguồn
 
@@ -104,11 +105,15 @@ Trên GitHub, chạy CI thủ công với `test_installer=true` trên commit c�
 
 ## Giới hạn hiện tại
 
+Chức năng làm được, chưa làm được và cách đối chiếu kết quả được ghi tại [APP_CAPABILITIES.md](APP_CAPABILITIES.md). Theo quyết định hiện tại, không có trang giới thiệu phạm vi hay các khối ghi chú giới hạn riêng trong app; giao diện giữ hướng dẫn thao tác và thông báo lỗi cần thiết.
+
+> 29/08/2026: chốt Small + VAD cho file âm thanh, gỡ micro tìm kiếm. VAD khoảng 2,3 MB tải cùng Small; bản cũ chỉ cần bổ sung phần thiếu qua Tải lại. Không tự xóa cache Base cũ hay tài liệu.
+
 - Tài liệu lớn có thể tạo embedding chậm khi chỉ dùng CPU.
-- OCR tài liệu scan chạy trên CPU nên chậm hơn PDF có text; chất lượng công thức và biểu đồ phụ thuộc độ nét của bản scan.
+- OCR tài liệu scan chạy trên CPU nên chậm hơn PDF có text; vẫn có thể sai hoặc bỏ chữ/ký hiệu dù ảnh nhìn rõ. Không bảo đảm lấy đủ nhãn trong biểu đồ.
 - OCR bảng/công thức/biểu đồ ưu tiên trích xuất chữ và ký hiệu để tìm kiếm, không diễn giải quan hệ thị giác hoặc giải bài tập.
 - Mind map ảnh/PDF được tìm bằng chữ, không suy luận đường nối. XMind giữ cây cha-con và đọc/OCR ảnh nhúng PNG/JPEG/WebP; chưa đọc tập tin đính kèm khác, liên kết chéo hay file có mật khẩu. Bộ test mới: [PDF/XMind](learning-resource-app/test-fixtures/scholarflow/06_mindmap_audio/TEST_PDF_XMIND.md).
-- Audio giới hạn 25 MB và tối đa 60 phút. Whisper Base nhận tốt lời nói rõ bằng tiếng Việt/Anh nhưng tên riêng, thương hiệu, tiếng ồn hoặc nhiều người nói có thể cần sửa bản chép lời.
+- Audio giới hạn 25 MB và tối đa 60 phút. Small cải thiện tiếng Việt trong bộ thử tổng hợp nhưng vẫn có thể sai cả từ thông thường, không chỉ tên riêng. Chuyển Việt–Anh giữa một đoạn, tiếng ồn và nhiều người nói chưa đảm bảo. Xem [kiểm thử Small và hướng dẫn](learning-resource-app/test-fixtures/scholarflow/WHISPER_SMALL_UPLOAD_2026-08-28.md); chưa có giao diện sửa bản chép lời tài liệu.
 - Phân tích metadata cần một kết nối AI hợp lệ; thư viện và tìm kiếm vẫn dùng dữ liệu đã xử lý cục bộ.
 - Chưa có đồng bộ dữ liệu giữa nhiều máy.
 

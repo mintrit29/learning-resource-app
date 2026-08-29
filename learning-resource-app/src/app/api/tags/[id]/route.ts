@@ -1,18 +1,16 @@
 import { NextResponse } from "next/server";
-import { z } from "zod";
+import { tagSchema } from "@/lib/taxonomy/tag-schema";
 import { db } from "@/lib/db";
 import { embedTexts } from "@/lib/embedding/client";
 import { findExactCanonicalTag } from "@/lib/taxonomy/canonical-tags";
 import { normalizeTagName } from "@/lib/taxonomy/normalize-tag";
 import { toSqliteVectorBlob } from "@/lib/vector/sqlite-vector-store";
 
-const updateSchema = z.object({ name: z.string().trim().min(2).max(100), description: z.string().trim().max(500).optional().default("") });
-
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const current = await db.tag.findUnique({ where: { id } });
   if (!current) return NextResponse.json({ message: "Không tìm thấy môn học" }, { status: 404 });
-  const parsed = updateSchema.safeParse(await request.json().catch(() => null));
+  const parsed = tagSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ message: parsed.error.issues[0]?.message ?? "Dữ liệu không hợp lệ" }, { status: 400 });
   const duplicate = await findExactCanonicalTag(parsed.data.name);
   if (duplicate && duplicate.id !== current.id) return NextResponse.json({ message: "Tên môn học này đã tồn tại" }, { status: 409 });

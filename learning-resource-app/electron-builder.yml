@@ -12,7 +12,6 @@ files:
   - preload.cjs
   - component-manager.cjs
   - visual-search.cjs
-  - microphone-permission.cjs
   - package.json
 
 extraResources:
@@ -29,6 +28,9 @@ extraResources:
     to: embedding-runtime
     filter:
       - "service.mjs"
+      - "upload-transcription.mjs"
+      - "speech-detector.mjs"
+      - "SILERO_LICENSE.txt"
       - "package.json"
       - "package-lock.json"
   - from: embedding-runtime/node_modules

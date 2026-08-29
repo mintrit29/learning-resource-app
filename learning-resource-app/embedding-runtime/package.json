@@ -5,6 +5,7 @@
   "type": "module",
   "dependencies": {
     "@huggingface/transformers": "4.2.0",
+    "onnxruntime-node": "1.24.3",
     "ffmpeg-static": "^5.2.0"
   }
 }

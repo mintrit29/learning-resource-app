@@ -24,9 +24,9 @@ const DOCLING_RELEASE = "models-v1";
 const PDFIUM_RELEASE = "152.0.7961.0";
 const PDFIUM_REVISION = "7961";
 const TESSDATA_RELEASE = "4.1.0";
-const WHISPER_REVISION = "1846881b6b3a3024392c1eea3ad983695bc23925";
+const WHISPER_SMALL_REVISION = "36050c46d777d46dc4b5f43f6d90574fc38f8732";
 const HF_BASE = `https://huggingface.co/BAAI/bge-m3/resolve/${BGE_REVISION}`;
-const WHISPER_BASE = `https://huggingface.co/onnx-community/whisper-base/resolve/${WHISPER_REVISION}`;
+const WHISPER_SMALL_BASE = `https://huggingface.co/onnx-community/whisper-small/resolve/${WHISPER_SMALL_REVISION}`;
 const DOCLING_BASE = `https://github.com/docling-project/docling.rs/releases/download/${DOCLING_RELEASE}`;
 const TESSDATA_BASE = `https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/${TESSDATA_RELEASE}`;
 
@@ -76,28 +76,27 @@ const COMPONENT_MANIFESTS = Object.freeze({
       sha256: "d3d9f4b7c9dabe3363f30779c5c3c715c47332749fa590e4b4a2b8b6780cb1c4",
     },
   }),
-  whisper: Object.freeze({
-    id: "whisper",
-    name: "Whisper Base",
-    version: WHISPER_REVISION.slice(0, 7),
+  "whisper-small": Object.freeze({
+    id: "whisper-small",
+    name: "Whisper Small + VAD",
+    version: `${WHISPER_SMALL_REVISION.slice(0, 7)}+silero-867c2aa`,
     optional: true,
-    relativeRoot: path.join("models", "onnx-community", "whisper-base"),
+    relativeRoot: path.join("models", "onnx-community", "whisper-small"),
     files: [
-      ["added_tokens.json", 34604, "9715fd2243b6f06a5858b5e32950d2853f73dd5bc201aafcf76f5082a2d8acd1"],
-      ["config.json", 2243, "f4d0608f7d918166da7edb3e188de5ef1bfe70d9802e785d271fd88111e9cf4b"],
-      ["generation_config.json", 3832, "61070cf8de25b1e9256e8e102ded49d8d24a8369ed36ef84fdf21549e68125a0"],
-      ["merges.txt", 493869, "2df2990a395e35e8dfbc7511e08c12d56018d8d04691e0133e5d63b21e154dc6"],
-      ["normalizer.json", 52666, "bf1c507dc8724ca9cf9903640dacfb69dae2f00edee4f21ceba106a7392f26dd"],
+      ["config.json", 2227, "457854d452f17661e197d74aee12b8e74fb75ba30ebfaa7426d0d61ea1e08a18"],
+      ["generation_config.json", 3893, "f538b28220c6a6d6f1af1458d4141cacb4ef4963df3de98a19490440c412ddf0"],
       ["preprocessor_config.json", 339, "a6a76d28c93edb273669eb9e0b0636a2bddbb1272c3261e47b7ca6dfdbac1b8d"],
-      ["special_tokens_map.json", 2194, "e67ae3a0aaa99abcd9f187138e12db1f65c16a14761c50ef10eef2c174a7a691"],
       ["tokenizer.json", 2480466, "27fc476bfe7f17299480be2273fc0608e4d5a99aba2ab5dec5374b4482d1a566"],
-      ["tokenizer_config.json", 282682, "2e036e4dbacfdeb7242c7d4ec4149f4a16e86026048f94d1637e3a8ee9c6a573"],
-      ["vocab.json", 1036584, "50d6a919f0a0601d56a04eb583c780d18553aa388254ba3158eb6a00f13e2c1a"],
-      ["onnx/decoder_model_merged_quantized.onnx", 53693315, "fa3ef9902734ce5ae6f9ef2bdb2ba9a6c4b5785b09f4f420ce036573dc9d090b"],
-      ["onnx/encoder_model_quantized.onnx", 23201314, "5862993336bf33acd23736071aae2b32261d3b1b2f37780194460d4ef974dd46"],
+      ["tokenizer_config.json", 282683, "2a4c4281cf9f51ac6ccc406fdc711a087afe6530f671fa7b80953edc498275ce"],
+      ["onnx/encoder_model_quantized.onnx", 92326160, "a43a83f3c5361cd591cfa7c36f14b43cf7cb22f47a415cc14a8d557be800fa92"],
+      ["onnx/decoder_model_merged_quantized.onnx", 156750845, "ec07c3cbb64172c39791e26ee870a65ac22b458c36722bfe2776b3dbf741e0c9"],
     ].map(([relativePath, size, sha256]) => ({
-      relativePath, size, sha256, url: `${WHISPER_BASE}/${relativePath}`,
-    })),
+      relativePath, size, sha256, url: `${WHISPER_SMALL_BASE}/${relativePath}`,
+    })).concat([{
+      relativePath: "vad/silero_vad.onnx", size: 2327524,
+      sha256: "1a153a22f4509e292a94e67d6f9b85e8deb25b4988682b7e174c65279d8788e3",
+      url: "https://raw.githubusercontent.com/snakers4/silero-vad/867c2aa692646a1f1de3e94a15c9dd9f614c0acb/src/silero_vad/data/silero_vad.onnx",
+    }]),
   }),
 });
 
@@ -116,10 +115,10 @@ function safeJoin(root, relativePath) {
   return resolved;
 }
 
-function sha256File(filePath) {
+function sha256File(filePath, signal) {
   return new Promise((resolve, reject) => {
     const hash = createHash("sha256");
-    const stream = createReadStream(filePath);
+    const stream = createReadStream(filePath, { signal });
     stream.on("data", (chunk) => hash.update(chunk));
     stream.once("error", reject);
     stream.once("end", () => resolve(hash.digest("hex")));
@@ -172,10 +171,10 @@ class ComponentManager {
     return stats.bavail * stats.bsize;
   }
 
-  quickState(id) {
+  quickState(id, ignoreOperation = false) {
     const manifest = assertComponentId(id);
     const root = this.rootFor(id);
-    if (this.operations.has(id)) return this.operations.get(id).snapshot;
+    if (!ignoreOperation && this.operations.has(id)) return this.operations.get(id).snapshot;
     if (existsSync(this.corruptMarkerFor(id))) {
       return {
         id, name: manifest.name, version: manifest.version, optional: Boolean(manifest.optional), status: "corrupt",
@@ -225,19 +224,28 @@ class ComponentManager {
     if (standalone) {
       this.operations.set(id, { controller: new AbortController(), snapshot: { ...this.quickState(id), status: "verifying", error: null } });
     }
+    const signal = this.operations.get(id).controller.signal;
     this.emit(id, { status: "verifying", error: null });
     try {
       for (const file of [...manifest.files, ...(manifest.archive ? [manifest.archive] : [])]) {
+        signal.throwIfAborted();
         const target = safeJoin(root, file.relativePath);
-        if (!existsSync(target) || statSync(target).size !== file.size || await sha256File(target) !== file.sha256) {
+        if (!existsSync(target) || statSync(target).size !== file.size || await sha256File(target, signal) !== file.sha256) {
           throw new Error(`File không hợp lệ: ${file.relativePath}`);
         }
       }
+      signal.throwIfAborted();
       writeFileSync(this.markerFor(id), JSON.stringify({ id, version: manifest.version, verifiedAt: new Date().toISOString() }, null, 2));
       rmSync(this.corruptMarkerFor(id), { force: true });
       this.emit(id, { status: "ready", downloadedBytes: this.totalBytes(manifest) });
       return this.quickState(id);
     } catch (error) {
+      // Cancelling a check is not evidence that a model is corrupt. Preserve files/markers.
+      if (signal.aborted) {
+        this.emit(id, { ...this.quickState(id, true), error: "Đã hủy kiểm tra" });
+        if (standalone) return this.quickState(id);
+        throw error;
+      }
       mkdirSync(root, { recursive: true });
       writeFileSync(this.corruptMarkerFor(id), "corrupt\n");
       this.emit(id, { status: existsSync(root) ? "corrupt" : "missing", error: error instanceof Error ? error.message : String(error) });
@@ -303,11 +311,12 @@ class ComponentManager {
         rmSync(archivePath, { force: true });
       }
       await this.verify(id);
-      if (id === "bge-m3" || id === "whisper") await this.onModelChanged(id);
+      if (id === "bge-m3" || id === "whisper-small") await this.onModelChanged(id);
       return this.quickState(id);
     } catch (error) {
       const cancelled = operation.controller.signal.aborted;
-      this.emit(id, { status: cancelled ? this.quickState(id).status : "error", error: cancelled ? "Đã hủy tải" : error instanceof Error ? error.message : String(error) });
+      this.emit(id, { ...(cancelled ? this.quickState(id, true) : { status: "error" }), error: cancelled ? "Đã hủy tải" : error instanceof Error ? error.message : String(error) });
+      if (cancelled) return this.quickState(id);
       throw error;
     } finally {
       this.operations.delete(id);
@@ -327,17 +336,18 @@ class ComponentManager {
     if (!await this.canRemove()) throw new Error("Không thể xóa khi tài liệu đang được xử lý");
     const root = this.rootFor(id);
     rmSync(root, { recursive: true, force: true });
-    if (id === "bge-m3" || id === "whisper") await this.onModelChanged(id);
+    if (id === "bge-m3" || id === "whisper-small") await this.onModelChanged(id);
     return this.quickState(id);
   }
 
   async downloadFile(url, destination, expected, signal, progress) {
+    signal.throwIfAborted();
     mkdirSync(path.dirname(destination), { recursive: true });
     if (
       expected
       && existsSync(destination)
       && statSync(destination).size === expected.size
-      && await sha256File(destination) === expected.sha256
+      && await sha256File(destination, signal) === expected.sha256
     ) {
       progress(expected.size);
       return;
@@ -371,8 +381,9 @@ class ComponentManager {
     });
     if (expected) {
       if (statSync(partial).size !== expected.size) throw new Error(`Kích thước tải xuống không đúng: ${expected.relativePath}`);
-      if (await sha256File(partial) !== expected.sha256) throw new Error(`Checksum không đúng: ${expected.relativePath}`);
+      if (await sha256File(partial, signal) !== expected.sha256) throw new Error(`Checksum không đúng: ${expected.relativePath}`);
     }
+    signal.throwIfAborted();
     renameSync(partial, destination);
   }
 

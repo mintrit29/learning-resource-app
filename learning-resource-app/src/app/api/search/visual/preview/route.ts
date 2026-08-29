@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { renderDocumentPreview, type PreviewFileType } from "@/lib/documents/render-document-preview";
 import { createVisualPreviewSession, getVisualPreviewSession, removeVisualPreviewSession } from "@/lib/search/visual-preview-sessions";
+import { toUserFacingError } from "@/lib/user-facing-error";
 
 export const runtime = "nodejs";
 
@@ -49,7 +50,8 @@ export async function POST(request: Request) {
       : null;
     return NextResponse.json({ ...preview, sessionId: session?.id ?? null });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Không thể tạo bản xem trước.";
+    console.error("[visual-preview] Không thể tạo bản xem trước", error);
+    const message = toUserFacingError(error, "Không thể tạo bản xem trước. Hãy kiểm tra file rồi thử lại.");
     return NextResponse.json({ message }, { status: 422 });
   }
 }
@@ -73,7 +75,8 @@ export async function PUT(request: Request) {
     );
     return NextResponse.json(preview);
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Không thể chuyển trang xem trước.";
+    console.error("[visual-preview] Không thể chuyển trang", error);
+    const message = toUserFacingError(error, "Không thể chuyển trang xem trước. Hãy mở lại file.");
     return NextResponse.json({ message }, { status: 422 });
   }
 }

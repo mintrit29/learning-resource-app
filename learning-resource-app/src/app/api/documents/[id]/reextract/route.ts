@@ -8,8 +8,8 @@ import { resolveStoredUploadPath } from "@/lib/storage/local-storage";
 import {
   DOCLING_MISSING_MESSAGE,
   isDoclingReady,
-  isWhisperReady,
-  WHISPER_MISSING_MESSAGE,
+  isUploadWhisperReady,
+  UPLOAD_WHISPER_MISSING_MESSAGE,
 } from "@/lib/desktop/component-availability";
 
 export const runtime = "nodejs";
@@ -30,9 +30,9 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     return NextResponse.json({ message: "Không tìm thấy tài liệu" }, { status: 404 });
   }
   const isAudio = document.fileType === "AUDIO";
-  if (document.fileType !== "XMIND" && (isAudio ? !await isWhisperReady() : !await isDoclingReady())) {
+  if (document.fileType !== "XMIND" && (isAudio ? !await isUploadWhisperReady() : !await isDoclingReady())) {
     return NextResponse.json({
-      message: isAudio ? WHISPER_MISSING_MESSAGE : DOCLING_MISSING_MESSAGE,
+      message: isAudio ? UPLOAD_WHISPER_MISSING_MESSAGE : DOCLING_MISSING_MESSAGE,
       setupUrl: "/settings/components",
     }, { status: 503 });
   }

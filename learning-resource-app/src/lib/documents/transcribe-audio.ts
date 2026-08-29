@@ -8,7 +8,8 @@ export type AudioTranscriptChunk = {
 
 type TranscriptionResponse = {
   model: string;
-  language: "vi" | "en";
+  language: "vi" | "en" | "mixed";
+  timestamp_precision?: "segment";
   text: string;
   chunks: AudioTranscriptChunk[];
   duration_seconds: number;

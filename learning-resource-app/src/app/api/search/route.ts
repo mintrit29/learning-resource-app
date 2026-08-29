@@ -3,6 +3,7 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { hybridSearch } from "@/lib/search/hybrid-search";
 import { inferSearchCriteria } from "@/lib/search/ranking";
+import { toUserFacingError } from "@/lib/user-facing-error";
 
 const searchSchema = z.object({
   query: z.string().trim().min(2).max(500),
@@ -68,7 +69,8 @@ export async function POST(request: Request) {
       results,
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Semantic search thất bại";
+    console.error("[semantic-search] Tìm kiếm thất bại", error);
+    const message = toUserFacingError(error, "Không thể tìm tài liệu lúc này. Hãy thử lại.");
     return NextResponse.json({ message }, { status: 503 });
   }
 }

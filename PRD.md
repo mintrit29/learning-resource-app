@@ -60,7 +60,7 @@ Thêm file
 
 Mỗi bước có trạng thái `PENDING`, `PROCESSING`, `COMPLETED` hoặc `FAILED`. Lỗi phải được rút gọn thành thông báo dễ hiểu, không đưa stack trace, HTML hoặc mã nguồn lên giao diện.
 
-Khi có nhiều tài liệu, toàn bộ pipeline chạy tuần tự theo hàng đợi cục bộ. PDF, DOCX, PPTX và EPUB đều đi qua Docling.rs; text native được giữ và ảnh nhúng/PDF scan được bổ sung OCR Việt–Anh theo pipeline ổn định của ứng dụng. Ảnh mind map dùng OCR Việt–Anh; audio được FFmpeg giải mã và Whisper Base chép lời Việt/Anh kèm mốc thời gian. Tất cả đầu vào sau đó dùng chung pipeline chunk và BGE-M3.
+Khi có nhiều tài liệu, toàn bộ pipeline chạy tuần tự theo hàng đợi cục bộ. PDF, DOCX, PPTX và EPUB đều đi qua Docling.rs; text native được giữ và ảnh nhúng/PDF scan được bổ sung OCR Việt–Anh theo pipeline ổn định của ứng dụng. Ảnh mind map dùng OCR Việt–Anh; audio được FFmpeg giải mã và Whisper Small + Silero VAD chép lời Việt/Anh kèm mốc thời gian. Tất cả đầu vào sau đó dùng chung pipeline chunk và BGE-M3.
 
 ### 4.4 AI phân tích tài liệu
 
@@ -144,7 +144,7 @@ Ngoài truy vấn chữ, người dùng có thể mở ảnh, PDF, DOCX, PPTX ho
 - sqlite-vec lập chỉ mục vector 1.024 chiều.
 - File tải lên, database, model cache và log nằm dưới `%APPDATA%\ScholarFlow`.
 - BGE-M3 chạy qua Transformers.js và ONNX Runtime trong tiến trình con do Electron quản lý.
-- Whisper Base chạy trong cùng runtime model cục bộ; FFmpeg nằm trong package để giải mã audio mà không yêu cầu người dùng cài riêng.
+- Whisper Small + Silero VAD chạy trong cùng runtime model cục bộ; FFmpeg nằm trong package để giải mã audio mà không yêu cầu người dùng cài riêng.
 
 ## 7. Ngoài phạm vi MVP
 
@@ -172,6 +172,8 @@ Ngoài truy vấn chữ, người dùng có thể mở ảnh, PDF, DOCX, PPTX ho
 - BGE-M3 chạy CPU có thể chậm với tài liệu rất lớn.
 - Lần đầu cần tải model khoảng 2,1 GB và phụ thuộc tốc độ mạng.
 - OCR tiếng Việt/Anh trên bản scan mờ, công thức viết tay hoặc biểu đồ phức tạp có thể chưa chính xác hoàn toàn.
-- OCR mind map ảnh/PDF chỉ lập chỉ mục phần chữ, chưa suy luận đường nối. XMind đọc cây cha-con, ghi chú/nhãn và OCR ảnh nhúng PNG/JPEG/WebP; xem trước dạng nhánh tự sắp xếp. Không đọc liên kết ảnh ngoài, file đính kèm khác, liên kết chéo hoặc file có mật khẩu. Giới hạn XMind: 25 MB, 200 sơ đồ, 5.000 nhánh, 64 cấp, 8 MB chữ sau giải nén; ảnh tối đa 8 MB/ảnh, 32 MB tổng, 100 lượt và 16 MP/ảnh. Whisper Base có thể sai tên riêng, thương hiệu, giọng nhiễu hoặc nhiều người nói; audio giới hạn 25 MB và 60 phút.
+- OCR mind map ảnh/PDF chỉ lập chỉ mục phần chữ, chưa suy luận đường nối. XMind đọc cây cha-con, ghi chú/nhãn và OCR ảnh nhúng PNG/JPEG/WebP; xem trước dạng nhánh tự sắp xếp. Không đọc liên kết ảnh ngoài, file đính kèm khác, liên kết chéo hoặc file có mật khẩu. Giới hạn XMind: 25 MB, 200 sơ đồ, 5.000 nhánh, 64 cấp, 8 MB chữ sau giải nén; ảnh tối đa 8 MB/ảnh, 32 MB tổng, 100 lượt và 16 MP/ảnh. Whisper Small + Silero VAD có thể sai cả từ tiếng Việt thông thường, tên riêng, thương hiệu, giọng nhiễu hoặc nhiều người nói; VAD bỏ đoạn không lời, không sửa từ nghe sai. Mốc nguồn theo đoạn, không theo từ; không có micro tìm kiếm. Audio giới hạn 25 MB và 60 phút.
 - OpenRouter và Custom API có thể phát sinh chi phí hoặc giới hạn theo nhà cung cấp.
 - OCR bảng, nhãn biểu đồ và công thức ảnh phức tạp có thể chưa hoàn hảo; MVP cho phép sửa query trước khi tìm và không tích hợp model công thức thử nghiệm thiếu ổn định.
+
+Phạm vi và giới hạn hiện hành được công khai tại [APP_CAPABILITIES.md](APP_CAPABILITIES.md) và [README.md](README.md), không có trang giới thiệu phạm vi riêng trong app. Không coi văng app, mất dữ liệu, kẹt tiến trình hoặc hoàn tất rỗng là giới hạn nhận dạng được chấp nhận.

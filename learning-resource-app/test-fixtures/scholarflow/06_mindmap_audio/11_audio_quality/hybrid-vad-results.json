@@ -1,0 +1,868 @@
+{
+  "mode": "vad",
+  "scope": "ASR experiment only, no integration",
+  "silero": {
+    "repository": "snakers4/silero-vad",
+    "revision": "867c2aa692646a1f1de3e94a15c9dd9f614c0acb",
+    "url": "https://raw.githubusercontent.com/snakers4/silero-vad/867c2aa692646a1f1de3e94a15c9dd9f614c0acb/src/silero_vad/data/silero_vad.onnx",
+    "gitBlobSha1": "80c5592ef1f4c9ede3e357bbd02eb863358a6a9d",
+    "size": 2327524,
+    "sha256": "1a153a22f4509e292a94e67d6f9b85e8deb25b4988682b7e174c65279d8788e3",
+    "license": "MIT"
+  },
+  "loadMs": 227.76660000000004,
+  "runtime": {
+    "cpu": "Intel(R) Core(TM) i7-10850H CPU @ 2.70GHz",
+    "node": "v24.13.0",
+    "transformers": "4.2.0",
+    "onnxruntime": "1.24.3"
+  },
+  "rows": [
+    {
+      "name": "short-vi.mp3",
+      "type": "speech",
+      "reference": "Tìm tài liệu về cơ sở dữ liệu",
+      "sha256": "bd2f08809fe2d032ef6800d497319f22920cf2fb76fe96c442e882bc59718446",
+      "mode": "vad",
+      "intervals": [
+        {
+          "start": 3072,
+          "end": 36352
+        }
+      ],
+      "maxProbability": 0.9999973773956299,
+      "speechSeconds": 2.08,
+      "totalMs": 137,
+      "peakRssMiB": 99.9453125,
+      "expectedGatePass": true
+    },
+    {
+      "name": "short-vi.wav",
+      "type": "speech",
+      "reference": "Tìm tài liệu về cơ sở dữ liệu",
+      "sha256": "75458aca7f4cedb6dc8fd4346daf64d4668aa56456b4ec74cae6f5c32b2a88a8",
+      "mode": "vad",
+      "intervals": [
+        {
+          "start": 3072,
+          "end": 36352
+        }
+      ],
+      "maxProbability": 0.9999974966049194,
+      "speechSeconds": 2.08,
+      "totalMs": 163,
+      "peakRssMiB": 99.9453125,
+      "expectedGatePass": true
+    },
+    {
+      "name": "short-vi.m4a",
+      "type": "speech",
+      "reference": "Tìm tài liệu về cơ sở dữ liệu",
+      "sha256": "8d4289c98babc5528f406d224129450dd4e320606f9ba8d415180dc1aa82789d",
+      "mode": "vad",
+      "intervals": [
+        {
+          "start": 3072,
+          "end": 36352
+        }
+      ],
+      "maxProbability": 0.9999968409538269,
+      "speechSeconds": 2.08,
+      "totalMs": 184,
+      "peakRssMiB": 100.21484375,
+      "expectedGatePass": true
+    },
+    {
+      "name": "lecture-vi.mp3",
+      "type": "speech",
+      "reference": "Hôm nay chúng ta học về mạng máy tính và cơ sở dữ liệu. Máy tính gửi thông tin bằng các gói dữ liệu. Bộ định tuyến chuyển tiếp gói tin đến mạng đích. Giao thức định tuyến lựa chọn đường đi dựa trên chi phí. Cơ sở dữ liệu lưu trữ thông tin trong các bảng. Mỗi bảng có các hàng và các cột. Khóa chính giúp phân biệt từng bản ghi. Khóa ngoại liên kết dữ liệu giữa các bảng. Chuẩn hóa giúp giảm dữ liệu trùng lặp và tránh lỗi khi cập nhật. Khi thiết kế hệ thống, chúng ta cần kiểm tra quyền truy cập và sao lưu dữ liệu. Bản sao lưu phải được kiểm tra thường xuyên. Phần cuối bài học nhắc lại rằng bảo mật và tính chính xác đều quan trọng. Đây là câu kết thúc của bài kiểm tra âm thanh.",
+      "sha256": "08d9992ca30f7d8908b5ab2327275cf0d4dae380e76852c5f979719b6c9acf6f",
+      "mode": "vad",
+      "intervals": [
+        {
+          "start": 3584,
+          "end": 56832
+        },
+        {
+          "start": 72704,
+          "end": 114176
+        },
+        {
+          "start": 129536,
+          "end": 169984
+        },
+        {
+          "start": 185344,
+          "end": 234496
+        },
+        {
+          "start": 249856,
+          "end": 295424
+        },
+        {
+          "start": 310784,
+          "end": 344064
+        },
+        {
+          "start": 359424,
+          "end": 391680
+        },
+        {
+          "start": 406528,
+          "end": 445440
+        },
+        {
+          "start": 461312,
+          "end": 517120
+        },
+        {
+          "start": 532480,
+          "end": 551424
+        },
+        {
+          "start": 556032,
+          "end": 607232
+        },
+        {
+          "start": 622592,
+          "end": 659968
+        },
+        {
+          "start": 675840,
+          "end": 739328
+        },
+        {
+          "start": 754688,
+          "end": 796672
+        }
+      ],
+      "maxProbability": 0.9999992847442627,
+      "speechSeconds": 37.696,
+      "totalMs": 729,
+      "peakRssMiB": 107.046875,
+      "expectedGatePass": true
+    },
+    {
+      "name": "lecture-vi.wav",
+      "type": "speech",
+      "reference": "Hôm nay chúng ta học về mạng máy tính và cơ sở dữ liệu. Máy tính gửi thông tin bằng các gói dữ liệu. Bộ định tuyến chuyển tiếp gói tin đến mạng đích. Giao thức định tuyến lựa chọn đường đi dựa trên chi phí. Cơ sở dữ liệu lưu trữ thông tin trong các bảng. Mỗi bảng có các hàng và các cột. Khóa chính giúp phân biệt từng bản ghi. Khóa ngoại liên kết dữ liệu giữa các bảng. Chuẩn hóa giúp giảm dữ liệu trùng lặp và tránh lỗi khi cập nhật. Khi thiết kế hệ thống, chúng ta cần kiểm tra quyền truy cập và sao lưu dữ liệu. Bản sao lưu phải được kiểm tra thường xuyên. Phần cuối bài học nhắc lại rằng bảo mật và tính chính xác đều quan trọng. Đây là câu kết thúc của bài kiểm tra âm thanh.",
+      "sha256": "657596eab1a9162511a3c0ae4b5fca688690874f1b53f01bce36ea70db45d8da",
+      "mode": "vad",
+      "intervals": [
+        {
+          "start": 3584,
+          "end": 56832
+        },
+        {
+          "start": 72704,
+          "end": 114176
+        },
+        {
+          "start": 129536,
+          "end": 169984
+        },
+        {
+          "start": 185344,
+          "end": 234496
+        },
+        {
+          "start": 249856,
+          "end": 295424
+        },
+        {
+          "start": 310784,
+          "end": 344064
+        },
+        {
+          "start": 359424,
+          "end": 391680
+        },
+        {
+          "start": 406528,
+          "end": 445440
+        },
+        {
+          "start": 461312,
+          "end": 517120
+        },
+        {
+          "start": 532480,
+          "end": 551424
+        },
+        {
+          "start": 556032,
+          "end": 607232
+        },
+        {
+          "start": 622592,
+          "end": 659968
+        },
+        {
+          "start": 675840,
+          "end": 739328
+        },
+        {
+          "start": 754688,
+          "end": 796672
+        }
+      ],
+      "maxProbability": 0.9999994039535522,
+      "speechSeconds": 37.696,
+      "totalMs": 1100,
+      "peakRssMiB": 114.80078125,
+      "expectedGatePass": true
+    },
+    {
+      "name": "lecture-vi.m4a",
+      "type": "speech",
+      "reference": "Hôm nay chúng ta học về mạng máy tính và cơ sở dữ liệu. Máy tính gửi thông tin bằng các gói dữ liệu. Bộ định tuyến chuyển tiếp gói tin đến mạng đích. Giao thức định tuyến lựa chọn đường đi dựa trên chi phí. Cơ sở dữ liệu lưu trữ thông tin trong các bảng. Mỗi bảng có các hàng và các cột. Khóa chính giúp phân biệt từng bản ghi. Khóa ngoại liên kết dữ liệu giữa các bảng. Chuẩn hóa giúp giảm dữ liệu trùng lặp và tránh lỗi khi cập nhật. Khi thiết kế hệ thống, chúng ta cần kiểm tra quyền truy cập và sao lưu dữ liệu. Bản sao lưu phải được kiểm tra thường xuyên. Phần cuối bài học nhắc lại rằng bảo mật và tính chính xác đều quan trọng. Đây là câu kết thúc của bài kiểm tra âm thanh.",
+      "sha256": "20d8461ee79ab3c8e14658b9ea3817c0785bb77cea20829fbbdbf246cef01e31",
+      "mode": "vad",
+      "intervals": [
+        {
+          "start": 3584,
+          "end": 56832
+        },
+        {
+          "start": 72704,
+          "end": 114176
+        },
+        {
+          "start": 129536,
+          "end": 169984
+        },
+        {
+          "start": 185344,
+          "end": 234496
+        },
+        {
+          "start": 249856,
+          "end": 295424
+        },
+        {
+          "start": 310784,
+          "end": 344064
+        },
+        {
+          "start": 359424,
+          "end": 391680
+        },
+        {
+          "start": 406528,
+          "end": 445440
+        },
+        {
+          "start": 461312,
+          "end": 517120
+        },
+        {
+          "start": 532480,
+          "end": 551424
+        },
+        {
+          "start": 556032,
+          "end": 607232
+        },
+        {
+          "start": 622592,
+          "end": 659968
+        },
+        {
+          "start": 675840,
+          "end": 739328
+        },
+        {
+          "start": 754688,
+          "end": 796672
+        }
+      ],
+      "maxProbability": 0.9999992847442627,
+      "speechSeconds": 37.696,
+      "totalMs": 929,
+      "peakRssMiB": 114.80078125,
+      "expectedGatePass": true
+    },
+    {
+      "name": "lecture-en.mp3",
+      "type": "speech",
+      "reference": "Today we study computer networks and databases. Computers exchange information by sending data packets. A router forwards each packet toward its destination. Routing protocols compare the cost of different paths. A database stores information in tables with rows and columns. A primary key identifies each record. A foreign key connects records across tables. Normalization reduces duplication and helps avoid update errors. Good system design also requires access control and regular backups. We should test whether a backup can actually be restored. Students can practice by designing a small library database and connecting two local networks. This exercise combines network configuration, data management, and security. The final reminder is to verify both accuracy and reliability. This is the final sentence of the audio test.",
+      "sha256": "410f8504e0863e0501dc34c1c48a269317d5941b51dd7572c5077abb9a37fca0",
+      "mode": "vad",
+      "intervals": [
+        {
+          "start": 3584,
+          "end": 50688
+        },
+        {
+          "start": 67072,
+          "end": 122368
+        },
+        {
+          "start": 138752,
+          "end": 188928
+        },
+        {
+          "start": 204800,
+          "end": 254976
+        },
+        {
+          "start": 271872,
+          "end": 330752
+        },
+        {
+          "start": 347136,
+          "end": 387072
+        },
+        {
+          "start": 402944,
+          "end": 447488
+        },
+        {
+          "start": 463360,
+          "end": 529408
+        },
+        {
+          "start": 546304,
+          "end": 619008
+        },
+        {
+          "start": 635392,
+          "end": 686592
+        },
+        {
+          "start": 702464,
+          "end": 792064
+        },
+        {
+          "start": 808960,
+          "end": 889344
+        },
+        {
+          "start": 906240,
+          "end": 971776
+        },
+        {
+          "start": 988672,
+          "end": 1031168
+        }
+      ],
+      "maxProbability": 0.9999997615814209,
+      "speechSeconds": 50.88,
+      "totalMs": 1167,
+      "peakRssMiB": 115.3515625,
+      "expectedGatePass": true
+    },
+    {
+      "name": "mixed.m4a",
+      "type": "speech",
+      "reference": "Hôm nay chúng ta học về mạng máy tính và cơ sở dữ liệu. Máy tính gửi thông tin bằng các gói dữ liệu. Bộ định tuyến chuyển tiếp gói tin đến mạng đích. Giao thức định tuyến lựa chọn đường đi dựa trên chi phí. Cơ sở dữ liệu lưu trữ thông tin trong các bảng. Mỗi bảng có các hàng và các cột. Khóa chính giúp phân biệt từng bản ghi. Khóa ngoại liên kết dữ liệu giữa các bảng. Chuẩn hóa giúp giảm dữ liệu trùng lặp và tránh lỗi khi cập nhật. Khi thiết kế hệ thống, chúng ta cần kiểm tra quyền truy cập và sao lưu dữ liệu. Bản sao lưu phải được kiểm tra thường xuyên. Phần cuối bài học nhắc lại rằng bảo mật và tính chính xác đều quan trọng. Đây là câu kết thúc của bài kiểm tra âm thanh. Today we study computer networks and databases. Computers exchange information by sending data packets. A router forwards each packet toward its destination. Routing protocols compare the cost of different paths. A database stores information in tables with rows and columns. A primary key identifies each record. A foreign key connects records across tables. Normalization reduces duplication and helps avoid update errors. Good system design also requires access control and regular backups. We should test whether a backup can actually be restored. Students can practice by designing a small library database and connecting two local networks. This exercise combines network configuration, data management, and security. The final reminder is to verify both accuracy and reliability. This is the final sentence of the audio test.",
+      "sha256": "f3de1212999e374d0038563c72bd1231e0c3a58e84bc2eaff9d7da503315f243",
+      "mode": "vad",
+      "intervals": [
+        {
+          "start": 3584,
+          "end": 56832
+        },
+        {
+          "start": 72704,
+          "end": 114176
+        },
+        {
+          "start": 129536,
+          "end": 169984
+        },
+        {
+          "start": 185344,
+          "end": 234496
+        },
+        {
+          "start": 249856,
+          "end": 295424
+        },
+        {
+          "start": 310784,
+          "end": 344064
+        },
+        {
+          "start": 359424,
+          "end": 391680
+        },
+        {
+          "start": 406528,
+          "end": 445440
+        },
+        {
+          "start": 461312,
+          "end": 517120
+        },
+        {
+          "start": 532480,
+          "end": 551424
+        },
+        {
+          "start": 556032,
+          "end": 607232
+        },
+        {
+          "start": 622592,
+          "end": 659968
+        },
+        {
+          "start": 675840,
+          "end": 739328
+        },
+        {
+          "start": 754688,
+          "end": 796672
+        },
+        {
+          "start": 813568,
+          "end": 861184
+        },
+        {
+          "start": 877568,
+          "end": 932352
+        },
+        {
+          "start": 948736,
+          "end": 998912
+        },
+        {
+          "start": 1014784,
+          "end": 1065472
+        },
+        {
+          "start": 1081856,
+          "end": 1140736
+        },
+        {
+          "start": 1157120,
+          "end": 1197056
+        },
+        {
+          "start": 1213440,
+          "end": 1257472
+        },
+        {
+          "start": 1273856,
+          "end": 1339904
+        },
+        {
+          "start": 1356288,
+          "end": 1428992
+        },
+        {
+          "start": 1445888,
+          "end": 1496576
+        },
+        {
+          "start": 1512960,
+          "end": 1602560
+        },
+        {
+          "start": 1619456,
+          "end": 1666560
+        },
+        {
+          "start": 1669120,
+          "end": 1699840
+        },
+        {
+          "start": 1716736,
+          "end": 1781760
+        },
+        {
+          "start": 1799168,
+          "end": 1841152
+        }
+      ],
+      "maxProbability": 0.9999998807907104,
+      "speechSeconds": 88.32,
+      "totalMs": 1538,
+      "peakRssMiB": 123.9609375,
+      "expectedGatePass": true
+    },
+    {
+      "name": "baseline-vi.mp3",
+      "type": "speech",
+      "reference": null,
+      "sha256": "a9e6793a4b7d506a611f165a7568d98254a71ef754aac295d88f516489ae75a2",
+      "mode": "vad",
+      "intervals": [
+        {
+          "start": 3584,
+          "end": 65024
+        }
+      ],
+      "maxProbability": 0.9999984502792358,
+      "speechSeconds": 3.84,
+      "totalMs": 147,
+      "peakRssMiB": 123.9609375,
+      "expectedGatePass": true
+    },
+    {
+      "name": "baseline-en.wav",
+      "type": "speech",
+      "reference": null,
+      "sha256": "f340bb9cbbe1df6d981006685cb8137a381ab550c563695d6274dc7dc7aa0686",
+      "mode": "vad",
+      "intervals": [
+        {
+          "start": 2048,
+          "end": 76288
+        }
+      ],
+      "maxProbability": 0.9999996423721313,
+      "speechSeconds": 4.64,
+      "totalMs": 164,
+      "peakRssMiB": 123.9609375,
+      "expectedGatePass": true
+    },
+    {
+      "name": "silence.wav",
+      "type": "non-speech",
+      "reference": null,
+      "sha256": "8442e35f15fa3f2378b181bbf8f7fa1dbdcb61ab2726ea0e43080371cb16d701",
+      "mode": "vad",
+      "intervals": [],
+      "maxProbability": 0.008910685777664185,
+      "speechSeconds": 0,
+      "totalMs": 140,
+      "peakRssMiB": 123.9609375,
+      "expectedGatePass": true
+    },
+    {
+      "name": "silence.m4a",
+      "type": "non-speech",
+      "reference": null,
+      "sha256": "715c7a55cca246533d3193fd82a0ee1938a7e8974da44d82c835b5c28dea88ed",
+      "mode": "vad",
+      "intervals": [],
+      "maxProbability": 0.008910685777664185,
+      "speechSeconds": 0,
+      "totalMs": 169,
+      "peakRssMiB": 123.9609375,
+      "expectedGatePass": true
+    },
+    {
+      "name": "noise.wav",
+      "type": "non-speech",
+      "reference": null,
+      "sha256": "eb9d9b5a11c3cfe3c696a2a46f5a52d57a6052f95acc7a04c1bd5a8d82f80eb6",
+      "mode": "vad",
+      "intervals": [],
+      "maxProbability": 0.050774067640304565,
+      "speechSeconds": 0,
+      "totalMs": 108,
+      "peakRssMiB": 123.9609375,
+      "expectedGatePass": true
+    },
+    {
+      "name": "database.mp3",
+      "type": "speech",
+      "reference": "database",
+      "sha256": "f4120f8e978dd5c41c2378c9915da4d11f31c7affd8302018389aee5467b06b5",
+      "mode": "vad",
+      "intervals": [
+        {
+          "start": 3584,
+          "end": 15360
+        }
+      ],
+      "maxProbability": 0.9999948740005493,
+      "speechSeconds": 0.736,
+      "totalMs": 81,
+      "peakRssMiB": 123.9609375,
+      "expectedGatePass": true
+    },
+    {
+      "name": "female-1.mp3",
+      "type": "speech",
+      "reference": "Tìm tài liệu về mạng máy tính",
+      "sha256": "40a0753138d3f6c641a3fcee39804ea43ee3a9ae5af85b239c6015dbbc4a20e1",
+      "mode": "vad",
+      "intervals": [
+        {
+          "start": 3072,
+          "end": 31232
+        }
+      ],
+      "maxProbability": 0.9999918937683105,
+      "speechSeconds": 1.76,
+      "totalMs": 90,
+      "peakRssMiB": 123.9609375,
+      "expectedGatePass": true
+    },
+    {
+      "name": "female-2.mp3",
+      "type": "speech",
+      "reference": "Tìm tài liệu về cơ sở dữ liệu",
+      "sha256": "4badf75d44443bf22ffde4ff02cf3f89f10379b652f48f48d49f015d1de1bee4",
+      "mode": "vad",
+      "intervals": [
+        {
+          "start": 3072,
+          "end": 36352
+        }
+      ],
+      "maxProbability": 0.9999974966049194,
+      "speechSeconds": 2.08,
+      "totalMs": 99,
+      "peakRssMiB": 123.9609375,
+      "expectedGatePass": true
+    },
+    {
+      "name": "male-1.mp3",
+      "type": "speech",
+      "reference": "Tìm tài liệu về mạng máy tính",
+      "sha256": "11ee1cb9020180e09808854857ec63e53090a8f58340a7b640a05bf6f7a38113",
+      "mode": "vad",
+      "intervals": [
+        {
+          "start": 4608,
+          "end": 30208
+        }
+      ],
+      "maxProbability": 0.9999960064888,
+      "speechSeconds": 1.6,
+      "totalMs": 189,
+      "peakRssMiB": 123.9609375,
+      "expectedGatePass": true
+    },
+    {
+      "name": "male-2.mp3",
+      "type": "speech",
+      "reference": "Tìm tài liệu về cơ sở dữ liệu",
+      "sha256": "2190f14471f850d9812ee97caa7516e17b2c426f58e761ba34884661b3f326ac",
+      "mode": "vad",
+      "intervals": [
+        {
+          "start": 5120,
+          "end": 33792
+        }
+      ],
+      "maxProbability": 0.9999986886978149,
+      "speechSeconds": 1.792,
+      "totalMs": 151,
+      "peakRssMiB": 123.9609375,
+      "expectedGatePass": true
+    },
+    {
+      "name": "en-female-1.mp3",
+      "type": "speech",
+      "reference": "computer science",
+      "sha256": "d73534a4d39164185aa7790f3a5a8824fe908b71435cedf13267b19b0278f21f",
+      "mode": "vad",
+      "intervals": [
+        {
+          "start": 3584,
+          "end": 20480
+        }
+      ],
+      "maxProbability": 0.9999989867210388,
+      "speechSeconds": 1.056,
+      "totalMs": 86,
+      "peakRssMiB": 123.9609375,
+      "expectedGatePass": true
+    },
+    {
+      "name": "en-female-2.mp3",
+      "type": "speech",
+      "reference": "database",
+      "sha256": "7a84eab5bc43749bd5348fb7d3baa9d3f74b22893103e62f58d6ca9752325d5b",
+      "mode": "vad",
+      "intervals": [
+        {
+          "start": 3584,
+          "end": 14848
+        }
+      ],
+      "maxProbability": 0.9999935626983643,
+      "speechSeconds": 0.704,
+      "totalMs": 83,
+      "peakRssMiB": 123.9609375,
+      "expectedGatePass": true
+    },
+    {
+      "name": "en-male-1.mp3",
+      "type": "speech",
+      "reference": "computer science",
+      "sha256": "6dbc450ccacb42791d67a30307993b23646e6f28fdc0651a95aef9825e46a4f1",
+      "mode": "vad",
+      "intervals": [
+        {
+          "start": 3584,
+          "end": 21504
+        }
+      ],
+      "maxProbability": 0.9999970197677612,
+      "speechSeconds": 1.12,
+      "totalMs": 90,
+      "peakRssMiB": 123.9609375,
+      "expectedGatePass": true
+    },
+    {
+      "name": "en-male-2.mp3",
+      "type": "speech",
+      "reference": "database",
+      "sha256": "f4120f8e978dd5c41c2378c9915da4d11f31c7affd8302018389aee5467b06b5",
+      "mode": "vad",
+      "intervals": [
+        {
+          "start": 3584,
+          "end": 15360
+        }
+      ],
+      "maxProbability": 0.9999948740005493,
+      "speechSeconds": 0.736,
+      "totalMs": 85,
+      "peakRssMiB": 123.9609375,
+      "expectedGatePass": true
+    },
+    {
+      "name": "hybrid/white.wav",
+      "type": "non-speech",
+      "reference": null,
+      "sha256": "4d373cf4b78d8f47b78f4a04deb0db1d3fa800594b118f4c29d6a3fa5d86c3fc",
+      "mode": "vad",
+      "intervals": [],
+      "maxProbability": 0.02198687195777893,
+      "speechSeconds": 0,
+      "totalMs": 123,
+      "peakRssMiB": 123.9609375,
+      "expectedGatePass": true
+    },
+    {
+      "name": "hybrid/brown.wav",
+      "type": "non-speech",
+      "reference": null,
+      "sha256": "3c56d963e45dc1d4c9a1cb9b4748ea0d12ce3639f6df28924ca43bfa1c23f93a",
+      "mode": "vad",
+      "intervals": [],
+      "maxProbability": 0.04347705841064453,
+      "speechSeconds": 0,
+      "totalMs": 131,
+      "peakRssMiB": 123.9609375,
+      "expectedGatePass": true
+    },
+    {
+      "name": "hybrid/tone.wav",
+      "type": "non-speech",
+      "reference": null,
+      "sha256": "60b38cac010e29d04ca77875729d610305bdb27534a3656e77c1b4f7195e724c",
+      "mode": "vad",
+      "intervals": [],
+      "maxProbability": 0.00615084171295166,
+      "speechSeconds": 0,
+      "totalMs": 136,
+      "peakRssMiB": 123.9609375,
+      "expectedGatePass": true
+    },
+    {
+      "name": "hybrid/chords.wav",
+      "type": "non-speech",
+      "reference": null,
+      "sha256": "f556a108433ff91df6173934683120a65408d2f2ef3aadb419f2a1b19176eb4b",
+      "mode": "vad",
+      "intervals": [],
+      "maxProbability": 0.047958433628082275,
+      "speechSeconds": 0,
+      "totalMs": 154,
+      "peakRssMiB": 123.9609375,
+      "expectedGatePass": true
+    },
+    {
+      "name": "hybrid/clicks.wav",
+      "type": "non-speech",
+      "reference": null,
+      "sha256": "d48ea5746111cb310396d68d56edb89ca59c75a8c93c7947c2b06e17791c53a2",
+      "mode": "vad",
+      "intervals": [],
+      "maxProbability": 0.08375212550163269,
+      "speechSeconds": 0,
+      "totalMs": 137,
+      "peakRssMiB": 123.9609375,
+      "expectedGatePass": true
+    },
+    {
+      "name": "hybrid/quiet-vi.wav",
+      "type": "speech",
+      "reference": "Tìm tài liệu về cơ sở dữ liệu",
+      "sha256": "aa592bb5fdd077c1f02267eda11f986703b7e00e3897e9b7f78404e921bc25ef",
+      "mode": "vad",
+      "intervals": [
+        {
+          "start": 3072,
+          "end": 36864
+        }
+      ],
+      "maxProbability": 0.9999862909317017,
+      "speechSeconds": 2.112,
+      "totalMs": 117,
+      "peakRssMiB": 123.9609375,
+      "expectedGatePass": true
+    },
+    {
+      "name": "hybrid/noisy-vi.wav",
+      "type": "speech",
+      "reference": "Tìm tài liệu về cơ sở dữ liệu",
+      "sha256": "d4708d4c3f8a2c054a6782b51b2142f32503c3980b1bee0be45d558ca00902c8",
+      "mode": "vad",
+      "intervals": [
+        {
+          "start": 3072,
+          "end": 36864
+        }
+      ],
+      "maxProbability": 0.9999924898147583,
+      "speechSeconds": 2.112,
+      "totalMs": 131,
+      "peakRssMiB": 123.9609375,
+      "expectedGatePass": true
+    },
+    {
+      "name": "hybrid/padded-vi.wav",
+      "type": "speech",
+      "reference": "Tìm tài liệu về cơ sở dữ liệu",
+      "sha256": "5c78219d9fb566d0086449edd9d142e4507c935afe4a815f7af4beb2e582d8bf",
+      "mode": "vad",
+      "intervals": [
+        {
+          "start": 67072,
+          "end": 100352
+        }
+      ],
+      "maxProbability": 0.9999983906745911,
+      "speechSeconds": 2.08,
+      "totalMs": 573,
+      "peakRssMiB": 123.9609375,
+      "expectedGatePass": true
+    },
+    {
+      "name": "hybrid/switch-en-vi.wav",
+      "type": "mixed",
+      "reference": "computer science Tìm tài liệu về cơ sở dữ liệu database",
+      "sha256": "2b7691482f93198c6751331fc6724b9d25e0d3331ae57bf16ce2a306c4ac1a4a",
+      "mode": "vad",
+      "intervals": [
+        {
+          "start": 3584,
+          "end": 20480
+        },
+        {
+          "start": 52736,
+          "end": 85504
+        },
+        {
+          "start": 117760,
+          "end": 129536
+        }
+      ],
+      "maxProbability": 0.999998927116394,
+      "speechSeconds": 3.84,
+      "totalMs": 221,
+      "peakRssMiB": 123.9609375,
+      "expectedGatePass": true
+    }
+  ]
+}

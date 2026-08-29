@@ -1,0 +1,169 @@
+[
+  {
+    "name": "lecture-vi.mp3",
+    "query": "Khóa ngoại liên kết dữ liệu giữa các bảng",
+    "result": {
+      "query": "Khóa ngoại liên kết dữ liệu giữa các bảng",
+      "status": "OK",
+      "interpretedQuery": {
+        "difficulty": null,
+        "fileType": null,
+        "keywords": [
+          "khoa",
+          "ngoai",
+          "lien",
+          "ket",
+          "giua",
+          "bang"
+        ],
+        "keywordGroups": [
+          [
+            "khoa"
+          ],
+          [
+            "ngoai"
+          ],
+          [
+            "lien"
+          ],
+          [
+            "ket"
+          ],
+          [
+            "giua"
+          ],
+          [
+            "bang"
+          ]
+        ]
+      },
+      "retrievalMode": "hybrid",
+      "results": [
+        {
+          "chunkId": "cmtd7wel8001egcuz0k0qw2ex",
+          "documentId": "cmtd7vh9k0019gcuzbn7lzfep",
+          "title": "lecture-vi",
+          "fileType": "AUDIO",
+          "primaryTopic": null,
+          "difficulty": null,
+          "content": "Hôm nay chúng ta học về mạng máy tính và cơ sở giữ liệu. Máy tính gửi thông tin bằng các gói giữ liệu. Bộ định tuyến chuyển tiếp gói tính đến mạng đích. Giao thức định tuyến lựa chọn đường đi dựa trên chi phí. Cơ sở giữ liệu lưu trữ thông tin trong các bản. Mỗi bản có các hàng và các cuộc. Phá chính giúp phân biệt từng bản đi. Phá ngoại liên kết giữ liệu giữa các bản.",
+          "pageNumber": null,
+          "sourceLabel": "Bản ghi âm · 00:00–00:28 (mốc theo đoạn)",
+          "score": 0.6431064060211182,
+          "semanticScore": 0.49454450607299805,
+          "keywordScore": 1,
+          "matchReasons": [
+            "Khớp ngữ nghĩa",
+            "Khớp từ khóa"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "lecture-en.mp3",
+    "query": "A primary key identifies each record",
+    "result": {
+      "query": "A primary key identifies each record",
+      "status": "OK",
+      "interpretedQuery": {
+        "difficulty": null,
+        "fileType": null,
+        "keywords": [
+          "primary",
+          "key",
+          "identifies",
+          "each",
+          "record"
+        ],
+        "keywordGroups": [
+          [
+            "primary"
+          ],
+          [
+            "key"
+          ],
+          [
+            "identifies"
+          ],
+          [
+            "each"
+          ],
+          [
+            "record"
+          ]
+        ]
+      },
+      "retrievalMode": "hybrid",
+      "results": [
+        {
+          "chunkId": "cmtd7zfht001zgcuz0tzwjbfe",
+          "documentId": "cmtd7ylpn001ugcuz92q3hkbd",
+          "title": "lecture-en",
+          "fileType": "AUDIO",
+          "primaryTopic": null,
+          "difficulty": null,
+          "content": "Today we study computer networks and databases. Computers exchange information by sending data packets. A router forwards each packet toward its destination. Routing protocols compare the cost of different paths. A database stores information in tables with rows and columns. A primary key identifies each record. A foreign key connects records across tables.",
+          "pageNumber": null,
+          "sourceLabel": "Bản ghi âm · 00:00–00:28 (mốc theo đoạn)",
+          "score": 0.6851880960702897,
+          "semanticScore": 0.5361766517162323,
+          "keywordScore": 1,
+          "matchReasons": [
+            "Khớp ngữ nghĩa",
+            "Khớp từ khóa"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "baseline-vi.mp3",
+    "query": "mạng máy tính",
+    "result": {
+      "query": "mạng máy tính",
+      "status": "OK",
+      "interpretedQuery": {
+        "difficulty": null,
+        "fileType": null,
+        "keywords": [
+          "mang",
+          "may",
+          "tinh"
+        ],
+        "keywordGroups": [
+          [
+            "mang"
+          ],
+          [
+            "may"
+          ],
+          [
+            "tinh"
+          ]
+        ]
+      },
+      "retrievalMode": "hybrid",
+      "results": [
+        {
+          "chunkId": "cmtd81nji002hgcuzx2fq4jc0",
+          "documentId": "cmtd81fye002cgcuz9vwc1n8a",
+          "title": "baseline-vi",
+          "fileType": "AUDIO",
+          "primaryTopic": null,
+          "difficulty": null,
+          "content": "Colafone giúp tìm tài liệu học tập về mạng máy tính và cơ sở dữ liệu.",
+          "pageNumber": null,
+          "sourceLabel": "Bản ghi âm · 00:00–00:04 (mốc theo đoạn)",
+          "score": 0.7133649448156357,
+          "semanticScore": 0.5893004238605499,
+          "keywordScore": 1,
+          "matchReasons": [
+            "Khớp ngữ nghĩa",
+            "Khớp từ khóa"
+          ]
+        }
+      ]
+    }
+  }
+]

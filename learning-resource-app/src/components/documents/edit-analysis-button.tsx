@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { LoaderCircle, Pencil, Save, X } from "lucide-react";
 import { dismissFromBackdrop, useDismissableDialog } from "@/lib/dismissable-dialog";
+import { actionErrorMessage, requestJsonAction } from "@/lib/ui-action";
 
 type Analysis = {
   topicId: string;
@@ -29,26 +30,29 @@ export function EditAnalysisButton({
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
   const [form, setForm] = useState({ ...initial });
+  const actionPending = useRef(false);
   useDismissableDialog(isOpen, isSaving, () => setIsOpen(false));
 
   async function save(event: React.FormEvent) {
     event.preventDefault();
+    if (actionPending.current) return;
+    actionPending.current = true;
     setError("");
     setIsSaving(true);
-    const response = await fetch(`/api/documents/${documentId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...form, topicId: form.topicId || null }),
-    });
-    const data = await response.json() as { message?: string };
-    setIsSaving(false);
-    if (!response.ok) return setError(data.message ?? "Không thể cập nhật kết quả");
-    setIsOpen(false);
-    router.refresh();
+    try {
+      await requestJsonAction(`/api/documents/${documentId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...form, topicId: form.topicId || null }),
+      }, "Không thể cập nhật kết quả");
+      setIsOpen(false);
+      router.refresh();
+    } catch (caught) { setError(actionErrorMessage(caught, "Không thể cập nhật kết quả")); }
+    finally { actionPending.current = false; setIsSaving(false); }
   }
 
   return <>
-    <button className="secondary-button compact" onClick={() => setIsOpen(true)} type="button"><Pencil size={16} />Chỉnh sửa</button>
+    <button className="secondary-button compact" onClick={() => { setForm({ ...initial }); setError(""); setIsOpen(true); }} type="button"><Pencil size={16} />Chỉnh sửa</button>
     {isOpen ? <div className="modal-backdrop" onMouseDown={(event) => dismissFromBackdrop(event, isSaving, () => setIsOpen(false))} role="presentation">
       <section aria-labelledby="edit-analysis-title" aria-modal="true" className="analysis-dialog" role="dialog">
         <div className="dialog-heading"><div><p className="eyebrow">Kết quả phân tích</p><h2 id="edit-analysis-title">Chỉnh sửa phân loại</h2></div><button aria-label="Đóng" className="icon-button" disabled={isSaving} onClick={() => setIsOpen(false)} type="button"><X size={19} /></button></div>

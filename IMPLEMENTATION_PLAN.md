@@ -1,13 +1,35 @@
 # Implementation Plan — ScholarFlow Desktop
 
-**Cập nhật:** 28/08/2026
+## Chốt phạm vi — 29/08/2026
+
+- Đã tích hợp Whisper Small + Silero VAD vào runtime upload/trích xuất lại; VAD nằm trong gói whisper-small, pin revision/SHA-256. Không dùng Pho trong app.
+- Gỡ micro tìm kiếm, API voice, cấp quyền microphone và thẻ Base. Không xóa cache Base đã có, không sửa dữ liệu thư viện.
+- Theo chốt lại của người dùng: gỡ trang /help, các liên kết và khối ghi chú giới hạn mới thêm trên giao diện. Giữ phạm vi tại APP_CAPABILITIES.md và README; không bỏ thông báo lỗi/hướng dẫn thao tác cần thiết.
+- Giữ mốc xử lý tối đa 30 giây đã kiểm; không áp dụng thay đổi 10 giây khi chưa xác nhận. Mốc nguồn theo đoạn, không theo từ.
+- Các báo cáo/thí nghiệm ngày 28/08 bên dưới là lịch sử, không mô tả chức năng micro hiện hành.
+- Đã đạt lint, toàn bộ unit test, production build và standalone smoke. 26 file audio với Small+VAD/BGE thật: 14 READY, 10 lỗi có kiểm soát, 2 từ chối upload; tìm nguồn/trích xuất lại và GUI quay lại kết quả đạt. Chất lượng nhận dạng vẫn có giới hạn. Báo cáo: learning-resource-app/test-fixtures/scholarflow/CHOT_SMALL_VAD_VA_GIOI_HAN_2026-08-29.md. Chưa phát hành EXE.
+
+
+**Cập nhật:** 29/08/2026
 **Nhánh thực hiện:** `main`
 **Phạm vi:** ứng dụng desktop Windows chạy local, không có tài khoản, cloud backend, Docker hoặc bản web độc lập.
 **Lưu ý tài liệu:** PRD đã được đồng bộ với sản phẩm local-only và phạm vi MVP cuối.
 
 ## 1. Kiến trúc đích
 
-### Bổ sung 28/08: tìm bằng giọng nói trên bản dev
+### Lịch sử thử nghiệm âm thanh — 28/08 (đã được chốt lại ngày 29/08)
+
+- Đã thử tiếp routing Small/Pho + Silero VAD và đối chứng Small+VAD, mỗi hướng 31 ca. Hybrid giảm lỗi Việt nhưng làm rơi từ Anh khi đổi ngôn ngữ trong cửa sổ; chưa nên bật mặc định. Small+VAD giữ 22 bản chép baseline, chặn 8 ca không lời nói, đọc được ca có đuôi nhiễu trước đó bị lỗi. Đề xuất tích hợp VAD trước; vẫn là thí nghiệm, chưa đổi runtime/GUI/model app. Báo cáo `learning-resource-app/test-fixtures/scholarflow/PHOWHISPER_HYBRID_EVAL_2026-08-28.md`.
+
+- Đã thử riêng PhoWhisper Small ONNX Q8 cộng đồng trên 22 ca/model, không đổi app. Bài Việt dài giảm từ 16–18 xuống 5–10 phép sửa/150 đơn vị, nhưng sai tiếng Anh và sinh câu từ nhiễu trắng. Chưa tích hợp; hướng tiếp theo cần kiểm chọn model độc lập, lời nói/nhiễu và giọng thật. Báo cáo: `learning-resource-app/test-fixtures/scholarflow/PHOWHISPER_EVAL_2026-08-28.md`.
+
+- Đã tách nhánh upload khỏi mic: Whisper Small nhận ngôn ngữ theo từng đoạn tối đa 30 giây, ngắt tại khoảng nghỉ; không sinh timestamp bằng decoder. Nhãn nguồn dùng mốc theo đoạn. Base giữ nguyên cho mic.
+- Đã thêm giới hạn token, kiểm lặp/ngắt đầu ra, im lặng, hủy/deadline giữa token và timeout giải mã; không lưu bản chép dở như hoàn tất.
+- Sau lượt so sánh Base/Small, đã tích hợp Small thành phần tùy chọn riêng (`whisper-small`), revision `36050c4`, 7 file khoảng 252 MB, kiểm SHA-256. Upload/trích xuất lại cần Small; micro tìm kiếm dùng Base ở bản thử ngày 28/08 nhưng đã bị gỡ ngày 29/08. Không tự chạy lại tài liệu cũ.
+- Kiểm thử mới và giới hạn tại `learning-resource-app/test-fixtures/scholarflow/WHISPER_SMALL_UPLOAD_2026-08-28.md`. Small giảm lỗi trong bộ tổng hợp, không đảm bảo đúng mọi chữ tiếng Việt.
+- Kết quả, số đo, giới hạn: `learning-resource-app/test-fixtures/scholarflow/CAI_THIEN_UPLOAD_AUDIO_2026-08-28.md`. Không tạo EXE/release.
+
+### Lịch sử 28/08: tìm bằng giọng nói (đã gỡ khỏi bản hiện hành)
 
 - Nút mic trong tìm bằng mô tả; ghi tối đa 30 giây, Dừng để chép lời rồi tự tìm, Hủy/Esc để bỏ.
 - Dùng Whisper Base local có sẵn, không thêm model và không gọi dịch vụ chép lời cloud.
@@ -197,7 +219,7 @@ Viewer + ROI overlay
 Bổ sung 27/08: XMind JSON/XML đọc trực tiếp, giữ đường dẫn nhánh/ghi chú/nhãn, hiển thị sơ đồ nhánh tự sắp xếp và vị trí sơ đồ trong kết quả tìm kiếm. Vùng chọn XMind dùng chữ gốc đúng vùng. PDF dùng viewer trang do app kiểm soát, worker PDF.js cục bộ; giữ trang, zoom, pan, vùng chọn khi quay lại. PDF mind map có bộ test riêng: chữ native và scan, mỗi file 2 trang. Giữ tiêu đề Docling đọc được nhưng chunker bỏ sót. Không thêm model hoặc thay pipeline OCR. Xem giới hạn và hướng dẫn tại `learning-resource-app/test-fixtures/scholarflow/06_mindmap_audio/TEST_PDF_XMIND.md`.
 
 - Ảnh mind map PNG/JPG/JPEG/WebP dùng pipeline OCR Việt–Anh hiện có; mind map dạng PDF tiếp tục đi qua Docling. Kết quả vẫn là text/chunk/BGE-M3 giống tài liệu khác, không dùng vision model để tự diễn giải quan hệ nhánh.
-- Audio MP3/WAV/M4A được FFmpeg giải mã về mono 16 kHz và Whisper Base chép lời cục bộ. Mỗi đoạn giữ mốc thời gian trong `sourceLabel`, sau đó đi chung pipeline chunk, embedding và tìm kiếm.
+- Audio MP3/WAV/M4A được FFmpeg giải mã về mono 16 kHz và Whisper Small chép lời cục bộ (nâng từ Base ngày 28/08). Mỗi đoạn giữ mốc thời gian trong `sourceLabel`, sau đó đi chung pipeline chunk, embedding và tìm kiếm.
 - Whisper là thành phần tùy chọn trong Cài đặt, pin revision và SHA-256 cố định; không nằm trong installer, không chặn onboarding và chỉ chặn upload/trích xuất lại file audio khi còn thiếu.
 - Runtime thử ngôn ngữ Việt/Anh trên đoạn đầu rồi chọn kết quả phù hợp; người dùng cần chấp nhận giới hạn với tên riêng, giọng nhiễu và hội thoại chồng tiếng.
 - Thêm fixture mind map, audio Việt/Anh và test extractor media; kiểm tra runtime thực tế đã đạt WAV, MP3 và M4A.

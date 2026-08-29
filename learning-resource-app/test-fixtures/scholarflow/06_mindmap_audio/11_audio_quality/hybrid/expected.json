@@ -1,0 +1,70 @@
+{
+  "seed": 102938475,
+  "generator": "scripts/generate-hybrid-audio-fixtures.mjs",
+  "note": "Synthetic signals and existing TTS only; no real microphone audio",
+  "cases": [
+    {
+      "name": "hybrid/white.wav",
+      "reference": null,
+      "type": "non-speech",
+      "description": "Seeded white noise; no speech",
+      "seconds": 5
+    },
+    {
+      "name": "hybrid/brown.wav",
+      "reference": null,
+      "type": "non-speech",
+      "description": "Low-frequency noise; no speech",
+      "seconds": 5
+    },
+    {
+      "name": "hybrid/tone.wav",
+      "reference": null,
+      "type": "non-speech",
+      "description": "440 Hz sine tone; no speech",
+      "seconds": 5
+    },
+    {
+      "name": "hybrid/chords.wav",
+      "reference": null,
+      "type": "non-speech",
+      "description": "Synthetic changing chords; not representative of all real music",
+      "seconds": 8
+    },
+    {
+      "name": "hybrid/clicks.wav",
+      "reference": null,
+      "type": "non-speech",
+      "description": "Short noise bursts every half-second",
+      "seconds": 5
+    },
+    {
+      "name": "hybrid/quiet-vi.wav",
+      "reference": "Tìm tài liệu về cơ sở dữ liệu",
+      "type": "speech",
+      "description": "Vietnamese TTS attenuated 26 dB",
+      "seconds": 3.048
+    },
+    {
+      "name": "hybrid/noisy-vi.wav",
+      "reference": "Tìm tài liệu về cơ sở dữ liệu",
+      "type": "speech",
+      "description": "Vietnamese TTS plus white noise approximately 10 dB SNR",
+      "seconds": 3.048
+    },
+    {
+      "name": "hybrid/padded-vi.wav",
+      "reference": "Tìm tài liệu về cơ sở dữ liệu",
+      "type": "speech",
+      "description": "4 seconds noise + Vietnamese speech + 32 seconds noise; should not transcribe noise-only tail",
+      "seconds": 39.048
+    },
+    {
+      "name": "hybrid/switch-en-vi.wav",
+      "reference": "computer science Tìm tài liệu về cơ sở dữ liệu database",
+      "type": "mixed",
+      "description": "Short English/Vietnamese/English switches; stress case, not guaranteed supported",
+      "seconds": 8.936
+    }
+  ]
+}

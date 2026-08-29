@@ -265,7 +265,7 @@ export async function extractDocumentText(
     const sections = transcript.chunks.length
       ? transcript.chunks.map((chunk) => ({
           text: normalizeExtractedText(chunk.text),
-          sourceLabel: `Bản ghi âm · ${formatTranscriptTimestamp(chunk.start)}${chunk.end === null ? "" : `–${formatTranscriptTimestamp(chunk.end)}`}`,
+          sourceLabel: `Bản ghi âm · ${formatTranscriptTimestamp(chunk.start)}${chunk.end === null ? "" : `–${formatTranscriptTimestamp(chunk.end)}`}${transcript.timestamp_precision === "segment" ? " (mốc theo đoạn)" : ""}`,
         })).filter((section) => section.text)
       : [{ text: normalizeExtractedText(transcript.text), sourceLabel: "Bản ghi âm" }].filter((section) => section.text);
     return {

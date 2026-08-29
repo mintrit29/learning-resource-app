@@ -1,9 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { LoaderCircle, Pencil, Plus, Search, Tags, Trash2, X } from "lucide-react";
 import { dismissFromBackdrop, useDismissableDialog } from "@/lib/dismissable-dialog";
+import { actionErrorMessage, requestJsonAction } from "@/lib/ui-action";
 
 type TagItem = {
   id: string;
@@ -19,6 +20,7 @@ export function TagManager({ initialTags }: { initialTags: TagItem[] }) {
   const [editing, setEditing] = useState<TagItem | null | undefined>(undefined);
   const [form, setForm] = useState({ name: "", description: "" });
   const [busy, setBusy] = useState("");
+  const actionPending = useRef(false);
   const [error, setError] = useState("");
   const [tagQuery, setTagQuery] = useState("");
   useDismissableDialog(editing !== undefined, busy === "save", () => setEditing(undefined));
@@ -31,29 +33,33 @@ export function TagManager({ initialTags }: { initialTags: TagItem[] }) {
 
   async function save(event: React.FormEvent) {
     event.preventDefault();
+    if (actionPending.current) return;
+    actionPending.current = true;
     setBusy("save");
     setError("");
-    const response = await fetch(editing ? `/api/tags/${editing.id}` : "/api/tags", {
-      method: editing ? "PATCH" : "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
-    const data = (await response.json()) as { message?: string };
-    setBusy("");
-    if (!response.ok) return setError(data.message ?? "Không thể lưu môn học");
-    setEditing(undefined);
-    router.refresh();
+    try {
+      await requestJsonAction(editing ? `/api/tags/${editing.id}` : "/api/tags", {
+        method: editing ? "PATCH" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      }, "Không thể lưu môn học");
+      setEditing(undefined);
+      router.refresh();
+    } catch (caught) { setError(actionErrorMessage(caught, "Không thể lưu môn học")); }
+    finally { actionPending.current = false; setBusy(""); }
   }
 
   async function remove(tag: TagItem) {
+    if (actionPending.current) return;
     if (!window.confirm(`Xóa môn “${tag.name}”? Tài liệu thuộc môn này sẽ được chuyển sang “Chưa phân loại”.`)) return;
+    actionPending.current = true;
     setBusy(tag.id);
     setError("");
-    const response = await fetch(`/api/tags/${tag.id}`, { method: "DELETE" });
-    const data = (await response.json()) as { message?: string };
-    setBusy("");
-    if (!response.ok) return setError(data.message ?? "Không thể xóa môn học");
-    router.refresh();
+    try {
+      await requestJsonAction(`/api/tags/${tag.id}`, { method: "DELETE" }, "Không thể xóa môn học");
+      router.refresh();
+    } catch (caught) { setError(actionErrorMessage(caught, "Không thể xóa môn học")); }
+    finally { actionPending.current = false; setBusy(""); }
   }
 
   const enabledCount = initialTags.filter((tag) => tag.isClassificationEnabled).length;
@@ -76,7 +82,7 @@ export function TagManager({ initialTags }: { initialTags: TagItem[] }) {
           </p>
         </div>
         <div className="provider-actions">
-          <button className="primary-button compact" onClick={() => open(null)} type="button">
+          <button className="primary-button compact" disabled={Boolean(busy)} onClick={() => open(null)} type="button">
             <Plus size={17} />
             Thêm môn học
           </button>
@@ -107,13 +113,13 @@ export function TagManager({ initialTags }: { initialTags: TagItem[] }) {
                 <span>{tag._count.documents} tài liệu</span>
               </div>
               <div className="provider-actions">
-                <button aria-label="Chỉnh sửa môn học" className="icon-button" onClick={() => open(tag)} type="button">
+                <button aria-label="Chỉnh sửa môn học" className="icon-button" disabled={Boolean(busy)} onClick={() => open(tag)} type="button">
                   <Pencil size={17} />
                 </button>
                 <button
                   aria-label="Xóa môn học"
                   className="icon-button danger-icon"
-                  disabled={busy === tag.id}
+                  disabled={Boolean(busy)}
                   onClick={() => remove(tag)}
                   type="button"
                 >

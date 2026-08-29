@@ -1,0 +1,172 @@
+{
+  "mode": "small",
+  "scope": "ASR experiment only, no integration",
+  "silero": {
+    "repository": "snakers4/silero-vad",
+    "revision": "867c2aa692646a1f1de3e94a15c9dd9f614c0acb",
+    "url": "https://raw.githubusercontent.com/snakers4/silero-vad/867c2aa692646a1f1de3e94a15c9dd9f614c0acb/src/silero_vad/data/silero_vad.onnx",
+    "gitBlobSha1": "80c5592ef1f4c9ede3e357bbd02eb863358a6a9d",
+    "size": 2327524,
+    "sha256": "1a153a22f4509e292a94e67d6f9b85e8deb25b4988682b7e174c65279d8788e3",
+    "license": "MIT"
+  },
+  "loadMs": 5671.5308,
+  "runtime": {
+    "cpu": "Intel(R) Core(TM) i7-10850H CPU @ 2.70GHz",
+    "node": "v24.13.0",
+    "transformers": "4.2.0",
+    "onnxruntime": "1.24.3"
+  },
+  "rows": [
+    {
+      "name": "hybrid/white.wav",
+      "type": "non-speech",
+      "reference": null,
+      "sha256": "4d373cf4b78d8f47b78f4a04deb0db1d3fa800594b118f4c29d6a3fa5d86c3fc",
+      "mode": "small",
+      "error": "Chưa nhận diện chắc chắn tiếng Việt hoặc tiếng Anh. Hãy thử file có lời nói rõ hơn.",
+      "code": null,
+      "totalMs": 3301,
+      "peakRssMiB": 1077.84765625,
+      "expectedGatePass": true
+    },
+    {
+      "name": "hybrid/brown.wav",
+      "type": "non-speech",
+      "reference": null,
+      "sha256": "3c56d963e45dc1d4c9a1cb9b4748ea0d12ce3639f6df28924ca43bfa1c23f93a",
+      "mode": "small",
+      "error": "Chưa nhận diện chắc chắn tiếng Việt hoặc tiếng Anh. Hãy thử file có lời nói rõ hơn.",
+      "code": null,
+      "totalMs": 4012,
+      "peakRssMiB": 1170.17578125,
+      "expectedGatePass": true
+    },
+    {
+      "name": "hybrid/tone.wav",
+      "type": "non-speech",
+      "reference": null,
+      "sha256": "60b38cac010e29d04ca77875729d610305bdb27534a3656e77c1b4f7195e724c",
+      "mode": "small",
+      "error": "Chưa nhận diện chắc chắn tiếng Việt hoặc tiếng Anh. Hãy thử file có lời nói rõ hơn.",
+      "code": null,
+      "totalMs": 3931,
+      "peakRssMiB": 1172.3359375,
+      "expectedGatePass": true
+    },
+    {
+      "name": "hybrid/chords.wav",
+      "type": "non-speech",
+      "reference": null,
+      "sha256": "f556a108433ff91df6173934683120a65408d2f2ef3aadb419f2a1b19176eb4b",
+      "mode": "small",
+      "language": "en",
+      "text": "you",
+      "chunks": [
+        {
+          "text": "you",
+          "start": 0,
+          "end": 8
+        }
+      ],
+      "timestamp_precision": "segment",
+      "duration_seconds": 8,
+      "elapsed_ms": 7184,
+      "totalMs": 7348,
+      "peakRssMiB": 1193.94921875,
+      "expectedGatePass": false
+    },
+    {
+      "name": "hybrid/clicks.wav",
+      "type": "non-speech",
+      "reference": null,
+      "sha256": "d48ea5746111cb310396d68d56edb89ca59c75a8c93c7947c2b06e17791c53a2",
+      "mode": "small",
+      "error": "Chưa nhận diện chắc chắn tiếng Việt hoặc tiếng Anh. Hãy thử file có lời nói rõ hơn.",
+      "code": null,
+      "totalMs": 4303,
+      "peakRssMiB": 1193.94921875,
+      "expectedGatePass": true
+    },
+    {
+      "name": "hybrid/quiet-vi.wav",
+      "type": "speech",
+      "reference": "Tìm tài liệu về cơ sở dữ liệu",
+      "sha256": "aa592bb5fdd077c1f02267eda11f986703b7e00e3897e9b7f78404e921bc25ef",
+      "mode": "small",
+      "language": "vi",
+      "text": "Tìm tai liệu về cơ sở dữ liệu.",
+      "chunks": [
+        {
+          "text": "Tìm tai liệu về cơ sở dữ liệu.",
+          "start": 0,
+          "end": 3.048
+        }
+      ],
+      "timestamp_precision": "segment",
+      "duration_seconds": 3,
+      "elapsed_ms": 9691,
+      "totalMs": 9825,
+      "peakRssMiB": 1194.64453125,
+      "referenceUnits": 8,
+      "edits": 1
+    },
+    {
+      "name": "hybrid/noisy-vi.wav",
+      "type": "speech",
+      "reference": "Tìm tài liệu về cơ sở dữ liệu",
+      "sha256": "d4708d4c3f8a2c054a6782b51b2142f32503c3980b1bee0be45d558ca00902c8",
+      "mode": "small",
+      "language": "vi",
+      "text": "Kim Tài Liệu về cơ sở dữ liệu",
+      "chunks": [
+        {
+          "text": "Kim Tài Liệu về cơ sở dữ liệu",
+          "start": 0,
+          "end": 3.048
+        }
+      ],
+      "timestamp_precision": "segment",
+      "duration_seconds": 3,
+      "elapsed_ms": 8934,
+      "totalMs": 9054,
+      "peakRssMiB": 1205.25,
+      "referenceUnits": 8,
+      "edits": 1
+    },
+    {
+      "name": "hybrid/padded-vi.wav",
+      "type": "speech",
+      "reference": "Tìm tài liệu về cơ sở dữ liệu",
+      "sha256": "5c78219d9fb566d0086449edd9d142e4507c935afe4a815f7af4beb2e582d8bf",
+      "mode": "small",
+      "error": "Chưa nhận diện chắc chắn tiếng Việt hoặc tiếng Anh. Hãy thử file có lời nói rõ hơn.",
+      "code": null,
+      "totalMs": 11886,
+      "peakRssMiB": 1214.56640625
+    },
+    {
+      "name": "hybrid/switch-en-vi.wav",
+      "type": "mixed",
+      "reference": "computer science Tìm tài liệu về cơ sở dữ liệu database",
+      "sha256": "2b7691482f93198c6751331fc6724b9d25e0d3331ae57bf16ce2a306c4ac1a4a",
+      "mode": "small",
+      "language": "vi",
+      "text": "Computer Science. Tìm tai liệu về cơ sở dữ liệu. Database",
+      "chunks": [
+        {
+          "text": "Computer Science. Tìm tai liệu về cơ sở dữ liệu. Database",
+          "start": 0,
+          "end": 8.936
+        }
+      ],
+      "timestamp_precision": "segment",
+      "duration_seconds": 9,
+      "elapsed_ms": 9148,
+      "totalMs": 9293,
+      "peakRssMiB": 1221.70703125,
+      "referenceUnits": 11,
+      "edits": 1
+    }
+  ]
+}

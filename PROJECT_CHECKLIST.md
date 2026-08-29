@@ -1,13 +1,40 @@
 # Project Checklist — ScholarFlow Desktop
 
-**Cập nhật:** 28/08/2026
+## Chốt phạm vi — 29/08/2026
+
+- Đã tích hợp Whisper Small + Silero VAD vào runtime upload/trích xuất lại; VAD nằm trong gói whisper-small, pin revision/SHA-256. Không dùng Pho trong app.
+- Gỡ micro tìm kiếm, API voice, cấp quyền microphone và thẻ Base. Không xóa cache Base đã có, không sửa dữ liệu thư viện.
+- Theo chốt lại của người dùng: gỡ trang /help, các liên kết và khối ghi chú giới hạn mới thêm trên giao diện. Giữ phạm vi tại APP_CAPABILITIES.md và README; không bỏ thông báo lỗi/hướng dẫn thao tác cần thiết.
+- Giữ mốc xử lý tối đa 30 giây đã kiểm; không áp dụng thay đổi 10 giây khi chưa xác nhận. Mốc nguồn theo đoạn, không theo từ.
+- Các báo cáo/thí nghiệm ngày 28/08 bên dưới là lịch sử, không mô tả chức năng micro hiện hành.
+- Đã đạt lint, toàn bộ unit test, production build và standalone smoke. 26 file audio với Small+VAD/BGE thật: 14 READY, 10 lỗi có kiểm soát, 2 từ chối upload; tìm nguồn/trích xuất lại và GUI quay lại kết quả đạt. Chất lượng nhận dạng vẫn có giới hạn. Báo cáo: learning-resource-app/test-fixtures/scholarflow/CHOT_SMALL_VAD_VA_GIOI_HAN_2026-08-29.md. Chưa phát hành EXE.
+
+
+**Cập nhật:** 29/08/2026
 **Nhánh:** `main`
 **Phạm vi:** desktop Windows, local-only, không đăng ký/đăng nhập, cloud backend, Docker hoặc web app riêng.
 **Quy ước:** chỉ đánh dấu hoàn thành sau khi đã triển khai hoặc kiểm tra thực tế. Các ý tưởng ngoài MVP được ghi rõ, không để lẫn với việc bắt buộc trước release.
 
 ## A. Desktop shell
 
-### Tìm bằng giọng nói — bổ sung bản dev 28/08
+### Lịch sử thử nghiệm âm thanh — 28/08 (đã chốt Small + VAD ngày 29/08)
+
+- [x] Thử riêng PhoWhisper Small ONNX Q8: đủ 22 ca/model, lưu raw output/hash/tốc độ/RAM; không thay runtime app. Giảm lỗi bài Việt nhưng fail bài Anh/file trộn/nhiễu. Xem `PHOWHISPER_EVAL_2026-08-28.md` trong bộ test.
+- [x] Thử routing Small/Pho + VAD: 31 ca; giảm lỗi Việt, giữ Anh riêng nhưng rơi từ Anh khi đổi ngôn ngữ nhanh. Không bật mặc định.
+- [x] Đối chứng Small+VAD: 31 ca; giữ 22 bản chép baseline, chặn 8 ca không lời nói, xử lý ca đuôi nhiễu từng lỗi. Giữ 9 fixture stress mới và output đầy đủ.
+- [x] Tích hợp Small+VAD vào app và kiểm GUI/upload/reextract; VAD bỏ đoạn không lời nhưng không chữa chữ Small nghe sai.
+- [ ] PhoWhisper chế độ Việt thuần tùy chọn/giọng thật: chưa tích hợp; routing tự động vẫn có regression file trộn.
+
+- [x] Tách nhánh upload, nhận ngôn ngữ theo đoạn, ngắt khoảng nghỉ; micro tìm kiếm thử nghiệm đã được gỡ khỏi bản hiện hành.
+- [x] Bảo vệ im lặng, lặp/ngắt, giới hạn token, hủy/deadline giữa token và lỗi giải mã dễ hiểu; không lưu kết quả dở.
+- [x] 17 ca upload thật/SQLite QA/.txt; xem kết quả và lỗi trên Browser nền; test liên quan và production build đạt.
+- [x] So sánh Base/Small trên bộ Việt–Anh cố định, giữ cả output cũ/mới. Đã áp dụng Small cho upload; Base tiếp tục phục vụ micro.
+- [x] Small có manifest riêng pin revision/SHA-256, tải/kiểm/xóa độc lập, không chặn onboarding. Cài Small thật đủ 7 file; Base không thay đổi.
+- [ ] Chép đúng chữ tiếng Việt: **chưa đạt**. Sau sửa Base còn 33–35 phép sửa/150 đơn vị ở bài dài; Small 16–18. Không coi READY là accuracy PASS.
+- [ ] Giọng thật, tiếng ồn đa dạng, hội thoại và file dài hàng giờ: chưa đánh giá trong lượt này.
+- Báo cáo trước/sau tích hợp: `learning-resource-app/test-fixtures/scholarflow/CAI_THIEN_UPLOAD_AUDIO_2026-08-28.md` và `WHISPER_SMALL_UPLOAD_2026-08-28.md` trong cùng thư mục.
+
+### Lịch sử tìm bằng giọng nói — bản thử 28/08 (đã gỡ ngày 29/08)
 
 - [x] Mic → ghi tối đa 30 giây → chép lời Whisper local → điền query → tự tìm.
 - [x] Dừng/Hủy, Esc, thiếu model, lỗi thiết bị, giới hạn dung lượng/thời gian, không lưu bản ghi vào thư viện.
@@ -94,9 +121,9 @@
 
 - [x] Nhận ảnh PNG/JPG/JPEG/WebP và âm thanh MP3/WAV/M4A vào thư viện.
 - [x] OCR mind map bằng pipeline Việt–Anh; PDF mind map dùng Docling.
-- [x] Thêm Whisper Base là thành phần local tùy chọn, pin revision và checksum.
+- [x] Thêm Whisper Small + Silero VAD là thành phần local tùy chọn, pin revision và checksum; Base chỉ còn là cache cũ không được app dùng.
 - [x] Dùng FFmpeg đóng kèm runtime để giải mã audio về mono 16 kHz.
-- [x] Chép lời Việt/Anh, giữ timestamp và đưa qua chung pipeline chunk/BGE-M3/search.
+- [x] Chép lời Việt/Anh, giữ mốc theo đoạn tối đa 30 giây và đưa qua chung pipeline chunk/BGE-M3/search.
 - [x] Thiếu Whisper chỉ chặn file audio, không chặn tài liệu/ảnh hoặc onboarding.
 - [x] Test extractor mind map và audio bằng fixture cố định.
 - [x] Test runtime thật với WAV, MP3, M4A tiếng Anh và MP3 tiếng Việt.

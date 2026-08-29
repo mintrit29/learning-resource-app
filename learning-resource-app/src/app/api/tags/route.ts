@@ -1,13 +1,11 @@
 import { NextResponse } from "next/server";
-import { z } from "zod";
+import { tagSchema } from "@/lib/taxonomy/tag-schema";
 import { db } from "@/lib/db";
 import { embedTexts } from "@/lib/embedding/client";
 import { findExactCanonicalTag } from "@/lib/taxonomy/canonical-tags";
 import { normalizeTagName } from "@/lib/taxonomy/normalize-tag";
 import { toSqliteVectorBlob } from "@/lib/vector/sqlite-vector-store";
 import { ensureCurriculumTopics } from "@/lib/taxonomy/curriculum-topics";
-
-const tagSchema = z.object({ name: z.string().trim().min(2).max(100), description: z.string().trim().max(500).optional().default("") });
 
 export async function GET() {
   await ensureCurriculumTopics();

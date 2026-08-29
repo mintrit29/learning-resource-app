@@ -14,6 +14,7 @@ import { mergeRecognizedText } from "@/lib/search/visual-query";
 import {
   readVisualSearchDraft,
   saveVisualSearchDraft,
+  visualDraftError,
   type VisualSearchResult as SearchResult,
   type VisualSearchStatus as SearchStatus,
   type VisualSelection as Selection,
@@ -69,7 +70,8 @@ export function VisualResourceSearch() {
   const moveSelectionRef = useRef<{ clientX: number; clientY: number; original: Selection } | null>(null);
   const moveSelectionDraftRef = useRef<Selection | null>(null);
   const requestSequenceRef = useRef(0);
-  const lastSearchQueryRef = useRef(restoredDraft?.results.length ? restoredDraft.query : "");
+  const lastSearchQueryRef = useRef(restoredDraft?.searchStatus ? restoredDraft.query.trim().slice(0, 500) : "");
+  const pendingSearchQueryRef = useRef("");
   const objectUrlRef = useRef<string | null>(null);
   const ocrAbortRef = useRef<AbortController | null>(null);
   const searchAbortRef = useRef<AbortController | null>(null);
@@ -98,7 +100,8 @@ export function VisualResourceSearch() {
   const [isRecognizing, setIsRecognizing] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [isPanning, setIsPanning] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(restoredDraft?.error ?? "");
+  const [previewError, setPreviewError] = useState(() => visualDraftError(restoredDraft));
   const [ocrWarning, setOcrWarning] = useState(restoredDraft?.ocrWarning ?? "");
   const pdf = usePdfPage(file, currentPreviewItem);
 
@@ -155,6 +158,7 @@ export function VisualResourceSearch() {
   }
 
   useEffect(() => () => {
+    requestSequenceRef.current += 1;
     ocrAbortRef.current?.abort();
     searchAbortRef.current?.abort();
     previewAbortRef.current?.abort();
@@ -211,21 +215,25 @@ export function VisualResourceSearch() {
       results,
       searchStatus,
       ocrWarning,
+      error,
+      previewError,
       viewport: viewportRef.current,
       canvasBaseSize,
       frameSize,
     });
-  }, [file, previewHtml, previewItemCount, currentPreviewItem, zoom, viewerMode, selection, query, capturedPreview, results, searchStatus, ocrWarning, canvasBaseSize, frameSize]);
+  }, [file, previewHtml, previewItemCount, currentPreviewItem, zoom, viewerMode, selection, query, capturedPreview, results, searchStatus, ocrWarning, error, previewError, canvasBaseSize, frameSize]);
 
   async function runSearch(searchQuery: string, sequence = ++requestSequenceRef.current) {
     const normalizedQuery = searchQuery.trim().slice(0, 500);
     if (normalizedQuery.length < 2) return;
-    lastSearchQueryRef.current = normalizedQuery;
     searchAbortRef.current?.abort();
     const searchController = new AbortController();
     searchAbortRef.current = searchController;
+    pendingSearchQueryRef.current = normalizedQuery;
     const searchTimeout = window.setTimeout(() => searchController.abort(), 30_000);
     setIsSearching(true);
+    setResults([]);
+    setSearchStatus(null);
     setError("");
     try {
       const response = await fetch("/api/search", {
@@ -239,8 +247,9 @@ export function VisualResourceSearch() {
         status?: SearchStatus;
         results?: SearchResult[];
       }>(response, "Dịch vụ tìm kiếm phản hồi không hợp lệ. Hãy thử đóng và mở lại ứng dụng.");
-      if (sequence !== requestSequenceRef.current) return;
+      if (sequence !== requestSequenceRef.current || searchController.signal.aborted) return;
       if (!response.ok) throw new Error(data.message ?? "Không thể tìm trong tài liệu.");
+      lastSearchQueryRef.current = normalizedQuery;
       setResults(data.results ?? []);
       setSearchStatus(data.status ?? ((data.results?.length ?? 0) ? "OK" : "NO_RELEVANT_RESULTS"));
     } catch (caught) {
@@ -252,7 +261,10 @@ export function VisualResourceSearch() {
       setError(caught instanceof Error ? caught.message : "Không thể tìm trong tài liệu.");
     } finally {
       window.clearTimeout(searchTimeout);
-      if (sequence === requestSequenceRef.current) setIsSearching(false);
+      if (sequence === requestSequenceRef.current) {
+        pendingSearchQueryRef.current = "";
+        setIsSearching(false);
+      }
     }
   }
 
@@ -446,7 +458,10 @@ export function VisualResourceSearch() {
 
   useEffect(() => {
     if (!selection || !file || selectionRevision === 0) return;
-    const timer = window.setTimeout(() => void recognizeSelection(selection), 350);
+    const sequence = requestSequenceRef.current;
+    const timer = window.setTimeout(() => {
+      if (sequence === requestSequenceRef.current) void recognizeSelection(selection);
+    }, 350);
     return () => window.clearTimeout(timer);
     // A new selection intentionally owns a new OCR/search request.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -456,10 +471,26 @@ export function VisualResourceSearch() {
     const normalizedQuery = query.trim().slice(0, 500);
     if (normalizedQuery.length < 2 || isCapturing || isRecognizing) return;
     const timer = window.setTimeout(() => {
-      if (lastSearchQueryRef.current !== normalizedQuery) void runSearch(normalizedQuery);
+      if (lastSearchQueryRef.current !== normalizedQuery && pendingSearchQueryRef.current !== normalizedQuery) void runSearch(normalizedQuery);
     }, 400);
     return () => window.clearTimeout(timer);
   }, [query, isCapturing, isRecognizing]);
+
+  function editQuery(text: string) {
+    // Invalidate at the keystroke, not after debounce: late OCR/search cannot overwrite edits.
+    requestSequenceRef.current += 1;
+    ocrAbortRef.current?.abort();
+    searchAbortRef.current?.abort();
+    lastSearchQueryRef.current = "";
+    pendingSearchQueryRef.current = "";
+    setIsCapturing(false);
+    setIsRecognizing(false);
+    setIsSearching(false);
+    setResults([]);
+    setSearchStatus(null);
+    setError("");
+    setQuery(text);
+  }
 
   async function handleFile(event: ChangeEvent<HTMLInputElement>) {
     const nextFile = event.target.files?.[0];
@@ -488,6 +519,8 @@ export function VisualResourceSearch() {
       previewSessionRef.current = null;
     }
     setFile(nextFile);
+    setPreviewUrl("");
+    setPreviewError("");
     restorePendingRef.current = false;
     viewportRef.current = { left: 0, top: 0, pageTop: window.scrollY, resultsTop: 0 };
     setCanvasBaseSize({ width: 0, height: 0 });
@@ -505,6 +538,7 @@ export function VisualResourceSearch() {
     setResults([]);
     setSearchStatus(null);
     lastSearchQueryRef.current = "";
+    pendingSearchQueryRef.current = "";
     setError("");
     setIsPreparing(false);
     setIsChangingPage(false);
@@ -542,11 +576,11 @@ export function VisualResourceSearch() {
       previewSessionRef.current = data.sessionId ?? null;
     } catch (caught) {
       if (caught instanceof DOMException && caught.name === "AbortError") {
-        if (sequence === requestSequenceRef.current) setError("Tạo bản xem trước quá 30 giây và đã được dừng.");
+        if (sequence === requestSequenceRef.current) setPreviewError("Tạo bản xem trước quá 30 giây và đã được dừng.");
         return;
       }
       if (sequence !== requestSequenceRef.current) return;
-      setError(caught instanceof Error ? caught.message : "Không thể xem trước file.");
+      setPreviewError(caught instanceof Error ? caught.message : "Không thể xem trước file.");
     } finally {
       window.clearTimeout(previewTimeout);
       if (sequence === requestSequenceRef.current) setIsPreparing(false);
@@ -567,6 +601,7 @@ export function VisualResourceSearch() {
     ocrAbortRef.current?.abort();
     searchAbortRef.current?.abort();
     lastSearchQueryRef.current = "";
+    pendingSearchQueryRef.current = "";
     setQuery("");
     setOcrWarning("");
     setCapturedPreview("");
@@ -579,7 +614,8 @@ export function VisualResourceSearch() {
   }
 
   function handlePointerDown(event: PointerEvent<HTMLDivElement>) {
-    if (!file || pdf.loading || isChangingPage) return;
+    if (!file || pdf.loading || isPreparing || isChangingPage) return;
+    if (HTML_PREVIEW_EXTENSIONS.has(extensionOf(file)) ? !previewHtml : !previewImageRef.current?.naturalWidth) return;
     if (viewerMode === "move") {
       event.preventDefault();
       event.currentTarget.setPointerCapture(event.pointerId);
@@ -787,7 +823,6 @@ export function VisualResourceSearch() {
 
   function changeViewerMode(nextMode: ViewerMode) {
     setDraftSelection(null);
-    setError("");
     setViewerMode(nextMode);
   }
 
@@ -893,7 +928,7 @@ export function VisualResourceSearch() {
                   width: canvasBaseSize.width ? `${canvasBaseSize.width * zoom}px` : "100%",
                   height: canvasBaseSize.height ? `${canvasBaseSize.height * zoom}px` : "100%",
                 }}>
-                {(extension === "pdf" ? pdf.page?.url : previewUrl) ? <img alt={file.name} draggable={false} onLoad={previewReady} ref={previewImageRef} src={extension === "pdf" ? pdf.page?.url : previewUrl} /> : null}
+                {(extension === "pdf" ? pdf.page?.url : previewUrl) ? <img key={extension === "pdf" ? pdf.page?.url : previewUrl} alt={file.name} draggable={false} onLoad={() => { setPreviewError(""); previewReady(); }} onError={() => setPreviewError("Không đọc được ảnh. File có thể hỏng hoặc không đúng định dạng. Hãy chọn ảnh khác.")} ref={previewImageRef} src={extension === "pdf" ? pdf.page?.url : previewUrl} /> : null}
                 {pdf.loading ? <div className="visual-preview-loading"><LoaderCircle className="spin" />Đang hiển thị trang PDF…</div> : null}
                 {HTML_PREVIEW_EXTENSIONS.has(extension) && previewHtml ? <iframe aria-label={`Xem ${file.name}`} onLoad={previewReady} ref={previewFrameRef} sandbox="allow-same-origin" srcDoc={previewHtml} style={{ width: frameSize.width || canvasBaseSize.width || "100%", height: frameSize.height || 620, transform: `scale(${zoom * (frameSize.width ? canvasBaseSize.width / frameSize.width : 1)})`, transformOrigin: "top left" }} title={file.name} /> : null}
                 {activeSelection && !isCapturing && !pdf.loading ? (
@@ -921,18 +956,18 @@ export function VisualResourceSearch() {
 
         <div className="visual-results-panel" ref={resultsPanelRef} onScroll={rememberViewport}>
           <div className="visual-query-heading">
-            <div><span>Nội dung nhận dạng</span><strong>{processingLabel || (query ? "Có thể sửa trước khi tìm lại" : "Chưa chọn vùng")}</strong></div>
+            <div><span>Nội dung nhận dạng</span><strong>{processingLabel || (query.trim() ? "Có thể sửa trước khi tìm lại" : "Chưa chọn vùng")}</strong></div>
             {selection ? <button aria-label="Chọn lại vùng" onClick={() => { supersedeActiveRequests(); setSelection(null); setDraftSelection(null); }} type="button"><RotateCcw size={16} /></button> : null}
           </div>
           {capturedPreview ? <img alt="Vùng vừa chọn để OCR" className="visual-captured-preview" src={capturedPreview} /> : null}
           <form className="visual-query-form" onSubmit={handleTextSearch}>
-            <textarea onChange={(event) => setQuery(event.target.value)} placeholder="Chữ trong vùng chọn sẽ hiện ở đây…" value={query} />
+            <textarea disabled={isPreparing || isChangingPage} onChange={(event) => editQuery(event.target.value)} placeholder="Chữ trong vùng chọn sẽ hiện ở đây…" value={query} />
             <button disabled={isSearching || query.trim().length < 2} type="submit"><Search size={16} /> Tìm lại</button>
           </form>
 
           {ocrWarning ? <p className="visual-ocr-warning" role="status">{ocrWarning}</p> : null}
-          {error || pdf.error ? <div className="search-error"><strong>Chưa tìm được</strong><p>{error || pdf.error}</p></div> : null}
-          {!error && searchStatus && results.length === 0 ? <div className="visual-no-results"><FileSearch size={24} /><strong>{searchStatus === "EMPTY_LIBRARY" ? "Thư viện chưa có tài liệu" : "Không có tài liệu phù hợp"}</strong><span>{searchStatus === "EMPTY_LIBRARY" ? "Hãy thêm tài liệu vào thư viện trước." : "Thử chọn thêm phần chữ hoặc chú thích quanh nội dung."}</span></div> : null}
+          {previewError || error || pdf.error ? <div className="search-error"><strong>Chưa tìm được</strong><p>{previewError || error || pdf.error}</p></div> : null}
+          {!previewError && !error && !pdf.error && searchStatus && results.length === 0 ? <div className="visual-no-results"><FileSearch size={24} /><strong>{searchStatus === "EMPTY_LIBRARY" ? "Thư viện chưa có tài liệu" : "Không có tài liệu phù hợp"}</strong><span>{searchStatus === "EMPTY_LIBRARY" ? "Hãy thêm tài liệu vào thư viện trước." : "Thử chọn thêm phần chữ hoặc chú thích quanh nội dung."}</span></div> : null}
           {results.length ? (
             <div className="visual-result-list">
               <div className="visual-result-count"><strong>{results.length} tài liệu phù hợp</strong><span>Chỉ hiển thị nguồn tương tự, không giải câu hỏi.</span></div>

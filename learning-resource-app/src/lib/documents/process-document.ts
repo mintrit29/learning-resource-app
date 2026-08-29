@@ -15,6 +15,7 @@ import {
 } from "@/lib/documents/extract-text";
 import { resolveStoredUploadPath } from "@/lib/storage/local-storage";
 import { getSqliteVectorStore } from "@/lib/vector/sqlite-vector-store";
+import { toUserFacingError } from "@/lib/user-facing-error";
 
 export type PipelineInput = {
   documentId: string;
@@ -166,7 +167,11 @@ export async function processDocumentPipeline(input: PipelineInput) {
       await failJob(input.analysisJobId, "Không thể phân tích vì bước embedding thất bại");
     }
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Xử lý tài liệu thất bại";
+    console.error(`[document-processing] document=${input.documentId} job=${activeJobId}`, error);
+    const message = toUserFacingError(
+      error,
+      "Không thể xử lý tài liệu. Hãy kiểm tra file rồi thử lại.",
+    );
     await failJob(activeJobId, message);
 
     if (!extractionCompleted) {

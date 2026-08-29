@@ -1,25 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { LoaderCircle, RotateCcw } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { actionErrorMessage, requestJsonAction } from "@/lib/ui-action";
 
 export function RetryJobButton({ documentId }: { documentId: string }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const actionPending = useRef(false);
 
   async function retry() {
+    if (actionPending.current) return;
+    actionPending.current = true;
     setLoading(true);
     setError("");
-    const response = await fetch(`/api/documents/${documentId}/retry`, { method: "POST" });
-    const data = await response.json() as { message?: string };
-    if (!response.ok) {
-      setError(data.message ?? "Không thể chạy lại");
-      setLoading(false);
-      return;
-    }
-    router.refresh();
+    try {
+      await requestJsonAction(`/api/documents/${documentId}/retry`, { method: "POST" }, "Không thể chạy lại");
+      router.refresh();
+    } catch (caught) { setError(actionErrorMessage(caught, "Không thể chạy lại")); }
+    finally { actionPending.current = false; setLoading(false); }
   }
 
   return (

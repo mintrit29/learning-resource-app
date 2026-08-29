@@ -206,3 +206,28 @@ Tương thích dữ liệu cũ: job phân tích `FAILED` với đúng thông bá
 ### Cập nhật OBS-01 sau khi người dùng yêu cầu tái hiện thêm
 
 Đã tái hiện và sửa lỗi cuộn nhánh XMind khi mở xen kẽ JSON/XML và quay lại các bản xem trước đó. Bằng chứng trước/sau, cách sửa, các lượt kiểm tra đã đạt và giới hạn công cụ được lưu tại [TEST_QUAY_LAI_XMIND.md](06_mindmap_audio/TEST_QUAY_LAI_XMIND.md). Ghi nhận “chưa tái hiện” ở mục trước là kết quả của lượt thử ban đầu, không phải trạng thái mới nhất.
+
+## Kiểm tra nền bổ sung — 28/08/2026 (sau commit 65d561b)
+
+Người dùng đang làm việc trên máy: chỉ Browser ẩn, HTTP loopback và tiến trình nền. Không dùng chuột/bàn phím/mic thật, không sửa thư viện hoặc provider thật, không tạo EXE hoặc push. Chỉ bổ sung test, không đổi mã chức năng ứng dụng trong lượt này.
+
+### Kết quả
+
+| Nhóm | Bằng chứng chạy thực tế | Kết luận |
+| --- | --- | --- |
+| Bộ tự động | `npm run test:unit` exit 0, gồm voice, UX regression, XMind/ảnh nhúng, PDF sơ đồ, OCR, model manager, AI, SQLite/vector, 4 extractor, preview, queue. | Đạt các assertion hiện có; không đồng nghĩa OCR đúng 100%. |
+| Xóa thành phần | Bổ sung vào `test-component-manager.mjs`: chặn xóa khi có job, chặn khi đang verify, verify file thiếu/hỏng, xóa từng vùng BGE/Docling/Whisper giả, callback thay đổi runtime, kiểm file sentinel thư viện còn nguyên, từ chối ID đường dẫn. Chạy `npm run test:component-manager` exit 0. | Đạt logic quản lý; chỉ dùng file giả trong thư mục tạm. Chưa phải bấm cài/xóa model thật qua Electron IPC. |
+| BGE thiếu | Bổ sung vào `test-embedding-runtime.mjs`: chạy service thật, mock tắt, cache tạm rỗng; health `missing` vẫn HTTP 200, embed HTTP 503 với thông báo thiếu BGE-M3, cache vẫn rỗng. `npm run test:embedding-runtime` exit 0. | Không treo khi thiếu model; không có file tự tải vào cache trong ca này. Phần vector mock cũ được báo riêng. |
+| Whisper thật | Chạy `test-voice-search-runtime.mjs` với `VOICE_TEST_MODEL_CACHE` trỏ cache model đã có. Audio Việt khoảng 5,5 giây, Anh 3,1 giây; đều có các từ khóa kỳ vọng. | Việt: “Cô la foam giúp tìm tài liệu học tập về mạng máy tính và cơ sở dữ liệu.” Anh nhận đúng câu về learning resources/computer networks/databases. Tên riêng Việt chưa chính xác. Không thu mic. |
+| Khởi động desktop standalone | `npm run test:desktop-runtime` exit 0: DB mới tự migrate, chủ đề mặc định, không bảng User, dashboard và PDF worker hoạt động. | Đạt startup backend; không phải installer/EXE hoặc toàn bộ Electron UI. |
+| XMind qua UI | Tìm `chuẩn hóa 3NF` với BGE thật (log `backend=onnxruntime-node`) ra hai XMind JSON/XML. Mở JSON → quay lại kết quả → mở XML → Browser Back/Forward → reload. Đo bốn lần: heading top 93,6, bottom 118,8 trong iframe cao 518. Có xem screenshot nhánh tô sáng. | Không tái diễn mất kết quả hoặc nhánh bị khuất trong các lượt này. Không suy ra kéo/cuộn Electron bằng chuột thật đã đạt. |
+| Custom API qua UI | Tạo `QA nền — API giả` chỉ trong DB test `.tmp/gui-ux-fix-20260828/data`. Endpoint loopback trả chat completion giả → Đã kết nối; reload vẫn giữ tên, URL, model, trạng thái. Sửa endpoint trả HTML → “Dịch vụ AI trả về dữ liệu không hợp lệ.”; sửa lại → Đã kết nối. | Đạt lưu/đọc lại, lỗi sai định dạng, retry. Không dùng khóa thật, không gọi cloud, không đánh giá chất lượng AI thực. |
+| Trở lại tìm kiếm | Từ cài đặt quay về Tìm tài liệu: query 3NF và 2 kết quả vẫn còn. Bấm Xóa nội dung tìm kiếm: ô trống, kết quả cũ biến mất. Console error/warn trước bước này rỗng. | Đạt lưu ngữ cảnh và xóa query trong ca này. |
+
+### Giới hạn vẫn còn, không được đánh dấu “đã test hết”
+
+- PDF mind map text **26/26** cụm chính xác; bản scan **24/26**. OCR routing **19/19** nhưng thiếu 6 marker: “Cạnh âm”, “Tháng 1”, R1–R4. Báo cáo công thức ảnh vẫn có các mẫu thiếu ký hiệu (quadratic/Gaussian/OLS/vector). Đây là giới hạn đã biết, không phải kết quả OCR hoàn hảo.
+- Kết quả tìm kiếm phụ kém sát (Q-02) chưa được điều chỉnh hoặc benchmark lại trong lượt này.
+- Chưa kiểm mic/quyền Windows, âm thanh loa, kéo/cuộn trực tiếp trong Electron, Explorer/dialog hệ điều hành, cài/hủy/xóa qua preload IPC, tải toàn bộ model từ Internet, Ollama/Qwen thực, cloud API với tài khoản thật.
+- Không tải lại hàng GB model. Test tải/resume/checksum dùng HTTP server và dữ liệu giả cục bộ; test xóa chỉ xóa file do test tạo, không đụng model trong AppData.
+- Hai ca tự động mới được giữ trong scripts và sẽ tự chạy ở những lần `npm run test:unit` sau. Test mới đã chạy riêng thành công sau khi bổ sung.
